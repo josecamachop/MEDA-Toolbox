@@ -46,8 +46,7 @@ function [P,Q,R] = loadings_pls(cal,y,lvs,prepx,prepy,opt,label,classes)
 % R: (MxA) W*inv(P'*W).
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es).
-% version: 2.0
+% coded by: José Camacho Páez (josecamacho@ugr.es)
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  José Camacho Páez

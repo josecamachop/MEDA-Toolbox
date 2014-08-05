@@ -43,8 +43,7 @@ function [r2,alpha,q2,res_cross,alpha_cross,fig_h] = SVIplot(data,pcs,var,groups
 % fig_h: (1x1) figure handle.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es).
-% version: 1.0
+% coded by: José Camacho Páez (josecamacho@ugr.es)
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  José Camacho Páez

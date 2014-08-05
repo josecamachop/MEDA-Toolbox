@@ -40,8 +40,7 @@ function [T,TT] = scores_pca(cal,pcs,test,prep,opt,label,classes)
 % TT: (NxA) test scores.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es).
-% version: 2.1
+% coded by: José Camacho Páez (josecamacho@ugr.es)
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  José Camacho Páez

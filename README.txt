@@ -1,7 +1,7 @@
 MEDA Toolbox for its use in MATLAB.
 
 Coded by: José Camacho Páez
-Version: 0.0
+GUI by: Elena Jiménez Mañas
 Last modification of this document: 04/Aug/14
 
 Installation
@@ -11,7 +11,7 @@ Installation
 	- Add to the MATLAB path both <directory_path> and <directory_path>/GUI
 
 
-Please, acknowledge the use of this software by referecing it: "MEDA Toolbox v.0.0 Available at http://wdb.ugr.es/~josecamacho/downloads.php. José Camacho and Elena Jiménez, Network Engineering and Security Group, University of Granada, Spain." 
+Please, acknowledge the use of this software by referecing it: "MEDA Toolbox, available at https://github.com/josecamachop/MEDA-Toolbox/archive/master.zip. José Camacho and Elena Jiménez, Network Engineering and Security Group, University of Granada, Spain." 
 
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
