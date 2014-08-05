@@ -1,0 +1,72 @@
+MEDA Toolbox for its use in MATLAB. Guidelines of use.
+
+Coded by: José Camacho Páez.
+GUI by: Elena Jiménez Mañas
+Version: 2.1
+Last modification of this document: 03/Jul/14
+
+The Multivariate Exploratory Data Analysis (MEDA) Toolbox in Matlab is a set of multivariate analysis tools for the exploration of data sets. 
+There are several alternative tools in the market for that purpose, both commercial and free. The PLS_Toolbox from Eigenvector Inc. 
+is a very nice example. The MEDA Toolbox is not intended to replace or being a competitor of any of these toolkits. Rather, the MEDA
+Toolbox is a complementary tool which includes several of my recent contributions to the field. Thus, traditional exploratory plots 
+based on Principal Component Analysis (PCA) or Partial Least Squares (PLS), such as score, loading and residual plots, are combined 
+with new methods: MEDA, oMEDA and SVI plots. The latter are aimed at solving some of the limitations found in the former to
+adequately extract conclusions from a data set.
+
+The MEDA Toolbox can be used to analyze normal size data sets (several hundreds of observations times several hundreds of variables)
+I am currently working with my colleagues on an extension of the toolbox for large data sets, with millions of items. 
+
+1) The tools: 
+
+An introduction to the exploratory tools in the MEDA toolbox can be found in:
+
+- Loading plots, Score plots, Residual plots, Leverage plots ==> Kim H. Esbensen. Multivariate Data Analysis: in practice. Camo. ISBN: 82-993330-3-2.
+
+- MEDA ==> Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp. 8-18.  
+
+- oMEDA ==> Journal of Chemometrics, 2011, 25 (11), pp. 592-600.
+
+- SVI plots ==> Chemometrics and Intelligent Laboratory Systems 100, 2010, pp. 48-56.
+
+
+Loading and Score plots in the toolbox are 2D scatter plots in the sub-space of the PCA or PLS model. Residual plots are line/bar plots
+of the squared residuals of the variables/observations. Leverage plots are line/bar plots of the squared scores of the variables/observations.
+
+MEDA plots are map plots which contain the relationship between each pair of variables. They look similar to correlation plots, but 
+they present better properties for exploration.
+
+oMEDA plots are bar plots which compute the differences between groups of observations in the latent subspace. They are similar to 
+contribution plots but again with better properties.
+
+SVI plots are useful to understand how a variable is related to the rest of the data set. The reading of the reference above is recommended.
+
+
+2) Working with the MEDA Toolbox
+ 
+There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (expert user). The GUI is seft 
+explanatory. It incorporates help messages to guide its use. To launch the GUI, type "EDA" in the command line of Matlab after the 
+installation as explained in the README.txt document. 
+
+The commands provide of much more functionality. Each command includes helping information, that can be seen by typing "help <command>" 
+in the command line of Matlab. Also, in the Examples directory, several EDA examples based on commands are included. It is suggested to
+have a look at the examples.
+
+
+
+Please, acknowledge the use of this software by refercing it: "MEDA Toolbox v.2.1 Available at http://wdb.ugr.es/~josecamacho/downloads.php. 
+José Camacho and Elena Jiménez, Network Engineering and Security Group, University of Granada, Spain." 
+
+
+Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have 
+suggestions, please contact josecamacho@ugr.es
+
+
+Copyright (C) 2014  José Camacho Páez
+ 
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.

@@ -1,0 +1,6 @@
+Activate community COM1 in switches
+
+* * * * * root snmpwalk -C COM1 -v1 172.16.4.110 ifInOctets >> ifInOctets.SWA
+* * * * * root snmpwalk -C COM1 -v1 172.16.4.110 ifOutOctets >> ifOutOctets.SWA
+* * * * * root snmpwalk -C COM1 -v1 172.16.4.110 ifInOctets >> ifInOctets.SWB
+* * * * * root snmpwalk -C COM1 -v1 172.16.4.110 ifOutOctets >> ifOutOctets.SWB
