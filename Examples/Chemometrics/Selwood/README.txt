@@ -52,5 +52,5 @@ Items in the folder:
 
 	- Vars: labels of the variables.
 
-- selwood_com.m: Script to perform the EDA using the EDA 2.0 toolbox commands. 
+- selwood_com.m: Script to perform the EDA using the MEDA Toolbox commands. 
  
