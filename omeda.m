@@ -35,8 +35,7 @@ function omeda_vec = omeda(test,dummy,R,Q)
 % omeda_vec: (Mx1) oMEDA vector.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es).
-% version: 2.0
+% coded by: José Camacho Páez (josecamacho@ugr.es)
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  José Camacho Páez

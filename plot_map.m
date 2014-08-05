@@ -20,8 +20,7 @@ function fig_h = plot_map(map,label)
 % fig_h: (1x1) figure handle.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es).
-% version: 2.0
+% coded by: José Camacho Páez (josecamacho@ugr.es)
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  José Camacho Páez

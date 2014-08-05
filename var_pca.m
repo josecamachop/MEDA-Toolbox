@@ -29,8 +29,7 @@ function x_var = var_pca(cal,maxpcs,prep,opt)
 % x_var: ((maxpcs+1)x1) Percentage of captured variance of X.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es).
-% version: 2.0
+% coded by: José Camacho Páez (josecamacho@ugr.es)
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  José Camacho Páez
