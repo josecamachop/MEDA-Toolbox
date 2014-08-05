@@ -39,7 +39,8 @@ function [cumpress,press,pem] = crossval2D_pca(x,pc,leave_m,blocks_r,blocks_c,pr
 %
 % pem: (NxM) Matrix containing prediction errors.
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: José Camacho Páez (josecamacho@ugr.es).
+% version: 1.0
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  José Camacho Páez

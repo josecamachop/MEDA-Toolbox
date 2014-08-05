@@ -18,7 +18,8 @@ function [p,t] = pca_pp(x,pc)
 % t: (N x pc) matrix of scores.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: José Camacho Páez (josecamacho@ugr.es).
+% version: 2.1
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  José Camacho Páez

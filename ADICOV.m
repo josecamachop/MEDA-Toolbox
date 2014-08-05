@@ -39,7 +39,8 @@ function A = ADICOV(XX,L,rC,R,Q,multn)
 % A: (NxM) approximation matrix.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: José Camacho Páez (josecamacho@ugr.es).
+% version: 1.1
 % last modification: 26/Sep/11.
 %
 % Copyright (C) 2014  José Camacho Páez

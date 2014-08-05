@@ -18,7 +18,8 @@ function lim = hot_lim(pc,nob,p_value)
 % lim: (1x1) control limit at a 1-p_value confidence level.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: José Camacho Páez (josecamacho@ugr.es).
+% version: 1.0
 % last modification: 04/Jan/13.
 %
 % Copyright (C) 2014  José Camacho Páez

@@ -45,7 +45,8 @@ function [meda_map,meda_dis] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 % meda_dis: (MxM) discretized MEDA matrix.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: José Camacho Páez (josecamacho@ugr.es).
+% version: 2.0
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  José Camacho Páez

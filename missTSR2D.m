@@ -33,7 +33,8 @@ function rec = missTSR2D(x,pc,prep,perc,ac,iter,conv)
 % rec: (NxM) recovered data matrix, N(observations) x M(variables)
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: José Camacho Páez (josecamacho@ugr.es).
+% version: 1.0
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  José Camacho Páez
