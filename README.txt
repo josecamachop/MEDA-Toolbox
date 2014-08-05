@@ -42,6 +42,8 @@ Items in the folder:
 
 	- data simulation tools: ADICOV.m  
 
+- BigData: Big Data routines.
+
 - GUI: Graphical User Interface routines.
 
 - Examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox.
