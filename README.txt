@@ -8,7 +8,7 @@ Installation
 
 	- Extract the rar file in a directory of your choice <directory_path>
 
-	- Add to the MATLAB path the following directories:
+	- Add to the MATLAB path the following directories (use command addpath, e.g. addpath '<path>'):
 		- <directory_path>
 		- <directory_path>/BigData
 		- <directory_path>/GUI
