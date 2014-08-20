@@ -84,7 +84,7 @@ end
 if exist('slabel')
     ylabel(slabel,'FontSize',16);
 end
-set(axes_h,'FontSize',14);
+set(axes_h,'FontSize',max(min(14,round(300/length(olabel))),6));
 if exist('lcont') && ~isempty(lcont)
     hold on
     b = [0.5:(s+1);0.5:(s+1)];
@@ -99,6 +99,7 @@ axis auto
 ax2=axis;
 axis([ax(1:2) ax2(3:4)])
 if exist('leg'), legend(leg); end
+
     
 
 

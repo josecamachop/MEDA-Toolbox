@@ -62,7 +62,7 @@ set(axes_h,'XTick',(1:s(2))+0.5);
 set(axes_h,'YTick',(1:s(2))+0.5);
 set(axes_h,'XTickLabel',label);
 set(axes_h,'YTickLabel',label);
-set(axes_h,'FontSize',14);
+set(axes_h,'FontSize',max(min(14,round(300/length(label))),6));
 ind = [0:.2:0.79 0.8:0.04:1]';
 set(fig_h,'Colormap',[[ind;ones(10,1)] [ind;flipud(ind)] [ones(10,1);flipud(ind)]])
 caxis([-1 1]);

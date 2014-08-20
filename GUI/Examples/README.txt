@@ -1,4 +1,4 @@
-MEDA Toolbox for its use in MATLAB.
+﻿MEDA Toolbox for its use in MATLAB.
 
 Codified by: José Camacho Páez.
 GUI by: Elena Jiménez Mañas
@@ -51,7 +51,7 @@ understand the data.
 
 Items in the folder:
 
-- manet.mat: Data prepaered for analysis. The file includes three MATLAB variables:
+- manet.mat: Data prepared for analysis. The file includes three MATLAB variables:
 
 	- x: matrix 70x18 with the data. 
 

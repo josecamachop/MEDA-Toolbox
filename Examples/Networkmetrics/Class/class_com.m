@@ -65,7 +65,7 @@ loadings_pca(cal,1:2,prep_x,1,lab);
 %    A.ifOut14:  traffic between Px/1 <=> SWx-A
 
 meda_pca(cal,1:2,prep_x,0.5,3,lab);
-% the same two groups are found
+% the same two groups are found (zoom to see the labels properly)
 
 sqresiduals_pca(cal,1:2,[],prep_x,2,lab); 
 % three variables present high residuals: A.ifOut14, C.ifIn12, C.ifOut12
