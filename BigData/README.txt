@@ -1,7 +1,7 @@
 Large Data Extension for the MEDA Toolbox for its use in MATLAB.
 
 Coded by: José Camacho Páez (josecamacho@ugr.es)
-Last modification of this document: 05/Aug/14
+Last modification of this document: 21/Aug/14
 
 Please, acknowledge the use of this software by referecing it: "MEDA Toolbox, available at https://github.com/josecamachop/MEDA-Toolbox/archive/master.zip. José Camacho and Elena Jiménez, 
 Network Engineering and Security Group, University of Granada, Spain."
@@ -32,6 +32,12 @@ Items in the folder:
   
 
 You may find an example of use in the Examples\Networkmetric\KDD directory.
+
+To start using the routines, you need your data in a specific format. Data should be splitted in a number of ".mat" files stored in a
+specific directory. These files are Matlab storage files where you store partitions of the data, with 10000 observations at most. The data 
+corresponding to each file should be in variable 'x', output/quality variables for the same observations should be named 'y' and a numbered 
+class for the observations should be stored in variable 'class'. Variables 'x' and 'class' should be in the mat file, while 'y' is optional. 
+For an example of this, please have a look at the data directory in the KDD example. 
 
 Copyright (C) 2014  José Camacho Páez
  

@@ -99,7 +99,7 @@ for i=1:s,
             else
                 recovered_column = read_data(index_fich{indj2},path,sc,debug);
                 system(['del ' path index_fich{indj2} '.txt']);
-                if debug>1, disp(['Ddelete file: ' path index_fich{indj2} ' ...']), end;
+                if debug>1, disp(['delete file: ' path index_fich{indj2} ' ...']), end;
                 add_data(index_fich2{i},path,recovered_column,class(indi),'a',thres,[],debug);
             end
         end
