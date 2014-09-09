@@ -19,7 +19,7 @@ function lim = spe_lim(res,p_value)
 %
 %
 % coded by: José Camacho Páez (josecamacho@ugr.es)
-% last modification: 10/Jul/14.
+% last modification: 08/Sep/14.
 %
 % Copyright (C) 2014  José Camacho Páez
 % 
@@ -49,6 +49,8 @@ if (p_value<0||p_value>1), error('Incorrect value of p_value.'); end;
 pcs_left = rank(res);
 
 lambda = eig(1/(s(1)-1)*res'*res);
+[kk,ord]=sort(abs(lambda),'descend');
+lambda = lambda(ord);
 
 theta1 = sum(lambda(1:pcs_left));
 theta2 = sum(lambda(1:pcs_left).^2);
