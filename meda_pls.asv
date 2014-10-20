@@ -1,5 +1,5 @@
 
-function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars)
+function [meda_map,meda_dis] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars)
 
 % Missing data methods for exploratory data analysis in PLS. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
@@ -7,8 +7,8 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 % technical report "A Note on MEDA", attached to the toolbox, which
 % makes use of the covariance matrices.
 %
-% [meda_map,meda_dis,ord] = meda_pls(x,y,lvs) % minimum call
-% [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars) %complete call
+% [meda_map,meda_dis] = meda_pls(x,y,lvs) % minimum call
+% [meda_map,meda_dis] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars) %complete call
 %
 %
 % INPUTS:
@@ -92,8 +92,6 @@ if nargin < 9, vars = 1:s(2); end;
 
 %% Main code
 
-ord = vars;
-
 x2 = preprocess2D(x,prepx);
 y2 = preprocess2D(y,prepy);
 
@@ -133,7 +131,7 @@ if opt,
     
     plot_map(map1(varso,varso),label(ord(varso),:));
     
-    ord = ord(varso);
+    
 end
 
         

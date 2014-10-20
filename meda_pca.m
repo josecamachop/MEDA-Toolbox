@@ -1,5 +1,5 @@
 
-function [meda_map,meda_dis] = meda_pca(x,pcs,prep,thres,opt,label,vars)
+function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 
 % Missing data methods for exploratory data analysis in PCA. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
@@ -7,8 +7,8 @@ function [meda_map,meda_dis] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 % technical report "A Note on MEDA", attached to the toolbox, which
 % makes use of the covariance matrices.
 %
-% [meda_map,meda_dis] = meda_pca(x,pcs) % minimum call
-% [meda_map,meda_dis] = meda_pca(x,pcs,prep,thres,opt,label,vars) %complete call
+% [meda_map,meda_dis,ord] = meda_pca(x,pcs) % minimum call
+% [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars) %complete call
 %
 %
 % INPUTS:
@@ -44,9 +44,11 @@ function [meda_map,meda_dis] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 % meda_dis: (MxM) discretized MEDA matrix.
 %
+% ord: (1xS) order of shown variables.
+%
 %
 % coded by: José Camacho Páez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% last modification: 20/Oct/14.
 %
 % Copyright (C) 2014  José Camacho Páez
 % 
@@ -80,6 +82,8 @@ end
 if nargin < 7, vars = 1:s(2); end;
 
 %% Main code
+
+ord = vars;
 
 x2 = preprocess2D(x,prep);
 
@@ -116,6 +120,8 @@ if opt,
     end
     
     plot_map(map1(varso,varso),label(ord(varso),:));
+    
+    ord = ord(varso);
 end
 
         
