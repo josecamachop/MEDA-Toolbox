@@ -5,7 +5,7 @@ function [cumpress,press,pem] = crossval2D_pca(x,pc,leave_m,blocks_r,blocks_c,pr
 % 37-50 and Journal of Chemometrics, 26(7), 2012, pp. 361-373.
 %
 % [cumpress,press,pem] = crossval2D_pca(x,pc) % minimum call
-% [cumpress,press,pem] = crossval2D_pca(x,pc,leave_m,blocks_r,blocks_c,scaling)
+% [cumpress,press,pem] = crossval2D_pca(x,pc,leave_m,blocks_r,blocks_c,prep)
 % % complete call
 %
 % INPUTS:
@@ -18,7 +18,7 @@ function [cumpress,press,pem] = crossval2D_pca(x,pc,leave_m,blocks_r,blocks_c,pr
 %   'rkf': row-wise k fold (default)
 %   'ekf': element-wise k fold
 %   'eekf': same as 'ekf' but in a fast way
-%   'eekf2': same as 'ekf' but in a fast way
+%   'eekf2': same as 'ekf' but in a fast way, only for leave-one-out
 %   'cekf': corrected element-wise k fold
 %
 % blocks_r: (1x1) maximum number of blocks of samples (Inf by default)
@@ -26,9 +26,9 @@ function [cumpress,press,pem] = crossval2D_pca(x,pc,leave_m,blocks_r,blocks_c,pr
 % blocks_c: (1x1) maximum number of blocks of variables (Inf by default)
 %
 % prep: (1x1) preprocesing
-%       0: no preprocessing (default)
+%       0: no preprocessing 
 %       1: mean-centering 
-%       2: auto-scaling 
+%       2: auto-scaling (default)
 %
 %
 % OUTPUTS:
@@ -100,11 +100,12 @@ elem_c=s(2)/blocks_c;
 % Cross-validation
 for i=1:blocks_r,
     
-    ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
+    ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % ind_i: group of (left-out) observations
     i2 = ones(s(1),1);
-    i2(ind_i)=0;
+    i2(ind_i)=0; 
+    ind_rest = find(i2); % ind_rest: identify the remaining observations
     sample = x(ind_i,:);
-    calibr = x(find(i2),:); 
+    calibr = x(ind_rest,:); 
     sc = size(calibr);
     ss = size(sample);
 
@@ -160,7 +161,7 @@ for i=1:blocks_r,
                 end
 
             case 'cekf',             
-                [rec,av,st] = preprocess2D(t(find(i2),:)*p',prep);             
+                [rec,av,st] = preprocess2D(t(ind_rest,:)*p',prep);             
                 rec_sam=t(ind_i,:)*p';
                 for j=1:length(ind_i),
                     rec_sam(j,:) = (rec_sam(j,:)-av)./st;
