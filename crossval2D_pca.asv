@@ -190,7 +190,13 @@ for i=1:blocks_r,
                 scs2 = [scs ts];
                 t_est = scs2*paug;
                 srec = t_est*paug';
-                pem(ind_i,:) = (scs-avs_prep).*(sum(paug(1:sc(2),:).*paug(1:sc(2),:),2))' + scs - srec(:,1:sc(2));
+                erec = [scs ts] - srec;                
+                for j=1:blocks_c,
+                    ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c));
+                    pem(ind_i,ind_j) = (scs(:,ind_j)-avs_prep(:,ind_j))*(paug(ind_j,:)*paug(ind_j,:)') + erec(:,ind_j);
+                end   
+                
+                pem(ind_i,:) = (scs-avs_prep).*(sum(paug().*p,2))' + scs - srec(:,1:sc(2);
                 
            otherwise
                error('Incorrect leave_m.');
