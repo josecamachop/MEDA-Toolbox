@@ -20,8 +20,6 @@ function [cumpress,press,pem] = crossval2D_pca(x,pc,leave_m,blocks_r,blocks_c,pr
 %   'eekf': same as 'ekf' but in a fast way
 %   'eekf2': same as 'ekf' but in a fast way, only for leave-one-variable-out
 %   'cekf': corrected element-wise k fold
-%   'ecekf': same as 'cekf' but in a fast way
-%   'ecekf2': same as 'cekf' but in a fast way, only for leave-one-variable-out
 %
 % blocks_r: (1x1) maximum number of blocks of samples (Inf by default)
 %
@@ -42,7 +40,7 @@ function [cumpress,press,pem] = crossval2D_pca(x,pc,leave_m,blocks_r,blocks_c,pr
 % pem: (NxM) Matrix containing prediction errors.
 %
 % coded by: José Camacho Páez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% last modification: 25/Nov/14.
 %
 % Copyright (C) 2014  José Camacho Páez
 % 
@@ -84,6 +82,11 @@ if (blocks_c<2), error('Incorrect value of blocks_c.'); end;
 pem = zeros(s);
 cumpress = 0;
 press = zeros(1,s(2));
+
+if isequal(lower(leave_m), 'cekf'),
+    xcs = preprocess2D(x,prep);
+    [p,t] = pca_pp(xcs,pc);
+end
 
 rows = rand(1,s(1));
 [a,r_ind]=sort(rows);
@@ -157,41 +160,19 @@ for i=1:blocks_r,
                 pem(ind_i,:) = (scs-avs_prep).*(sum(p.*p,2))' + scs - srec;
                 
             case 'cekf', % corrected version of ekf
-                [p,t] = pca_pp(ccs,pc);
-                ts = scs*p;
-                [paug,taug] = pca_pp([ccs t],pc);
+                rec=t(ind_rest,:)*p';             
+                rec_sam=t(ind_i,:)*p';
                 for j=1:blocks_c,
-                    ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c));
-                    
-                    scs2 = [scs ts];
+                    ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection
+                    p2 = pca_pp([ccs rec(:,ind_j)],pc);
+                    scs2 = [scs rec_sam(:,ind_j)];
                     scs2(:,ind_j) = avs_prep(:,ind_j);
-                    t_est = scs2*paug;
-                    pred = t_est*paug';
-                    srec(:,ind_j) = pred(:,ind_j);
+                    t_est = scs2*p2;
+                    pred = t_est*p2';
+                    srec(:,ind_j) = pred(:,ind_j);                                  
                 end
                 
-            case 'ecekf', % efficient version of cekf      
-                [p,t] = pca_pp(ccs,pc);
-                ts = scs*p;
-                [paug,taug] = pca_pp([ccs t],pc);
-                scs2 = [scs ts];
-                t_est = scs2*paug;
-                srec = t_est*paug';
-                erec = [scs ts] - srec;                
-                for j=1:blocks_c,
-                    ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c));
-                    pem(ind_i,ind_j) = (scs(:,ind_j)-avs_prep(:,ind_j))*(paug(ind_j,:)*paug(ind_j,:)') + erec(:,ind_j);
-                end               
-                
-            case 'ecekf2', % most efficient version of cekf for leave-one-variable-out     
-                [p,t] = pca_pp(ccs,pc);
-                ts = scs*p;
-                [paug,taug] = pca_pp([ccs t],pc);
-                scs2 = [scs ts];
-                t_est = scs2*paug;
-                srec = t_est*paug';
-                pem(ind_i,:) = (scs-avs_prep).*(sum(paug(1:sc(2),:).*paug(1:sc(2),:),2))' + scs - srec(:,1:sc(2));
-                
+
            otherwise
                error('Incorrect leave_m.');
 
