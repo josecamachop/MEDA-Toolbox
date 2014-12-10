@@ -57,6 +57,7 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 % coded by: José Camacho Páez (josecamacho@ugr.es)
 % last modification: 20/Oct/14.
 %
+% Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  José Camacho Páez
 % 
 % This program is free software: you can redistribute it and/or modify
