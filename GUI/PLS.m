@@ -49,6 +49,7 @@ function varargout = PLS(varargin)
 % Edit the above text to modify the response to help PLS
 
 % Last Modified by GUIDE v2.5 03-May-2013 14:57:54
+% Fixing some minor bugs on the GUI
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
