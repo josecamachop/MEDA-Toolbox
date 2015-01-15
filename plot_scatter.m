@@ -29,11 +29,11 @@ function fig_h = plot_scatter(bdata,olabel,classes,axlabel,opt)
 % fig_h: (1x1) figure handle.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: Josï¿½ Camacho Pï¿½ez (josecamacho@ugr.es)
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  Josï¿½ Camacho Pï¿½ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -80,7 +80,7 @@ if exist('classes')
     nc = max(classes);
     
     colors = ['b','g','r','c','m','y','k'];
-    charac = ['o','*','s','d','v','^'];
+    charac = ['*','o','s','d','v','^'];
 
     while length(colors)<nc,
         colors = [colors colors];
@@ -103,7 +103,7 @@ else
     colorsM = char('w'*ones(1,s(1)));
 end
     
-fig_h=figure;
+fig_h = figure;
 hold on;
 for i=1:nc,
     ind = find(classes==i);
