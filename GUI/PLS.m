@@ -6,11 +6,11 @@ function varargout = PLS(varargin)
 %loading_pls.m, meda_pls.m, omeda_pls.m, scores_pls.m,
 %sqresiduals_pls.m and var_pls.m
 %
-% coded by: Elena JimÈnez MaÒas (elenajm@correo.ugr.es).
+% coded by: Elena Jim√©nez Ma√±as (elenajm@correo.ugr.es).
 % version: 2.0
 % last modification: 07/Jul/14.
 %
-% Copyright (C) 2014  Elena JimÈnez MaÒas
+% Copyright (C) 2014  Elena Jim√©nez Ma√±as
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -82,7 +82,7 @@ function PLS_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for PLS
 handles.output = hObject;
 
-%DefiniciÛn del estado inicial de la interfaz gr·fica PLS:
+%Definici√≥n del estado inicial de la interfaz gr√°fica PLS:
 
 %Score plot
 set(handles.text7,'Enable','off');
@@ -176,6 +176,24 @@ varargout{1} = handles.output;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLS Analysis%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Function to get the current string in a popupmenu
+function str = getCurrentPopupString(hh)
+%# getCurrentPopupString returns the currently selected string in the popupmenu with handle hh
+
+%# could test input here
+if ~ishandle(hh) || strcmp(get(hh,'Type'),'popupmenu')
+error('getCurrentPopupString needs a handle to a popupmenu as input')
+end
+
+%# get the string - do it the readable way
+list = get(hh,'String');
+val = get(hh,'Value');
+if iscell(list)
+   str = list{val};
+else
+   str = list(val,:);
+end
+
 % --- Executes on selection change in popupmenu6.
 %popupmenu6==X Data
 function popupmenu6_Callback(hObject, eventdata, handles)
@@ -187,12 +205,13 @@ function popupmenu6_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from popupmenu6
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posiciÛn
+string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posici√≥n
 data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
 handles.data.data_matrixX=data_matrix;
 
 %Information Panel:
-text=sprintf('Enter the number of latent variables to work with, using this format: 1:x , being x the number of latent variables.');
+%text=sprintf('Enter the number of latent variables to work with, using this format: 1:x , being x the number of latent variables.');
+text=sprintf('Enter the number of latent variables to work with.');
 handles.data.text=cprint(handles.text1,text,handles.data.text,0);
 
 %Initialize dummy variable:
@@ -227,7 +246,7 @@ handles.data.WorkSpace=evalin('base','who');%nombres de las variables
 
 if ~isempty(handles.data.WorkSpace),
     set(hObject,'String',handles.data.WorkSpace);
-    string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posiciÛn
+    string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posici√≥n
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
     handles.data.data_matrixX=data_matrix;
     handles.data.namePopupmenu6=string_evaluation;
@@ -256,12 +275,13 @@ function popupmenu14_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns popupmenu14 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenu14
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posiciÛn
+string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posici√≥n
 data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
 handles.data.data_matrixY=data_matrix;
 
 %Information Panel:
-text=sprintf('Enter the number of latent variables to work with, using this format: 1:x , being x the number of latent variables.');
+%text=sprintf('Enter the number of latent variables to work with, using this format: 1:x , being x the number of latent variables.');
+text=sprintf('Enter the number of latent variables to work with.');
 handles.data.text=cprint(handles.text1,text,handles.data.text,0);
 
 %Initialize dummy variable:
@@ -287,7 +307,7 @@ handles.data.WorkSpace=evalin('base','who');%nombres de las variables
 
 if ~isempty(handles.data.WorkSpace),
     set(hObject,'String',handles.data.WorkSpace);
-    string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posiciÛn
+    string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posici√≥n
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
     handles.data.data_matrixY=data_matrix;
     handles.data.namePopupmenu14=string_evaluation;
@@ -342,12 +362,12 @@ if ~isempty(handles.data.WorkSpace),
     end
     
     if handles.data.control_Refresh==0 && isempty(handles.data.data_matrixX) && isempty(handles.data.data_matrixY),
-        string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posiciÛn
+        string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posici√≥n
         data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
         handles.data.data_matrixX=data_matrix;
         handles.data.namePopupmenu6=string_evaluation;
         
-        string_evaluation=handles.data.WorkSpace{2};%Nombre correspondiente a la posiciÛn
+        string_evaluation=handles.data.WorkSpace{2};%Nombre correspondiente a la posici√≥n
         data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
         handles.data.data_matrixY=data_matrix;
         handles.data.namePopupmenu14=string_evaluation;
@@ -506,41 +526,6 @@ end
 
 handles.data.LVs = LVs;
 
-%Si la variable handles.data.PCs es distinta de vacÌa, imprimir en popupmenu1,
-%popupmenu10, popupmenu11 y popupmenu7 los PCs posibles.
-if ~isempty(handles.data.LVs),
-    set(handles.popupmenu1, 'String',handles.data.LVs);
-    set(handles.popupmenu7, 'String',handles.data.LVs);
-    set(handles.popupmenu10, 'String',handles.data.LVs);
-    set(handles.popupmenu11, 'String',handles.data.LVs);
-    
-    %Imprimir en popupmenu de submenu MEDA todas las combinaciones posibles
-    %para hacer MEDA
-    k=min(handles.data.LVs);
-    options=[];
-    for i=min(handles.data.LVs):max(handles.data.LVs),
-        for j=k:max(handles.data.LVs),
-            options=[options,i,j];
-        end
-        k=k+1;
-    end
-    
-    set(handles.popupmenu9,'String','');
-    for i=1:2:(length(options)-1),
-        contents=get(handles.popupmenu9,'String');
-        set(handles.popupmenu9,'String',strvcat(contents,sprintf('%d:%d',options(i),options(i+1))));
-    end
-end
-
-if handles.data.auxLVs==0,
-handles.data.LV1=min(handles.data.LVs);
-handles.data.LV2=min(handles.data.LVs);
-handles.data.LV1_LP=min(handles.data.LVs);
-handles.data.LV2_LP=min(handles.data.LVs);
-handles.data.LVs_MEDA=sprintf('%d:%d',min(handles.data.LVs),min(handles.data.LVs));
-handles.data.auxLVs=1;
-end
-
 %Information Panel:
 text=sprintf('Select the preprocessing of the data:\n-No preprocessing\n-Mean centering (default)\n-Auto-scaling (centers and scales data so that each variable has variance 1).');
 handles.data.text=cprint(handles.text1,text,handles.data.text,0);
@@ -566,7 +551,14 @@ function pushbutton24_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton24 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,max(handles.data.LVs),handles.data.prepX,handles.data.prepY,1);
+
+[LVs_num,status]=str2num(get(handles.edit5, 'String'));
+if status == false
+    errordlg('Please enter a number of latent variables.');
+    return;
+end
+
+[y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
 
 % --- Executes on selection change in popupmenu5.
 %popupmenu5==X Prep
@@ -700,12 +692,50 @@ if isempty(handles.data.data_matrixX) || isempty(handles.data.data_matrixY),
     errordlg('No data matrix selected, please select one.');
     return;
 end
-if isempty(handles.data.LVs),
-    errordlg('No LVs defined, please define them.');
+[LVs_num,status]=str2num(get(handles.edit5, 'String'));
+if status == false
+    errordlg('No LVs defined, please define them properly.');
     return;
 end
 
-%DefiniciÛn del estado de la interfaz tras pulsar PLS:
+%Si la variable handles.data.LVs es distinta de vac√≠a, imprimir en popupmenu1,
+%popupmenu10, popupmenu11 y popupmenu7 las LVs posibles.
+if ~isempty(handles.data.LVs),
+    set(handles.popupmenu1, 'String',1:LVs_num);
+    set(handles.popupmenu7, 'String',1:LVs_num);
+    set(handles.popupmenu10, 'String',1:LVs_num);
+    set(handles.popupmenu11, 'String',1:LVs_num);
+    set(handles.popupmenu9,'String',1:LVs_num);
+    set(handles.popupmenu20,'String',1:LVs_num);
+    
+    %Imprimir en popupmenu de submenu MEDA todas las combinaciones posibles
+    %para hacer MEDA
+    %k=1;
+    %options=[];
+    %for i=min(handles.data.LVs):max(handles.data.LVs),
+    %    for j=k:LVs_num,
+    %        options=[options,i,j];
+    %    end
+    %    k=k+1;
+    %end
+    
+    %set(handles.popupmenu9,'String','');
+    %for i=1:2:(length(options)-1),
+    %    contents=get(handles.popupmenu9,'String');
+    %    set(handles.popupmenu9,'String',strvcat(contents,sprintf('%d:%d',options(i),options(i+1))));
+    %end
+end
+
+if handles.data.auxLVs==0,
+handles.data.LV1=1;
+handles.data.LV2=1;
+handles.data.LV1_LP=1;
+handles.data.LV2_LP=1;
+handles.data.LVs_MEDA=sprintf('%d:%d',1,1:LVs_num);
+handles.data.auxLVs=1;
+end
+
+%Definici√≥n del estado de la interfaz tras pulsar PLS:
 %Score plot
 set(handles.popupmenu1,'Enable','on');
 set(handles.popupmenu7,'Enable','on');
@@ -825,7 +855,7 @@ text=sprintf('To use this option, define the tags cell array and charge it from 
 handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.new1{incoming_data};%Nombre correspondiente a la posiciÛn
+string_evaluation=handles.data.new1{incoming_data};%Nombre correspondiente a la posici√≥n
 handles.data.namePopupmenu17=string_evaluation;
 if strcmp(string_evaluation,'emptylabel'),
     label={};
@@ -907,7 +937,7 @@ text=sprintf('To use this option, define the array and charge it from the work s
 handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.new2{incoming_data};%Nombre correspondiente a la posiciÛn
+string_evaluation=handles.data.new2{incoming_data};%Nombre correspondiente a la posici√≥n
 handles.data.namePopupmenu16=string_evaluation;
 if strcmp(string_evaluation,'emptyclasses'),
     classes=[];
@@ -978,10 +1008,13 @@ function pushbutton4_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton4 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if isempty(handles.data.LV1) || isempty(handles.data.LV2),
-    errordlg('Error: select the combination of LVs to plot the scores.');
-end
-
+%if isempty(handles.data.LV1) || isempty(handles.data.LV2),
+%    errordlg('Error: select the combination of LVs to plot the scores.');
+%end
+LV1=str2num(getCurrentPopupString(handles.popupmenu1));
+LV2=str2num(getCurrentPopupString(handles.popupmenu7));
+disp(LV1);
+disp(LV2);
 
 all_opened_graphs=get(0,'Children');
 new_sp_ID_figures=[];
@@ -1013,19 +1046,19 @@ handles.data.sp_ID_figures=new_sp_ID_figures;%Identificadores de los Score Plots
 handles.data.sp_matrix=new_sp_matrix;
 
 if isempty(handles.data.label) && isempty(handles.data.classes),
-    [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[handles.data.LV1 handles.data.LV2],[],handles.data.prepX,handles.data.prepY,2);
+    [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,2);
 else if ~isempty(handles.data.label) && isempty(handles.data.classes),
-        [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[handles.data.LV1 handles.data.LV2],[],handles.data.prepX,handles.data.prepY,2,handles.data.label);
+        [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,2,handles.data.label);
     else if isempty(handles.data.label) && ~isempty(handles.data.classes),
-            [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[handles.data.LV1 handles.data.LV2],[],handles.data.prepX,handles.data.prepY,2,num2str((1:size(handles.data.data_matrixX,1))'),handles.data.classes);
-        else [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[handles.data.LV1 handles.data.LV2],[],handles.data.prepX,handles.data.prepY,2,handles.data.label,handles.data.classes);
+            [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,2,num2str((1:size(handles.data.data_matrixX,1))'),handles.data.classes);
+        else [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,2,handles.data.label,handles.data.classes);
         end
     end
 end
 fig=gcf;
 set(fig,'Tag','ScorePlot');%A cada ScorePlot que abro le pongo en su propiedad 'Tag' que es un ScorePlot
 
-matrixLVs_oMEDA=[T(:,handles.data.LV1),T(:,handles.data.LV2)];
+matrixLVs_oMEDA=[T(:,LV1),T(:,LV2)];
 
 handles.data.sp_ID_figures=[handles.data.sp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.sp_matrix={handles.data.sp_matrix{:} matrixLVs_oMEDA};
@@ -1065,7 +1098,7 @@ handles.data.text=cprint(handles.text1,text,handles.data.text,0);
 
 %Ahora vamos a recuperar su matriz:
 %Voy a recorrer el vector de gcfs de score plots
-%handles.data.sp_ID_figures, para buscar en que posiciÛn esta el gcf ID.
+%handles.data.sp_ID_figures, para buscar en que posici√≥n esta el gcf ID.
 for i=1:length(handles.data.sp_ID_figures),
     if handles.data.sp_ID_figures(i)==ID,
         matrix_2LVs=handles.data.sp_matrix{:,i};
@@ -1074,27 +1107,27 @@ end
 
 irr_pol=impoly;
 vertex=getPosition(irr_pol);
-N=size(vertex,1);%TamaÒo de la matriz:
-%filas: n˙mero de vÈrtices del polinomio irregular
+N=size(vertex,1);%Tama√±o de la matriz:
+%filas: n√∫mero de v√©rtices del polinomio irregular
 %columnas: contiene 2 columnas: coordenada x y coordenada y de cada
-%vÈrtice.
+%v√©rtice.
 
 %PASO 1:
-%Calcular los par·metros A, B y C de la ecuaciÛn normal de la recta, para
+%Calcular los par√°metros A, B y C de la ecuaci√≥n normal de la recta, para
 %todas las rectas que formen el polinomio irregular dibujado por el usuario
 A=[];
 B=[];
 C=[];
-for i=1:N,%Desde 1 hasta el n˙mero de vÈrtices que tenga el polinomio
+for i=1:N,%Desde 1 hasta el n√∫mero de v√©rtices que tenga el polinomio
     %irregular, voy a hacer lo siguiente:
     
-    %Coordenadas de un vÈrtice
+    %Coordenadas de un v√©rtice
     x1=vertex(i,1);
     y1=vertex(i,2);
     
-    %Cooredenadas del siguiente vÈrtice:
-    %El if controla el caso en que ya se hayan cogido todos los vÈrtices,
-    %el vÈrtce en ese caso ser· el primero de ellos, para cerrar la figura.
+    %Cooredenadas del siguiente v√©rtice:
+    %El if controla el caso en que ya se hayan cogido todos los v√©rtices,
+    %el v√©rtce en ese caso ser√° el primero de ellos, para cerrar la figura.
     if i==N,
         x2=vertex(1,1);
         y2=vertex(1,2);
@@ -1103,14 +1136,14 @@ for i=1:N,%Desde 1 hasta el n˙mero de vÈrtices que tenga el polinomio
         y2=vertex(i+1,2);
     end
     
-    %Coordenadas del vector director de la recta que une ambos vÈrtices:
+    %Coordenadas del vector director de la recta que une ambos v√©rtices:
     u1=x2-x1;
     u2=y2-y1;
     
     A=[A,u2];%Lista de u2(segunda coordenada del vector director)
     B=[B,-u1];%Lista de u1 (primera coordenada del vector director)
-    c=(u1*y1)-(u2*x1);%C·lculo del par·metro C de la ec.normal de la recta.
-    C=[C,c];%Lista del par·metro C, uno por recta.
+    c=(u1*y1)-(u2*x1);%C√°lculo del par√°metro C de la ec.normal de la recta.
+    C=[C,c];%Lista del par√°metro C, uno por recta.
 end
 
 %PASO 2:
@@ -1285,17 +1318,17 @@ y1=vertex_line(1,2);
 x2=vertex_line(2,1);
 y2=vertex_line(2,2);
 
-%Coordenadas del vector director de la recta que une ambos vÈrtices:
+%Coordenadas del vector director de la recta que une ambos v√©rtices:
 u1=x2-x1;
 u2=y2-y1;
 
-%La ecuaciÛn de la recta tendencia es:
+%La ecuaci√≥n de la recta tendencia es:
 A=u2;
 B=-u1;
 C=(u1*y1)-(u2*x1);
 
-%Quiero el punto de corte de la tendencia con la recta que va de la observaciÛn
-%a la lÌnea tendencia en perpendicular. Esto para cada una de las
+%Quiero el punto de corte de la tendencia con la recta que va de la observaci√≥n
+%a la l√≠nea tendencia en perpendicular. Esto para cada una de las
 %observaciones.
 Cutoff_points=[];
 M=size(handles.data.data_matrixX,1);
@@ -1308,7 +1341,7 @@ for m=1:M,
     v1=A;
     v2=B;
     
-    %La ecuacuaciÛn de la recta es:
+    %La ecuacuaci√≥n de la recta es:
     A2=v2;
     B2=-v1;
     C2=(v1*p2)-(v2*p1);
@@ -1349,14 +1382,14 @@ for k=1:M,
     end
 end
 
-%ConstrucciÛn de la nueva DUMMY con pesos:
-%Calcular el punto medio entre las observaciones m·s alejadas obtenidas
-%enteriormente, este ser· el nuevo cero para asignar pesos.
+%Construcci√≥n de la nueva DUMMY con pesos:
+%Calcular el punto medio entre las observaciones m√°s alejadas obtenidas
+%enteriormente, este ser√° el nuevo cero para asignar pesos.
 c1=Cutoff_points(ind1,:);
 c2=Cutoff_points(ind2,:);
 NewCenter=(c1+c2)/2;
 
-%AsignaciÛn de pesos
+%Asignaci√≥n de pesos
 for m=1:M,
     weights(m)=sum((Cutoff_points(m,:)-NewCenter).^2);
 end
@@ -1417,6 +1450,9 @@ function pushbutton6_Callback(hObject, eventdata, handles)
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
 
+LV1=getCurrentPopupString(handles.popupmenu1);
+LV2=getCurrentPopupString(handles.popupmenu7);
+
 check_tag=get(ID,'Tag');
 if strcmp(check_tag,'ScorePlot'),
  
@@ -1432,9 +1468,9 @@ end
 
 if ~isempty(handles.data.weightDummy{1,ID}),
     handles.data.weightDummy{1,ID}=handles.data.weightDummy{1,ID}./abs(max(handles.data.weightDummy{1,ID}));
-    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(handles.data.LV1,handles.data.LV2) max(handles.data.LV1,handles.data.LV2)],handles.data.data_matrixX,handles.data.weightDummy{1,ID}',handles.data.prepX,handles.data.prepY,1,handles.data.label_LP);
+    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.weightDummy{1,ID}',handles.data.prepX,handles.data.prepY,1,handles.data.label_LP);
 else
-    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(handles.data.LV1,handles.data.LV2) max(handles.data.LV1,handles.data.LV2)],handles.data.data_matrixX,handles.data.dummy{1,ID}',handles.data.prepX,handles.data.prepY,1,handles.data.label_LP);
+    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.dummy{1,ID}',handles.data.prepX,handles.data.prepY,1,handles.data.label_LP);
 end
 
 guidata(hObject,handles);
@@ -1526,7 +1562,7 @@ text=sprintf('To use this option, define the tags cell array and chare it from t
 handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.new3{incoming_data};%Nombre correspondiente a la posiciÛn
+string_evaluation=handles.data.new3{incoming_data};%Nombre correspondiente a la posici√≥n
 handles.data.namePopupmenu19=string_evaluation;
 if strcmp(string_evaluation,'emptylabel'),
     label_LP={};
@@ -1609,7 +1645,7 @@ text=sprintf('To use this option, define the array and chare it from the work sp
 handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.new4{incoming_data};%Nombre correspondiente a la posiciÛn
+string_evaluation=handles.data.new4{incoming_data};%Nombre correspondiente a la posici√≥n
 handles.data.namePopupmenu18=string_evaluation;
 if strcmp(string_evaluation,'emptyclasses'),
     classes_LP={};
@@ -1680,9 +1716,12 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton12 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if isempty(handles.data.LV1_LP) || isempty(handles.data.LV2_LP),
-    errordlg('Error: select the combination of LVs to plot the loadings.');
-end
+%if isempty(handles.data.LV1_LP) || isempty(handles.data.LV2_LP),
+%    errordlg('Error: select the combination of LVs to plot the loadings.');
+%end
+
+LV1_LP=str2num(getCurrentPopupString(handles.popupmenu10));
+LV2_LP=str2num(getCurrentPopupString(handles.popupmenu11));
 
 all_opened_graphs=get(0,'Children');
 new_lp_ID_figures=[];
@@ -1698,19 +1737,19 @@ end
 handles.data.lp_ID_figures=new_lp_ID_figures;%Identificadores de los Loadings Plots abiertos actualizado
 handles.data.lp_matrix=new_lp_matrix;
 if isempty(handles.data.label_LP) && isempty(handles.data.classes_LP),
-    P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[handles.data.LV1_LP handles.data.LV2_LP],handles.data.prepX, handles.data.prepY,2);
+    P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1_LP LV2_LP],handles.data.prepX, handles.data.prepY,2);
 else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP),
-        P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[handles.data.LV1_LP handles.data.LV2_LP],handles.data.prepX, handles.data.prepY,2,handles.data.label_LP);
+        P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1_LP LV2_LP],handles.data.prepX, handles.data.prepY,2,handles.data.label_LP);
     else if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP),
-            P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[handles.data.LV1_LP handles.data.LV2_LP],handles.data.prepX, handles.data.prepY,2,num2str((1:size(handles.data.data_matrixX,2))'),handles.data.classes_LP);
-        else         P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[handles.data.LV1_LP handles.data.LV2_LP],handles.data.prepX, handles.data.prepY,2,handles.data.label_LP,handles.data.classes_LP);
+            P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1_LP LV2_LP],handles.data.prepX, handles.data.prepY,2,num2str((1:size(handles.data.data_matrixX,2))'),handles.data.classes_LP);
+        else         P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1_LP LV2_LP],handles.data.prepX, handles.data.prepY,2,handles.data.label_LP,handles.data.classes_LP);
         end
     end
 end
 fig=gcf;
 set(fig,'Tag','LoadingPlot');%A cada LoadingPlot que abro le pongo en su propiedad 'Tag' que es un LoadingPlot
 
-matrixLVs_MEDA_LP=[P(:,handles.data.LV1_LP),P(:,handles.data.LV2_LP)];
+matrixLVs_MEDA_LP=[P(:,LV1_LP),P(:,LV2_LP)];
 
 handles.data.lp_ID_figures=[handles.data.lp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.lp_matrix={handles.data.lp_matrix{:} matrixLVs_MEDA_LP};
@@ -1759,7 +1798,7 @@ function radiobutton1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % Hint: get(hObject,'Value') returns toggle state of radiobutton1
-%Si radio button seÒalado q ecit 6 este ON si no seÒalado q este OFF
+%Si radio button se√±alado q ecit 6 este ON si no se√±alado q este OFF
 if get(handles.radiobutton1, 'Value'),
     set(handles.edit6, 'Enable', 'on');
     set(handles.text5, 'Enable', 'on');
@@ -1793,7 +1832,7 @@ function popupmenu9_Callback(hObject, eventdata, handles)
 
 LVs_MEDA_position=get(hObject,'Value');%Incoming data position
 contents=get(hObject,'String');%Incoming data position
-LVs_MEDA=contents(LVs_MEDA_position,:);%Nombre correspondiente a la posiciÛn
+LVs_MEDA=contents(LVs_MEDA_position,:);%Nombre correspondiente a la posici√≥n
 
 handles.data.LVs_MEDA=LVs_MEDA;
 
@@ -1817,10 +1856,11 @@ function pushbutton5_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton5 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if isempty(handles.data.LVs_MEDA),
-    errordlg('To perform MEDA select the LVs from the popupmenu.');
-    return;
-end
+handles.data.LVs_MEDA = str2num(getCurrentPopupString(handles.popupmenu9)) : str2num(getCurrentPopupString(handles.popupmenu20));
+%if isempty(handles.data.LVs_MEDA),
+%    errordlg('To perform MEDA select the LVs from the popupmenu.');
+%    return;
+%end
 
 if get(handles.radiobutton1,'Value')==1 && get(handles.radiobutton2,'Value')==0,
     handles.data.opt=2;
@@ -1856,7 +1896,7 @@ end
 
 %Ahora vamos a recuperar su matriz:
 %Voy a recorrer el vector de gcfs de score plots
-%handles.data.sp_ID_figures, para buscar en que posiciÛn esta el gcf ID.
+%handles.data.sp_ID_figures, para buscar en que posici√≥n esta el gcf ID.
 for i=1:length(handles.data.lp_ID_figures),
     if handles.data.lp_ID_figures(i)==ID,
         matrix_2LVs=handles.data.lp_matrix{:,i};
@@ -1872,21 +1912,21 @@ N=size(vertex,1);%Matrix size:
 %vertex.
 
 %PASO 1:
-%Calcular los par·metros A, B y C de la ecuaciÛn normal de la recta, para
+%Calcular los par√°metros A, B y C de la ecuaci√≥n normal de la recta, para
 %todas las rectas que formen el polinomio irregular dibujado por el usuario
 A=[];
 B=[];
 C=[];
-for i=1:N,%Desde 1 hasta el n˙mero de vÈrtices que tenga el polinomio
+for i=1:N,%Desde 1 hasta el n√∫mero de v√©rtices que tenga el polinomio
     %irregular, voy a hacer lo siguiente:
     
-    %Coordenadas de un vÈrtice
+    %Coordenadas de un v√©rtice
     x1=vertex(i,1);
     y1=vertex(i,2);
     
-    %Cooredenadas del siguiente vÈrtice:
-    %El if controla el caso en que ya se hayan cogido todos los vÈrtices,
-    %el vÈrtce en ese caso ser· el primero de ellos, para cerrar la figura.
+    %Cooredenadas del siguiente v√©rtice:
+    %El if controla el caso en que ya se hayan cogido todos los v√©rtices,
+    %el v√©rtce en ese caso ser√° el primero de ellos, para cerrar la figura.
     if i==N,
         x2=vertex(1,1);
         y2=vertex(1,2);
@@ -1895,14 +1935,14 @@ for i=1:N,%Desde 1 hasta el n˙mero de vÈrtices que tenga el polinomio
         y2=vertex(i+1,2);
     end
     
-    %Coordenadas del vector director de la recta que une ambos vÈrtices:
+    %Coordenadas del vector director de la recta que une ambos v√©rtices:
     u1=x2-x1;
     u2=y2-y1;
     
     A=[A,u2];%Lista de u2(segunda coordenada del vector director)
     B=[B,-u1];%Lista de u1 (primera coordenada del vector director)
-    c=(u1*y1)-(u2*x1);%C·lculo del par·metro C de la ec.normal de la recta.
-    C=[C,c];%Lista del par·metro C, uno por recta.
+    c=(u1*y1)-(u2*x1);%C√°lculo del par√°metro C de la ec.normal de la recta.
+    C=[C,c];%Lista del par√°metro C, uno por recta.
 end
 
 %PASO 2:
@@ -1964,7 +2004,7 @@ else if get(handles.radiobutton1,'Value')==0 && get(handles.radiobutton2,'Value'
     end
 end
 
-[meda_map,meda_dis]=meda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(handles.data.LV1_LP,handles.data.LV2_LP) max(handles.data.LV1_LP,handles.data.LV2_LP)],handles.data.prepX,handles.data.prepY,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
+[meda_map,meda_dis]=meda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1_LP,LV2_LP) max(LV1_LP,LV2_LP)],handles.data.prepX,handles.data.prepY,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
 
 guidata(hObject,handles);
 
@@ -1990,3 +2030,26 @@ function text1_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to text1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes on selection change in popupmenu20.
+function popupmenu20_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu20 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu20 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu20
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu20_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu20 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
