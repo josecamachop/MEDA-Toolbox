@@ -1,7 +1,7 @@
 MEDA Toolbox for its use in MATLAB.
 
-Codified by: José Camacho Páez.
-GUI by: Elena Jiménez Mañas
+Codified by: JosÃ© Camacho PÃ¡ez.
+GUI by: Elena JimÃ©nez MaÃ±as
 Last modification of this document: 10/Jul/13
 
 References:

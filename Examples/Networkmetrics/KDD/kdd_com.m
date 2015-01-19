@@ -28,7 +28,7 @@
 % category is included in the data set. The resulting data set contains 4.844.253 observations, 
 % each one with 122 features.
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % last modification: 05/Aug/14.
 
 %% Inicialization, remember to set the path of the toolbox

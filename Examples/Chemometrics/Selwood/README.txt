@@ -1,18 +1,18 @@
 MEDA Toolbox for its use in MATLAB.
 
-Codified by: José Camacho Páez.
-GUI by: Elena Jiménez Mañas
+Codified by: JosÃ© Camacho PÃ¡ez.
+GUI by: Elena JimÃ©nez MaÃ±as
 Last modification of this document: 14/Jul/13
 
 References:
 
  Data set: 
 
-    D.L. Selwood, D.J. Livingstone, J.C.W. Comley, A.B. O’Dowd, A.T. Hudson, 
+    D.L. Selwood, D.J. Livingstone, J.C.W. Comley, A.B. OÂ’Dowd, A.T. Hudson, 
        P. Jackson, K.S. Jandu, V.S. Rose, J.N. Stables Structure-Activity 
        Relationships of Antifiral Antimycin Analogues: A Multivariate 
        Pattern Recognition Study, Journal of Medical Chemistry 33 (1990) 
-       136–142.  
+       136Â–142.  
 
  Analysis:
 

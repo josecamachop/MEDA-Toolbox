@@ -1,9 +1,9 @@
 Large Data Extension for the MEDA Toolbox for its use in MATLAB.
 
-Coded by: José Camacho Páez (josecamacho@ugr.es)
+Coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 Last modification of this document: 21/Aug/14
 
-Please, acknowledge the use of this software by referecing it: "MEDA Toolbox, available at https://github.com/josecamachop/MEDA-Toolbox/archive/master.zip. José Camacho and Elena Jiménez, 
+Please, acknowledge the use of this software by referecing it: "MEDA Toolbox, available at https://github.com/josecamachop/MEDA-Toolbox/archive/master.zip. JosÃ© Camacho and Elena JimÃ©nez, 
 Network Engineering and Security Group, University of Granada, Spain."
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
@@ -39,7 +39,7 @@ corresponding to each file should be in variable 'x', output/quality variables f
 class for the observations should be stored in variable 'class'. Variables 'x' and 'class' should be in the mat file, while 'y' is optional. 
 For an example of this, please have a look at the data directory in the KDD example. 
 
-Copyright (C) 2014  José Camacho Páez
+Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

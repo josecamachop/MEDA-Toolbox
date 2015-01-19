@@ -1,7 +1,7 @@
 MEDA Toolbox for its use in MATLAB. Guidelines of use.
 
-Coded by: José Camacho Páez
-GUI by: Elena Jiménez Mañas
+Coded by: JosÃ© Camacho PÃ¡ez
+GUI by: Elena JimÃ©nez MaÃ±as
 Last modification of this document: 03/Jul/14
 
 The Multivariate Exploratory Data Analysis (MEDA) Toolbox in Matlab is a set of multivariate analysis tools for the exploration of data sets. 
@@ -53,14 +53,14 @@ have a look at the examples.
 
 
 Please, acknowledge the use of this software by refercing it: "MEDA Toolbox, available at https://github.com/josecamachop/MEDA-Toolbox/archive/master.zip 
-José Camacho and Elena Jiménez, Network Engineering and Security Group, University of Granada, Spain." 
+JosÃ© Camacho and Elena JimÃ©nez, Network Engineering and Security Group, University of Granada, Spain." 
 
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have 
 suggestions, please contact josecamacho@ugr.es
 
 
-Copyright (C) 2014  José Camacho Páez
+Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

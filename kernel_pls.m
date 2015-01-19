@@ -1,8 +1,8 @@
 %1. F. Lindgren, P. Geladi and S. Wold, J. Chemometrics, 7, 45 (1993).
 %4. S. De Jong and C. J. F. Ter Braak, J. Chemometrics, 8, 169 (1994).
-%Dayal BS, MacGregor JF. Improved PLS algorithms. J. Chemom. 1997;11: 73–85. 
+%Dayal BS, MacGregor JF. Improved PLS algorithms. J. Chemom. 1997;11: 73Â–85. 
 
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % last modification: 04/Jan/13.
 %
 

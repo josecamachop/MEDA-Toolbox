@@ -1,7 +1,7 @@
 MEDA Toolbox for its use in MATLAB.
 
-Coded by: José Camacho Páez
-GUI by: Elena Jiménez Mañas
+Coded by: JosÃ© Camacho PÃ¡ez
+GUI by: Elena JimÃ©nez MaÃ±as
 Last modification of this document: 05/Aug/14
 
 Installation
@@ -14,7 +14,7 @@ Installation
 		- <directory_path>/GUI
 
 
-Please, acknowledge the use of this software by referecing it: "MEDA Toolbox, available at https://github.com/josecamachop/MEDA-Toolbox/archive/master.zip. José Camacho and Elena Jiménez, 
+Please, acknowledge the use of this software by referecing it: "MEDA Toolbox, available at https://github.com/josecamachop/MEDA-Toolbox/archive/master.zip. JosÃ© Camacho and Elena JimÃ©nez, 
 Network Engineering and Security Group, University of Granada, Spain." 
 
 
@@ -49,7 +49,7 @@ Items in the folder:
 - Examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox.
 
 
-Copyright (C) 2014  José Camacho Páez
+Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

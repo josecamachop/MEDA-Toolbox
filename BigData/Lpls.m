@@ -25,15 +25,15 @@ function [beta,W,P,Q,R,sdT] = Lpls(Lmodel)
 %
 % Q: (LxA) matrix of loadings of the y-block in the PLS model.
 %
-% R: (LxA) equals to W·inv(P'·W).
+% R: (LxA) equals to WÂ·inv(P'Â·W).
 %
 % sdT: (1xA) standard deviations of the scores.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % last modification: 02/May/09.
 %
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

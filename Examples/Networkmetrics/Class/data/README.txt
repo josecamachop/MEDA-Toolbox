@@ -1,5 +1,5 @@
-Codified by: José Camacho Páez.
-GUI by: Elena Jiménez Mañas
+Codified by: JosÃ© Camacho PÃ¡ez.
+GUI by: Elena JimÃ©nez MaÃ±as
 Version: 2.0
 Last modification of this document: 11/Jul/13
 

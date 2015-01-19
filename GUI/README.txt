@@ -1,8 +1,8 @@
 
 MEDA Toolbox Graphic User Interface for its use in MATLAB.
 
-Coded by: Elena Jiménez Mañas.
-MEDA Toolbox by: José Camacho Páez.
+Coded by: Elena JimÃ©nez MaÃ±as.
+MEDA Toolbox by: JosÃ© Camacho PÃ¡ez.
 Last modification of this document: 07/Jul/14
 
 NOTE: This GUI has been designed to work with the MEDA Toolbox. It is necessary to download the MEDA toolbox to work with this GUI.
@@ -13,7 +13,7 @@ installation. Also, in the Examples directory of the MEDA toolbox Graphic User I
 have a look at it. Use the provided User's Manual and the data set (MANET) in the Example directory to start working with the GUI.
 
 
-Please, acknowledge the use of this software by referencing it: "MEDA Toolbox, available at https://github.com/josecamachop/MEDA-Toolbox/archive/master.zip. José Camacho and Elena Jiménez, 
+Please, acknowledge the use of this software by referencing it: "MEDA Toolbox, available at https://github.com/josecamachop/MEDA-Toolbox/archive/master.zip. JosÃ© Camacho and Elena JimÃ©nez, 
 Network Engineering and Security Group, University of Granada, Spain."
 
 
@@ -37,7 +37,7 @@ Items in the folder:
 - Examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox.
 
 
-Copyright (C) 2014  Elena Jiménez Mañas
+Copyright (C) 2014  Elena JimÃ©nez MaÃ±as
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

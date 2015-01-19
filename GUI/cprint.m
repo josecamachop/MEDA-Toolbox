@@ -29,11 +29,11 @@ function text_tot = cprint(console,text,text_tot,opt,delay)
 %   texts in the input.
 %
 %
-% codified by: José Camacho Páez.
+% codified by: JosÃ© Camacho PÃ¡ez.
 % version: 0.1
 % last modification: 16/Dic/08.
 %
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

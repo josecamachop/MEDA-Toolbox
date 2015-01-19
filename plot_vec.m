@@ -34,11 +34,11 @@ function fig_h = plot_vec(vec,olabel,slabel,lcont,opt,pmod,fig_h,leg)
 % fig_h: (1x1) figure handle.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

@@ -18,11 +18,11 @@ function lim = spe_lim(res,p_value)
 % lim: (1x1) control limit at a 1-p_value confidence level.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % last modification: 08/Sep/14.
 %
 % Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

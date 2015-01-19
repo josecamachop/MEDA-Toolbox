@@ -38,10 +38,10 @@ function [P,Q,R] = loadings_Lpls(Lmodel,lvs,opt,label,classes)
 % R: (MxA) W*inv(P'*W).
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % last modification: 06/May/13.
 %
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

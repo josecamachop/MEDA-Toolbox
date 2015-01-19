@@ -39,10 +39,10 @@ function E = sqresiduals_Lpca(Lmodel,pcs,Ltest,opt,label)
 %   {1x(M)})
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % last modification: 07/May/13.
 %
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -95,7 +95,7 @@ switch opt,
         end
         plot_vec(E,label,'Squared Residuals');
     case 1
-        for n_clus = 1:s(1), % Cálculo de la covarianza
+        for n_clus = 1:s(1), % CÃ¡lculo de la covarianza
             if Lmodel.multr(n_clus)>1,
                 XX = VCfile(Lmodel.index_fich{n_clus},s(2),0,Lmodel.path);
             else
@@ -106,7 +106,7 @@ switch opt,
         mult=Lmodel.multr;
         if ~isempty(Ltest)
             mult = [mult;Ltest.multr];
-        for n_clus2 = 1:size(Ltest.centr,1), % Cálculo de la covarianza
+        for n_clus2 = 1:size(Ltest.centr,1), % CÃ¡lculo de la covarianza
             if Ltest.multn(n_clus2)>1,
                 XX = VCfile(Ltest.index_fich{n_clus},s(2),0,Ltest.path);
             else

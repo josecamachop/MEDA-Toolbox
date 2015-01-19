@@ -1,7 +1,7 @@
-﻿MEDA Toolbox for its use in MATLAB.
+ï»¿MEDA Toolbox for its use in MATLAB.
 
-Codified by: José Camacho Páez.
-GUI by: Elena Jiménez Mañas
+Codified by: JosÃ© Camacho PÃ¡ez.
+GUI by: Elena JimÃ©nez MaÃ±as
 Version: 2.1
 Last modification of this document: 14/Jul/13
 
@@ -12,7 +12,7 @@ References:
       R.S. Gray, D. Kotz, C. Newport, N. Dubrovsky, A. Fiske, J. Liu, C. Masone, S. McGrath, Y.
 	Yuan, Outdoor experimental comparison of four ad hoc routing algorithms, in: Proceedings of
 	the 7th ACM international symposium on Modeling, analysis and simulation of wireless and
-	mobile systems, MSWiM ’04, 2004, pp. 220-229.
+	mobile systems, MSWiM â04, 2004, pp. 220-229.
 
 
 This folder contains the data for an EDA example based on PLS. The data set 
