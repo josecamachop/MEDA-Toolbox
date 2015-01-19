@@ -53,9 +53,10 @@ function fig_h = plot_scatter(bdata,olabel,classes,axlabel,opt)
 if nargin < 1, error('Error in the number of arguments.'); end;
 s = size(bdata);
 if length(s) ~= 2 || s(2)~=2, error('Error in the dimension of the arguments.'); end;
-if nargin < 2 || isempty(olabel)
-    olabel=num2str((1:s(1))'); 
-elseif ~isequal(olabel,' '),
+if nargin < 2 || isempty(olabel) || isequal(olabel,' ')
+    %olabel=num2str((1:s(1))');
+    olabel = repmat({''}, s(1),1);
+else
     if ndims(olabel)==2 & find(size(olabel)==max(size(olabel)))==2, olabel = olabel'; end
     if size(olabel,1)~=s(1), error('Error in the dimension of the arguments.'); end;
 end
@@ -80,7 +81,7 @@ if exist('classes')
     nc = max(classes);
     
     colors = ['b','g','r','c','m','y','k'];
-    charac = ['*','o','s','d','v','^'];
+    charac = ['o','*','s','d','v','^'];
 
     while length(colors)<nc,
         colors = [colors colors];
@@ -102,12 +103,13 @@ if ~opt,
 else
     colorsM = char('w'*ones(1,s(1)));
 end
-    
+
 fig_h = figure;
 hold on;
 for i=1:nc,
     ind = find(classes==i);
     plot(bdata(ind,1),bdata(ind,2),strcat(colors(i),charac(i)),'MarkerFaceColor',colorsM(i));
+    text(bdata(ind,1),bdata(ind,2),olabel(ind,1), 'VerticalAlignment','bottom','HorizontalAlignment','right')
 end
 if exist('axlabel')
     xlabel(axlabel{1},'FontSize',16);
@@ -120,11 +122,11 @@ axis(ax);
 axes_h=get(fig_h,'Children');
 axes_h=axes_h(1);
 set(axes_h,'FontSize',14);
-if ~isequal(olabel,' '),   
-    deltax = (ax(2) - ax(1))/50;
-    deltay = (ax(4) - ax(3))/50;
-    text(bdata(:,1)+deltax,bdata(:,2)+deltay,olabel);
-end
+%if ~isequal(olabel,' '),   
+%    deltax = (ax(2) - ax(1))/50;
+%    deltay = (ax(4) - ax(3))/50;
+%    text(bdata(:,1)+deltax,bdata(:,2)+deltay,olabel);
+%end
 box on
 
     

@@ -34,11 +34,11 @@ function P = loadings_pca(cal,pcs,prep,opt,label,classes)
 % P: (MxA) scores.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: Josï¿½ Camacho Pï¿½ez (josecamacho@ugr.es)
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  Josï¿½ Camacho Pï¿½ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -62,8 +62,8 @@ sp = length(pcs);
 if sp < 2, error('Error in the dimension of the arguments.'); end;
 if nargin < 3, prep = 2; end;
 if nargin < 4, opt = 1; end;
-if nargin < 5 || isempty(label)
-    label=num2str((1:s(2))'); 
+if nargin < 5 || isempty(label) || isequal(label,' ')
+    label = repmat({''},s(2),1);
 else
     if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
     if size(label,1)~=s(2), error('Error in the dimension of the arguments.'); end;
