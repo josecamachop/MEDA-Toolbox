@@ -70,13 +70,14 @@ if sp < 2, error('Error in the dimension of the arguments.'); end;
 if nargin < 4, prep = 2; end;
 if nargin < 5, opt = 1; end;
 if nargin < 6 || isempty(label)
-    label=num2str((1:s(1))'); 
+    label = [];
+    %label=num2str((1:s(1))'); 
 elseif ~isequal(label,' '),
     if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
     if size(label,1)~=s(1), error('Error in the dimension of the arguments.'); end;
 end
 if nargin < 7 || isempty(classes)
-    classes = [ones(1,size(cal,1)) 2*ones(1,size(test,1))];
+    classes = [];
 else
     if ndims(classes)==2 & find(size(classes)==max(size(classes)))==2, classes = classes'; end
     if size(classes,1)~=s(1), error('Error in the dimension of the arguments.'); end;
@@ -98,7 +99,7 @@ if opt,
     T = [T;TT];
     for i=1:length(pcs)-1,
         for j=i+1:length(pcs),
-            plot_scatter([T(:,pcs(i)),T(:,pcs(j))],label,classes,{sprintf('PC %d',pcs(i)),sprintf('PC %d',pcs(j))},opt-1);
+            plot_scatter([T(:,pcs(i)),T(:,pcs(j))],label,classes,{sprintf('PC %d',pcs(i)),sprintf('PC %d',pcs(j))}',opt-1);
         end      
     end
 end

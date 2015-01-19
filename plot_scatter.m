@@ -49,87 +49,59 @@ function fig_h = plot_scatter(bdata,olabel,classes,axlabel,opt)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %% Parameters checking
-
-if nargin < 1, error('Error in the number of arguments.'); end;
-s = size(bdata);
-if length(s) ~= 2 || s(2)~=2, error('Error in the dimension of the arguments.'); end;
-if nargin < 2 || isempty(olabel) || isequal(olabel,' ')
-    %olabel=num2str((1:s(1))');
-    olabel = repmat({''}, s(1),1);
-else
-    if ndims(olabel)==2 & find(size(olabel)==max(size(olabel)))==2, olabel = olabel'; end
-    if size(olabel,1)~=s(1), error('Error in the dimension of the arguments.'); end;
+assert (nargin >= 1, 'Error: Missing arguments.');
+N = size(bdata, 1);
+if nargin < 2 || isempty(olabel)
+    olabel = repmat({''}, N, 1);
 end
 if nargin < 3 || isempty(classes)
-    classes = ones(s(1),1); 
-else
-    if ndims(classes)==2 & find(size(classes)==max(size(classes)))==2, classes = classes'; end
-    if size(classes,1)~=s(1), error('Error in the dimension of the arguments.'); end;
+    classes = ones(N, 1);
 end
-if nargin < 4 ||isempty(axlabel)
-    axlabel = {'Dim 1','Dim 2'}'; 
-else
-    if ndims(axlabel)==2 & find(size(axlabel)==max(size(axlabel)))==2, axlabel = axlabel'; end
-    if size(axlabel,1)~=2, error('Error in the dimension of the arguments.'); end;
+if nargin < 4 || isempty(axlabel)
+    axlabel = {'Dim 1';'Dim 2'};
 end
 if nargin < 5, opt = 0; end;
 
+assert (size(bdata,2) == 2, 'Dimension Error: bdata must be n-by-2.')
+assert (isequal(size(olabel), [N 1]), 'Dimension Error: label must be n-by-1.');
+assert (isequal(size(classes), [N 1]), 'Dimension Error: classes must be n-by-1.')
+assert (isequal(size(axlabel), [2 1]), 'Dimension Error: axlabel must be 2-by-1.')
 
 %% Main code
-
-if exist('classes')
-    nc = max(classes);
-    
-    colors = ['b','g','r','c','m','y','k'];
-    charac = ['o','*','s','d','v','^'];
-
-    while length(colors)<nc,
-        colors = [colors colors];
-    end
-
-    while length(charac)<nc,
-        charac = [charac charac];
-    end
-
+% Preprocess classes to force them start with 1, 2...n,
+unique_classes = unique(classes);
+if iscell(classes)
+    normal_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
 else
-    colors = char('b'*ones(1,s(1)));
-    charac = char('o'*ones(1,s(1)));
-    nc = 1;
-    classes = ones(1,s(1));
+    normal_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
 end
 
-if ~opt,
-    colorsM = colors;
-else
-    colorsM = char('w'*ones(1,s(1)));
-end
+% Map classes to colors
+color_list = hsv(length(unique_classes));
+color_array = color_list(normal_classes, :);
 
+% Plot points and labels
 fig_h = figure;
 hold on;
-for i=1:nc,
-    ind = find(classes==i);
-    plot(bdata(ind,1),bdata(ind,2),strcat(colors(i),charac(i)),'MarkerFaceColor',colorsM(i));
-    text(bdata(ind,1),bdata(ind,2),olabel(ind,1), 'VerticalAlignment','bottom','HorizontalAlignment','right')
-end
-if exist('axlabel')
-    xlabel(axlabel{1},'FontSize',16);
-    ylabel(axlabel{2},'FontSize',16);
-end
-ax=axis;
-plot([0 0],ax(3:4),'k--');
-plot(ax(1:2),[0 0],'k--');
-axis(ax);
-axes_h=get(fig_h,'Children');
-axes_h=axes_h(1);
-set(axes_h,'FontSize',14);
-%if ~isequal(olabel,' '),   
-%    deltax = (ax(2) - ax(1))/50;
-%    deltay = (ax(4) - ax(3))/50;
-%    text(bdata(:,1)+deltax,bdata(:,2)+deltay,olabel);
-%end
+if opt
+    scatter(bdata(:,1), bdata(:,2), [], color_array)
+else
+    scatter(bdata(:,1), bdata(:,2), [], color_array, 'filled')
+end    
+text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
+
+% Set axis labels and plot origin lines
+xlabel(axlabel(1), 'FontSize', 16);
+ylabel(axlabel(2), 'FontSize', 16);
+
+ax = axis;
+plot([0 0], ax(3:4), 'k--');
+plot(ax(1:2), [0 0], 'k--');
+axis(ax)
+
+%axes_h=get(fig_h,'Children');
+%axes_h=axes_h(1);
+%set(axes_h,'FontSize',12);
 box on
-
-    
-
 
         
