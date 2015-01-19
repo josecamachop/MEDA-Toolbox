@@ -49,7 +49,7 @@ function omeda_vec = omeda_Lpls(Lmodel,lvs,Ltest,dummy,opt,label)
 % omeda_vec: (Mx1) oMEDA vector.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % FALTA CAMBIAR ELLIMITE DE CONTROL DE ACUERDO A omeda_Lpca
 
 

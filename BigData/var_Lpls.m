@@ -30,10 +30,10 @@ function [y_var,t_var] = var_Lpls(Lmodel,maxlvs,opt)
 % t_var: ((maxlvs+1)x1) Percentage of captured variance of the scores.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % last modification: 08/May/13.
 %
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

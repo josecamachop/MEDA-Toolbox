@@ -2,11 +2,11 @@ function varargout = EDA(varargin)
 %%
 %Initialize EDA Graphic User Interface
 %
-% coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
+% coded by: Elena JimÃ©nez MaÃ±as (elenajm@correo.ugr.es).
 % version: 2.0
 % last modification: 07/Jul/14.
 %
-% Copyright (C) 2014  Elena Jiménez Mañas
+% Copyright (C) 2014  Elena JimÃ©nez MaÃ±as
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

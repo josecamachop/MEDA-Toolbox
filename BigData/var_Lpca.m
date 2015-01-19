@@ -25,10 +25,10 @@ function x_var = var_Lpca(Lmodel,maxpcs,opt)
 % x_var: ((maxpcs+1)x1) Percentage of captured variance of X.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % last modification: 08/May/13.
 %
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

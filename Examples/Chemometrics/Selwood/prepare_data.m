@@ -1,10 +1,10 @@
 % Data set: 
 % 
-%    D.L. Selwood, D.J. Livingstone, J.C.W. Comley, A.B. O’Dowd, A.T. Hudson, 
+%    D.L. Selwood, D.J. Livingstone, J.C.W. Comley, A.B. OÂ’Dowd, A.T. Hudson, 
 %       P. Jackson, K.S. Jandu, V.S. Rose, J.N. Stables Structure-Activity 
 %       Relationships of Antifiral Antimycin Analogues: A Multivariate 
 %       Pattern Recognition Study, Journal of Medical Chemistry 33 (1990) 
-%       136–142.
+%       136Â–142.
 %
 % 
 % variables
@@ -18,7 +18,7 @@
 % 51:53 	M_PNT SUM_F SUM_R
 
 %
-% codified by: José Camacho Páez.
+% codified by: JosÃ© Camacho PÃ¡ez.
 % last modification: 11/Jul/13.
 
 %% Selwood data set

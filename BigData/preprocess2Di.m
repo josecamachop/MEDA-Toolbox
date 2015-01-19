@@ -41,10 +41,10 @@ function [xp,average,scale,N] = preprocess2Di(x,prep,ndim,lambda,average,scale,N
 % scale: (1 x (M or N)) sample scale according to the preprocessing method.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % last modification: 29/Apr/09.
 %
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

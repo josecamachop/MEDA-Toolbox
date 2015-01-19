@@ -29,7 +29,7 @@
 % where the name of each variable follows the format <switch>.if[In|Out]<N>. 
 % The remaining ports of the switches did not present any traffic load.
 
-% coded by: José Camacho Páez.
+% coded by: JosÃ© Camacho PÃ¡ez.
 % last modification: 11/Jul/13.
 
 %% Inicialization, remember to set the path of the toolbox

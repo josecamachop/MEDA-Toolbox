@@ -54,11 +54,11 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 % ord: (1xS) order of shown variables.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho PÃ¡ez (josecamacho@ugr.es)
 % last modification: 20/Oct/14.
 %
 % Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  JosÃ© Camacho PÃ¡ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
