@@ -40,11 +40,11 @@ function [T,TT] = scores_pca(cal,pcs,test,prep,opt,label,classes)
 % TT: (NxA) test scores.
 %
 %
-% coded by: Josï¿½ Camacho Pï¿½ez (josecamacho@ugr.es)
+% coded by: José Camacho Páez (josecamacho@ugr.es)
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Josï¿½ Camacho Pï¿½ez
+% Copyright (C) 2014  José Camacho Páez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

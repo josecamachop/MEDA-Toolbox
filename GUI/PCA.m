@@ -7,11 +7,11 @@ function varargout = PCA(varargin)
 %loading_pca.m, meda_pca.m, omeda_pca.m, pca_pp.m, scores_pca.m,
 %sqresiduals_pca.m and var_pca.m
 %
-% coded by: Elena Jim�nez Ma�as (elenajm@correo.ugr.es).
+% coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
 % version: 2.0
 % last modification: 07/Jul/14.
 %
-% Copyright (C) 2014  Elena Jim�nez Ma�as
+% Copyright (C) 2014  Elena Jiménez Mañas
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

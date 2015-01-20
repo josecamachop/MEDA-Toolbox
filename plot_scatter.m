@@ -11,11 +11,14 @@ function fig_h = plot_scatter(bdata,olabel,classes,axlabel,opt)
 %
 % bdata: (Nx2) bidimensional data to plot. 
 %
-% olabel: {Nx1} name of the observations/variables (numbers are used by default)
-%   use ' ' to avoid labels.
+% olabel: {Nx1} name of the observations/variables
+%   Allowed cell array of strings, eg. {'first', 'second', 'third', ...}
+%   use [] to set the default, empty labels.
 %
-% classes: (Nx1) vector with the assignment of the observations/variables to classes, 
-%   numbered from 1 onwards (1 class by default), eg. ones(N,1)
+% classes: (Nx1) vector with the assignment of the observations/variables to classes,
+%   Allowed numerical classes, eg. [1 1 2 2 2 3], 
+%   and cell array of strings, eg. {'blue','red','red','green','blue'}.
+%   use [] to set the default, a single class.
 %
 % axlabel: {2x1} variable/statistic plotted (nothing by default)
 %
@@ -29,11 +32,12 @@ function fig_h = plot_scatter(bdata,olabel,classes,axlabel,opt)
 % fig_h: (1x1) figure handle.
 %
 %
-% coded by: Josï¿½ Camacho Pï¿½ez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% coded by: José Camacho Páez (josecamacho@ugr.es)
+%           Alejandro Pérez Villegas (alextoni@gmail.com)
+% last modification: 20/Jan/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Josï¿½ Camacho Pï¿½ez
+% Copyright (C) 2014  José Camacho Páez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -61,6 +65,10 @@ if nargin < 4 || isempty(axlabel)
     axlabel = {'Dim 1';'Dim 2'};
 end
 if nargin < 5, opt = 0; end;
+
+if isrow(olabel), olabel = olabel'; end;
+if isrow(classes), classes = classes'; end;
+if isrow(axlabel), axlabel = axlabel'; end;
 
 assert (size(bdata,2) == 2, 'Dimension Error: bdata must be n-by-2.')
 assert (isequal(size(olabel), [N 1]), 'Dimension Error: label must be n-by-1.');
@@ -99,9 +107,4 @@ plot([0 0], ax(3:4), 'k--');
 plot(ax(1:2), [0 0], 'k--');
 axis(ax)
 
-%axes_h=get(fig_h,'Children');
-%axes_h=axes_h(1);
-%set(axes_h,'FontSize',12);
 box on
-
-        
