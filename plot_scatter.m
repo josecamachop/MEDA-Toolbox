@@ -66,9 +66,9 @@ if nargin < 4 || isempty(axlabel)
 end
 if nargin < 5, opt = 0; end;
 
-if isrow(olabel), olabel = olabel'; end;
-if isrow(classes), classes = classes'; end;
-if isrow(axlabel), axlabel = axlabel'; end;
+if size(olabel,1) == 1, olabel = olabel'; end;
+if size(classes,1) == 1, classes = classes'; end;
+if size(axlabel,1) == 1, axlabel = axlabel'; end;
 
 assert (size(bdata,2) == 2, 'Dimension Error: bdata must be n-by-2.')
 assert (isequal(size(olabel), [N 1]), 'Dimension Error: label must be n-by-1.');
