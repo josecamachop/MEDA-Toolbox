@@ -48,7 +48,7 @@ function varargout = PLS(varargin)
 
 % Edit the above text to modify the response to help PLS
 
-% Last Modified by GUIDE v2.5 25-Jan-2015 17:59:36
+% Last Modified by GUIDE v2.5 25-Jan-2015 19:00:58
 % Fixing some minor bugs on the GUI
 
 % Begin initialization code - DO NOT EDIT
@@ -93,11 +93,11 @@ set(handles.text15,'Enable','off');
 set(handles.text16,'Enable','off');
 set(handles.labscorePopup,'Enable','off');
 set(handles.classcorePopup,'Enable','off');
-set(handles.pushbutton4,'Enable','off');
+set(handles.scoreButton,'Enable','off');
 
 %MEDA
-set(handles.medaPopup1,'Enable','off');
-set(handles.medaPopup1,'String',' ');
+set(handles.medaPopup,'Enable','off');
+set(handles.medaPopup,'String',' ');
 set(handles.text5,'Enable','off');
 set(handles.thresEdit,'Enable','off');
 set(handles.thresRadio,'Enable','off');
@@ -122,7 +122,7 @@ set(handles.text17,'Enable','off');
 set(handles.text18,'Enable','off');
 set(handles.clasloadingPopup,'Enable','off');
 set(handles.labloadingPopup,'Enable','off');
-set(handles.pushbutton12,'Enable','off');
+set(handles.loadingButton,'Enable','off');
 
 %Residue
 set(handles.resomedaButton,'Enable','off');
@@ -686,52 +686,54 @@ function plsButton_Callback(hObject, eventdata, handles)
 % hObject    handle to plsButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-%Information panel:
-if isempty(handles.data.data_matrixX) || isempty(handles.data.data_matrixY),
-    errordlg('No data matrix selected, please select one.');
-    return;
-end
+%Take the values of the GUI
 [LVs_num,status]=str2num(get(handles.lvsEdit, 'String'));
 if status == false
     errordlg('No LVs defined, please define them properly.');
     return;
 end
 
+%Information panel:
+if isempty(handles.data.data_matrixX) || isempty(handles.data.data_matrixY),
+    errordlg('No data matrix selected, please select one.');
+    return;
+end
+
+
+
+handles.data.LVs = [1:LVs_num];
 %Si la variable handles.data.LVs es distinta de vacía, imprimir en xlvscorePopup,
 %xlvloadingPopup, ylvloadingPopup y ylvscorePopup las LVs posibles.
 if ~isempty(handles.data.LVs),
-    set(handles.xlvscorePopup, 'String',1:LVs_num);
-    set(handles.ylvscorePopup, 'String',1:LVs_num);
-    set(handles.xlvloadingPopup, 'String',1:LVs_num);
-    set(handles.ylvloadingPopup, 'String',1:LVs_num);
-    set(handles.medaPopup1,'String',1:LVs_num);
-    set(handles.medaPopup2,'String',1:LVs_num);
+    set(handles.xlvscorePopup, 'String',handles.data.LVs);
+    set(handles.ylvscorePopup, 'String',handles.data.LVs);
+    set(handles.xlvloadingPopup, 'String',handles.data.LVs);
+    set(handles.ylvloadingPopup, 'String',handles.data.LVs);
     
     %Imprimir en popupmenu de submenu MEDA todas las combinaciones posibles
     %para hacer MEDA
-    %k=1;
-    %options=[];
-    %for i=min(handles.data.LVs):max(handles.data.LVs),
-    %    for j=k:LVs_num,
-    %        options=[options,i,j];
-    %    end
-    %    k=k+1;
-    %end
+    k=min(handles.data.LVs);
+    options=[];
+    for i=min(handles.data.LVs):max(handles.data.LVs),
+        for j=k:LVs_num,
+            options=[options,i,j];
+        end
+        k=k+1;
+    end
     
-    %set(handles.medaPopup1,'String','');
-    %for i=1:2:(length(options)-1),
-    %    contents=get(handles.medaPopup1,'String');
-    %    set(handles.medaPopup1,'String',strvcat(contents,sprintf('%d:%d',options(i),options(i+1))));
-    %end
+    set(handles.medaPopup,'String','');
+    for i=1:2:(length(options)-1),
+        contents=get(handles.medaPopup,'String');
+        set(handles.medaPopup,'String',strvcat(contents,sprintf('%d:%d',options(i),options(i+1))));
+    end
 end
 
 if handles.data.auxLVs==0,
-handles.data.LV1=1;
-handles.data.LV2=1;
-handles.data.LV1_LP=1;
-handles.data.LV2_LP=1;
-handles.data.LVs_MEDA=sprintf('%d:%d',1,1:LVs_num);
+handles.data.LV1=min(handles.data.LVs);
+handles.data.LV2=min(handles.data.LVs);
+handles.data.LV1_LP=min(handles.data.LVs);
+handles.data.LV2_LP=min(handles.data.LVs);
+handles.data.LVs_MEDA=sprintf('%d:%d',min(handles.data.LVs),min(handles.data.LVs));
 handles.data.auxLVs=1;
 end
 
@@ -739,7 +741,7 @@ end
 %Score plot
 set(handles.xlvscorePopup,'Enable','on');
 set(handles.ylvscorePopup,'Enable','on');
-set(handles.pushbutton4,'Enable','on');
+set(handles.scoreButton,'Enable','on');
 set(handles.text7,'Enable','on');
 set(handles.text8,'Enable','on');
 set(handles.text15,'Enable','on');
@@ -751,7 +753,7 @@ set(handles.classcorePopup,'Enable','on');
 set(handles.thresRadio,'Enable','on');
 set(handles.serRadio,'Enable','on');
 set(handles.medaButton,'Enable','on');
-set(handles.medaPopup1,'Enable','on');
+set(handles.medaPopup,'Enable','on');
 
 %Loading plot
 set(handles.text9,'Enable','on');
@@ -762,7 +764,7 @@ set(handles.text17,'Enable','on');
 set(handles.text18,'Enable','on');
 set(handles.clasloadingPopup,'Enable','on');
 set(handles.labloadingPopup,'Enable','on');
-set(handles.pushbutton12,'Enable','on');
+set(handles.loadingButton,'Enable','on');
 
 %Residue
 set(handles.resomedaButton,'Enable','on');
@@ -1002,10 +1004,10 @@ set(hObject,'Value',val);
 handles.data.new2=new2;
 guidata(hObject, handles);
 
-% --- Executes on button press in pushbutton4.
+% --- Executes on button press in scoreButton.
 %Pushbutton==Plot
-function pushbutton4_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton4 (see GCBO)
+function scoreButton_Callback(hObject, eventdata, handles)
+% hObject    handle to scoreButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %if isempty(handles.data.LV1) || isempty(handles.data.LV2),
@@ -1448,8 +1450,8 @@ function omedaButton_Callback(hObject, eventdata, handles)
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
 
-LV1=getCurrentPopupString(handles.xlvscorePopup);
-LV2=getCurrentPopupString(handles.ylvscorePopup);
+LV1=str2num(getCurrentPopupString(handles.xlvscorePopup));
+LV2=str2num(getCurrentPopupString(handles.ylvscorePopup));
 
 check_tag=get(ID,'Tag');
 if strcmp(check_tag,'ScorePlot'),
@@ -1708,10 +1710,10 @@ set(hObject,'Value',val);
 handles.data.new4=new4;
 guidata(hObject, handles);
 
-% --- Executes on button press in pushbutton12.
-%pushbutton12==Plot (loading plot)
-function pushbutton12_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton12 (see GCBO)
+% --- Executes on button press in loadingButton.
+%loadingButton==Plot (loading plot)
+function loadingButton_Callback(hObject, eventdata, handles)
+% hObject    handle to loadingButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %if isempty(handles.data.LV1_LP) || isempty(handles.data.LV2_LP),
@@ -1818,15 +1820,15 @@ function serRadio_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of serRadio
 
 
-% --- Executes on selection change in medaPopup1.
-%medaPopup1==MEDA popupmenu
-function medaPopup1_Callback(hObject, eventdata, handles)
-% hObject    handle to medaPopup1 (see GCBO)
+% --- Executes on selection change in medaPopup.
+%medaPopup==MEDA popupmenu
+function medaPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to medaPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns medaPopup1 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from medaPopup1
+% Hints: contents = cellstr(get(hObject,'String')) returns medaPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from medaPopup
 
 LVs_MEDA_position=get(hObject,'Value');%Incoming data position
 contents=get(hObject,'String');%Incoming data position
@@ -1837,8 +1839,8 @@ handles.data.LVs_MEDA=LVs_MEDA;
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
-function medaPopup1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to medaPopup1 (see GCBO)
+function medaPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to medaPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1854,7 +1856,10 @@ function medaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to medaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-handles.data.LVs_MEDA = str2num(getCurrentPopupString(handles.medaPopup1)) : str2num(getCurrentPopupString(handles.medaPopup2));
+LVs_MEDA = getCurrentPopupString(handles.medaPopup);
+%split LVsMEDA
+LVs_MEDA_cell = strsplit(LVs_MEDA,':');
+lvs = [str2num(LVs_MEDA_cell{1}):str2num(LVs_MEDA_cell{2})];
 %if isempty(handles.data.LVs_MEDA),
 %    errordlg('To perform MEDA select the LVs from the popupmenu.');
 %    return;
@@ -1871,8 +1876,7 @@ else if get(handles.thresRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
     end
 end
 
-[meda_map,meda_dis]=meda_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(str2num(handles.data.LVs_MEDA)):max(str2num(handles.data.LVs_MEDA)),handles.data.prepX,handles.data.prepY,handles.data.thres,handles.data.opt,handles.data.label_LP);
-
+[meda_map,meda_dis]=meda_pls(handles.data.data_matrixX,handles.data.data_matrixY,lvs,handles.data.prepX,handles.data.prepY,handles.data.thres,handles.data.opt,handles.data.label_LP);
 guidata(hObject,handles);
 
 % --- Executes on button press in selmedaButton.
@@ -2028,26 +2032,3 @@ function inforText_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to inforText (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-
-
-% --- Executes on selection change in medaPopup2.
-function medaPopup2_Callback(hObject, eventdata, handles)
-% hObject    handle to medaPopup2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns medaPopup2 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from medaPopup2
-
-
-% --- Executes during object creation, after setting all properties.
-function medaPopup2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to medaPopup2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
