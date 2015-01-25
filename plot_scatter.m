@@ -66,6 +66,7 @@ if nargin < 4 || isempty(axlabel)
 end
 if nargin < 5, opt = 0; end;
 
+if ischar(olabel), olabel = cellstr(olabel); end;
 if size(olabel,1) == 1, olabel = olabel'; end;
 if size(classes,1) == 1, classes = classes'; end;
 if size(axlabel,1) == 1, axlabel = axlabel'; end;
