@@ -109,7 +109,6 @@ function pcaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to pcaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-disp('HEYPCA');
 PCA;
 
 % --- Executes on button press in plsButton.
@@ -117,5 +116,4 @@ function plsButton_Callback(hObject, eventdata, handles)
 % hObject    handle to plsButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-disp('HEYPLS');
 PLS;
