@@ -45,7 +45,7 @@ function varargout = EDA(varargin)
 
 % Edit the above text to modify the response to help EDA
 
-% Last Modified by GUIDE v2.5 01-Mar-2013 09:38:03
+% Last Modified by GUIDE v2.5 25-Jan-2015 13:26:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -88,6 +88,11 @@ guidata(hObject, handles);
 % UIWAIT makes EDA wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
+%Load the logo image
+axes(handles.axesEDA);
+logo=image(imread('Logo.png'));
+set(get(logo,'Parent'),'YTick',[]);
+set(get(logo,'Parent'),'XTick',[]);
 
 % --- Outputs from this function are returned to the command line.
 function varargout = EDA_OutputFcn(hObject, eventdata, handles)
@@ -99,29 +104,18 @@ function varargout = EDA_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-% --- Executes during object creation, after setting all properties.
-function axes9_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to axes4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: place code in OpeningFcn to populate axes4
-axes(hObject);
-rgb = imread('Logo.png');
-a=image(rgb);
-set(get(a,'Parent'),'YTick',[]);
-set(get(a,'Parent'),'XTick',[]);
-
-% --- Executes on button press in pushbutton6.
-function pushbutton6_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton6 (see GCBO)
+% --- Executes on button press in pcaButton.
+function pcaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to pcaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+disp('HEYPCA');
 PCA;
 
-% --- Executes on button press in pushbutton7.
-function pushbutton7_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton7 (see GCBO)
+% --- Executes on button press in plsButton.
+function plsButton_Callback(hObject, eventdata, handles)
+% hObject    handle to plsButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+disp('HEYPLS');
 PLS;
