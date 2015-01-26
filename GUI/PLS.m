@@ -1046,12 +1046,12 @@ handles.data.sp_ID_figures=new_sp_ID_figures;%Identificadores de los Score Plots
 handles.data.sp_matrix=new_sp_matrix;
 
 if isempty(handles.data.label) && isempty(handles.data.classes),
-    [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,2);
+    [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1);
 else if ~isempty(handles.data.label) && isempty(handles.data.classes),
-        [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,2,handles.data.label);
+        [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1,handles.data.label);
     else if isempty(handles.data.label) && ~isempty(handles.data.classes),
-            [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,2,num2str((1:size(handles.data.data_matrixX,1))'),handles.data.classes);
-        else [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,2,handles.data.label,handles.data.classes);
+            [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1,[],handles.data.classes);
+        else [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1,handles.data.label,handles.data.classes);
         end
     end
 end

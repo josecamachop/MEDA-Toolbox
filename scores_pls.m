@@ -78,7 +78,8 @@ if nargin < 5, prepx = 2; end;
 if nargin < 6, prepy = 2; end; 
 if nargin < 7, opt = 1; end;
 if nargin < 8 || isempty(label)
-    label=num2str((1:s(1))'); 
+    label = [];
+    %label=num2str((1:s(1))'); 
 elseif ~isequal(label,' '),
     if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
     if size(label,1)~=s(1), error('Error in the dimension of the arguments.'); end;

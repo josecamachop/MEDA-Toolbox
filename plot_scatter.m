@@ -34,7 +34,7 @@ function fig_h = plot_scatter(bdata,olabel,classes,axlabel,opt)
 %
 % coded by: José Camacho Páez (josecamacho@ugr.es)
 %           Alejandro Pérez Villegas (alextoni@gmail.com)
-% last modification: 20/Jan/15.
+% last modification: 25/Jan/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  José Camacho Páez
@@ -66,11 +66,17 @@ if nargin < 4 || isempty(axlabel)
 end
 if nargin < 5, opt = 0; end;
 
-if ischar(olabel), olabel = cellstr(olabel); end;
-if size(olabel,1) == 1, olabel = olabel'; end;
+% Convert char arrays to cell
+if ischar(olabel),  olabel = cellstr(olabel); end;
+if ischar(classes), classes = cellstr(classes); end;
+if ischar(axlabel), axlabel = cellstr(axlabel); end;
+
+% Convert row arrays to column arrays
+if size(olabel,1)  == 1, olabel = olabel'; end;
 if size(classes,1) == 1, classes = classes'; end;
 if size(axlabel,1) == 1, axlabel = axlabel'; end;
 
+% Validate dimensions of input data
 assert (size(bdata,2) == 2, 'Dimension Error: bdata must be n-by-2.')
 assert (isequal(size(olabel), [N 1]), 'Dimension Error: label must be n-by-1.');
 assert (isequal(size(classes), [N 1]), 'Dimension Error: classes must be n-by-1.')
