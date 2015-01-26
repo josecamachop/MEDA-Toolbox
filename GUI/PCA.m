@@ -123,15 +123,21 @@ set(handles.text18,'Enable','off');
 set(handles.clasvarPopup,'Enable','off');
 set(handles.labvarPopup,'Enable','off');
 set(handles.medaButton,'Enable','off');
+set(handles.loadingButton,'Enable','off');
 
 %Residue
 set(handles.resomedaButton,'Enable','off');
 set(handles.resvarButton,'Enable','off');
 
+%Model
+set(handles.modelomedaButton,'Enable','off');
+set(handles.modelmedaButton,'Enable','off');
+
 %Information Panel:
+handles.data.messageNum=0;
+handles.data.messageNum_max=2;
 handles.data.text=[];
-text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button.');
-handles.data.text=cprint(handles.infoText,text,handles.data.text,0);
+information_message(handles);
 
 %Variables initialization:
 handles.data.PCs=[];
@@ -454,6 +460,20 @@ handles.data.text=cprint(handles.infoText,text,handles.data.text,0);
 
 guidata(hObject,handles);
 
+% Fuction to show the corresponding message in the information panel
+function information_message(handles)
+    switch handles.data.messageNum
+        case 0
+            text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button.');
+        case 1
+            text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button 1.');
+        case 2
+            text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button 2.');
+        otherwise
+            disp('No case detected')
+    end
+    handles.data.text=cprint(handles.infoText,text,handles.data.text,0);
+
 
 % --- Executes during object creation, after setting all properties.
 function pcEdit_CreateFcn(hObject, eventdata, handles)
@@ -638,10 +658,15 @@ set(handles.text17,'Enable','on');
 set(handles.text18,'Enable','on');
 set(handles.clasvarPopup,'Enable','on');
 set(handles.labvarPopup,'Enable','on');
+set(handles.loadingButton,'Enable','on');
 
 %Residue
 set(handles.resomedaButton,'Enable','on');
 set(handles.resvarButton,'Enable','on');
+
+%Model
+set(handles.modelomedaButton,'Enable','on');
+set(handles.modelmedaButton,'Enable','on');
 
 %Information panel:
 text=sprintf('Model generated successully!');
@@ -1927,14 +1952,22 @@ function nextButton_Callback(hObject, eventdata, handles)
 % hObject    handle to nextButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+if handles.data.messageNum < handles.data.messageNum_max
+    handles.data.messageNum = handles.data.messageNum +1;
+    information_message(handles);
+end
+guidata(hObject,handles);
 
 % --- Executes on button press in prevButton.
 function prevButton_Callback(hObject, eventdata, handles)
 % hObject    handle to prevButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+if handles.data.messageNum > 0
+    handles.data.messageNum = handles.data.messageNum -1;
+    information_message(handles);
+end
+guidata(hObject,handles);
 
 % --- Executes on button press in crossButton.
 function crossButton_Callback(hObject, eventdata, handles)

@@ -48,7 +48,7 @@ function varargout = PLS(varargin)
 
 % Edit the above text to modify the response to help PLS
 
-% Last Modified by GUIDE v2.5 25-Jan-2015 19:00:58
+% Last Modified by GUIDE v2.5 26-Jan-2015 23:50:17
 % Fixing some minor bugs on the GUI
 
 % Begin initialization code - DO NOT EDIT
@@ -128,10 +128,16 @@ set(handles.loadingButton,'Enable','off');
 set(handles.resomedaButton,'Enable','off');
 set(handles.resmedaButton,'Enable','off');
 
+%Model
+set(handles.modelomedaButton,'Enable','off');
+set(handles.modelmedaButton,'Enable','off');
+
 %Information Panel:
+
+handles.data.messageNum=0;
+handles.data.messageNum_max=2;
 handles.data.text=[];
-text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
+information_message(handles);
 
 %Variables initialization
 handles.data.LVs=[];
@@ -193,6 +199,21 @@ if iscell(list)
 else
    str = list(val,:);
 end
+
+% Fuction to show the corresponding message in the information panel
+function information_message(handles)
+    switch handles.data.messageNum
+        case 0
+            text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button.');
+        case 1
+            text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button 1.');
+        case 2
+            text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button 2.');
+        otherwise
+            disp('No case detected')
+    end
+    handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
+
 
 % --- Executes on selection change in xdataPopup.
 %xdataPopup==X Data
@@ -545,20 +566,33 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on button press in varlvsButton.
+% --- Executes on button press in generalButton.
 %pushbutton==VAR
-function varlvsButton_Callback(hObject, eventdata, handles)
-% hObject    handle to varlvsButton (see GCBO)
+function generalButton_Callback(hObject, eventdata, handles)
+% hObject    handle to generalButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[LVs_num,status]=str2num(get(handles.lvsEdit, 'String'));
+[LVs_num,status]=str2num(get(handles.generalEdit, 'String'));
 if status == false
     errordlg('Please enter a number of latent variables.');
     return;
 end
 
-[y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
+%Detect the selected general plot and plot it
+generalPlot = getCurrentPopupString(handles.generalPopup);
+switch generalPlot
+    case 'Var vs PCs'
+        [y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
+    case 'SVI plot'
+        disp('RODGOM SVI-to implement');
+        [y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
+    case 'Crossval2D'
+        disp('RODGOM Crossval2D-to implement');
+        [y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
+    otherwise
+        disp('No case detected')
+end
 
 % --- Executes on selection change in xprepPopup.
 %xprepPopup==X Prep
@@ -769,6 +803,10 @@ set(handles.loadingButton,'Enable','on');
 %Residue
 set(handles.resomedaButton,'Enable','on');
 set(handles.resmedaButton,'Enable','on');
+
+%Model
+set(handles.modelomedaButton,'Enable','on');
+set(handles.modelmedaButton,'Enable','on');
 
 %Information panel:
 text=sprintf('Model generated successully!');
@@ -2032,3 +2070,86 @@ function inforText_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to inforText (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes on button press in modelmedaButton.
+function modelmedaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to modelmedaButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in modelomedaButton.
+function modelomedaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to modelomedaButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on selection change in generalPopup.
+function generalPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to generalPopup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns generalPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from generalPopup
+
+
+% --- Executes during object creation, after setting all properties.
+function generalPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to generalPopup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function generalEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to generalEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of generalEdit as text
+%        str2double(get(hObject,'String')) returns contents of generalEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function generalEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to generalEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in prevButton.
+function prevButton_Callback(hObject, eventdata, handles)
+% hObject    handle to prevButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if handles.data.messageNum > 0
+    handles.data.messageNum = handles.data.messageNum -1;
+    information_message(handles);
+end
+guidata(hObject,handles);
+
+% --- Executes on button press in nextButton.
+function nextButton_Callback(hObject, eventdata, handles)
+% hObject    handle to nextButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if handles.data.messageNum < handles.data.messageNum_max
+    handles.data.messageNum = handles.data.messageNum +1;
+    information_message(handles);
+end
+guidata(hObject,handles);
