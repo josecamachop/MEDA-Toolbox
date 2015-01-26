@@ -49,7 +49,7 @@ function varargout = PCA(varargin)
 
 % Edit the above text to modify the response to help PCA
 
-% Last Modified by GUIDE v2.5 03-May-2013 19:18:17
+% Last Modified by GUIDE v2.5 25-Jan-2015 23:27:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -87,46 +87,46 @@ handles.output = hObject;
 %Score plot
 set(handles.text7,'Enable','off');
 set(handles.text8,'Enable','off');
-set(handles.popupmenu1,'Enable','off');
-set(handles.popupmenu7,'Enable','off');
+set(handles.xpcscorePopup,'Enable','off');
+set(handles.ypcscorePopup,'Enable','off');
 set(handles.text13,'Enable','off');
 set(handles.text14,'Enable','off');
-set(handles.popupmenu15,'Enable','off');
-set(handles.popupmenu16,'Enable','off');
-set(handles.pushbutton4,'Enable','off');
+set(handles.classcorePopup,'Enable','off');
+set(handles.labscorePopup,'Enable','off');
+set(handles.scoreButton,'Enable','off');
 
 %MEDA
-set(handles.popupmenu9,'Enable','off');
-set(handles.popupmenu9,'String',' ');
+set(handles.medaPopup,'Enable','off');
+set(handles.medaPopup,'String',' ');
 set(handles.text5,'Enable','off');
-set(handles.edit6,'Enable','off');
-set(handles.radiobutton1,'Enable','off');
-set(handles.radiobutton2,'Enable','off');
-set(handles.pushbutton5,'Enable','off');
-set(handles.pushbutton22,'Enable','off');
+set(handles.thresEdit,'Enable','off');
+set(handles.thresRadio,'Enable','off');
+set(handles.serRadio,'Enable','off');
+set(handles.medaButton,'Enable','off');
+set(handles.selmedaButton,'Enable','off');
 
 %oMEDA
-set(handles.pushbutton6,'Enable','off');
-set(handles.pushbutton7,'Enable','off');
-set(handles.pushbutton8,'Enable','off');
-set(handles.pushbutton9,'Enable','off');
-set(handles.pushbutton10,'Enable','off');
-set(handles.pushbutton11,'Enable','off');
+set(handles.omedaButton,'Enable','off');
+set(handles.selomedaButton,'Enable','off');
+set(handles.minusButton,'Enable','off');
+set(handles.plusButton,'Enable','off');
+set(handles.cleanButton,'Enable','off');
+set(handles.trendButton,'Enable','off');
 
 %Loading plot
 set(handles.text9,'Enable','off');
 set(handles.text10,'Enable','off');
-set(handles.popupmenu10,'Enable','off');
-set(handles.popupmenu11,'Enable','off');
+set(handles.xpcvarPopup,'Enable','off');
+set(handles.ypcvarPopup,'Enable','off');
 set(handles.text17,'Enable','off');
 set(handles.text18,'Enable','off');
-set(handles.popupmenu19,'Enable','off');
-set(handles.popupmenu20,'Enable','off');
-set(handles.pushbutton12,'Enable','off');
+set(handles.clasvarPopup,'Enable','off');
+set(handles.labvarPopup,'Enable','off');
+set(handles.medaButton,'Enable','off');
 
 %Residue
-set(handles.pushbutton20,'Enable','off');
-set(handles.pushbutton21,'Enable','off');
+set(handles.resomedaButton,'Enable','off');
+set(handles.resvarButton,'Enable','off');
 
 %Information Panel:
 handles.data.text=[];
@@ -177,15 +177,33 @@ varargout{1} = handles.output;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PCA Analysis%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% --- Executes on selection change in popupmenu6.
-%popupmenu6==Data
-function popupmenu6_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu6 (see GCBO)
+%Function to get the current string in a popupmenu
+function str = getCurrentPopupString(hh)
+%# getCurrentPopupString returns the currently selected string in the popupmenu with handle hh
+
+%# could test input here
+if ~ishandle(hh) || strcmp(get(hh,'Type'),'popupmenu')
+error('getCurrentPopupString needs a handle to a popupmenu as input')
+end
+
+%# get the string - do it the readable way
+list = get(hh,'String');
+val = get(hh,'Value');
+if iscell(list)
+   str = list{val};
+else
+   str = list(val,:);
+end
+
+% --- Executes on selection change in dataPopup.
+%dataPopup==Data
+function dataPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to dataPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu6 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu6
+% Hints: contents = cellstr(get(hObject,'String')) returns dataPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from dataPopup
 
 incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.WorkSpace{incoming_data};%Name of the incoming data position
@@ -202,21 +220,21 @@ dummy=zeros(1,M);
 handles.data.dummyRED=dummy;
 handles.data.dummyGREEN=dummy;
 
-set(handles.popupmenu16,'Value',1);
+set(handles.labscorePopup,'Value',1);
 handles.data.label={};
-set(handles.popupmenu15,'Value',1);
+set(handles.classcorePopup,'Value',1);
 handles.data.classes=[];
-set(handles.popupmenu20,'Value',1);
+set(handles.labvarPopup,'Value',1);
 handles.data.label_LP={};
-set(handles.popupmenu19,'Value',1);
+set(handles.clasvarPopup,'Value',1);
 handles.data.classes_LP=[];
 
 handles.data.namePopupmenu6=string_evaluation;
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu6_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu6 (see GCBO)
+function dataPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to dataPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -258,15 +276,15 @@ handles.data.WorkSpace=evalin('base','who');
 
 if ~isempty(handles.data.WorkSpace),
     
-    set(handles.popupmenu6, 'String', handles.data.WorkSpace);
-    nombres=cellstr(get(handles.popupmenu6,'String'));
+    set(handles.dataPopup, 'String', handles.data.WorkSpace);
+    nombres=cellstr(get(handles.dataPopup,'String'));
     if ~isempty(handles.data.namePopupmenu6),
         for i=1:length(nombres),
             if strcmp(nombres(i),handles.data.namePopupmenu6),
                 val=i;
             end
         end
-        set(handles.popupmenu6,'Value',val);
+        set(handles.dataPopup,'Value',val);
         handles.data.data_matrix=evalin('base',handles.data.WorkSpace{val});
     end
     %Para que la primera vez que se pulse Refresh con el workspace distinto
@@ -279,7 +297,7 @@ if ~isempty(handles.data.WorkSpace),
     end
     
     %Refresh the Label and Classes popupmenus:
-    contents=get(handles.popupmenu15,'String');
+    contents=get(handles.classcorePopup,'String');
     aux=[];
     for i=1:length(handles.data.WorkSpace),
         aux=[aux handles.data.WorkSpace(i,:)];
@@ -291,19 +309,19 @@ if ~isempty(handles.data.WorkSpace),
         end
     end
     aux=[b1,aux];
-    set(handles.popupmenu15,'String',strvcat(aux));
-    nombres=cellstr(get(handles.popupmenu15,'String'));
+    set(handles.classcorePopup,'String',strvcat(aux));
+    nombres=cellstr(get(handles.classcorePopup,'String'));
     if ~strcmp(handles.data.namePopupmenu15,'emptyclasses'),
         for i=1:length(nombres),
             if strcmp(nombres(i),handles.data.namePopupmenu15),
                 val=i;
             end
         end
-        set(handles.popupmenu15,'Value',val);
+        set(handles.classcorePopup,'Value',val);
         handles.data.classes=evalin('base',handles.data.WorkSpace{val-1});    
     end
     
-    contents=get(handles.popupmenu16,'String');
+    contents=get(handles.labscorePopup,'String');
     aux2=[];
     for i=1:length(handles.data.WorkSpace),
         aux2=[aux2 handles.data.WorkSpace(i,:)];
@@ -315,20 +333,20 @@ if ~isempty(handles.data.WorkSpace),
         end
     end
     aux2=[b2,aux2];
-    set(handles.popupmenu16,'String',strvcat(aux2));
-    nombres=cellstr(get(handles.popupmenu16,'String'));
+    set(handles.labscorePopup,'String',strvcat(aux2));
+    nombres=cellstr(get(handles.labscorePopup,'String'));
     if ~strcmp(handles.data.namePopupmenu16,'emptylabel'),
         for i=1:length(nombres),
             if strcmp(nombres(i),handles.data.namePopupmenu16),
                 val=i;
             end
         end
-        set(handles.popupmenu16,'Value',val);
+        set(handles.labscorePopup,'Value',val);
         handles.data.label=evalin('base',handles.data.WorkSpace{val-1});    
     end
     
     
-    contents=get(handles.popupmenu19,'String');
+    contents=get(handles.clasvarPopup,'String');
     aux3=[];
     for i=1:length(handles.data.WorkSpace),
         aux3=[aux3 handles.data.WorkSpace(i,:)];
@@ -340,19 +358,19 @@ if ~isempty(handles.data.WorkSpace),
         end
     end
     aux3=[b3,aux3];
-    set(handles.popupmenu19,'String',strvcat(aux3));
-    nombres=cellstr(get(handles.popupmenu19,'String'));
+    set(handles.clasvarPopup,'String',strvcat(aux3));
+    nombres=cellstr(get(handles.clasvarPopup,'String'));
     if ~strcmp(handles.data.namePopupmenu19,'emptyclasses'),
         for i=1:length(nombres),
             if strcmp(nombres(i),handles.data.namePopupmenu19),
                 val=i;
             end
         end
-        set(handles.popupmenu19,'Value',val);
+        set(handles.clasvarPopup,'Value',val);
         handles.data.classes_LP=evalin('base',handles.data.WorkSpace{val-1});    
     end
     
-    contents=get(handles.popupmenu20,'String');
+    contents=get(handles.labvarPopup,'String');
     aux4=[];
     for i=1:length(handles.data.WorkSpace),
         aux4=[aux4 handles.data.WorkSpace(i,:)];
@@ -364,15 +382,15 @@ if ~isempty(handles.data.WorkSpace),
         end
     end
     aux4=[b4,aux4];
-    set(handles.popupmenu20,'String',strvcat(aux4));
-    nombres=cellstr(get(handles.popupmenu20,'String'));
+    set(handles.labvarPopup,'String',strvcat(aux4));
+    nombres=cellstr(get(handles.labvarPopup,'String'));
     if ~strcmp(handles.data.namePopupmenu20,'emptylabel'),
         for i=1:length(nombres),
             if strcmp(nombres(i),handles.data.namePopupmenu20),
                 val=i;
             end
         end
-        set(handles.popupmenu20,'Value',val);
+        set(handles.labvarPopup,'Value',val);
         handles.data.label_LP=evalin('base',handles.data.WorkSpace{val-1});    
     end
     
@@ -382,22 +400,22 @@ if ~isempty(handles.data.WorkSpace),
     
     handles.data.control_Refresh=1;
 else
-    set(handles.popupmenu6, 'String', ' ');
+    set(handles.dataPopup, 'String', ' ');
     handles.data.data_matrix=[];
     
-    contents=get(handles.popupmenu15,'String');
+    contents=get(handles.classcorePopup,'String');
     aux=[];
     aux=[contents(1,:),aux];
     
-    contents=get(handles.popupmenu16,'String');
+    contents=get(handles.labscorePopup,'String');
     aux2=[];
     aux2=[contents(1,:),aux2];
     
-    contents=get(handles.popupmenu19,'String');
+    contents=get(handles.clasvarPopup,'String');
     aux3=[];
     aux3=[contents(1,:),aux3];
     
-    contents=get(handles.popupmenu20,'String');
+    contents=get(handles.labvarPopup,'String');
     aux4=[];
     aux4=[contents(1,:),aux4];
         
@@ -413,13 +431,13 @@ handles.data.new3=aux4;
 guidata(hObject,handles);
 
 %edit text==PCs
-function edit5_Callback(hObject, eventdata, handles)
-% hObject    handle to edit5 (see GCBO)
+function pcEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to pcEdit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit5 as text
-%        str2double(get(hObject,'String')) returns contents of edit5 as a double
+% Hints: get(hObject,'String') returns contents of pcEdit as text
+%        str2double(get(hObject,'String')) returns contents of pcEdit as a double
 PCs=str2num(get(hObject,'String'));
 
 if max(PCs)>size(handles.data.data_matrix,2),
@@ -430,41 +448,6 @@ end
 
 handles.data.PCs = PCs;
 
-%Si la variable handles.data.PCs es distinta de vac�a, imprimir en popupmenu1,
-%popupmenu10, popupmenu11 y popupmenu7 los PCs posibles.
-if ~isempty(handles.data.PCs),
-    set(handles.popupmenu1, 'String',handles.data.PCs);
-    set(handles.popupmenu7, 'String',handles.data.PCs);
-    set(handles.popupmenu10, 'String',handles.data.PCs);
-    set(handles.popupmenu11, 'String',handles.data.PCs);
-    
-    %Imprimir en popupmenu de submenu MEDA todas las combinaciones posibles
-    %para hacer MEDA
-    k=min(handles.data.PCs);
-    options=[];
-    for i=min(handles.data.PCs):max(handles.data.PCs),
-        for j=k:max(handles.data.PCs),
-            options=[options,i,j];
-        end
-        k=k+1;
-    end
-    
-    set(handles.popupmenu9,'String','');
-    for i=1:2:(length(options)-1),
-        contents=get(handles.popupmenu9,'String');
-        set(handles.popupmenu9,'String',strvcat(contents,sprintf('%d:%d',options(i),options(i+1))));
-    end
-end
-
-if handles.data.auxPCs==0,
-handles.data.PC1=min(handles.data.PCs);
-handles.data.PC2=min(handles.data.PCs);
-handles.data.PC1_LP=min(handles.data.PCs);
-handles.data.PC2_LP=min(handles.data.PCs);
-handles.data.PCs_MEDA=sprintf('%d:%d',min(handles.data.PCs),min(handles.data.PCs));
-handles.data.auxPCs=1;
-end
-
 %Information Panel:
 text=sprintf('Select the preprocessing of the data:\n-No preprocessing\n-Mean centering (default)\n-Auto-scaling (centers and scales data so that each variable has variance 1).');
 handles.data.text=cprint(handles.text1,text,handles.data.text,0);
@@ -473,8 +456,8 @@ guidata(hObject,handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function edit5_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit5 (see GCBO)
+function pcEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to pcEdit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -484,23 +467,30 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on button press in pushbutton23.
+% --- Executes on button press in varpcButton.
 %pushbutton==VAR
-function pushbutton23_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton23 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-x_var = var_pca(handles.data.data_matrix,max(handles.data.PCs),handles.data.prep,1);
-
-% --- Executes on selection change in popupmenu5.
-%popupmenu5==Prep
-function popupmenu5_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu5 (see GCBO)
+function varpcButton_Callback(hObject, eventdata, handles)
+% hObject    handle to varpcButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu5 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu5
+[pc_num,status]=str2num(get(handles.pcEdit, 'String'));
+if status == false
+    errordlg('Please enter a number of latent variables.');
+    return;
+end
+
+x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+
+% --- Executes on selection change in prepPopup.
+%prepPopup==Prep
+function prepPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to prepPopup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns prepPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from prepPopup
 nombres=cellstr(get(hObject,'String'));
 val=nombres{get(hObject,'Value')};
 
@@ -535,8 +525,8 @@ handles.data.control=1;
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu5_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu5 (see GCBO)
+function prepPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to prepPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -550,13 +540,13 @@ end
 
 handles.data.control=0;
 set(hObject, 'Value', 2);%Default value for the preprocessing method: mean-centering
-popupmenu5_Callback(hObject, eventdata, handles)%Para llamar al valor por defecto
+prepPopup_Callback(hObject, eventdata, handles)%Para llamar al valor por defecto
 
 
-% --- Executes on button press in pushbutton2.
-%pushbutton2==PCA
-function pushbutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton2 (see GCBO)
+% --- Executes on button press in pcaButton.
+%pcaButton==PCA
+function pcaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to pcaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -565,45 +555,82 @@ if isempty(handles.data.data_matrix),
     errordlg('No data matrix selected, please select one.');
     return;
 end
-if isempty(handles.data.PCs),
-    errordlg('No PCs defined, please define them.');
+[pc_num,status]=str2num(get(handles.pcEdit, 'String'));
+if status == false
+    errordlg('Please enter a number of PCs.');
     return;
+end
+handles.data.PCs=[1:pc_num];
+
+%Si la variable handles.data.PCs es distinta de vacía, imprimir en xpcscorePopup,
+%xpcvarPopup, ypcvarPopup y ypcscorePopup los PCs posibles.
+if ~isempty(handles.data.PCs),
+    set(handles.xpcscorePopup, 'String',handles.data.PCs);
+    set(handles.ypcscorePopup, 'String',handles.data.PCs);
+    set(handles.xpcvarPopup, 'String',handles.data.PCs);
+    set(handles.ypcvarPopup, 'String',handles.data.PCs);
+    
+    %Imprimir en popupmenu de submenu MEDA todas las combinaciones posibles
+    %para hacer MEDA
+    k=min(handles.data.PCs);
+    options=[];
+    for i=min(handles.data.PCs):max(handles.data.PCs),
+        for j=k:max(handles.data.PCs),
+            options=[options,i,j];
+        end
+        k=k+1;
+    end
+    
+    set(handles.medaPopup,'String','');
+    for i=1:2:(length(options)-1),
+        contents=get(handles.medaPopup,'String');
+        set(handles.medaPopup,'String',strvcat(contents,sprintf('%d:%d',options(i),options(i+1))));
+    end
+end
+
+if handles.data.auxPCs==0,
+handles.data.PC1=min(handles.data.PCs);
+handles.data.PC2=min(handles.data.PCs);
+handles.data.PC1_LP=min(handles.data.PCs);
+handles.data.PC2_LP=min(handles.data.PCs);
+handles.data.PCs_MEDA=sprintf('%d:%d',min(handles.data.PCs),min(handles.data.PCs));
+handles.data.auxPCs=1;
 end
 
 [handles.data.matrixLoadings,handles.data.matrixScores]=pca_pp(handles.data.data_matrix,max(handles.data.PCs));
 
-%Definici�n del estado de la interfaz tras pulsar PCA:
+%Definición del estado de la interfaz tras pulsar PCA:
 %Score plot
-set(handles.popupmenu1,'Enable','on');
-set(handles.popupmenu7,'Enable','on');
-set(handles.pushbutton4,'Enable','on');
+set(handles.xpcscorePopup,'Enable','on');
+set(handles.ypcscorePopup,'Enable','on');
+set(handles.scoreButton,'Enable','on');
 set(handles.text7,'Enable','on');
 set(handles.text8,'Enable','on');
 set(handles.text13,'Enable','on');
 set(handles.text14,'Enable','on');
-set(handles.popupmenu15,'Enable','on');
-set(handles.popupmenu16,'Enable','on');
+set(handles.classcorePopup,'Enable','on');
+set(handles.labscorePopup,'Enable','on');
 
 %MEDA
-set(handles.radiobutton1,'Enable','on');
-set(handles.radiobutton2,'Enable','on');
-set(handles.pushbutton5,'Enable','on');
-set(handles.popupmenu9,'Enable','on');
+set(handles.thresRadio,'Enable','on');
+set(handles.serRadio,'Enable','on');
+set(handles.medaButton,'Enable','on');
+set(handles.medaPopup,'Enable','on');
 
 %Loading plot
 set(handles.text9,'Enable','on');
 set(handles.text10,'Enable','on');
-set(handles.popupmenu10,'Enable','on');
-set(handles.popupmenu11,'Enable','on');
-set(handles.pushbutton12,'Enable','on');
+set(handles.xpcvarPopup,'Enable','on');
+set(handles.ypcvarPopup,'Enable','on');
+set(handles.medaButton,'Enable','on');
 set(handles.text17,'Enable','on');
 set(handles.text18,'Enable','on');
-set(handles.popupmenu19,'Enable','on');
-set(handles.popupmenu20,'Enable','on');
+set(handles.clasvarPopup,'Enable','on');
+set(handles.labvarPopup,'Enable','on');
 
 %Residue
-set(handles.pushbutton20,'Enable','on');
-set(handles.pushbutton21,'Enable','on');
+set(handles.resomedaButton,'Enable','on');
+set(handles.resvarButton,'Enable','on');
 
 %Information panel:
 text=sprintf('Model generated successully!');
@@ -625,15 +652,15 @@ function uipanel3_CreateFcn(hObject, eventdata, handles)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%Score Plot Submenu%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% --- Executes on selection change in popupmenu1.
-%popupmenu1==PC X-axes
-function popupmenu1_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu1 (see GCBO)
+% --- Executes on selection change in xpcscorePopup.
+%xpcscorePopup==PC X-axes
+function xpcscorePopup_Callback(hObject, eventdata, handles)
+% hObject    handle to xpcscorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu1 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu1
+% Hints: contents = cellstr(get(hObject,'String')) returns xpcscorePopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from xpcscorePopup
 incoming_data_PC1=get(hObject,'Value');%Incoming data position
 handles.data.PC1=incoming_data_PC1;
 
@@ -641,8 +668,8 @@ guidata(hObject,handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu1 (see GCBO)
+function xpcscorePopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to xpcscorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -652,23 +679,23 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on selection change in popupmenu7.
-%popupmenu7==PC Y-axes
-function popupmenu7_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu7 (see GCBO)
+% --- Executes on selection change in ypcscorePopup.
+%ypcscorePopup==PC Y-axes
+function ypcscorePopup_Callback(hObject, eventdata, handles)
+% hObject    handle to ypcscorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu7 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu7
+% Hints: contents = cellstr(get(hObject,'String')) returns ypcscorePopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from ypcscorePopup
 incoming_data_PC2=get(hObject,'Value');%Incoming data position
 handles.data.PC2=incoming_data_PC2;
 
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu7_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu7 (see GCBO)
+function ypcscorePopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ypcscorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -678,15 +705,15 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on selection change in popupmenu16.
-%popupmenu16==Label
-function popupmenu16_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu16 (see GCBO)
+% --- Executes on selection change in labscorePopup.
+%labscorePopup==Label
+function labscorePopup_Callback(hObject, eventdata, handles)
+% hObject    handle to labscorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu16 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu16
+% Hints: contents = cellstr(get(hObject,'String')) returns labscorePopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from labscorePopup
 
 %Information Panel:
 text=sprintf('This is an optinal field that assign a name to each of the observations.');
@@ -725,8 +752,8 @@ end
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu16_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu16 (see GCBO)
+function labscorePopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to labscorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -763,15 +790,15 @@ handles.data.new1=new1;
 handles.data.namePopupmenu16='emptylabel';
 guidata(hObject, handles);
 
-% --- Executes on selection change in popupmenu15.
-%popupmenu15==Classes
-function popupmenu15_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu15 (see GCBO)
+% --- Executes on selection change in classcorePopup.
+%classcorePopup==Classes
+function classcorePopup_Callback(hObject, eventdata, handles)
+% hObject    handle to classcorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu15 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu15
+% Hints: contents = cellstr(get(hObject,'String')) returns classcorePopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from classcorePopup
 
 %Information panel
 text=sprintf('This is an optinal field that colour the observations according to the value assigned to each of them.');
@@ -811,8 +838,8 @@ guidata(hObject,handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu15_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu15 (see GCBO)
+function classcorePopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to classcorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -848,15 +875,14 @@ set(hObject,'Value',val);
 handles.data.new2=new2;
 guidata(hObject, handles);
 
-% --- Executes on button press in pushbutton4.
+% --- Executes on button press in scoreButton.
 %Pushbutton==Plot
-function pushbutton4_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton4 (see GCBO)
+function scoreButton_Callback(hObject, eventdata, handles)
+% hObject    handle to scoreButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if isempty(handles.data.PC1) || isempty(handles.data.PC2),
-    errordlg('Error: select the combination of PCs to plot the scores.');
-end
+handles.data.PC1 = str2num(getCurrentPopupString(handles.xpcscorePopup));
+handles.data.PC2 = str2num(getCurrentPopupString(handles.ypcscorePopup));
 
 all_opened_graphs=get(0,'Children');
 new_sp_ID_figures=[];
@@ -907,7 +933,7 @@ handles.data.sp_ID_figures=[handles.data.sp_ID_figures fig];%Vector con los iden
 handles.data.sp_matrix={handles.data.sp_matrix{:} matrixPCs_oMEDA};
 
 %oMEDA (Select)
-set(handles.pushbutton7,'Enable','on');
+set(handles.selomedaButton,'Enable','on');
 %Information panel
 text=sprintf('To perform an oMEDA plot push on the SELECT button in the oMEDA menu (upon selection of a Score Plot).');
 handles.data.text=cprint(handles.text1,text,handles.data.text,0);
@@ -917,10 +943,10 @@ guidata(hObject,handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%oMEDA Submenu%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% --- Executes on button press in pushbutton7.
-%pushbutton7==SELECT
-function pushbutton7_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton7 (see GCBO)
+% --- Executes on button press in selomedaButton.
+%selomedaButton==SELECT
+function selomedaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to selomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -1021,9 +1047,9 @@ for j=1:M, %Se recorren todas las observaciones
     CORTES=[CORTES,corte];
 end
 
-set(handles.pushbutton8,'Enable','on');
-set(handles.pushbutton9,'Enable','on');
-set(handles.pushbutton10,'Enable','on');
+set(handles.minusButton,'Enable','on');
+set(handles.plusButton,'Enable','on');
+set(handles.cleanButton,'Enable','on');
 
 handles.data.CORTES{1,ID}=CORTES;
 handles.data.matrix_2PCs{1,ID}=matrix_2PCs;
@@ -1031,10 +1057,10 @@ handles.data.clean_control(ID)=handles.data.clean_control(ID)+1;
 
 guidata(hObject,handles);
 
-% --- Executes on button press in pushbutton8.
-%pushbutton8==- -> RED
-function pushbutton8_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton8 (see GCBO)
+% --- Executes on button press in minusButton.
+%minusButton==- -> RED
+function minusButton_Callback(hObject, eventdata, handles)
+% hObject    handle to minusButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
@@ -1073,8 +1099,8 @@ for l=1:M,
 end
 
 handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
-set(handles.pushbutton6,'Enable','on');
-set(handles.pushbutton11,'Enable','on');
+set(handles.omedaButton,'Enable','on');
+set(handles.trendButton,'Enable','on');
 %Information Panel:
 text=sprintf('Push on the SELECT button again to repeat this process and select all the required points.');
 handles.data.text=cprint(handles.text1,text,handles.data.text,0);
@@ -1084,10 +1110,10 @@ text=sprintf('Finally push on the Plot button to obtain the oMEDA plot.');
 handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 guidata(hObject,handles);
 
-% --- Executes on button press in pushbutton9.
-%pushbutton9==+ -> GREEN
-function pushbutton9_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton9 (see GCBO)
+% --- Executes on button press in plusButton.
+%plusButton==+ -> GREEN
+function plusButton_Callback(hObject, eventdata, handles)
+% hObject    handle to plusButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -1125,8 +1151,8 @@ for l=1:M,
 end
 
 handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
-set(handles.pushbutton6,'Enable','on');
-set(handles.pushbutton11,'Enable','on');
+set(handles.omedaButton,'Enable','on');
+set(handles.trendButton,'Enable','on');
 %Information panel:
 text=sprintf('Push on the SELECT button again to repeat this process and select all the required points.');
 handles.data.text=cprint(handles.text1,text,handles.data.text,0);
@@ -1137,10 +1163,10 @@ handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 guidata(hObject,handles);
 
 
-% --- Executes on button press in pushbutton11.
-%pushbutton11==TREND LINE
-function pushbutton11_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton11 (see GCBO)
+% --- Executes on button press in trendButton.
+%trendButton==TREND LINE
+function trendButton_Callback(hObject, eventdata, handles)
+% hObject    handle to trendButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
@@ -1252,10 +1278,10 @@ handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 
 guidata(hObject,handles);
 
-% --- Executes on button press in pushbutton10.
-%pushbutton10==CLEAN
-function pushbutton10_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton10 (see GCBO)
+% --- Executes on button press in cleanButton.
+%cleanButton==CLEAN
+function cleanButton_Callback(hObject, eventdata, handles)
+% hObject    handle to cleanButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -1289,10 +1315,10 @@ handles.data.dummyGREEN=dummy;
 guidata(hObject,handles);
 
 
-% --- Executes on button press in pushbutton6.
-%pushbutton6==Plot (oMEDA)
-function pushbutton6_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton6 (see GCBO)
+% --- Executes on button press in omedaButton.
+%omedaButton==Plot (oMEDA)
+function omedaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to omedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
@@ -1323,10 +1349,10 @@ guidata(hObject,handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Residue%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% --- Executes on button press in pushbutton20.
-%pushbutton20==Plot(residue)
-function pushbutton20_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton20 (see GCBO)
+% --- Executes on button press in resomedaButton.
+%resomedaButton==Plot(residue)
+function resomedaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to resomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 E=sqresiduals_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,1,handles.data.label);
@@ -1336,23 +1362,23 @@ handles.data.text=cprint(handles.text1,text,handles.data.text,0);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Loading Plot%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% --- Executes on selection change in popupmenu10.
-%popupmenu10==PCs X-axes
-function popupmenu10_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu10 (see GCBO)
+% --- Executes on selection change in xpcvarPopup.
+%xpcvarPopup==PCs X-axes
+function xpcvarPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to xpcvarPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu10 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu10
+% Hints: contents = cellstr(get(hObject,'String')) returns xpcvarPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from xpcvarPopup
 incoming_data_PC1_LP=get(hObject,'Value');%Incoming data position
 handles.data.PC1_LP=incoming_data_PC1_LP;
 
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu10_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu10 (see GCBO)
+function xpcvarPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to xpcvarPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1363,15 +1389,15 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on selection change in popupmenu11.
-%popupmenu11==PCs Y-axes
-function popupmenu11_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu11 (see GCBO)
+% --- Executes on selection change in ypcvarPopup.
+%ypcvarPopup==PCs Y-axes
+function ypcvarPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to ypcvarPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu11 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu11
+% Hints: contents = cellstr(get(hObject,'String')) returns ypcvarPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from ypcvarPopup
 incoming_data_PC2_LP=get(hObject,'Value');%Incoming data position
 handles.data.PC2_LP=incoming_data_PC2_LP;
 
@@ -1379,8 +1405,8 @@ guidata(hObject,handles);
 
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu11_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu11 (see GCBO)
+function ypcvarPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ypcvarPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1391,15 +1417,15 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on selection change in popupmenu20.
-%popupmenu20==Label
-function popupmenu20_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu20 (see GCBO)
+% --- Executes on selection change in labvarPopup.
+%labvarPopup==Label
+function labvarPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to labvarPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu20 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu20
+% Hints: contents = cellstr(get(hObject,'String')) returns labvarPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from labvarPopup
 text=sprintf('This is an optinal field that assign a name to each of the variables');
 handles.data.text=cprint(handles.text1,text,handles.data.text,0);
 text=sprintf('Label is a cell having this format: {`x`,`x`,`y`,`y`,...,`z`,`z`}, containing as many tags as the number of variables.');
@@ -1436,8 +1462,8 @@ end
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu20_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu20 (see GCBO)
+function labvarPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to labvarPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1473,15 +1499,15 @@ set(hObject,'Value',val);
 handles.data.new3=new3;
 guidata(hObject, handles);
 
-% --- Executes on selection change in popupmenu19.
-%popupmenu20==Classes
-function popupmenu19_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu19 (see GCBO)
+% --- Executes on selection change in clasvarPopup.
+%labvarPopup==Classes
+function clasvarPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to clasvarPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu19 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu19
+% Hints: contents = cellstr(get(hObject,'String')) returns clasvarPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from clasvarPopup
 text=sprintf('This is an optinal field that colour the variables according to the value assigned to each of them.');
 handles.data.text=cprint(handles.text1,text,handles.data.text,0);
 text=sprintf('Classes is an array having this format: [1,1,2,2,...,3,3], containing as many entries as the number of variables.');
@@ -1518,8 +1544,8 @@ end
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu19_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu19 (see GCBO)
+function clasvarPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to clasvarPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1556,15 +1582,14 @@ handles.data.new4=new4;
 guidata(hObject, handles);
 
 
-% --- Executes on button press in pushbutton12.
-%pushbutton12==Plot (loading plot)
-function pushbutton12_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton12 (see GCBO)
+% --- Executes on button press in medaButton.
+%medaButton==Plot (loading plot)
+function loadingButton_Callback(hObject, eventdata, handles)
+% hObject    handle to medaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-if isempty(handles.data.PC1_LP) || isempty(handles.data.PC2_LP),
-    errordlg('Error: select the combination of PCs to plot the loadings.');
-end
+handles.data.PC1_LP=str2num(getCurrentPopupString(handles.xpcvarPopup));
+handles.data.PC2_LP=str2num(getCurrentPopupString(handles.ypcvarPopup));
 
 all_opened_graphs=get(0,'Children');
 new_lp_ID_figures=[];
@@ -1598,7 +1623,7 @@ matrixPCs_MEDA_LP=[P(:,handles.data.PC1_LP),P(:,handles.data.PC2_LP)];
 handles.data.lp_ID_figures=[handles.data.lp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.lp_matrix={handles.data.lp_matrix{:} matrixPCs_MEDA_LP};
 
-set(handles.pushbutton22,'Enable','on');
+set(handles.selmedaButton,'Enable','on');
 
 text=sprintf('To perform a MEDA plot, push on the SELECT button in the MEDA menu (upon selection of Loading Plot).');
 handles.data.text=cprint(handles.text1,text,handles.data.text,0);
@@ -1608,21 +1633,21 @@ guidata(hObject,handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%MEDA Submenu%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%edit6==thresold
-function edit6_Callback(hObject, eventdata, handles)
-% hObject    handle to edit6 (see GCBO)
+%thresEdit==thresold
+function thresEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to thresEdit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of edit6 as text
-%        str2double(get(hObject,'String')) returns contents of edit6 as a double
+% Hints: get(hObject,'String') returns contents of thresEdit as text
+%        str2double(get(hObject,'String')) returns contents of thresEdit as a double
 thres=str2double(get(hObject,'String'));
 handles.data.thres = thres;
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
-function edit6_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit6 (see GCBO)
+function thresEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to thresEdit (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1633,58 +1658,58 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 set(hObject, 'String', 0.1);
-edit6_Callback(hObject, eventdata, handles);
+thresEdit_Callback(hObject, eventdata, handles);
 
-% --- Executes on button press in radiobutton1.
-%radiobutton1==thresold
-function radiobutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton1 (see GCBO)
+% --- Executes on button press in thresRadio.
+%thresRadio==thresold
+function thresRadio_Callback(hObject, eventdata, handles)
+% hObject    handle to thresRadio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% Hint: get(hObject,'Value') returns toggle state of radiobutton1
+% Hint: get(hObject,'Value') returns toggle state of thresRadio
 %Si radio button se�alado q ecit 6 este ON si no se�alado q este OFF
-if get(handles.radiobutton1, 'Value'),
-    set(handles.edit6, 'Enable', 'on');
+if get(handles.thresRadio, 'Value'),
+    set(handles.thresEdit, 'Enable', 'on');
     set(handles.text5, 'Enable', 'on');
 else
-    set(handles.edit6, 'Enable', 'off');
+    set(handles.thresEdit, 'Enable', 'off');
     set(handles.text5, 'Enable', 'off');
 end
 
 guidata(hObject,handles);
 
 
-% --- Executes on button press in radiobutton2.
-%radiobutton1==seriation
-function radiobutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton2 (see GCBO)
+% --- Executes on button press in serRadio.
+%thresRadio==seriation
+function serRadio_Callback(hObject, eventdata, handles)
+% hObject    handle to serRadio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of radiobutton2
+% Hint: get(hObject,'Value') returns toggle state of serRadio
 
 
-% --- Executes on selection change in popupmenu9.
-%popupmenu9==MEDA popupmenu
-function popupmenu9_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu9 (see GCBO)
+% --- Executes on selection change in medaPopup.
+%medaPopup==MEDA popupmenu
+function medaPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to medaPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu9 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu9
+% Hints: contents = cellstr(get(hObject,'String')) returns medaPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from medaPopup
 
 PCs_MEDA_position=get(hObject,'Value');%Incoming data position
 contents=get(hObject,'String');
-PCs_MEDA=contents(PCs_MEDA_position,:);%Nombre correspondiente a la posici�n
+PCs_MEDA=contents(PCs_MEDA_position,:);%Nombre correspondiente a la posición
 
 handles.data.PCs_MEDA=PCs_MEDA;
 
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
-function popupmenu9_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu9 (see GCBO)
+function medaPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to medaPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1694,23 +1719,19 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on button press in pushbutton5.
-%pushbutton5==Plot (MEDA)
-function pushbutton5_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton5 (see GCBO)
+% --- Executes on button press in medaButton.
+%medaButton==Plot (MEDA)
+function medaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to medaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+handles.data.PCs_MEDA=getCurrentPopupString(handles.medaPopup);
 
-if isempty(handles.data.PCs_MEDA),
-    errordlg('To perform MEDA select the PCs from the popupmenu.');
-    return;
-end
-
-if get(handles.radiobutton1,'Value')==1 && get(handles.radiobutton2,'Value')==0,
+if get(handles.thresRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
     handles.data.opt=2;
-else if get(handles.radiobutton1,'Value')==0 && get(handles.radiobutton2,'Value')==1,
+else if get(handles.thresRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
         handles.data.opt=3;
-    else if get(handles.radiobutton2,'Value')==0 && get(handles.radiobutton2,'Value')==0,
+    else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0,
             handles.data.opt=1;
         else handles.data.opt=4;
         end
@@ -1721,10 +1742,10 @@ end
 
 guidata(hObject,handles);
 
-% --- Executes on button press in pushbutton22.
-%pushbutton22==Select (MEDA)
-function pushbutton22_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton22 (see GCBO)
+% --- Executes on button press in selmedaButton.
+%selmedaButton==Select (MEDA)
+function selmedaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to selmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
@@ -1837,11 +1858,11 @@ for l=1:M,
     end
 end
 
-if get(handles.radiobutton1,'Value')==1 && get(handles.radiobutton2,'Value')==0,
+if get(handles.thresRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
     handles.data.opt=2;
-else if get(handles.radiobutton1,'Value')==0 && get(handles.radiobutton2,'Value')==1,
+else if get(handles.thresRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
         handles.data.opt=3;
-    else if get(handles.radiobutton2,'Value')==0 && get(handles.radiobutton2,'Value')==0,
+    else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0,
             handles.data.opt=1;
         else handles.data.opt=4;
         end
@@ -1855,10 +1876,10 @@ guidata(hObject,handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Residue%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% --- Executes on button press in pushbutton21.
-%pushbutton21==Plot (residue)
-function pushbutton21_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton21 (see GCBO)
+% --- Executes on button press in resvarButton.
+%resvarButton==Plot (residue)
+function resvarButton_Callback(hObject, eventdata, handles)
+% hObject    handle to resvarButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 E=sqresiduals_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,2,handles.data.label_LP);
