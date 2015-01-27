@@ -49,7 +49,7 @@ function varargout = PCA(varargin)
 
 % Edit the above text to modify the response to help PCA
 
-% Last Modified by GUIDE v2.5 25-Jan-2015 23:27:36
+% Last Modified by GUIDE v2.5 26-Jan-2015 00:29:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -123,15 +123,24 @@ set(handles.text18,'Enable','off');
 set(handles.clasvarPopup,'Enable','off');
 set(handles.labvarPopup,'Enable','off');
 set(handles.medaButton,'Enable','off');
+set(handles.loadingButton,'Enable','off');
 
 %Residue
 set(handles.resomedaButton,'Enable','off');
 set(handles.resvarButton,'Enable','off');
 
+%Model
+set(handles.modelomedaButton,'Enable','off');
+set(handles.modelmedaButton,'Enable','off');
+
+%Summary Panel:
+handles.data.sumtext = [];
+
 %Information Panel:
+handles.data.messageNum=0;
+handles.data.messageNum_max=10;
 handles.data.text=[];
-text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
+information_message(handles);
 
 %Variables initialization:
 handles.data.PCs=[];
@@ -210,9 +219,10 @@ string_evaluation=handles.data.WorkSpace{incoming_data};%Name of the incoming da
 data_matrix=evalin('base',string_evaluation);%Data content in that name
 handles.data.data_matrix=data_matrix;
 
-%Information Panel:
-text=sprintf('Enter the number of principal components to work with, using this format: 1:x , being x the number of principal components.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
+%Summary Panel
+[M N]=size(data_matrix);
+sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
+handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
 
 %Initialize dummy variable:
 M=size(data_matrix,1);%Number of observations
@@ -394,10 +404,6 @@ if ~isempty(handles.data.WorkSpace),
         handles.data.label_LP=evalin('base',handles.data.WorkSpace{val-1});    
     end
     
-    %Information panel:
-    text=sprintf('Select the new data matrix to work with from the Data popupmenu.');
-    handles.data.text=cprint(handles.text1,text,handles.data.text,0);
-    
     handles.data.control_Refresh=1;
 else
     set(handles.dataPopup, 'String', ' ');
@@ -418,10 +424,11 @@ else
     contents=get(handles.labvarPopup,'String');
     aux4=[];
     aux4=[contents(1,:),aux4];
-        
+    
+    %TODO substitute by error dialog
     %Information panel:
     text=sprintf('Warning: No data matrices in workspace.');
-    handles.data.text=cprint(handles.text1,text,handles.data.text,0);
+    handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
 end
 
 handles.data.new2=aux;
@@ -448,11 +455,37 @@ end
 
 handles.data.PCs = PCs;
 
-%Information Panel:
-text=sprintf('Select the preprocessing of the data:\n-No preprocessing\n-Mean centering (default)\n-Auto-scaling (centers and scales data so that each variable has variance 1).');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
-
 guidata(hObject,handles);
+
+% Fuction to show the corresponding message in the information panel
+function information_message(handles)
+    switch handles.data.messageNum
+        case 0
+            text=sprintf('To begin the analysis:\nChoose a data matrix and select the preprocessing of the data from the corresponding popupmenus. If there is no data, charge data from WorkSpace by clicking on REFRESH button.');
+        case 1
+            text=sprintf('Enter the number of principal components in the general plots section and select between Var vs PCs, Crossval2D and SVI plot.\nThen press the plot button.');
+        case 2
+            text=sprintf('Enter the number of principal components to work with and press on the PCA button to perform the initial analysis and activate the Score Plot, Loading Plot and MEDA menus.');
+        case 3
+            text=sprintf('Plot a Score plot, a Loading plot, a MEDA plot or Residual plot, by clicking on  the proper menu.');
+        case 4
+            text=sprintf('Label is a cell having this format:\n{`x`,`x`,`y`,`y`,...,`z`,`z`}, containing as many tags as the number of observations.');
+        case 5
+            text=sprintf('Classes is an array having this format:\n[1,1,2,2,...,3,3], containing as many entries as the number of observations.');
+        case 6
+            text=sprintf('To use label or classes, define the tags or class cell array and charge it from the workspace by clicking on the REFRESH button.');
+        case 7
+            text=sprintf('To perform an oMEDA plot push on the SELECT button in the oMEDA menu (upon selection of a Score Plot).');
+        case 8
+            text=sprintf('Over the selected Score Plot draw a polinomial enclosing the required points and push on the (+) button to assign them +1 (green points) or on the (-) button to assign them -1 (red points).');
+        case 9
+            text=sprintf('Optionally push on the Trend button and draw a line over the Score Plot to include weigths in the analysis.\nFinally push on the Plot button to obtain the oMEDA plot.');
+        case 10
+            text=sprintf('To perform a MEDA plot, push on the SELECT button in the MEDA menu (upon selection of a Loading Plot).\nOver the selected Loading Plot draw a polinomial enclosing the required points.');
+        otherwise
+            disp('No case detected')
+    end
+    handles.data.text=cprint(handles.infoText,text,handles.data.text,0);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -467,20 +500,31 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% --- Executes on button press in varpcButton.
+% --- Executes on button press in generalButton.
 %pushbutton==VAR
-function varpcButton_Callback(hObject, eventdata, handles)
-% hObject    handle to varpcButton (see GCBO)
+function generalButton_Callback(hObject, eventdata, handles)
+% hObject    handle to generalButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[pc_num,status]=str2num(get(handles.pcEdit, 'String'));
+[pc_num,status]=str2num(get(handles.generalEdit, 'String'));
 if status == false
-    errordlg('Please enter a number of latent variables.');
+    errordlg('Please enter a number of PCs.');
     return;
 end
 
-x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+%Detect the selected general plot and plot it
+generalPlot = getCurrentPopupString(handles.generalPopup);
+switch generalPlot
+    case 'Var vs PCs'
+        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+    case 'SVI plot'
+        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+    case 'Crossval2D'
+        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+    otherwise
+        disp('No case detected')
+end
 
 % --- Executes on selection change in prepPopup.
 %prepPopup==Prep
@@ -498,29 +542,24 @@ switch val,
     case 'no preprocessing',
         prep=0;
         if handles.data.control==1,
-            text=sprintf('Selected the no preprocessing option.');
-            handles.data.text=cprint(handles.text1,text,handles.data.text,0);
+            text = sprintf('Preprocessing of data matrix:\nNo preprocessing.');
+            handles.data.sumtext=cprint(handles.sumText,text,handles.data.text,0);
         end
     case 'mean centering',
         prep=1;
         if handles.data.control==1,
-            text=sprintf('Selected the mean centering option.');
-            handles.data.text=cprint(handles.text1,text,handles.data.text,0);
+            text = sprintf('Preprocessing of data matrix:\nMean Centering.');
+            handles.data.sumtext=cprint(handles.sumText,text,handles.data.text,0);
         end
     case 'auto-scaling',
         prep=2;
         if handles.data.control==1,
-            text=sprintf('Selected the auto-scalling option.');
-            handles.data.text=cprint(handles.text1,text,handles.data.text,0);
+            text = sprintf('Preprocessing of data matrix:\nAuto-scaling.');
+            handles.data.sumtext=cprint(handles.sumText,text,handles.data.text,0);
         end
 end
 
 handles.data.prep = prep;
-
-if handles.data.control==1,
-    text=sprintf('Press on the PCA button to perform the initial analysis and activate the Score Plot, Loading Plot and MEDA menus.');
-    handles.data.text=cprint(handles.text1,text,handles.data.text,1);
-end
 handles.data.control=1;
 guidata(hObject,handles);
 
@@ -627,19 +666,19 @@ set(handles.text17,'Enable','on');
 set(handles.text18,'Enable','on');
 set(handles.clasvarPopup,'Enable','on');
 set(handles.labvarPopup,'Enable','on');
+set(handles.loadingButton,'Enable','on');
 
 %Residue
 set(handles.resomedaButton,'Enable','on');
 set(handles.resvarButton,'Enable','on');
 
+%Model
+set(handles.modelomedaButton,'Enable','on');
+set(handles.modelmedaButton,'Enable','on');
+
 %Information panel:
 text=sprintf('Model generated successully!');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
-text=sprintf('Generated from PCA model matrices p and t:\np: Loading matrix\nt: Score matrix.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
-handles.data.text=cprint(handles.text1,'',handles.data.text,-1);
-text=sprintf('Plot a Score plot, a Loading plot, a MEDA plot or Residual plot, by clicking on  the proper menu.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
+handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
 
 guidata(hObject,handles);
 
@@ -715,13 +754,6 @@ function labscorePopup_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns labscorePopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from labscorePopup
 
-%Information Panel:
-text=sprintf('This is an optinal field that assign a name to each of the observations.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
-text=sprintf('Label is a cell having this format: {`x`,`x`,`y`,`y`,...,`z`,`z`}, containing as many tags as the number of observations.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
-text=sprintf('To use this option, define the tags cell array and charge it from the workspace by clicking on the REFRESH button.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.new1{incoming_data};
@@ -800,13 +832,6 @@ function classcorePopup_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns classcorePopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from classcorePopup
 
-%Information panel
-text=sprintf('This is an optinal field that colour the observations according to the value assigned to each of them.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
-text=sprintf('Classes is an array having this format: [1,1,2,2,...,3,3], containing as many entries as the number of observations.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
-text=sprintf('To use this option, define the array and charge it from the work space by clocking on the REFRESH button.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');
 string_evaluation=handles.data.new2{incoming_data};
@@ -934,9 +959,6 @@ handles.data.sp_matrix={handles.data.sp_matrix{:} matrixPCs_oMEDA};
 
 %oMEDA (Select)
 set(handles.selomedaButton,'Enable','on');
-%Information panel
-text=sprintf('To perform an oMEDA plot push on the SELECT button in the oMEDA menu (upon selection of a Score Plot).');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
 
 guidata(hObject,handles);
 
@@ -960,9 +982,6 @@ else
     errordlg('To perform oMEDA you must select a Score Plot.');
     return;
 end
-
-text=sprintf('Over the selected Score Plot draw a polinomial enclosing the required points and push on the (+) button to assign them +1 (green points) or on the (-) button to assign them -1 (red points).');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
 
 %Es necesario recuperar los datos del Score Plot seleccionado, es decir las observaciones ploteadas en el eje x e y:
 %Voy a recorrer el vector de gcfs de score plots que se llama
@@ -1101,13 +1120,6 @@ end
 handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
 set(handles.omedaButton,'Enable','on');
 set(handles.trendButton,'Enable','on');
-%Information Panel:
-text=sprintf('Push on the SELECT button again to repeat this process and select all the required points.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
-text=sprintf('Optionally push on the Trend button and draw a line over the Score Plot to include weigths in the analysis.\n');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
-text=sprintf('Finally push on the Plot button to obtain the oMEDA plot.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 guidata(hObject,handles);
 
 % --- Executes on button press in plusButton.
@@ -1153,13 +1165,6 @@ end
 handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
 set(handles.omedaButton,'Enable','on');
 set(handles.trendButton,'Enable','on');
-%Information panel:
-text=sprintf('Push on the SELECT button again to repeat this process and select all the required points.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
-text=sprintf('Optionally push on the Trend button and draw a line over the Score Plot to include weigths in the analysis.\n');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
-text=sprintf('Finally push on the Plot button to obtain the oMEDA plot.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 guidata(hObject,handles);
 
 
@@ -1270,11 +1275,6 @@ weightDummy=weights.*dummy;
 
 handles.data.weightDummy{1,ID}= weightDummy;
 handles.data.clean_control(ID)=handles.data.clean_control(ID)+1;
-%Information panel:
-text=sprintf('Finally push on the Plot button to obtain the oMEDA plot.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
-text=sprintf('If needed, push on the SELECT button again to repeat this process and select all the required points.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 
 guidata(hObject,handles);
 
@@ -1356,8 +1356,6 @@ function resomedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 E=sqresiduals_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,1,handles.data.label);
-text=sprintf('Plotted squared residuals in the observations.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Loading Plot%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1426,12 +1424,6 @@ function labvarPopup_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns labvarPopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from labvarPopup
-text=sprintf('This is an optinal field that assign a name to each of the variables');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
-text=sprintf('Label is a cell having this format: {`x`,`x`,`y`,`y`,...,`z`,`z`}, containing as many tags as the number of variables.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
-text=sprintf('To use this option, define the tags cell array and chare it from the work space by clicking on the REFRESH button.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');
 string_evaluation=handles.data.new3{incoming_data};
@@ -1508,12 +1500,6 @@ function clasvarPopup_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns clasvarPopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from clasvarPopup
-text=sprintf('This is an optinal field that colour the variables according to the value assigned to each of them.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
-text=sprintf('Classes is an array having this format: [1,1,2,2,...,3,3], containing as many entries as the number of variables.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
-text=sprintf('To use this option, define the array and chare it from the work space by clicking on the REFRESH button.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.new4{incoming_data};%Nombre correspondiente a la posici�n
@@ -1624,9 +1610,6 @@ handles.data.lp_ID_figures=[handles.data.lp_ID_figures fig];%Identificadores de 
 handles.data.lp_matrix={handles.data.lp_matrix{:} matrixPCs_MEDA_LP};
 
 set(handles.selmedaButton,'Enable','on');
-
-text=sprintf('To perform a MEDA plot, push on the SELECT button in the MEDA menu (upon selection of Loading Plot).');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
 
 guidata(hObject,handles);
 
@@ -1883,15 +1866,109 @@ function resvarButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 E=sqresiduals_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,2,handles.data.label_LP);
-text=sprintf('Plotted squared residuals in the variables.');
-handles.data.text=cprint(handles.text1,text,handles.data.text,0);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%Information panel%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%text1==Static text-Information panel
+%infoText==Static text-Information panel
 % --- Executes during object creation, after setting all properties.
-function text1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to text1 (see GCBO)
+function infoText_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to infoText (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes on button press in modelomedaButton.
+function modelomedaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to modelomedaButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in modelmedaButton.
+function modelmedaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to modelmedaButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in nextButton.
+function nextButton_Callback(hObject, eventdata, handles)
+% hObject    handle to nextButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if handles.data.messageNum < handles.data.messageNum_max
+    handles.data.messageNum = handles.data.messageNum +1;
+    information_message(handles);
+end
+guidata(hObject,handles);
+
+% --- Executes on button press in prevButton.
+function prevButton_Callback(hObject, eventdata, handles)
+% hObject    handle to prevButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if handles.data.messageNum > 0
+    handles.data.messageNum = handles.data.messageNum -1;
+    information_message(handles);
+end
+guidata(hObject,handles);
+
+% --- Executes on button press in crossButton.
+function crossButton_Callback(hObject, eventdata, handles)
+% hObject    handle to crossButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in sviButton.
+function sviButton_Callback(hObject, eventdata, handles)
+% hObject    handle to sviButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+
+function generalEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to generalEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of generalEdit as text
+%        str2double(get(hObject,'String')) returns contents of generalEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function generalEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to generalEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in generalPopup.
+function generalPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to generalPopup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns generalPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from generalPopup
+
+
+% --- Executes during object creation, after setting all properties.
+function generalPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to generalPopup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
