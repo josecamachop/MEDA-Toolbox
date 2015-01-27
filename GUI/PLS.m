@@ -132,8 +132,10 @@ set(handles.resmedaButton,'Enable','off');
 set(handles.modelomedaButton,'Enable','off');
 set(handles.modelmedaButton,'Enable','off');
 
-%Information Panel:
+%Summary Pannel:
+handles.data.sumtext = [];
 
+%Information Panel:
 handles.data.messageNum=0;
 handles.data.messageNum_max=2;
 handles.data.text=[];
@@ -229,6 +231,10 @@ incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posición
 data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
 handles.data.data_matrixX=data_matrix;
+[M N]=size(data_matrix);
+%Summary Panel:
+sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
+handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
 
 %Information Panel:
 %text=sprintf('Enter the number of latent variables to work with, using this format: 1:x , being x the number of latent variables.');
@@ -299,6 +305,11 @@ incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posición
 data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
 handles.data.data_matrixY=data_matrix;
+
+%Summary Panel:
+[M N]=size(data_matrix);
+sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
+handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
 
 %Information Panel:
 %text=sprintf('Enter the number of latent variables to work with, using this format: 1:x , being x the number of latent variables.');
@@ -610,29 +621,24 @@ switch val,
     case 'no preprocessing',
         prep=0;
         if handles.data.controlX==1,
-            text=sprintf('Selected the no preprocessing option.');
-            handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
+            sumtext = sprintf('Preprocessing of X matrix:\nNo preprocessing.');
+            handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
         end
     case 'mean centering',
         prep=1;
         if handles.data.controlX==1,
-            text=sprintf('Selected the mean centering option.');
-            handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
+            sumtext = sprintf('Preprocessing of X matrix:\nMean Centering.');
+            handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
         end
     case 'auto-scaling',
         prep=2;
         if handles.data.controlX==1,
-            text=sprintf('Selected the auto-scalling option.');
-            handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
+            sumtext = sprintf('Preprocessing of X matrix:\nAuto-scaling.');
+            handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
         end
 end
 
 handles.data.prepX = prep;
-
-if handles.data.controlX==1,
-    text=sprintf('Press on the PLS button to perform the initial analysis and activate the Score Plot,Loading Plot and MEDA menus.');
-    handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
-end
 handles.data.controlX=1;
 guidata(hObject,handles);
 
@@ -670,29 +676,24 @@ switch val,
     case 'no preprocessing',
         prep=0;
         if handles.data.controlY==1,
-            text=sprintf('Selected the no preprocessing option.');
-            handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
+            sumtext = sprintf('Preprocessing of Y matrix:\nNo preprocessing.');
+            handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
         end
     case 'mean centering',
         prep=1;
         if handles.data.controlY==1,
-            text=sprintf('Selected the mean centering option.');
-            handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
+            sumtext = sprintf('Preprocessing of Y matrix:\nMean Centering.');
+            handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
         end
     case 'auto-scaling',
         prep=2;
         if handles.data.controlY==1,
-            text=sprintf('Selected the auto-scalling option.');
-            handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
+            sumtext = sprintf('Preprocessing of Y matrix:\nAuto-scaling.');
+            handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
         end
 end
 
 handles.data.prepY = prep;
-
-if handles.data.controlY==1,
-    text=sprintf('Press on the PLS button to perform the initial analysis and activate the Score Plot,Loading Plot and MEDA menus.');
-    handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
-end
 handles.data.controlY=1;
 guidata(hObject,handles);
 
