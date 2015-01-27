@@ -137,7 +137,7 @@ handles.data.sumtext = [];
 
 %Information Panel:
 handles.data.messageNum=0;
-handles.data.messageNum_max=2;
+handles.data.messageNum_max=10;
 handles.data.text=[];
 information_message(handles);
 
@@ -206,11 +206,27 @@ end
 function information_message(handles)
     switch handles.data.messageNum
         case 0
-            text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button.');
+            text=sprintf('To begin the analysis:\nChoose (for x and y) the data matrix and select the preprocessing of the data from the corresponding popupmenus. If there is no data, charge data from WorkSpace by clicking on REFRESH button.');
         case 1
-            text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button 1.');
+            text=sprintf('Enter the number of latent variables in the general plots section and select between Var vs PCs, Crossval2D and SVI plot.\nThen press the plot button.');
         case 2
-            text=sprintf('To begin the analysis:\nchoose a data matrix from the data popupmenu. If there is no data, charge data from WorkSpace by clicking on REFRESH button 2.');
+            text=sprintf('Enter the number of latent variables to work with and press on the PCA button to perform the initial analysis and activate the Score Plot, Loading Plot and MEDA menus.');
+        case 3
+            text=sprintf('Plot a Score plot, a Loading plot, a MEDA plot or Residual plot, by clicking on  the proper menu.');
+        case 4
+            text=sprintf('Label is a cell having this format:\n{`x`,`x`,`y`,`y`,...,`z`,`z`}, containing as many tags as the number of observations.');
+        case 5
+            text=sprintf('Classes is an array having this format:\n[1,1,2,2,...,3,3], containing as many entries as the number of observations.');
+        case 6
+            text=sprintf('To use label or classes, define the tags or class cell array and charge it from the workspace by clicking on the REFRESH button.');
+        case 7
+            text=sprintf('To perform an oMEDA plot push on the SELECT button in the oMEDA menu (upon selection of a Score Plot).');
+        case 8
+            text=sprintf('Over the selected Score Plot draw a polinomial enclosing the required points and push on the (+) button to assign them +1 (green points) or on the (-) button to assign them -1 (red points).');
+        case 9
+            text=sprintf('Optionally push on the Trend button and draw a line over the Score Plot to include weigths in the analysis.\nFinally push on the Plot button to obtain the oMEDA plot.');
+        case 10
+            text=sprintf('To perform a MEDA plot, push on the SELECT button in the MEDA menu (upon selection of a Loading Plot).\nOver the selected Loading Plot draw a polinomial enclosing the required points.');
         otherwise
             disp('No case detected')
     end
@@ -235,11 +251,6 @@ handles.data.data_matrixX=data_matrix;
 %Summary Panel:
 sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
 handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
-
-%Information Panel:
-%text=sprintf('Enter the number of latent variables to work with, using this format: 1:x , being x the number of latent variables.');
-text=sprintf('Enter the number of latent variables to work with.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
 
 %Initialize dummy variable:
 M=size(data_matrix,1);%Number of observations
@@ -310,11 +321,6 @@ handles.data.data_matrixY=data_matrix;
 [M N]=size(data_matrix);
 sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
 handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
-
-%Information Panel:
-%text=sprintf('Enter the number of latent variables to work with, using this format: 1:x , being x the number of latent variables.');
-text=sprintf('Enter the number of latent variables to work with.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
 
 %Initialize dummy variable:
 M=size(data_matrix,1);%Number of observations
@@ -501,11 +507,6 @@ if ~isempty(handles.data.WorkSpace),
         set(handles.labloadingPopup,'Value',val);
         handles.data.label_LP=evalin('base',handles.data.WorkSpace{val-1});    
     end
-    
-    %Information panel:
-    text=sprintf('Select the new data matrix to work with from the data popupmenu.');
-    handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
-    
     handles.data.control_Refresh=1;
 else
     set(handles.xdataPopup, 'String', ' ');
@@ -531,7 +532,7 @@ else
     
     %Information panel:
     text=sprintf('Warning: No data matrices in workspace');
-    handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
+    handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
 end
 
 handles.data.new1=aux2;%popupmenu17
@@ -557,10 +558,6 @@ if max(LVs)>size(handles.data.data_matrixX,2),
 end
 
 handles.data.LVs = LVs;
-
-%Information Panel:
-text=sprintf('Select the preprocessing of the data:\n-No preprocessing\n-Mean centering (default)\n-Auto-scaling (centers and scales data so that each variable has variance 1).');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
 
 guidata(hObject,handles);
 
@@ -811,10 +808,7 @@ set(handles.modelmedaButton,'Enable','on');
 
 %Information panel:
 text=sprintf('Model generated successully!');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
-text=sprintf('Plot a Score plot, a Loading plot, a MEDA plot or Residual plot, by clicking on  the proper menu.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
-
+handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -888,12 +882,6 @@ function labscorePopup_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns labscorePopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from labscorePopup
-text=sprintf('This is an optinal field that assign a name to each of the observations.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
-text=sprintf('Label is a cell having this format: {`x`,`x`,`y`,`y`,...,`z`,`z`}, containing as many tags as the number of observations.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
-text=sprintf('To use this option, define the tags cell array and charge it from the work space by clicking on the REFRESH button.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.new1{incoming_data};%Nombre correspondiente a la posición
@@ -970,12 +958,6 @@ function classcorePopup_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns classcorePopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from classcorePopup
-text=sprintf('This is an optinal field that colour the observations according to the value assigned to each of them.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
-text=sprintf('Classes is an array having this format: [1,1,2,2,...,3,3], containing as many entries as the number of observations.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
-text=sprintf('To use this option, define the array and charge it from the work space by clocking on the REFRESH button.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.new2{incoming_data};%Nombre correspondiente a la posición
@@ -1105,9 +1087,6 @@ handles.data.sp_matrix={handles.data.sp_matrix{:} matrixLVs_oMEDA};
 %oMEDA (Select)
 set(handles.selomedaButton,'Enable','on');
 
-text=sprintf('To perform an oMEDA plot push on the SELECT button in the oMEDA menu (upon selection of Score Plot).');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
-
 guidata(hObject,handles);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1131,9 +1110,6 @@ else
     errordlg('To perform oMEDA you must select a Score Plot.');
     return;
 end
-
-text=sprintf('Over the selected Score Plot draw a polinomial enclosing the required points and push on the (+) button to assign them +1 (green points) or on the (-) button to assign them -1 (red points).');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
 
 %Ahora vamos a recuperar su matriz:
 %Voy a recorrer el vector de gcfs de score plots
@@ -1269,13 +1245,6 @@ end
 handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
 set(handles.omedaButton,'Enable','on');
 set(handles.trendButton,'Enable','on');
-%Information Panel:
-text=sprintf('Push on the SELECT button again to repeat this process and select all the required points.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
-text=sprintf('Optionally push on the Trend button and draw a line over the Score Plot to include weigths in the analysis.\n');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
-text=sprintf('Finally push on the Plot button to obtain the oMEDA plot.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
 guidata(hObject,handles);
 
 % --- Executes on button press in plusButton.
@@ -1319,13 +1288,6 @@ end
 handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
 set(handles.omedaButton,'Enable','on');
 set(handles.trendButton,'Enable','on');
-%Information panel:
-text=sprintf('Push on the SELECT button again to repeat this process and select all the required points.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
-text=sprintf('Optionally push on the Trend button and draw a line over the Score Plot to include weigths in the analysis.\n');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
-text=sprintf('Finally push on the Plot button to obtain the oMEDA plot.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
 guidata(hObject,handles);
 
 
@@ -1436,12 +1398,6 @@ weightDummy=weights.*dummy;
 
 handles.data.weightDummy{1,ID}= weightDummy;
 handles.data.clean_control(ID)=handles.data.clean_control(ID)+1;
-
-text=sprintf('Finally push on the Plot button to obtain the oMEDA plot.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
-text=sprintf('If needed, push on the SELECT button again to repeat this process and select all the required points.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
-
 guidata(hObject,handles);
 
 % --- Executes on button press in cleanButton.
@@ -1524,8 +1480,6 @@ function resomedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 E=sqresiduals_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,1,handles.data.label);
-text=sprintf('Plotted squared residuals in the observations.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Loading Plot%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1593,12 +1547,6 @@ function labloadingPopup_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns labloadingPopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from labloadingPopup
-text=sprintf('This is an optinal field that assign a name to each of the variables.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
-text=sprintf('Label is a cell having this format: {`x`,`x`,`y`,`y`,...,`z`,`z`}, containing as many tags as the number of variables.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
-text=sprintf('To use this option, define the tags cell array and chare it from the work space by clicking on the REFRESH button.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.new3{incoming_data};%Nombre correspondiente a la posición
@@ -1676,12 +1624,6 @@ function clasloadingPopup_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns clasloadingPopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from clasloadingPopup
-text=sprintf('This is an optinal field that colour the variables according to the value assigned to each of them.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
-text=sprintf('Classes is an array having this format: [1,1,2,2,...,3,3], containing as many entries as the number of variables.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
-text=sprintf('To use this option, define the array and chare it from the work space by clicking on the REFRESH button.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,1);
 
 incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.new4{incoming_data};%Nombre correspondiente a la posición
@@ -1796,7 +1738,6 @@ handles.data.lp_matrix={handles.data.lp_matrix{:} matrixLVs_MEDA_LP};
 set(handles.selmedaButton,'Enable','on');
 
 text=sprintf('To perform a MEDA plot, push on the SELECT button in the MEDA menu (upon selection of Loading Plot).');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
 
 guidata(hObject,handles);
 
@@ -2059,8 +2000,6 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 E=sqresiduals_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,2,handles.data.label_LP);
-text=sprintf('Plotted squared residuals in the variables.');
-handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%Information panel%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
