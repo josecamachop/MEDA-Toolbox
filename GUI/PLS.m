@@ -48,7 +48,7 @@ function varargout = PLS(varargin)
 
 % Edit the above text to modify the response to help PLS
 
-% Last Modified by GUIDE v2.5 26-Jan-2015 23:50:17
+% Last Modified by GUIDE v2.5 30-Jan-2015 17:58:13
 % Fixing some minor bugs on the GUI
 
 % Begin initialization code - DO NOT EDIT
@@ -206,23 +206,23 @@ end
 function information_message(handles)
     switch handles.data.messageNum
         case 0
-            text=sprintf('To begin the analysis:\nChoose (for x and y) the data matrix and select the preprocessing of the data from the corresponding popupmenus. If there is no data, charge data from WorkSpace by clicking on REFRESH button.');
+            text=sprintf('To begin the analysis:\nChoose (for x and y) the data matrix and select the preprocessing of the data from the corresponding popupmenus. If no data appears, please charge it from WorkSpace by clicking on REFRESH button.');
         case 1
-            text=sprintf('Enter the number of latent variables in the general plots section and select between Var vs PCs, Crossval2D and SVI plot.\nThen press the plot button.');
+            text=sprintf('Enter the number of latent variables in the general plots section and select between Var vs LVs, EKF CrossVal, CEKF CrossVal and CKF CrossVal.\nThen press the plot button.');
         case 2
             text=sprintf('Enter the number of latent variables to work with and press on the PCA button to perform the initial analysis and activate the Score Plot, Loading Plot and MEDA menus.');
         case 3
-            text=sprintf('Plot a Score plot, a Loading plot, a MEDA plot or Residual plot, by clicking on  the proper menu.');
+            text=sprintf('Plot a Score plot, a Loading plot, a MEDA plot or Residual/Model plot, by clicking on  the proper menu.');
         case 4
             text=sprintf('Label is a cell having this format:\n{`x`,`x`,`y`,`y`,...,`z`,`z`}, containing as many tags as the number of observations.');
         case 5
             text=sprintf('Classes is an array having this format:\n[1,1,2,2,...,3,3], containing as many entries as the number of observations.');
         case 6
-            text=sprintf('To use label or classes, define the tags or class cell array and charge it from the workspace by clicking on the REFRESH button.');
+            text=sprintf('To use label or classes, define the tags or class cell arrays and charge it from the workspace by clicking on the REFRESH button.');
         case 7
             text=sprintf('To perform an oMEDA plot push on the SELECT button in the oMEDA menu (upon selection of a Score Plot).');
         case 8
-            text=sprintf('Over the selected Score Plot draw a polinomial enclosing the required points and push on the (+) button to assign them +1 (green points) or on the (-) button to assign them -1 (red points).');
+            text=sprintf('Over the selected Score Plot draw a polinomial enclosing the required points and push on the (+) button to assign them +1 or on the (-) button to assign them -1.');
         case 9
             text=sprintf('Optionally push on the Trend button and draw a line over the Score Plot to include weigths in the analysis.\nFinally push on the Plot button to obtain the oMEDA plot.');
         case 10
@@ -590,13 +590,16 @@ end
 %Detect the selected general plot and plot it
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
-    case 'Var vs PCs'
+    case 'Var vs LVs'
         [y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
-    case 'SVI plot'
-        disp('RODGOM SVI-to implement');
+    case 'EKV CrossVal'
+        disp('RODGOM EKV TO implement');
         [y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
-    case 'Crossval2D'
-        disp('RODGOM Crossval2D-to implement');
+    case 'CEKF CrossVal'
+        disp('RODGOM CEKF TO implement');
+        [y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
+    case 'CKF CrossVal'
+        disp('RODGOM CKF TO implement');
         [y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
     otherwise
         disp('No case detected')
@@ -1838,7 +1841,7 @@ function medaButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 LVs_MEDA = getCurrentPopupString(handles.medaPopup);
 %split LVsMEDA
-LVs_MEDA_cell = strsplit(LVs_MEDA,':');
+LVs_MEDA_cell = strread(LVs_MEDA,'%s','delimiter',':');
 lvs = [str2num(LVs_MEDA_cell{1}):str2num(LVs_MEDA_cell{2})];
 %if isempty(handles.data.LVs_MEDA),
 %    errordlg('To perform MEDA select the LVs from the popupmenu.');
@@ -2000,7 +2003,6 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 E=sqresiduals_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,2,handles.data.label_LP);
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%Information panel%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2016,15 +2018,14 @@ function modelmedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+E=leverage_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,2,handles.data.label_LP);
 
 % --- Executes on button press in modelomedaButton.
 function modelomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-
+E=leverage_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,1,handles.data.label);
 % --- Executes on selection change in generalPopup.
 function generalPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to generalPopup (see GCBO)

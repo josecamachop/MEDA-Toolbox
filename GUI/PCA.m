@@ -461,23 +461,23 @@ guidata(hObject,handles);
 function information_message(handles)
     switch handles.data.messageNum
         case 0
-            text=sprintf('To begin the analysis:\nChoose a data matrix and select the preprocessing of the data from the corresponding popupmenus. If there is no data, charge data from WorkSpace by clicking on REFRESH button.');
+            text=sprintf('To begin the analysis:\nChoose a data matrix and select the preprocessing of the data from the corresponding popupmenus. If no data appears, please charge it from WorkSpace by clicking on REFRESH button.');
         case 1
-            text=sprintf('Enter the number of principal components in the general plots section and select between Var vs PCs, Crossval2D and SVI plot.\nThen press the plot button.');
+            text=sprintf('Enter the number of principal components in the general plots section and select between Var vs PCs, EKF CrossVal, CEKF CrossVal and CKF CrossVal.\nThen press the plot button.');
         case 2
             text=sprintf('Enter the number of principal components to work with and press on the PCA button to perform the initial analysis and activate the Score Plot, Loading Plot and MEDA menus.');
         case 3
-            text=sprintf('Plot a Score plot, a Loading plot, a MEDA plot or Residual plot, by clicking on  the proper menu.');
+            text=sprintf('Plot a Score plot, a Loading plot, a MEDA plot or Residual/Model plot, by clicking on  the proper menu.');
         case 4
             text=sprintf('Label is a cell having this format:\n{`x`,`x`,`y`,`y`,...,`z`,`z`}, containing as many tags as the number of observations.');
         case 5
             text=sprintf('Classes is an array having this format:\n[1,1,2,2,...,3,3], containing as many entries as the number of observations.');
         case 6
-            text=sprintf('To use label or classes, define the tags or class cell array and charge it from the workspace by clicking on the REFRESH button.');
+            text=sprintf('To use label or classes, define the tags or class cell arrays and charge it from the workspace by clicking on the REFRESH button.');
         case 7
             text=sprintf('To perform an oMEDA plot push on the SELECT button in the oMEDA menu (upon selection of a Score Plot).');
         case 8
-            text=sprintf('Over the selected Score Plot draw a polinomial enclosing the required points and push on the (+) button to assign them +1 (green points) or on the (-) button to assign them -1 (red points).');
+            text=sprintf('Over the selected Score Plot draw a polinomial enclosing the required points and push on the (+) button to assign them +1 or on the (-) button to assign them -1.');
         case 9
             text=sprintf('Optionally push on the Trend button and draw a line over the Score Plot to include weigths in the analysis.\nFinally push on the Plot button to obtain the oMEDA plot.');
         case 10
@@ -518,9 +518,14 @@ generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
     case 'Var vs PCs'
         x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
-    case 'SVI plot'
+    case 'EKV CrossVal'
+        disp('ekv');
         x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
-    case 'Crossval2D'
+    case 'CEKF CrossVal'
+        disp('cekf');
+        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+    case 'CKF CrossVal'
+        disp('ckf');
         x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
     otherwise
         disp('No case detected')
@@ -1709,7 +1714,8 @@ function medaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.data.PCs_MEDA=getCurrentPopupString(handles.medaPopup);
-
+PCs_MEDA_cell = strread(handles.data.PCs_MEDA,'%s','delimiter',':');
+pcs = [str2num(PCs_MEDA_cell{1}):str2num(PCs_MEDA_cell{2})];
 if get(handles.thresRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
     handles.data.opt=2;
 else if get(handles.thresRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
@@ -1721,7 +1727,7 @@ else if get(handles.thresRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
     end
 end
 
-[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,min(str2num(handles.data.PCs_MEDA)):max(str2num(handles.data.PCs_MEDA)),handles.data.prep,handles.data.thres,handles.data.opt,handles.data.label_LP);
+[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,pcs,handles.data.prep,handles.data.thres,handles.data.opt,handles.data.label_LP);
 
 guidata(hObject,handles);
 
@@ -1883,6 +1889,7 @@ function modelomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+E=leverage_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,1,handles.data.label);
 
 
 % --- Executes on button press in modelmedaButton.
@@ -1890,6 +1897,7 @@ function modelmedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+E=leverage_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,2,handles.data.label_LP);
 
 
 % --- Executes on button press in nextButton.
