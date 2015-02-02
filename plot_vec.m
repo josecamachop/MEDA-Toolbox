@@ -101,7 +101,11 @@ end
 % Plot bar graph
 defaultcolor = [0, 154, 179]./255;   % light blue
 if ~opt,
-    bar(vec, 'FaceColor', defaultcolor, 'EdgeColor', 'w');
+    if pmod,
+        bar(vec, pmod, 'EdgeColor','none');
+    else
+        bar(vec, 'FaceColor', defaultcolor, 'EdgeColor', 'none');
+    end
 else
     if pmod,
         plot(vec, pmod, 'LineWidth', 3);

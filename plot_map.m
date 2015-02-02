@@ -42,28 +42,46 @@ function fig_h = plot_map(map,label)
 %% Parameters checking
 
 if nargin < 1, error('Error in the number of arguments.'); end;
-s = size(map);
+N = size(map,2);
 if nargin < 2 || isempty(label)
-    label=num2str((1:s(2))'); 
+    label=num2str((1:N)'); 
 else
     if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
-    if size(label,1)~=s(2), error('Error in the dimension of the arguments.'); end;
+    if size(label,1)~=N, error('Error in the dimension of the arguments.'); end;
 end
 
 %% Main code
 
 fig_h=figure;
 map3 = [map map(:,end);map(end,:) map(end,end)];
-sur_h=surface((1:s(2)+1)'*ones(1,s(2)+1),ones(s(2)+1,1)*(1:s(2)+1),map3);
+sur_h=surface((1:N+1)'*ones(1,N+1),ones(N+1,1)*(1:N+1),map3);
+set(sur_h,'EdgeColor',[0.95 0.95 0.95]);
+
+% Set axis properties
 axes_h = get(sur_h,'Parent');
 set(axes_h,'Box','on');
 set(axes_h,'XAxisLocation','top');
 set(axes_h,'YDir','reverse');
-set(axes_h,'XTick',(1:s(2))+0.5);
-set(axes_h,'YTick',(1:s(2))+0.5);
-set(axes_h,'XTickLabel',label);
+set(axes_h,'XTick',(1:N)+0.5);
+set(axes_h,'YTick',(1:N)+0.5);
+set(axes_h,'XTickLabel',[]);
 set(axes_h,'YTickLabel',label);
-set(axes_h,'FontSize',max(min(14,round(300/length(label))),6));
+
+% Label font size
+label_size = max(min(14,round(300/length(label))), 9);
+set(axes_h, 'FontSize', label_size);
+
+% Show vertical labels
+xt = get(axes_h, 'XTick');
+yt = get(axes_h, 'YTick');
+text(xt, repmat(yt(1)-.7*(yt(2)-yt(1)),length(xt),1), label,...
+    'FontSize',label_size,'HorizontalAlignment','left','rotation',90);
+
+% Resize axes position
+pos = get(axes_h, 'Position');
+set(axes_h,'Position',[pos(1) pos(2)/2 pos(3) pos(4)])
+
+% Set colors
 ind = [0:.2:0.79 0.8:0.04:1]';
 set(fig_h,'Colormap',[[ind;ones(10,1)] [ind;flipud(ind)] [ones(10,1);flipud(ind)]])
 caxis([-1 1]);
@@ -72,7 +90,7 @@ if find(map>0 & map<1)
     set(c_h,'FontSize',14);
 end
 
-axis([1,s(2)+1,1,s(2)+1]);
+axis([1,N+1,1,N+1]);
 
     
 
