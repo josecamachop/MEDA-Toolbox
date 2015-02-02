@@ -1,10 +1,10 @@
-function [cumpress,press,pem] = crossval2D_pls(x,y,lvs,blocks_r,prepx,prepy)
+function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 
 % Row-wise k-fold (rkf) cross-validation for square-prediction-errors computing in PLS.
 %
-% [cumpress,press,pem] = crossval2D_pls(x,y,lvs) % minimum call
-% [cumpress,press,pem] =
-% crossval2D_pls(x,y,lvs,blocks_r,blocks_c,prepx,prepy) % complete call
+% [cumpress,press] = crossval_pls(x,y,lvs) % minimum call
+% [cumpress,press] =
+% crossval_pls(x,y,lvs,blocks_r,blocks_c,prepx,prepy,opt) % complete call
 %
 % INPUTS:
 %
@@ -27,6 +27,9 @@ function [cumpress,press,pem] = crossval2D_pls(x,y,lvs,blocks_r,prepx,prepy)
 %       1: mean centering.
 %       2: autoscaling (default)  
 %
+% opt: (1x1) options for data plotting.
+%       0: no plots.
+%       1: bar plot (default)
 %
 % OUTPUTS:
 %
@@ -71,6 +74,7 @@ if min(lvs)<0, lvs = 0:max(lvs); end;
 if nargin < 4, blocks_r = Inf; end;
 if nargin < 5, prepx = 2; end;
 if nargin < 6, prepy = 2; end;
+if nargin < 7, opt = 1; end;
 
 if blocks_r>s(1), blocks_r = s(1); end
 if (blocks_r<2), error('Incorrect value of blocks_r.'); end;
@@ -128,5 +132,9 @@ end
 
 cumpress = sum(press,2);
 
+%% Show results
 
+if opt == 1,
+    fig_h = plot_vec(cumpress(lvs+1),num2str((lvs')),'PRESS',[],1);
+end
 

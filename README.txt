@@ -1,4 +1,4 @@
-MEDA Toolbox for its use in MATLAB.
+﻿MEDA Toolbox for its use in MATLAB.
 
 Coded by: José Camacho Páez
 GUI by: Elena Jiménez Mañas
@@ -34,7 +34,7 @@ Items in the folder:
 
 	- statistical process control tools: sqresiduals_pca.m & sqresiduals_pls.m (Squared Residuals plots), leverage_pca.m & leverage_pls.m (Leverage or Hotelling T2 plots)
 
-	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval2D_pca & crossval2D_pls (Cross-validation rutines)
+	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca & crossval_pls (Cross-validation rutines)
 
 	- graphical tools: plot_scatter.m, plot_vec.m, plot_map.m 
 

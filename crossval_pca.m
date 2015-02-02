@@ -1,11 +1,11 @@
-function [cumpress,term1c,term2c,term3c,press] = crossval2D_pca(x,pcs,leave_m,blocks_r,blocks_c,prep)
+function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,opt)
 
 % Cross-validation for square-prediction-errors computing. The original
 % papers are Chemometrics and Intelligent Laboratory Systems 131, 2014, pp.
 % 37-50 and Journal of Chemometrics, 26(7), 2012, pp. 361-373.
 %
-% [cumpress,press,pem] = crossval2D_pca(x,pcs) % minimum call
-% [cumpress,press,pem] = crossval2D_pca(x,pcs,leave_m,blocks_r,blocks_c,prep)
+% [cumpress,press] = crossval_pca(x,pcs) % minimum call
+% [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,opt)
 % % complete call
 %
 % INPUTS:
@@ -29,6 +29,9 @@ function [cumpress,term1c,term2c,term3c,press] = crossval2D_pca(x,pcs,leave_m,bl
 %       1: mean-centering 
 %       2: auto-scaling (default)  
 %
+% opt: (1x1) options for data plotting.
+%       0: no plots.
+%       1: bar plot (default)
 %
 % OUTPUTS:
 %
@@ -70,6 +73,7 @@ if nargin < 3, leave_m = 'rkf'; end;
 if nargin < 4, blocks_r = Inf; end;
 if nargin < 5, blocks_c = Inf; end;
 if nargin < 6, prep = 2; end;
+if nargin < 7, opt = 1; end;
 
 if pcs<0, error('Incorrect value of pc.'); end;
 if blocks_r>s(1), blocks_r = s(1); end
@@ -188,4 +192,9 @@ end
 cumpress = sum(press,2);
 
 
+%% Show results
+
+if opt == 1,
+    fig_h = plot_vec(cumpress(pcs+1),num2str((pcs')),'PRESS',[],1);
+end
 
