@@ -18,11 +18,11 @@ function [p,t] = pca_pp(x,pc)
 % t: (N x pc) matrix of scores.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 03/Jul/14.
 %
 % Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

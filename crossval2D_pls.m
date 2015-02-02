@@ -1,10 +1,10 @@
-function [cumpress,press,pem] = crossval2D_pls(x,y,lv,blocks_r,prepx,prepy)
+function [cumpress,press,pem] = crossval2D_pls(x,y,lvs,blocks_r,prepx,prepy)
 
 % Row-wise k-fold (rkf) cross-validation for square-prediction-errors computing in PLS.
 %
-% [cumpress,press,pem] = crossval2D_pls(x,y,lv) % minimum call
+% [cumpress,press,pem] = crossval2D_pls(x,y,lvs) % minimum call
 % [cumpress,press,pem] =
-% crossval2D_pls(x,y,lv,blocks_r,blocks_c,prepx,prepy) % complete call
+% crossval2D_pls(x,y,lvs,blocks_r,blocks_c,prepx,prepy) % complete call
 %
 % INPUTS:
 %
@@ -12,7 +12,8 @@ function [cumpress,press,pem] = crossval2D_pls(x,y,lv,blocks_r,prepx,prepy)
 %
 % y: (NxO) billinear data set of predicted variables
 %
-% lv: (1x1) Latent Variables considered.
+% lvs: (1x1) Latent Variables considered (e.g. pcs = 1:2 selects the
+%   first two LVs)
 %
 % blocks_r: (1x1) maximum number of blocks of samples (Inf by default)
 %
@@ -29,17 +30,16 @@ function [cumpress,press,pem] = crossval2D_pls(x,y,lv,blocks_r,prepx,prepy)
 %
 % OUTPUTS:
 %
-% cumpress: (1x1) Cumulative PRESS.
+% cumpress: (lvs x 1) Cumulative PRESS.
 %
-% press: (1xO) PRESS per variable.
+% press: (lvs x O) PRESS per variable.
 %
-% pem: (NxO) Matrix containing prediction errors.
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 02/Feb/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -66,20 +66,19 @@ if ndims(y)~=2, error('Incorrect number of dimensions of y.'); end;
 sy = size(y);
 if find(s<1), error('Incorrect content of y.'); end;
 
+if min(lvs)<0, lvs = 0:max(lvs); end;
+
 if nargin < 4, blocks_r = Inf; end;
 if nargin < 5, prepx = 2; end;
 if nargin < 6, prepy = 2; end;
 
-if lv<0, error('Incorrect value of lv.'); end;
 if blocks_r>s(1), blocks_r = s(1); end
 if (blocks_r<2), error('Incorrect value of blocks_r.'); end;
 
 
 % Initialization
-
-pem = zeros(sy);
-cumpress = 0;
-press = zeros(1,sy(2));
+cumpress = zeros(max(lvs)+1,1);
+press = zeros(max(lvs)+1,sy(2));
 
 rows = rand(1,s(1));
 [a,r_ind]=sort(rows);
@@ -87,6 +86,7 @@ elem_r=s(1)/blocks_r;
 
 
 % Cross-validation
+        
 for i=1:blocks_r,
     
     ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
@@ -107,21 +107,26 @@ for i=1:blocks_r,
         scs_y(j,:) = (sample_y(j,:)-av_y)./st_y;
     end
     
-    if lv > 0, 
-        beta = kernel_pls(ccs'*ccs,ccs'*ccs_y,lv);
-        srec = scs*beta;                 
-
-        pem(ind_i,:) = scs_y-srec;
+    [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,max(lvs));
     
-    else % Modelling with the average
-        pem(ind_i,:) = scs_y;
-    end
+    for lv=lvs,
+    
+        if lv > 0,
+            beta = R(:,max(min(lvs),1):lv)*Q(:,max(min(lvs),1):lv)';
+            srec = scs*beta;
+            
+            pem = scs_y-srec;
+            
+        else % Modelling with the average
+            pem = scs_y;
+        end
         
+        press(lv+1,:) = press(lv+1,:) + sum(pem.^2,1);
+        
+    end
 end
 
-press = sum(pem.^2,1);
-
-cumpress = sum(press);
+cumpress = sum(press,2);
 
 
 

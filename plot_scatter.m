@@ -32,12 +32,12 @@ function fig_h = plot_scatter(bdata,olabel,classes,axlabel,opt)
 % fig_h: (1x1) figure handle.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
-%           Alejandro Pérez Villegas (alextoni@gmail.com)
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+%           Alejandro Perez Villegas (alextoni@gmail.com)
 % last modification: 25/Jan/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
