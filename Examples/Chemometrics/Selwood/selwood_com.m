@@ -25,8 +25,8 @@
 % 51:53 	M_PNT SUM_F SUM_R
 
 %
-% codified by: JosÃ© Camacho PÃ¡ez.
-% last modification: 10/Jul/14.
+% codified by: José Camacho Páez.
+% last modification: 02/Feb/15.
 
 %% Inicialization, remember to set the path of the toolbox
 
@@ -44,10 +44,7 @@ xn = x(:,1:end-1);
 
 var_pls(xn,y,max_LVs,prep_x,prep_y); % 3 or 6 LVs
 
-for lv=0:10, 
-    cumpress(lv+1)=crossval2D_pls(xn,y,lv);
-end
-plot_vec(cumpress, num2str((0:10)'), 'PRESS', [],1 ) % LVs 2 and 3 are not predictive 
+cumpress=crossval_pls(xn,y,0:10); % LVs 2 and 3 are not predictive 
 
 
 %% Step 2: observations distribution and relationships 
