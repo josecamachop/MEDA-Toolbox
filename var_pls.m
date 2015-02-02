@@ -28,7 +28,8 @@ function [y_var,t_var] = var_pls(cal,y,maxlvs,prepx,prepy,opt)
 %
 % opt: (1x1) options for data plotting.
 %       0: no plots.
-%       1: bar plot (default)
+%       1: % Residual Variance in Y 
+%       2: % Residual Variance in Y and Scores(default)
 %
 %
 % OUTPUTS:
@@ -64,7 +65,9 @@ s = size(cal);
 if s(1) < 1 || s(2) < 1 || ndims(cal)~=2, error('Error in the dimension of the arguments.'); end;
 if nargin < 4, prepx = 2; end;
 if nargin < 5, prepy = 2; end; 
-if nargin < 6, opt = 1; end;
+if nargin < 6, opt = 2; end;
+
+if opt >2 opt = 2; end;
 
 %% Main code
 
@@ -86,9 +89,11 @@ end
     
 %% Show results
 
-if opt == 1,
-    fig_h = plot_vec(y_var,num2str((0:maxlvs)')','% Residual Variance',[],1);
-    fig_h = plot_vec(t_var,num2str((0:maxlvs)')','% Residual Variance',[],1,'r--',fig_h,{'Y','Scores'});
+if opt >= 1,
+    fig_h = plot_vec(y_var,num2str((0:maxlvs)')','% Residual Variance in Y',[],1);
+    if opt == 2,
+        fig_h = plot_vec(t_var,num2str((0:maxlvs)')','% Residual Variance',[],1,'r--',fig_h,{'Y','Scores'});
+    end
 end
 
         
