@@ -88,7 +88,7 @@ end
 %% Main code
 
 % Create figure window
-if ~isempty('fig_h')
+if isempty(fig_h)
     fig_h = figure;
 else
     hold on
@@ -99,11 +99,15 @@ end
 %color3 = [233,72,9]./255;
 
 % Plot bar graph
-facecolor = [0, 154, 179]./255;   % light blue
+defaultcolor = [0, 154, 179]./255;   % light blue
 if ~opt,
-    bar(vec, 'FaceColor', facecolor, 'EdgeColor', 'w');
+    bar(vec, 'FaceColor', defaultcolor, 'EdgeColor', 'w');
 else
-    plot(vec, pmod, 'LineWidth', 3, 'Color', facecolor);
+    if pmod,
+        plot(vec, pmod, 'LineWidth', 3);
+    else
+        plot(vec, 'LineWidth', 3, 'Color', defaultcolor);
+    end
 end
 
 % Plot control limits
