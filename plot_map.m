@@ -21,7 +21,8 @@ function fig_h = plot_map(map,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+%           Alejandro Perez Villegas (alextoni@gmail.com)
+% last modification: 02/Feb/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -41,13 +42,14 @@ function fig_h = plot_map(map,label)
 
 %% Parameters checking
 
-if nargin < 1, error('Error in the number of arguments.'); end;
+assert (nargin >= 1, 'Error: Missing arguments.');
 N = size(map,2);
 if nargin < 2 || isempty(label)
     label=num2str((1:N)'); 
 else
-    if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
-    if size(label,1)~=N, error('Error in the dimension of the arguments.'); end;
+    if size(label,2) > size(label,1), label = label'; end;
+    if ischar(label), label = cellstr(label); end;
+    assert (isequal(size(label), [N 1]), 'Dimension Error: label must be n-by-1.');
 end
 
 %% Main code

@@ -35,7 +35,8 @@ function fig_h = plot_vec(vec,olabel,slabel,lcont,opt,pmod,fig_h,leg)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+%           Alejandro Perez Villegas (alextoni@gmail.com)
+% last modification: 02/Feb/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez

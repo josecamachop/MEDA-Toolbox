@@ -41,7 +41,8 @@ function [T,TT] = scores_pca(cal,pcs,test,prep,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+%           Alejandro Perez Villegas (alextoni@gmail.com)
+% last modification: 02/Feb/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -65,8 +66,10 @@ if nargin < 2, error('Error in the number of arguments.'); end;
 if nargin < 3, x = cal; test = []; else x = [cal;test]; end;
 s = size(x);
 if s(1) < 1 || s(2) < 1 || ndims(x)~=2, error('Error in the dimension of the arguments.'); end;
-sp = length(pcs);
-if sp < 2, error('Error in the dimension of the arguments.'); end;
+
+[~, index] = unique(pcs, 'first');
+pcs = pcs(sort(index));
+
 if nargin < 4, prep = 2; end;
 if nargin < 5, opt = 1; end;
 if nargin < 6 || isempty(label)
@@ -97,6 +100,9 @@ end
 
 if opt,
     T = [T;TT];
+    if length(pcs) == 1,
+        plot_vec(T(:,pcs), label, sprintf('PC %d',pcs), [], 0, 'r');
+    end
     for i=1:length(pcs)-1,
         for j=i+1:length(pcs),
             plot_scatter([T(:,pcs(i)),T(:,pcs(j))],label,classes,{sprintf('PC %d',pcs(i)),sprintf('PC %d',pcs(j))}',opt-1);

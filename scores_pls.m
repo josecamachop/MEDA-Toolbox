@@ -48,7 +48,8 @@ function [T,TT] = scores_pls(cal,y,lvs,test,prepx,prepy,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+%           Alejandro Perez Villegas (alextoni@gmail.com)
+% last modification: 02/Feb/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -72,8 +73,10 @@ if nargin < 3, error('Error in the number of arguments.'); end;
 if nargin < 4, x = cal; else x = [cal;test]; end;
 s = size(x);
 if s(1) < 1 || s(2) < 1 || ndims(x)~=2, error('Error in the dimension of the arguments.'); end;
-sp = length(lvs);
-if sp < 2, error('Error in the dimension of the arguments.'); end;
+
+[~, index] = unique(lvs, 'first');
+lvs = lvs(sort(index));
+
 if nargin < 5, prepx = 2; end;
 if nargin < 6, prepy = 2; end; 
 if nargin < 7, opt = 1; end;
@@ -109,6 +112,9 @@ end
 
 if opt,
     T = [T;TT];
+    if length(lvs) == 1,
+        plot_vec(T(:,lvs), label, sprintf('LV %d',lvs), [], 0, 'r');
+    end
     for i=1:length(lvs)-1,
         for j=i+1:length(lvs),
             plot_scatter([T(:,lvs(i)),T(:,lvs(j))],label,classes,{sprintf('LV %d',lvs(i)),sprintf('LV %d',lvs(j))},opt-1);

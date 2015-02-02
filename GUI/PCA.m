@@ -8,8 +8,9 @@ function varargout = PCA(varargin)
 %sqresiduals_pca.m and var_pca.m
 %
 % coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
+%           Rafael Rodriguez Gomez (rodgom@ugr.es)
 % version: 2.0
-% last modification: 07/Jul/14.
+% last modification: 31/Jan/15.
 %
 % Copyright (C) 2014  Elena Jiménez Mañas
 % 
@@ -1597,12 +1598,12 @@ handles.data.lp_ID_figures=new_lp_ID_figures;%Identificadores de los Loadings Pl
 handles.data.lp_matrix=new_lp_matrix;
 
 if isempty(handles.data.label_LP) && isempty(handles.data.classes_LP),
-    P = loadings_pca(handles.data.data_matrix,[handles.data.PC1_LP handles.data.PC2_LP],handles.data.prep,2);
+    P = loadings_pca (handles.data.data_matrix, [handles.data.PC1_LP handles.data.PC2_LP], handles.data.prep, 1);
 else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP),
-        P = loadings_pca(handles.data.data_matrix,[handles.data.PC1_LP handles.data.PC2_LP],handles.data.prep,2,handles.data.label_LP);
+        P = loadings_pca (handles.data.data_matrix, [handles.data.PC1_LP handles.data.PC2_LP], handles.data.prep, 1, handles.data.label_LP);
     else if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP),
-            P = loadings_pca(handles.data.data_matrix,[handles.data.PC1_LP handles.data.PC2_LP],handles.data.prep,2,' ',handles.data.classes_LP);
-        else P = loadings_pca(handles.data.data_matrix,[handles.data.PC1_LP handles.data.PC2_LP],handles.data.prep,2,handles.data.label_LP,handles.data.classes_LP);
+            P = loadings_pca (handles.data.data_matrix, [handles.data.PC1_LP handles.data.PC2_LP], handles.data.prep, 1, [], handles.data.classes_LP);
+        else P = loadings_pca (handles.data.data_matrix, [handles.data.PC1_LP handles.data.PC2_LP], handles.data.prep, 1, handles.data.label_LP, handles.data.classes_LP);
         end
     end
 end

@@ -47,7 +47,8 @@ function [P,Q,R] = loadings_pls(cal,y,lvs,prepx,prepy,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+%           Alejandro Perez Villegas (alextoni@gmail.com)
+% last modification: 02/Feb/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -70,13 +71,16 @@ function [P,Q,R] = loadings_pls(cal,y,lvs,prepx,prepy,opt,label,classes)
 if nargin < 3, error('Error in the number of arguments.'); end;
 s = size(cal);
 if s(1) < 1 || s(2) < 1 || ndims(cal)~=2, error('Error in the dimension of the arguments.'); end;
-sp = length(lvs);
-if sp < 2, error('Error in the dimension of the arguments.'); end;
+
+[~, index] = unique(lvs, 'first');
+lvs = lvs(sort(index));
+
 if nargin < 4, prepx = 2; end;
 if nargin < 5, prepy = 2; end; 
 if nargin < 6, opt = 1; end;
 if nargin < 7 || isempty(label)
-    label=num2str((1:s(2))'); 
+    label = [];
+    %label=num2str((1:s(2))'); 
 else
     if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
     if size(label,1)~=s(2), error('Error in the dimension of the arguments.'); end;
@@ -97,6 +101,9 @@ yp = preprocess2D(y,prepy);
 R = W*inv(P'*W);
 
 if opt,
+    if length(lvs) == 1,
+        plot_vec(P(:,lvs), label, sprintf('LV %d',lvs), [], 0, 'r');
+    end
     for i=1:length(lvs)-1,
         for j=i+1:length(lvs),
             if opt ==1 || opt ==2,

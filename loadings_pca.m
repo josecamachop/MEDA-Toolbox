@@ -35,7 +35,8 @@ function P = loadings_pca(cal,pcs,prep,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+%           Alejandro Perez Villegas (alextoni@gmail.com)
+% last modification: 02/Feb/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -58,12 +59,14 @@ function P = loadings_pca(cal,pcs,prep,opt,label,classes)
 if nargin < 2, error('Error in the number of arguments.'); end;
 s = size(cal);
 if s(1) < 1 || s(2) < 1 || ndims(cal)~=2, error('Error in the dimension of the arguments.'); end;
-sp = length(pcs);
-if sp < 2, error('Error in the dimension of the arguments.'); end;
+
+[~, index] = unique(pcs, 'first');
+pcs = pcs(sort(index));
+
 if nargin < 3, prep = 2; end;
 if nargin < 4, opt = 1; end;
 if nargin < 5 || isempty(label) || isequal(label,' ')
-    label = repmat({''},s(2),1);
+    label = [];
 else
     if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
     if size(label,1)~=s(2), error('Error in the dimension of the arguments.'); end;
@@ -82,6 +85,9 @@ end
 [P,T] = pca_pp(calp,max(pcs));
 
 if opt,
+    if length(pcs) == 1,
+        plot_vec(P(:,pcs), label, sprintf('PC %d',pcs), [], 0, 'r');
+    end
     for i=1:length(pcs)-1,
         for j=i+1:length(pcs),
             plot_scatter([P(:,pcs(i)),P(:,pcs(j))],label,classes,{sprintf('PC %d',pcs(i)),sprintf('PC %d',pcs(j))},opt-1);

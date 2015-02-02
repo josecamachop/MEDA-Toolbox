@@ -7,8 +7,9 @@ function varargout = PLS(varargin)
 %sqresiduals_pls.m and var_pls.m
 %
 % coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
+%           Rafael Rodriguez Gomez (rodgom@ugr.es)
 % version: 2.0
-% last modification: 07/Jul/14.
+% last modification: 31/Jan/15.
 %
 % Copyright (C) 2014  Elena Jiménez Mañas
 % 
@@ -1721,12 +1722,12 @@ end
 handles.data.lp_ID_figures=new_lp_ID_figures;%Identificadores de los Loadings Plots abiertos actualizado
 handles.data.lp_matrix=new_lp_matrix;
 if isempty(handles.data.label_LP) && isempty(handles.data.classes_LP),
-    P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1_LP LV2_LP],handles.data.prepX, handles.data.prepY,2);
+    P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY, [LV1_LP LV2_LP], handles.data.prepX, handles.data.prepY, 1);
 else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP),
-        P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1_LP LV2_LP],handles.data.prepX, handles.data.prepY,2,handles.data.label_LP);
+        P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY, [LV1_LP LV2_LP], handles.data.prepX, handles.data.prepY, 1, handles.data.label_LP);
     else if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP),
-            P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1_LP LV2_LP],handles.data.prepX, handles.data.prepY,2,num2str((1:size(handles.data.data_matrixX,2))'),handles.data.classes_LP);
-        else         P=loadings_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1_LP LV2_LP],handles.data.prepX, handles.data.prepY,2,handles.data.label_LP,handles.data.classes_LP);
+            P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY, [LV1_LP LV2_LP], handles.data.prepX, handles.data.prepY, 1, [], handles.data.classes_LP);
+        else         P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY, [LV1_LP LV2_LP], handles.data.prepX, handles.data.prepY, 1, handles.data.label_LP, handles.data.classes_LP);
         end
     end
 end
