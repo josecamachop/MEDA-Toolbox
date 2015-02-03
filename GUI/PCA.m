@@ -1111,10 +1111,10 @@ for l=1:M,
         Ydata=matrix_2PCs(l,2);
         
         coord=plot(Xdata,Ydata);
-        set(coord,'marker','o');
-        set(coord,'markersize',6);
-        set(coord,'markerfacecolor','r');
-        set(coord,'markeredgecolor','r');
+        set(coord,'marker','s');
+        %set(coord,'markersize',6);
+        set(coord,'markerfacecolor', [0 0 0]+0.9);
+        set(coord,'markeredgecolor','k');
         
         %Dummy:
         handles.data.dummyRED(l)=-1;
@@ -1151,6 +1151,7 @@ M=size(handles.data.data_matrix,1);
 CortesVector=handles.data.CORTES{1,ID};
 matrix_2PCs=handles.data.matrix_2PCs{1,ID};
 
+
 for l=1:M,
     if mod(CortesVector(l),2)==1,
         Xdata=matrix_2PCs(l,1);
@@ -1158,9 +1159,9 @@ for l=1:M,
         
         coord=plot(Xdata,Ydata);
         set(coord,'marker','o');
-        set(coord,'markersize',6);
-        set(coord,'markerfacecolor','g');
-        set(coord,'markeredgecolor','g');
+        %set(coord,'markersize',6);
+        set(coord,'markerfacecolor',[0 0 0]+0.9);
+        set(coord,'markeredgecolor','k');
         
         
         handles.data.dummyGREEN(l)=1;

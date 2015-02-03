@@ -1234,11 +1234,11 @@ for l=1:M,
         Ydata=matrix_2LVs(l,2);
         
         coord=plot(Xdata,Ydata);
-        set(coord,'marker','o');
-        set(coord,'markersize',6);
-        set(coord,'markerfacecolor','r');
-        set(coord,'markeredgecolor','r');
-        
+        set(coord,'marker','s');
+        %set(coord,'markersize',6);
+        set(coord,'markerfacecolor', [0 0 0]+0.9);
+        set(coord,'markeredgecolor','k');
+
         %Dummy:
         handles.data.dummyRED(l)=-1;
         
@@ -1280,9 +1280,9 @@ for l=1:M,
         
         coord=plot(Xdata,Ydata);
         set(coord,'marker','o');
-        set(coord,'markersize',6);
-        set(coord,'markerfacecolor','g');
-        set(coord,'markeredgecolor','g');
+        %set(coord,'markersize',6);
+        set(coord,'markerfacecolor',[0 0 0]+0.9);
+        set(coord,'markeredgecolor','k');
         
         handles.data.dummyGREEN(l)=1;
         handles.data.clean_control(ID)=handles.data.clean_control(ID)+1;
