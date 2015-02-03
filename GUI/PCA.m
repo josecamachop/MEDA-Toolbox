@@ -50,7 +50,7 @@ function varargout = PCA(varargin)
 
 % Edit the above text to modify the response to help PCA
 
-% Last Modified by GUIDE v2.5 26-Jan-2015 00:29:14
+% Last Modified by GUIDE v2.5 03-Feb-2015 18:39:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -224,6 +224,13 @@ handles.data.data_matrix=data_matrix;
 [M N]=size(data_matrix);
 sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
 handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+
+%Change the generalPopup
+cellPopup = cell(1,N);
+for i=1:N
+    cellPopup{i} = num2str(i);
+end
+set(handles.selectPopup,'String',cellPopup);
 
 %Initialize dummy variable:
 M=size(data_matrix,1);%Number of observations
@@ -448,12 +455,6 @@ function pcEdit_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of pcEdit as a double
 PCs=str2num(get(hObject,'String'));
 
-if max(PCs)>size(handles.data.data_matrix,2),
-    errordlg(sprintf('The number of PCs can not exceed the number of variables in the data matrix which is %d.',size(handles.data.data_matrix,2)));
-    set(hObject,'String',strvcat(sprintf('1:%d',size(handles.data.data_matrix,2))));
-    PCs=str2num(get(hObject,'String'));
-end
-
 handles.data.PCs = PCs;
 
 guidata(hObject,handles);
@@ -464,7 +465,7 @@ function information_message(handles)
         case 0
             text=sprintf('To begin the analysis:\nChoose a data matrix and select the preprocessing of the data from the corresponding popupmenus. If no data appears, please charge it from WorkSpace by clicking on REFRESH button.');
         case 1
-            text=sprintf('Enter the number of principal components in the general plots section and select between Var vs PCs, EKF CrossVal, CEKF CrossVal and CKF CrossVal.\nThen press the plot button.');
+            text=sprintf('Enter the number of principal components in the general plots section and select between Var X, Var X + ckf, SVI plot, ekf crossval and cekf crossval. If SVI plot is selected a PC should be additionally chosen.\nThen press the plot button.');
         case 2
             text=sprintf('Enter the number of principal components to work with and press on the PCA button to perform the initial analysis and activate the Score Plot, Loading Plot and MEDA menus.');
         case 3
@@ -509,23 +510,32 @@ function generalButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 [pc_num,status]=str2num(get(handles.generalEdit, 'String'));
+sizeMat = size(handles.data.data_matrix);
 if status == false
     errordlg('Please enter a number of PCs.');
+    return;
+elseif pc_num > sizeMat(2) || pc_num < 1
+    errordlg(sprintf('The number of PCs can not exceed the number of variables in the data matrix which is %d.',sizeMat(2)));
     return;
 end
 
 %Detect the selected general plot and plot it
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
-    case 'Var vs PCs'
+    case 'Var X'
         x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
-    case 'EKV CrossVal'
+    case 'Var X + ckf'
+        disp('Var X + ckf')
         x_var = crossval2D_pca(handles.data.data_matrix,0:pc_num,'ekf',Inf,Inf,handles.data.prep);
-    case 'CEKF CrossVal'
-        disp('cekf');
+    case 'ekf crossval '
+        disp('ekf crossval');
         x_var = crossval2D_pca(handles.data.data_matrix,0:pc_num,'cekf',Inf,Inf,handles.data.prep);
-    case 'CKF CrossVal'
-        disp('ckf');
+    case 'cekf crossval'
+        disp('cekf crossval');
+        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+    case 'SVI plot'
+        chosenPC = str2num(getCurrentPopupString(handles.selectPopup));
+        disp(sprintf('SVI plot, chosen PC = %d',chosenPC));
         x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
     otherwise
         disp('No case detected')
@@ -600,8 +610,12 @@ if isempty(handles.data.data_matrix),
     return;
 end
 [pc_num,status]=str2num(get(handles.pcEdit, 'String'));
+sizeMat = size(handles.data.data_matrix);
 if status == false
     errordlg('Please enter a number of PCs.');
+    return;
+elseif pc_num > sizeMat(2) || pc_num < 1
+    errordlg(sprintf('The number of PCs can not exceed the number of variables in the data matrix which is %d.',sizeMat(2)));
     return;
 end
 handles.data.PCs=[1:pc_num];
@@ -1110,10 +1124,10 @@ for l=1:M,
         Ydata=matrix_2PCs(l,2);
         
         coord=plot(Xdata,Ydata);
-        set(coord,'marker','s');
-        %set(coord,'markersize',6);
-        set(coord,'markerfacecolor', [0 0 0]+0.9);
-        set(coord,'markeredgecolor','k');
+        set(coord,'marker','o');
+        set(coord,'markersize',6);
+        set(coord,'markerfacecolor','r');
+        set(coord,'markeredgecolor','r');
         
         %Dummy:
         handles.data.dummyRED(l)=-1;
@@ -1150,7 +1164,6 @@ M=size(handles.data.data_matrix,1);
 CortesVector=handles.data.CORTES{1,ID};
 matrix_2PCs=handles.data.matrix_2PCs{1,ID};
 
-
 for l=1:M,
     if mod(CortesVector(l),2)==1,
         Xdata=matrix_2PCs(l,1);
@@ -1158,9 +1171,9 @@ for l=1:M,
         
         coord=plot(Xdata,Ydata);
         set(coord,'marker','o');
-        %set(coord,'markersize',6);
-        set(coord,'markerfacecolor',[0 0 0]+0.9);
-        set(coord,'markeredgecolor','k');
+        set(coord,'markersize',6);
+        set(coord,'markerfacecolor','g');
+        set(coord,'markeredgecolor','g');
         
         
         handles.data.dummyGREEN(l)=1;
@@ -1969,10 +1982,44 @@ function generalPopup_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns generalPopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from generalPopup
 
+generalSelection = getCurrentPopupString(hObject);
+
+switch generalSelection
+    case 'SVI plot'
+        set(handles.selectText,'Enable','on');
+        set(handles.selectPopup,'Enable','on');
+    otherwise
+        set(handles.selectText,'Enable','off');
+        set(handles.selectPopup,'Enable','off');
+end
+guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
 function generalPopup_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to generalPopup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in selectPopup.
+function selectPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to selectPopup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns selectPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from selectPopup
+
+
+% --- Executes during object creation, after setting all properties.
+function selectPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to selectPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
