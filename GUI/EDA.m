@@ -91,7 +91,14 @@ guidata(hObject, handles);
 
 %Load the logo image
 axes(handles.axesEDA);
-logo=image(imread('logo3.png'));
+% kk1 = get(gca, 'position');
+% disp(kk1)
+% kk2 = get(gcf, 'position');
+% disp(kk2)
+% set(gcf, 'position', [kk2(1) kk2(2) kk2(3)*1.3 kk2(4)*1.3]);
+% set(gca, 'position', [kk1(1) kk1(2) kk1(3)*1.2 kk1(4)*1.2]);
+logo=image(imread('logo2.png'));
+axis image
 set(get(logo,'Parent'),'YTick',[]);
 set(get(logo,'Parent'),'XTick',[]);
 
