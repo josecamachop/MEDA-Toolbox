@@ -1,6 +1,6 @@
-function varargout = EDA(varargin)
+function varargout = MEDA(varargin)
 %%
-%Initialize EDA Graphic User Interface
+%Initialize MEDA Graphic User Interface
 %
 % coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es)
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
@@ -23,28 +23,28 @@ function varargout = EDA(varargin)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %%
-% EDA M-file for EDA.fig
-%      EDA, by itself, creates a new EDA or raises the existing
+% MEDA M-file for MEDA.fig
+%      MEDA, by itself, creates a new MEDA or raises the existing
 %      singleton*.
 %
-%      H = EDA returns the handle to a new EDA or the handle to
+%      H = MEDA returns the handle to a new MEDA or the handle to
 %      the existing singleton*.
 %
-%      EDA('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in EDA.M with the given input arguments.
+%      MEDA('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in MEDA.M with the given input arguments.
 %
-%      EDA('Property','Value',...) creates a new EDA or raises the
+%      MEDA('Property','Value',...) creates a new MEDA or raises the
 %      existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before EDA_OpeningFcn gets called.  An
+%      applied to the GUI before MEDA_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to EDA_OpeningFcn via varargin.
+%      stop.  All inputs are passed to MEDA_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
 %
 % See also: GUIDE, GUIDATA, GUIHANDLES
 
-% Edit the above text to modify the response to help EDA
+% Edit the above text to modify the response to help MEDA
 
 % Last Modified by GUIDE v2.5 25-Jan-2015 13:26:42
 
@@ -52,8 +52,8 @@ function varargout = EDA(varargin)
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
     'gui_Singleton',  gui_Singleton, ...
-    'gui_OpeningFcn', @EDA_OpeningFcn, ...
-    'gui_OutputFcn',  @EDA_OutputFcn, ...
+    'gui_OpeningFcn', @MEDA_OpeningFcn, ...
+    'gui_OutputFcn',  @MEDA_OutputFcn, ...
     'gui_LayoutFcn',  [] , ...
     'gui_Callback',   []);
 if nargin && ischar(varargin{1})
@@ -67,15 +67,15 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-% --- Executes just before EDA is made visible.
-function EDA_OpeningFcn(hObject, eventdata, handles, varargin)
+% --- Executes just before MEDA is made visible.
+function MEDA_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% varargin   command line arguments to EDA (see VARARGIN)
+% varargin   command line arguments to MEDA (see VARARGIN)
 
-% Choose default command line output for EDA
+% Choose default command line output for MEDA
 handles.output = hObject;
 
 %Change icon
@@ -86,11 +86,11 @@ javaFrame.setFigureIcon(javax.swing.ImageIcon('icon.jpg'));
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes EDA wait for user response (see UIRESUME)
+% UIWAIT makes MEDA wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
 %Load the logo image
-axes(handles.axesEDA);
+axes(handles.axesMEDA);
 % kk1 = get(gca, 'position');
 % disp(kk1)
 % kk2 = get(gcf, 'position');
@@ -103,7 +103,7 @@ set(get(logo,'Parent'),'YTick',[]);
 set(get(logo,'Parent'),'XTick',[]);
 
 % --- Outputs from this function are returned to the command line.
-function varargout = EDA_OutputFcn(hObject, eventdata, handles)
+function varargout = MEDA_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
