@@ -93,7 +93,7 @@ for t=1:length(list),
     end
     
     s = size(x);
-    step2 = round(s(1)*step);
+    step2 = max(10,round(s(1)*step));
     for i = 1:step2:s(1),
         endv = min(s(1),i+step2);
         ss = endv-i+1;

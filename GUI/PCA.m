@@ -520,11 +520,10 @@ switch generalPlot
     case 'Var vs PCs'
         x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
     case 'EKV CrossVal'
-        disp('ekv');
-        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+        x_var = crossval2D_pca(handles.data.data_matrix,0:pc_num,'ekf',Inf,Inf,handles.data.prep);
     case 'CEKF CrossVal'
         disp('cekf');
-        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+        x_var = crossval2D_pca(handles.data.data_matrix,0:pc_num,'cekf',Inf,Inf,handles.data.prep);
     case 'CKF CrossVal'
         disp('ckf');
         x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
