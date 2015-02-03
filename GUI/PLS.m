@@ -590,16 +590,13 @@ end
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
     case 'Var Y'
-        [y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
+        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
     case 'Var Y + scores'
-        disp('RODGOM Var Y + scores TO implement');
-        [y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
+        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,2);
     case 'Y-SVI plot'
-        disp('RODGOM Y-SVI plot TO implement');
-        [y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
+        SVIplot([handles.data.data_matrixY handles.data.data_matrixX],LVs_num,1,7,handles.data.prepX);
     case 'Y-crossval'
-        disp('RODGOM Y-crossval TO implement');
-        [y_var,t_var] = var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
+        crossval_pls(handles.data.data_matrixX,handles.data.data_matrixY,0:LVs_num,Inf,handles.data.prepX,handles.data.prepY,1);
     otherwise
         disp('No case detected')
 end

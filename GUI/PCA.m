@@ -525,18 +525,14 @@ switch generalPlot
     case 'Var X'
         x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
     case 'Var X + ckf'
-        disp('Var X + ckf')
-        x_var = crossval2D_pca(handles.data.data_matrix,0:pc_num,'ekf',Inf,Inf,handles.data.prep);
+        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,2);
     case 'ekf crossval '
-        disp('ekf crossval');
-        x_var = crossval2D_pca(handles.data.data_matrix,0:pc_num,'cekf',Inf,Inf,handles.data.prep);
+        x_var = crossval_pca(handles.data.data_matrix,0:pc_num,'ekf',Inf,Inf,handles.data.prep);
     case 'cekf crossval'
-        disp('cekf crossval');
-        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+        x_var = crossval_pca(handles.data.data_matrix,0:pc_num,'cekf',Inf,Inf,handles.data.prep);
     case 'SVI plot'
-        chosenPC = str2num(getCurrentPopupString(handles.selectPopup));
-        disp(sprintf('SVI plot, chosen PC = %d',chosenPC));
-        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+        chosenVar = str2num(getCurrentPopupString(handles.selectPopup));
+        SVIplot(handles.data.data_matrix,pc_num,chosenVar,7,handles.data.prep);
     otherwise
         disp('No case detected')
 end
