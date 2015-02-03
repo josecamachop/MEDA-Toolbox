@@ -91,7 +91,7 @@ guidata(hObject, handles);
 
 %Load the logo image
 axes(handles.axesEDA);
-logo=image(imread('Logo.png'));
+logo=image(imread('logo3.png'));
 set(get(logo,'Parent'),'YTick',[]);
 set(get(logo,'Parent'),'XTick',[]);
 
