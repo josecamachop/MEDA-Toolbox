@@ -46,12 +46,9 @@ function Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debu
 % clusters with more than 100 observations (this is hardcoded in line 369
 % of the present routine, in the call to cfilesys) The bottom layer 
 % contains the actual data of the observations. CSV format is to change in
-% the future. The name of the files follows this structure: For top layer
-% files we use MEDA_#t_o_#o_c_#c, where #t is the index of the original
-% file in the imput list, starting from 1, #o is the order of the
-% observation in that file and #c the number of cluster. For bottom layer
-% we add _#n for the n-th file depending on the same top file. Name format 
-% can be chaged in line 365 of this routine.
+% the future. The name of the files follows this structure: for top layer
+% files we use MEDA_#t_o
+%
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 11/Apr/14

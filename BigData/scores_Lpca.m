@@ -37,7 +37,7 @@ function [T,TT] = scores_Lpca(Lmodel,pcs,Ltest,opt,label)
 %           size of the markers and class in the Z axis.
 %
 % label: ((L+N)x1) labels of the observations. Some possible inputs are:
-%   - num2str((1:L+N))')' or [] for observation numbers (by default)
+%   - num2str((1:L+N)') or [] for observation numbers (by default)
 %   - num2str(Lmodel_it.class) for observation classes
 %   - ' ' to avoid labels.
 %
@@ -52,7 +52,7 @@ function [T,TT] = scores_Lpca(Lmodel,pcs,Ltest,opt,label)
 % coded by: José Camacho Páez (josecamacho@ugr.es)
 % last modification: 09/Apr/14.
 %
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  Jos� Camacho P�ez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
