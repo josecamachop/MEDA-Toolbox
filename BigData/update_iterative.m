@@ -294,7 +294,7 @@ end
 
 % compute maximum and minimum
 
-if debug, disp('computing maximum and minimum ..............................................'), end;
+if debug, disp('computing maximum and minimum ...................................'), end;
 
 mini = Inf(1,size(Lmodel.mat,2));
 maxi = -Inf(1,size(Lmodel.mat,2));

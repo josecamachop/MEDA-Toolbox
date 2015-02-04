@@ -32,7 +32,7 @@ function P = loadings_Lpca(Lmodel,pcs,opt,label,classes)
 % P: (MxA) scores.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: Jos� Camacho Paez (josecamacho@ugr.es)
 % last modification: 07/May/13.
 %
 % Copyright (C) 2014  José Camacho Páez
