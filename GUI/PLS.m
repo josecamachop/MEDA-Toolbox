@@ -49,7 +49,7 @@ function varargout = PLS(varargin)
 
 % Edit the above text to modify the response to help PLS
 
-% Last Modified by GUIDE v2.5 03-Feb-2015 18:30:19
+% Last Modified by GUIDE v2.5 04-Feb-2015 13:13:05
 % Fixing some minor bugs on the GUI
 
 % Begin initialization code - DO NOT EDIT
@@ -323,6 +323,13 @@ handles.data.data_matrixY=data_matrix;
 sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
 handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
 
+%Change the selectPopup
+cellPopup = cell(1,N);
+for i=1:N
+    cellPopup{i} = num2str(i);
+end
+set(handles.selectPopup,'String',cellPopup);
+
 %Initialize dummy variable:
 M=size(data_matrix,1);%Number of observations
 dummy=zeros(1,M);
@@ -594,6 +601,7 @@ switch generalPlot
     case 'Var Y + scores'
         var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,2);
     case 'Y-SVI plot'
+        chosenVar = str2num(getCurrentPopupString(handles.selectPopup));
         SVIplot([handles.data.data_matrixY handles.data.data_matrixX],LVs_num,1,7,handles.data.prepX);
     case 'Y-crossval'
         crossval_pls(handles.data.data_matrixX,handles.data.data_matrixY,0:LVs_num,Inf,handles.data.prepX,handles.data.prepY,1);
@@ -2034,6 +2042,17 @@ function generalPopup_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns generalPopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from generalPopup
+generalSelection = getCurrentPopupString(hObject);
+
+switch generalSelection
+    case 'Y-SVI plot'
+        set(handles.selectText,'Enable','on');
+        set(handles.selectPopup,'Enable','on');
+    otherwise
+        set(handles.selectText,'Enable','off');
+        set(handles.selectPopup,'Enable','off');
+end
+guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
 function generalPopup_CreateFcn(hObject, eventdata, handles)
@@ -2119,6 +2138,29 @@ end
 
 % --- Executes during object creation, after setting all properties.
 function selectPopup_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to selectPopup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in selectPopup.
+function selectPopup_Callback(hObject, eventdata, handles)
+% hObject    handle to selectPopup (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns selectPopup contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from selectPopup
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu31_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to selectPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called

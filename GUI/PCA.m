@@ -225,7 +225,7 @@ handles.data.data_matrix=data_matrix;
 sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
 handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
 
-%Change the generalPopup
+%Change the selectPopup
 cellPopup = cell(1,N);
 for i=1:N
     cellPopup{i} = num2str(i);
