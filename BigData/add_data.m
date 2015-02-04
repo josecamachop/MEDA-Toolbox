@@ -35,7 +35,7 @@ function add_data(name,path,data,class,type,thres,preci,debug)
 % OUTPUTS:
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 24/Jan/14.
 %
 % Copyright (C) 2014  José Camacho Páez
