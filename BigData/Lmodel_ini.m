@@ -49,6 +49,8 @@ function Lmodel = Lmodel_ini
 %
 % Lmodel.class: (Nx1) class associated to each cluster.
 %
+% Lmodel.obs_l: {Nx1} label of each cluster.
+%
 % Lmodel.mat: (MxA) projection matrix for distance computation.
 %
 % Lmodel.index_fich: {Nx1} file system with the original observations in
@@ -57,7 +59,7 @@ function Lmodel = Lmodel_ini
 % Lmodel.path: (str) path to the file system for ITERATIVE models.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 09/May/13.
+% last modification: 05/Feb/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -92,6 +94,7 @@ Lmodel.nc = 0;
 Lmodel.centr = [];
 Lmodel.multr = [];
 Lmodel.class = [];
+Lmodel.obs_l = {};
 Lmodel.mat = [];
 Lmodel.index_fich = {};
 Lmodel.path='';

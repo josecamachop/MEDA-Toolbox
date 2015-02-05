@@ -49,7 +49,7 @@ function Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debu
 % the future. The name of the files follows this structure: For top layer
 % files we use MEDA_#t_o_#o_c_#c, where #t is the index of the original
 % file in the imput list, starting from 1, #o is the order of the
-% observation in that file and #c the number of cluster. For bottom layer
+% observation in that file and #c the class. For bottom layer
 % we add _#n for the n-th file depending on the same top file. Name format 
 % can be chaged in line 365 of this routine.
 %
@@ -296,9 +296,8 @@ for t=1:length(list),
     
     if isstruct(list(t))
         x = list(t).x;
-        class = list(t).class;
     else
-        load([path list{t}],'x','class')
+        load([path list{t}],'x')
     end
     
     xcs = (x -  ones(size(x,1),1)*Lmodel.av)./(ones(size(x,1),1)*Lmodel.sc);
@@ -327,9 +326,30 @@ for t=1:length(list),
     
     if isstruct(list(t))
         x = list(t).x;
-        class = list(t).class;
+        vars = fieldnames(list(t));
+        if ismember('class', vars)
+            class = list(t).class;
+        else
+            class = ones(size(x,1),1);
+        end
+        if ismember('obs_l', vars)
+            obs_l = list(t).obs_l;
+        else
+            obs_l = {};
+        end
     else
-        load([path list{t}],'x','class')
+        load([path list{t}],'x')
+        vars = whos('-file',[path list{t}]);
+        if ismember('class', {vars.name})
+            load([path list{t}],'class')
+        else
+            class = ones(size(x,1),1);
+        end
+        if ismember('obs_l', {vars.name})
+            load([path list{t}],'obs_l')
+        else
+            obs_l = {};
+        end
     end
     
     xcs = (x -  ones(size(x,1),1)*Lmodel.av)./(ones(size(x,1),1)*Lmodel.sc);
@@ -338,11 +358,11 @@ for t=1:length(list),
         indorig = length(Lmodel.class);
         red = [Lmodel.centr;xcs];
         multr = [Lmodel.multr;ones(length(class),1)];
-        labr = [Lmodel.class;class];
-        aux_v = (1:length(labr))';
+        classr = [Lmodel.class;class];
+        aux_v = (1:length(classr))';
         obslist = num2cell(aux_v);
     else
-        obslist = [];
+        obslist = {};
     end
     
     s = size(x);
@@ -356,6 +376,7 @@ for t=1:length(list),
         Lmodel.centr = [Lmodel.centr;xstep];
         Lmodel.multr = [Lmodel.multr;ones(ss,1)];
         Lmodel.class = [Lmodel.class;clstep];
+        Lmodel.obs_l = {Lmodel.obs_l{:} obs_l{:}};
         
         if files,
             for k=i:endv,
@@ -363,11 +384,11 @@ for t=1:length(list),
             end
         end
         
-        [Lmodel.centr,Lmodel.multr,Lmodel.class,obslist] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.mat,obslist);
+        [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obs_l,obslist] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.mat,obslist);
     end
     
     if files,
-        index_fich = cfilesys(obslist,red,multr,labr,index_fich,100,path2,debug); % update of the clustering file system
+        index_fich = cfilesys(obslist,red,multr,classr,index_fich,100,path2,debug); % update of the clustering file system
     end
       
 end
