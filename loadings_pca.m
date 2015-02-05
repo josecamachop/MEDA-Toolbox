@@ -60,7 +60,7 @@ if nargin < 2, error('Error in the number of arguments.'); end;
 s = size(cal);
 if s(1) < 1 || s(2) < 1 || ndims(cal)~=2, error('Error in the dimension of the arguments.'); end;
 
-[~, index] = unique(pcs, 'first');
+[something, index] = unique(pcs, 'first');
 pcs = pcs(sort(index));
 
 if nargin < 3, prep = 2; end;

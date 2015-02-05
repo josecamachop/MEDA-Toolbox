@@ -72,7 +72,7 @@ if nargin < 3, error('Error in the number of arguments.'); end;
 s = size(cal);
 if s(1) < 1 || s(2) < 1 || ndims(cal)~=2, error('Error in the dimension of the arguments.'); end;
 
-[~, index] = unique(lvs, 'first');
+[something, index] = unique(lvs, 'first');
 lvs = lvs(sort(index));
 
 if nargin < 4, prepx = 2; end;

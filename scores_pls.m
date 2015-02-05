@@ -74,7 +74,7 @@ if nargin < 4, x = cal; else x = [cal;test]; end;
 s = size(x);
 if s(1) < 1 || s(2) < 1 || ndims(x)~=2, error('Error in the dimension of the arguments.'); end;
 
-[~, index] = unique(lvs, 'first');
+[something, index] = unique(lvs, 'first');
 lvs = lvs(sort(index));
 
 if nargin < 5, prepx = 2; end;

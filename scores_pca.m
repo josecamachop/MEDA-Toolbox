@@ -67,7 +67,7 @@ if nargin < 3, x = cal; test = []; else x = [cal;test]; end;
 s = size(x);
 if s(1) < 1 || s(2) < 1 || ndims(x)~=2, error('Error in the dimension of the arguments.'); end;
 
-[kk, index] = unique(pcs, 'first');
+[something, index] = unique(pcs, 'first');
 pcs = pcs(sort(index));
 
 if nargin < 4, prep = 2; end;
