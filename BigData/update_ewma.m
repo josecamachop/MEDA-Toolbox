@@ -151,7 +151,7 @@ for t=1:length(list),
     end
     
     Lmodel.multr = lambda*Lmodel.multr;
-    ind_lab = find(Lmodel.multr>0.1);
+    ind_lab = find(Lmodel.multr>1);
     Lmodel.centr =  Lmodel.centr(ind_lab,:);
     Lmodel.multr = Lmodel.multr(ind_lab);
     Lmodel.class = Lmodel.class(ind_lab);
