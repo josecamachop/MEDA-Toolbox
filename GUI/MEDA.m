@@ -79,9 +79,9 @@ function MEDA_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 %Change icon
-warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
-javaFrame = get(hObject,'JavaFrame');
-javaFrame.setFigureIcon(javax.swing.ImageIcon('icon.jpg'));
+%warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+%javaFrame = get(hObject,'JavaFrame');
+%javaFrame.setFigureIcon(javax.swing.ImageIcon('icon2.png'));
 
 % Update handles structure
 guidata(hObject, handles);
