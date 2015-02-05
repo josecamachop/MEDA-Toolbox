@@ -163,9 +163,9 @@ handles.data.PCs_MEDA='';
 handles.data.auxPCs=0;
 
 %Change icon
-warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
-javaFrame = get(hObject,'JavaFrame');
-javaFrame.setFigureIcon(javax.swing.ImageIcon('icon.jpg'));
+%warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+%javaFrame = get(hObject,'JavaFrame');
+%javaFrame.setFigureIcon(javax.swing.ImageIcon('icon.jpg'));
 
 % Update handles structure
 guidata(hObject, handles);
