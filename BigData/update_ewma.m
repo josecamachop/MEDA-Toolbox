@@ -117,58 +117,59 @@ for t=1:length(list),
         end
     end
     
+    N = Lmodel.N;
+    [xcs,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,Lmodel.prep,0,lambda,Lmodel.av,Lmodel.sc,Lmodel.N);
+    
+    Lmodel.XX = lambda*Lmodel.XX + xcs'*xcs;
+    
+    if Lmodel.type==1
+        
+        [P,sdT] = Lpca(Lmodel);
+        Lmodel.mat = P*diag(1./sdT);
+        
+    elseif Lmodel.type==2,
+        
+        [ycs,Lmodel.avy,Lmodel.scy] = preprocess2Di(y,Lmodel.prepy,0,lambda,Lmodel.avy,Lmodel.scy,N);
+        
+        Lmodel.XY = lambda*Lmodel.XY + xcs'*ycs;
+        Lmodel.YY = lambda*Lmodel.YY + ycs'*ycs;
+        
+        if rank(Lmodel.XY)>0,
+            
+            [beta,W,P,Q,R,sdT] = Lpls(Lmodel);
+            Lmodel.mat = R*diag(1./sdT);
+            
+        else
+            
+            if debug>1, disp('XY Rank 0: using PCA.'), end;
+            
+            [P,sdT] = Lpca(Lmodel);
+            Lmodel.mat = P*diag(1./sdT);
+            
+        end
+        
+    end
+    
+    Lmodel.multr = lambda*Lmodel.multr;
+    ind_lab = find(Lmodel.multr>0.1);
+    Lmodel.centr =  Lmodel.centr(ind_lab,:);
+    Lmodel.multr = Lmodel.multr(ind_lab);
+    Lmodel.class = Lmodel.class(ind_lab);
+    Lmodel.obs_l = Lmodel.obs_l(ind_lab);       
+
     s = size(x);
     step2 = max(10,round(s(1)*step));
     for i = 1:step2:s(1),
         endv = min(s(1),i+step2);
         ss = endv-i+1;
-        xstep = x(i:endv,:);
+        xstep = xcs(i:endv,:);
         clstep = class(i:endv,:);
-        
-        N = Lmodel.N;
-        [xcs,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(xstep,Lmodel.prep,0,lambda,Lmodel.av,Lmodel.sc,Lmodel.N);
-        
-        Lmodel.XX = lambda*Lmodel.XX + xcs'*xcs;
-        
-        if Lmodel.type==1
-            
-            [P,sdT] = Lpca(Lmodel);
-            Lmodel.mat = P*diag(1./sdT);
-            
-        elseif Lmodel.type==2,
-            
-            ystep = y(i:endv,:);
-            [ycs,Lmodel.avy,Lmodel.scy] = preprocess2Di(ystep,Lmodel.prepy,0,lambda,Lmodel.avy,Lmodel.scy,N);
-            
-            Lmodel.XY = lambda*Lmodel.XY + xcs'*ycs;
-            Lmodel.YY = lambda*Lmodel.YY + ycs'*ycs;
-            
-            if rank(Lmodel.XY)>0,
-            
-                [beta,W,P,Q,R,sdT] = Lpls(Lmodel);
-                Lmodel.mat = R*diag(1./sdT);
-                
-            else
-                
-                if debug>1, disp('XY Rank 0: using PCA.'), end;
-                
-                [P,sdT] = Lpca(Lmodel);
-                Lmodel.mat = P*diag(1./sdT);
-            
-            end
-                
-        end
-        
-        Lmodel.centr = [Lmodel.centr;xcs];
-        Lmodel.multr = [lambda*Lmodel.multr;ones(ss,1)];
+        obs_step = obs_l(i:endv);
+               
+        Lmodel.centr = [Lmodel.centr;xstep];
+        Lmodel.multr = [Lmodel.multr;ones(ss,1)];
         Lmodel.class = [Lmodel.class;clstep];
-        Lmodel.obs_l = {Lmodel.obs_l{:} obs_l{:}};
-        
-        ind_lab = find(Lmodel.multr>0.1);
-        Lmodel.centr =  Lmodel.centr(ind_lab,:);
-        Lmodel.multr = Lmodel.multr(ind_lab);
-        Lmodel.class = Lmodel.class(ind_lab);
-        Lmodel.obs_l = Lmodel.obs_l(ind_lab);
+        Lmodel.obs_l = {Lmodel.obs_l{:} obs_step{:}};
             
         [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obs_l] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.mat);
 

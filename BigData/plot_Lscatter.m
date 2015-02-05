@@ -94,7 +94,7 @@ if ndims(mult)==2 & find(size(mult)==max(size(mult)))==2, mult = mult'; end;
 if s(1)~=sm(1) || sm(2)~=1 , error('Error in the dimension of the arguments.'); end;
 if nargin < 7, maxv = [20 50 100]; end;
 if ndims(maxv)==2 & find(size(maxv)==max(size(maxv)))==1, maxv = maxv'; end;
-if size(maxv,2)~=3 || size(maxv,1)~=1, error('Error in the dimension of the arguments.'); end;
+%if size(maxv,2)~=3 || size(maxv,1)~=1, error('Error in the dimension of the arguments.'); end;
 
 
 %% Main code

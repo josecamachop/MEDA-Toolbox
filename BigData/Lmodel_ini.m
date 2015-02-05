@@ -51,6 +51,8 @@ function Lmodel = Lmodel_ini
 %
 % Lmodel.obs_l: {Nx1} label of each cluster.
 %
+% Lmodel.var_l: {Nx1} label of each variable.
+%
 % Lmodel.mat: (MxA) projection matrix for distance computation.
 %
 % Lmodel.index_fich: {Nx1} file system with the original observations in
@@ -95,6 +97,7 @@ Lmodel.centr = [];
 Lmodel.multr = [];
 Lmodel.class = [];
 Lmodel.obs_l = {};
+Lmodel.vars_l = {};
 Lmodel.mat = [];
 Lmodel.index_fich = {};
 Lmodel.path='';

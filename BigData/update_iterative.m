@@ -372,11 +372,12 @@ for t=1:length(list),
         ss = endv-i+1;
         xstep = xcs(i:endv,:);
         clstep = class(i:endv,:);
+        obs_step = obs_l(i:endv);
         
         Lmodel.centr = [Lmodel.centr;xstep];
         Lmodel.multr = [Lmodel.multr;ones(ss,1)];
         Lmodel.class = [Lmodel.class;clstep];
-        Lmodel.obs_l = {Lmodel.obs_l{:} obs_l{:}};
+        Lmodel.obs_l = {Lmodel.obs_l{:} obs_step{:}};
         
         if files,
             for k=i:endv,
