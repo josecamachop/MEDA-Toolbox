@@ -54,8 +54,9 @@ function Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debu
 % can be chaged in line 365 of this routine.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 11/Apr/14
+% last modification: 05/Feb/15
 %
+% Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -106,9 +107,8 @@ if Lmodel.prep==0,
         
         if isstruct(list(t))
             x = list(t).x;
-            class = list(t).class;
         else
-            load([path list{t}],'x','class')
+            load([path list{t}],'x')
         end
         
         [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N);
@@ -123,9 +123,8 @@ elseif (Lmodel.type==1 & Lmodel.prep > 0) | (Lmodel.type==2 & Lmodel.prep > 0 & 
         
         if isstruct(list(t))
             x = list(t).x;
-            class = list(t).class;
         else
-            load([path list{t}],'x','class')
+            load([path list{t}],'x')
         end
         
         [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N);
@@ -141,9 +140,8 @@ elseif Lmodel.type==2 & Lmodel.prep > 0 & Lmodel.prepy > 0,
         if isstruct(list(t))
             x = list(t).x;
             y = list(t).y;
-            class = list(t).class;
         else
-            load([path list{t}],'x','y','class')
+            load([path list{t}],'x','y')
         end
         
         [xc,Lmodel.av,Lmodel.sc] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N);
@@ -165,9 +163,8 @@ if (Lmodel.type==1 & Lmodel.prep == 2) | (Lmodel.type==2 & Lmodel.prep == 2 & Lm
         
         if isstruct(list(t))
             x = list(t).x;
-            class = list(t).class;
         else
-            load([path list{t}],'x','class')
+            load([path list{t}],'x')
         end
         
         xc = x -  ones(size(x,1),1)*Lmodel.av;
@@ -184,9 +181,8 @@ elseif Lmodel.type==2 & Lmodel.prep == 2 & Lmodel.prepy == 2,
         if isstruct(list(t))
             x = list(t).x;
             y = list(t).y;
-            class = list(t).class;
         else
-            load([path list{t}],'x','y','class')
+            load([path list{t}],'x','y')
         end
         
         xc = x -  ones(size(x,1),1)*Lmodel.av;
@@ -209,9 +205,8 @@ if Lmodel.type==1,
         
         if isstruct(list(t))
             x = list(t).x;
-            class = list(t).class;
         else
-            load([path list{t}],'x','class')
+            load([path list{t}],'x')
         end
         
         xcs = (x -  ones(size(x,1),1)*Lmodel.av)./(ones(size(x,1),1)*Lmodel.sc);
@@ -231,9 +226,8 @@ elseif Lmodel.type==2,
         if isstruct(list(t))
             x = list(t).x;
             y = list(t).y;
-            class = list(t).class;
         else
-            load([path list{t}],'x','y','class')
+            load([path list{t}],'x','y')
         end
         
         xcs = (x -  ones(size(x,1),1)*Lmodel.av)./(ones(size(x,1),1)*Lmodel.sc);

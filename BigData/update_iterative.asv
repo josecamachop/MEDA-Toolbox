@@ -46,12 +46,15 @@ function Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debu
 % clusters with more than 100 observations (this is hardcoded in line 369
 % of the present routine, in the call to cfilesys) The bottom layer 
 % contains the actual data of the observations. CSV format is to change in
-% the future. The name of the files follows this structure: for top layer
-% files we use MEDA_#t_o
-%
+% the future. The name of the files follows this structure: For top layer
+% files we use MEDA_#t_o_#o_c_#c, where #t is the index of the original
+% file in the imput list, starting from 1, #o is the order of the
+% observation in that file and #c the number of cluster. For bottom layer
+% we add _#n for the n-th file depending on the same top file. Name format 
+% can be chaged in line 365 of this routine.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 11/Apr/14
+% last modification: 05/Feb/15
 %
 % Copyright (C) 2014  Jose Camacho Paez
 % 
@@ -103,9 +106,8 @@ if Lmodel.prep==0,
         
         if isstruct(list(t))
             x = list(t).x;
-            class = list(t).class;
         else
-            load([path list{t}],'x','class')
+            load([path list{t}],'x')
         end
         
         [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N);
@@ -120,9 +122,8 @@ elseif (Lmodel.type==1 & Lmodel.prep > 0) | (Lmodel.type==2 & Lmodel.prep > 0 & 
         
         if isstruct(list(t))
             x = list(t).x;
-            class = list(t).class;
         else
-            load([path list{t}],'x','class')
+            load([path list{t}],'x')
         end
         
         [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N);
@@ -138,9 +139,8 @@ elseif Lmodel.type==2 & Lmodel.prep > 0 & Lmodel.prepy > 0,
         if isstruct(list(t))
             x = list(t).x;
             y = list(t).y;
-            class = list(t).class;
         else
-            load([path list{t}],'x','y','class')
+            load([path list{t}],'x','y')
         end
         
         [xc,Lmodel.av,Lmodel.sc] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N);
@@ -162,9 +162,8 @@ if (Lmodel.type==1 & Lmodel.prep == 2) | (Lmodel.type==2 & Lmodel.prep == 2 & Lm
         
         if isstruct(list(t))
             x = list(t).x;
-            class = list(t).class;
         else
-            load([path list{t}],'x','class')
+            load([path list{t}],'x')
         end
         
         xc = x -  ones(size(x,1),1)*Lmodel.av;
@@ -181,9 +180,8 @@ elseif Lmodel.type==2 & Lmodel.prep == 2 & Lmodel.prepy == 2,
         if isstruct(list(t))
             x = list(t).x;
             y = list(t).y;
-            class = list(t).class;
         else
-            load([path list{t}],'x','y','class')
+            load([path list{t}],'x','y')
         end
         
         xc = x -  ones(size(x,1),1)*Lmodel.av;
@@ -206,9 +204,8 @@ if Lmodel.type==1,
         
         if isstruct(list(t))
             x = list(t).x;
-            class = list(t).class;
         else
-            load([path list{t}],'x','class')
+            load([path list{t}],'x')
         end
         
         xcs = (x -  ones(size(x,1),1)*Lmodel.av)./(ones(size(x,1),1)*Lmodel.sc);
@@ -228,9 +225,8 @@ elseif Lmodel.type==2,
         if isstruct(list(t))
             x = list(t).x;
             y = list(t).y;
-            class = list(t).class;
         else
-            load([path list{t}],'x','y','class')
+            load([path list{t}],'x','y')
         end
         
         xcs = (x -  ones(size(x,1),1)*Lmodel.av)./(ones(size(x,1),1)*Lmodel.sc);
@@ -291,7 +287,7 @@ end
 
 % compute maximum and minimum
 
-if debug, disp('computing maximum and minimum ..............................................'), end;
+if debug, disp('computing maximum and minimum ...................................'), end;
 
 mini = Inf(1,size(Lmodel.mat,2));
 maxi = -Inf(1,size(Lmodel.mat,2));

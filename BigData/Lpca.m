@@ -20,10 +20,11 @@ function [P,sdT] = Lpca(Lmodel)
 % sdT: (1xA) standard deviations of the scores.
 %
 %
-% coded by: José Camacho Páez (josecamacho@ugr.es)
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 02/May/09.
 %
-% Copyright (C) 2014  José Camacho Páez
+% Copyright (C) 2014  University of Granada, Granada
+% Copyright (C) 2014  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
