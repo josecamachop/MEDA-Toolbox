@@ -80,9 +80,9 @@ if sp < 2, error('Error in the dimension of the arguments.'); end;
 if nargin < 4, opt = 4; end;
 if nargin < 5 || isempty(label)
     label=num2str((1:s(1))'); 
-elseif ~isequal(label,' '),
-    if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
-    if size(label,1)~=s(1), error('Error in the dimension of the arguments.'); end;
+% elseif ~isequal(label,' '),
+%     if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
+%     if size(label,1)~=s(1), error('Error in the dimension of the arguments.'); end;
 end
 
 %% Main code
