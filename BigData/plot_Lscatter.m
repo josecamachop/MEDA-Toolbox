@@ -154,7 +154,7 @@ switch opt
         text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
     
     case 4,
-        scatter3(bdata(:,1), bdata(:,2), mult, [], colors, 'filled','LineWidth',2);
+        scatter3(bdata(:,1), bdata(:,2), mult, [], colors, 'filled');
         text(bdata(:,1), bdata(:,2), mult, olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
     
     case 5,

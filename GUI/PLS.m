@@ -1997,7 +1997,7 @@ else if get(handles.thresRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
     end
 end
 
-[meda_map,meda_dis]=meda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1_LP,LV2_LP) max(LV1_LP,LV2_LP)],handles.data.prepX,handles.data.prepY,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
+[meda_map,meda_dis]=meda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(handles.data.LV1_LP,handles.data.LV2_LP) max(handles.data.LV1_LP,handles.data.LV2_LP)],handles.data.prepX,handles.data.prepY,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
 
 guidata(hObject,handles);
 
