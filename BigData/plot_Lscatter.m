@@ -44,7 +44,8 @@ function fig_h = plot_Lscatter(bdata,olabel,classes,axlabel,opt,mult,maxv)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 09/Apr/14.
+%           Alejandro Perez Villegas (alextoni@gmail.com)
+% last modification: 06/Feb/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -65,129 +66,110 @@ function fig_h = plot_Lscatter(bdata,olabel,classes,axlabel,opt,mult,maxv)
 %
 
 %% Parameters checking
-
-if nargin < 1, error('Error in the number of arguments.'); end;
-s = size(bdata);
-if length(s) ~= 2 || s(2)~=2, error('Error in the dimension of the arguments.'); end;
+% Set default values
+assert (nargin >= 1, 'Error: Missing arguments.');
+N = size(bdata, 1);
 if nargin < 2 || isempty(olabel)
-    olabel=num2str((1:s(1))'); 
-elseif ~isequal(olabel,' '),
-    if ndims(olabel)==2 & find(size(olabel)==max(size(olabel)))==2, olabel = olabel'; end
-    if size(olabel,1)~=s(1), error('Error in the dimension of the arguments.'); end;
+    olabel = repmat({''}, N, 1);
 end
 if nargin < 3 || isempty(classes)
-    classes = ones(s(1),1); 
-else
-    if ndims(classes)==2 & find(size(classes)==max(size(classes)))==2, classes = classes'; end
-    if size(classes,1)~=s(1), error('Error in the dimension of the arguments.'); end;
+    classes = ones(N, 1);
 end
-if nargin < 4 ||isempty(axlabel)
-    axlabel = {'Dim 1','Dim 2'}'; 
-else
-    if ndims(axlabel)==2 & find(size(axlabel)==max(size(axlabel)))==2, axlabel = axlabel'; end
-    if size(axlabel,1)~=2, error('Error in the dimension of the arguments.'); end;
+if nargin < 4 || isempty(axlabel)
+    axlabel = {'Dim 1';'Dim 2'};
 end
-if nargin < 5, opt = 3; end;
-if nargin < 6, mult = ones(s(1),1); end;
-sm = size(mult);
-if ndims(mult)==2 & find(size(mult)==max(size(mult)))==2, mult = mult'; end;
-if s(1)~=sm(1) || sm(2)~=1 , error('Error in the dimension of the arguments.'); end;
-if nargin < 7, maxv = [20 50 100]; end;
-if ndims(maxv)==2 & find(size(maxv)==max(size(maxv)))==1, maxv = maxv'; end;
-%if size(maxv,2)~=3 || size(maxv,1)~=1, error('Error in the dimension of the arguments.'); end;
+if nargin < 5 || isempty(opt)
+    opt = 3;
+end
+if nargin < 6 || isempty(mult)
+    mult = ones(N, 1);
+end
+if nargin < 7
+    maxv = [20 50 100];
+end
+
+% Convert char arrays to cell
+if ischar(olabel),  olabel = cellstr(olabel); end;
+if ischar(classes), classes = cellstr(classes); end;
+if ischar(axlabel), axlabel = cellstr(axlabel); end;
+
+% Convert row arrays to column arrays
+if size(olabel,1)  == 1, olabel = olabel'; end;
+if size(classes,1) == 1, classes = classes'; end;
+if size(axlabel,1) == 1, axlabel = axlabel'; end;
+if size(mult,1) == 1, mult = mult'; end;
+if size(maxv,2) == 1, maxv = maxv'; end;
+
+% Validate dimensions of input data
+assert (size(bdata,2) == 2, 'Dimension Error: bdata must be n-by-2.');
+assert (isequal(size(olabel), [N 1]), 'Dimension Error: label must be n-by-1.');
+assert (isequal(size(classes), [N 1]), 'Dimension Error: classes must be n-by-1.');
+assert (isequal(size(axlabel), [2 1]), 'Dimension Error: axlabel must be 2-by-1.');
+assert (isequal(size(mult), [N 1]), 'Dimension Error: mult must be n-by-1');
+assert (isequal(size(maxv), [1 3]), 'Dimension Error: maxv must be 1-by-3');
 
 
 %% Main code
-
-chr = ['.','x','o','s','d'];
-maxv = [0 1 maxv Inf];
-
-if exist('classes')
-    m = max(classes);
-    
-    colors = ['b','g','r','c','m','y','k'];
-    charac = ['o','*','s','d','v','^'];
-
-    while length(colors)<m,
-        colors = [colors colors];
-    end
-
-    while length(charac)<m,
-        charac = [charac charac];
-    end
-
+% Preprocess classes to force them start with 1, 2...n,
+unique_classes = unique(classes);
+if iscell(classes)
+    normal_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
 else
-    colors = char('b'*ones(1,s(1)));
-    charac = char('o'*ones(1,s(1)));
-    m = 1;
-    classes = ones(1,s(1));
+    normal_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
 end
-    
-fig_h=figure;
+
+% Define mult bins, markers, colors and sizes 
+bins = [0 1 maxv Inf];
+markers = ['^','v','d','o','s'];
+
+color_list = hsv(length(unique_classes));
+colors = color_list(normal_classes, :);
+
+sizes = zeros(size(mult));
+for i=1:length(bins)-1
+    sizes (mult>bins(i) & mult<=bins(i+1)) = round(2.5 * i^2 * pi);
+end
+ 
+% Plot points and labels
+fig_h = figure;
 hold on;
+switch opt
+    case 0,
+        scatter(bdata(:,1), bdata(:,2), [], colors, 'filled');
+        text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
 
-for i=1:m,
-    ind=find(classes==i);
-    switch opt,
-        case 2,
-             for j=1:length(maxv)-1,
-                ind2 = find(mult(ind)<=maxv(j+1));
-                ind3 = find(mult(ind(ind2))>maxv(j));
-                ind2 = ind(ind2(ind3));
-                plot(bdata(ind2,1),bdata(ind2,2),strcat(colors(i),chr(j)),'MarkerFaceColor',colors(i));
-            end
-            %if i==1, legend('n=1',['1<n\leq' sprintf('%d',maxv(3))],[sprintf('%d',maxv(3)) '<n\leq' sprintf('%d',maxv(4))],[sprintf('%d',maxv(4)) '<n\leq' sprintf('%d',maxv(5))],sprintf('%d<n',maxv(5)),'Location','Best'); end   
-        case 3,
-             for j=1:length(maxv)-1,
-                ind2 = find(mult(ind)<=maxv(j+1));
-                ind3 = find(mult(ind(ind2))>maxv(j));
-                ind2 = ind(ind2(ind3));
-                plot(bdata(ind2,1),bdata(ind2,2),strcat(colors(i),charac(i)),'MarkerFaceColor',colors(i),'MarkerSize',round(j*2.5));
-            end
-            %if i==1, legend('n=1',['1<n\leq' sprintf('%d',maxv(3))],[sprintf('%d',maxv(3)) '<n\leq' sprintf('%d',maxv(4))],[sprintf('%d',maxv(4)) '<n\leq' sprintf('%d',maxv(5))],sprintf('%d<n',maxv(5)),'Location','Best'); end   
-        case 4,
-            for j=1:length(ind),
-                plot3(bdata(ind([j j]),1),bdata(ind([j j]),2),[0 mult(ind(j))],'-','color',colors(i),'MarkerFaceColor',colors(i));
-                plot3(bdata(ind(j),1),bdata(ind(j),2),mult(ind(j)),strcat(colors(i),charac(i)),'MarkerFaceColor',colors(i));
-            end
-        case 5,
-             for j=1:length(maxv)-1,
-                ind2 = find(mult(ind)<=maxv(j+1));
-                ind3 = find(mult(ind(ind2))>maxv(j));
-                ind2 = ind(ind2(ind3));
-                plot3(bdata(ind2,1),bdata(ind2,2),i*ones(length(ind2),1),strcat(colors(i),charac(i)),'MarkerFaceColor',colors(i),'MarkerSize',round(j*2.5));
-            end
-        otherwise
-            if ~opt,
-                colorsM = colors;
-            else
-                colorsM = char('w'*ones(1,s(1)));
-            end
-            plot(bdata(ind,1),bdata(ind,2),strcat(colors(i),charac(i)),'MarkerFaceColor',colorsM(i));
-    end
-    if exist('axlabel')
-        xlabel(axlabel{1},'FontSize',16);
-        ylabel(axlabel{2},'FontSize',16);
-    end
+    case 1,
+        scatter(bdata(:,1), bdata(:,2), [], colors);
+        text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
+    
+    case 2,
+        for i=1:length(bins)-1
+            ind = mult<=bins(i+1) & mult>bins(i);
+            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:), 'filled', markers(i));
+        end
+        text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
+    
+    case 3,
+        scatter(bdata(:,1), bdata(:,2), sizes, colors, 'filled')
+        text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
+    
+    case 4,
+        scatter3(bdata(:,1), bdata(:,2), mult, [], colors, 'filled','LineWidth',2);
+        text(bdata(:,1), bdata(:,2), mult, olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
+    
+    case 5,
+        scatter3(bdata(:,1), bdata(:,2), normal_classes, sizes, colors, 'filled');
+        text(bdata(:,1), bdata(:,2), normal_classes, olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
+end
 
-    labels{i}=sprintf('class %d',i);
-end
-        
-ax=axis;
-plot([0 0],ax(3:4),'k--');
-plot(ax(1:2),[0 0],'k--');
-axis(ax);
-axes_h=get(fig_h,'Children');
-axes_h=axes_h(1);
-set(axes_h,'FontSize',14);
-if ~isequal(olabel,' '),  
-    deltax = (ax(2) - ax(1))/50;
-    deltay = (ax(4) - ax(3))/50;
-    text(bdata(:,1)+deltax,bdata(:,2)+deltay,olabel);
-end
+% Set axis labels and plot origin lines
+xlabel(axlabel(1), 'FontSize', 16);
+ylabel(axlabel(2), 'FontSize', 16);
+
+ax = axis;
+plot([0 0], ax(3:4), 'k--');
+plot(ax(1:2), [0 0], 'k--');
+axis(ax)
 box on
 
-    
-
-
-        
+  
