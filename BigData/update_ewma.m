@@ -35,7 +35,7 @@ function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Feb/15
+% last modification: 06/Feb/15
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -155,7 +155,9 @@ for t=1:length(list),
     Lmodel.centr =  Lmodel.centr(ind_lab,:);
     Lmodel.multr = Lmodel.multr(ind_lab);
     Lmodel.class = Lmodel.class(ind_lab);
-    Lmodel.obs_l = Lmodel.obs_l(ind_lab);       
+    if ~isempty(Lmodel.obs_l)
+        Lmodel.obs_l = Lmodel.obs_l(ind_lab);    
+    end
 
     s = size(x);
     step2 = max(10,round(s(1)*step));
@@ -164,7 +166,11 @@ for t=1:length(list),
         ss = endv-i+1;
         xstep = xcs(i:endv,:);
         clstep = class(i:endv,:);
-        obs_step = obs_l(i:endv);
+        if isempty(obs_l)
+            obs_step = {};
+        else
+            obs_step = obs_l(i:endv);
+        end
                
         Lmodel.centr = [Lmodel.centr;xstep];
         Lmodel.multr = [Lmodel.multr;ones(ss,1)];

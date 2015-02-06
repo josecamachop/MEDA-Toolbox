@@ -54,7 +54,7 @@ function Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debu
 % can be chaged in line 365 of this routine.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Feb/15
+% last modification: 06/Feb/15
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -372,7 +372,11 @@ for t=1:length(list),
         ss = endv-i+1;
         xstep = xcs(i:endv,:);
         clstep = class(i:endv,:);
-        obs_step = obs_l(i:endv);
+        if isempty(obs_l)
+            obs_step = {};
+        else
+            obs_step = obs_l(i:endv);
+        end
         
         Lmodel.centr = [Lmodel.centr;xstep];
         Lmodel.multr = [Lmodel.multr;ones(ss,1)];
