@@ -21,12 +21,17 @@ function [meda_map,meda_dis] = meda_Lpca(Lmodel,pcs,thres,opt,label,vars)
 %
 % thres: (1x1) threshold for the discretized MEDA matrix (0.1 by default)
 %
-% opt: (1x1) options for data plotting.
-%       0: no plots.
-%       1: plot MEDA matrix (default)
-%       2: plot discretized MEDA matrix
-%       3: plot MEDA matrix seriated 
-%       4: plot discretized MEDA matrix seriated
+% opt: (struct) options for data plotting
+%       plot:
+%           0: no plots
+%           1: plot MEDA matrix (default)
+%           2: plot discretized MEDA matrix
+%       seriated:
+%           0: no seriated
+%           1: seriated (default)
+%       discard:
+%           0: no discard
+%           1: discard 0 variance variables (default)
 %
 % label: (Mx1) name of the variables (numbers are used by default), eg.
 %   num2str((1:M)')'
@@ -42,7 +47,7 @@ function [meda_map,meda_dis] = meda_Lpca(Lmodel,pcs,thres,opt,label,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 06/May/13.
+% last modification: 11/Mar/15
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -68,7 +73,39 @@ s = size(Lmodel.XX);
 if s(1) ~= s(2) || ndims(Lmodel.XX)~=2, error('Error in the dimension of the arguments.'); end;
 if nargin < 2, pcs=1:Lmodel.lv; end;
 if nargin < 3, thres=0.1; end; 
-if nargin < 4, opt = 1; end;
+if nargin < 4,  
+    opt.plot = 1;
+    opt.seriated = 1;
+    opt.discard = 1;
+end;
+if isstruct(opt) % backward v1.0 compatibility
+    opt2 = opt;
+else
+    switch opt,
+        case 0
+            opt2.plot = 0;
+            opt2.seriated = 0;
+            opt2.discard = 0;
+        case 1
+            opt2.plot = 1;
+            opt2.seriated = 0;
+            opt2.discard = 0;
+        case 2
+            opt2.plot = 2;
+            opt2.seriated = 0;
+            opt2.discard = 0;       
+        case 3
+            opt2.plot = 1;
+            opt2.seriated = 1;
+            opt2.discard = 0; 
+        case 4
+            opt2.plot = 2;
+            opt2.seriated = 1;
+            opt2.discard = 0; 
+        otherwise
+            error('Error in the dimension of the arguments.'); 
+    end
+end
 if nargin < 5 || isempty(label)
     label=num2str((1:s(2))'); 
 else
@@ -86,32 +123,33 @@ P = Lpca(Lmodel);
 
 %% Show results
 
-if opt,
-    switch opt,
-        case 2
-            map1 = meda_dis;
-            ord = 1:s(2);
-        case 3
-            [map1, ord] = seriation(meda_map);
-        case 4
-            [map1, ord] = seriation(meda_dis);
-        otherwise
-            map1 = meda_map;
-            ord = 1:s(2);
+if opt2.plot,
+    
+    if opt2.plot==1,
+        map1 = meda_map;
+    else
+        map1 = meda_dis;
     end
     
-    varso = [];
-    for i=1:length(vars),
-        j=find(vars(i)==ord,1);
-        varso=[varso j];
+    if opt2.seriated == 1,
+        [map1, ord] = seriation(map1);
+    else
+        ord = 1:s(2);
     end
-    varso = sort(varso);
+    
+    if opt2.discard == 1,
+        Dmap = diag(map1);
+        ind = find(Dmap);
+        map1 = map1(ind,ind);
+        ord = ord(ind); 
+    end
     
     if ~exist('label')
         label = num2str(ord');
     end
     
-    plot_map(map1(varso,varso),label(ord(varso),:));
+    plot_map(map1,label(ord,:));
+    
 end
     
 
