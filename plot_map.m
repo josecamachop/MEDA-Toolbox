@@ -43,6 +43,7 @@ function fig_h = plot_map(map,label)
 %% Parameters checking
 
 assert (nargin >= 1, 'Error: Missing arguments.');
+assert (size(map,1) == size(map, 2), 'Dimension Error: map must be m-by-m.');
 N = size(map,2);
 if nargin < 2 || isempty(label)
     label=num2str((1:N)'); 
@@ -57,7 +58,11 @@ end
 fig_h=figure;
 map3 = [map map(:,end);map(end,:) map(end,end)];
 sur_h=surface((1:N+1)'*ones(1,N+1),ones(N+1,1)*(1:N+1),map3);
-set(sur_h,'EdgeColor',[0.95 0.95 0.95]);
+if N < 100
+    set(sur_h,'EdgeColor',[0.95 0.95 0.95]);
+else
+    set(sur_h,'EdgeColor','none');
+end
 
 % Set axis properties
 axes_h = get(sur_h,'Parent');
