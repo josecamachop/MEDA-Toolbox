@@ -67,46 +67,34 @@ function fig_h = plot_Lscatter(bdata,olabel,classes,axlabel,opt,mult,maxv)
 
 %% Parameters checking
 % Set default values
-assert (nargin >= 1, 'Error: Missing arguments.');
+assert(nargin >= 1, 'Error: Missing arguments.');
 N = size(bdata, 1);
-if nargin < 2 || isempty(olabel)
-    olabel = repmat({''}, N, 1);
-end
-if nargin < 3 || isempty(classes)
-    classes = ones(N, 1);
-end
-if nargin < 4 || isempty(axlabel)
-    axlabel = {'Dim 1';'Dim 2'};
-end
-if nargin < 5 || isempty(opt)
-    opt = 3;
-end
-if nargin < 6 || isempty(mult)
-    mult = ones(N, 1);
-end
-if nargin < 7
-    maxv = [20 50 100];
-end
+if nargin < 2 || isempty(olabel),  olabel  = repmat({''},N,1);  end;
+if nargin < 3 || isempty(classes), classes = ones(N, 1);        end;
+if nargin < 4 || isempty(axlabel), axlabel = {'Dim 1';'Dim 2'}; end;
+if nargin < 5 || isempty(opt),     opt     = 3;                 end;
+if nargin < 6 || isempty(mult),    mult    = ones(N,1);         end;
+if nargin < 7 || isempty(maxv),    maxv    = [20 50 100];       end;
 
 % Convert char arrays to cell
-if ischar(olabel),  olabel = cellstr(olabel); end;
+if ischar(olabel),  olabel  = cellstr(olabel);  end;
 if ischar(classes), classes = cellstr(classes); end;
 if ischar(axlabel), axlabel = cellstr(axlabel); end;
 
 % Convert row arrays to column arrays
-if size(olabel,1)  == 1, olabel = olabel'; end;
+if size(olabel,1)  == 1, olabel  = olabel';  end;
 if size(classes,1) == 1, classes = classes'; end;
 if size(axlabel,1) == 1, axlabel = axlabel'; end;
 if size(mult,1) == 1, mult = mult'; end;
 if size(maxv,2) == 1, maxv = maxv'; end;
 
 % Validate dimensions of input data
-assert (size(bdata,2) == 2, 'Dimension Error: bdata must be n-by-2.');
-assert (isequal(size(olabel), [N 1]), 'Dimension Error: label must be n-by-1.');
-assert (isequal(size(classes), [N 1]), 'Dimension Error: classes must be n-by-1.');
-assert (isequal(size(axlabel), [2 1]), 'Dimension Error: axlabel must be 2-by-1.');
-assert (isequal(size(mult), [N 1]), 'Dimension Error: mult must be n-by-1');
-assert (isequal(size(maxv), [1 3]), 'Dimension Error: maxv must be 1-by-3');
+assert(size(bdata,2) == 2, 'Dimension Error: bdata must be n-by-2.');
+assert(isequal(size(olabel),  [N 1]), 'Dimension Error: label must be n-by-1.');
+assert(isequal(size(classes), [N 1]), 'Dimension Error: classes must be n-by-1.');
+assert(isequal(size(axlabel), [2 1]), 'Dimension Error: axlabel must be 2-by-1.');
+assert(isequal(size(mult), [N 1]), 'Dimension Error: mult must be n-by-1');
+assert(isequal(size(maxv), [1 3]), 'Dimension Error: maxv must be 1-by-3');
 
 
 %% Main code
