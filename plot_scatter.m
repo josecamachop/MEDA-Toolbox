@@ -83,35 +83,33 @@ assert (isequal(size(classes), [N 1]), 'Dimension Error: classes must be n-by-1.
 assert (isequal(size(axlabel), [2 1]), 'Dimension Error: axlabel must be 2-by-1.')
 
 %% Main code
-% Preprocess classes to force them start with 1, 2...n,
-unique_classes = unique(classes);
-if iscell(classes)
-    normal_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
-else
-    normal_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
-end
-
-% Map classes to colors
-color_list = hsv(length(unique_classes));
-color_array = color_list(normal_classes, :);
-
-% Plot points and labels
 fig_h = figure;
 hold on;
-if opt
-    scatter(bdata(:,1), bdata(:,2), [], color_array)
-else
-    scatter(bdata(:,1), bdata(:,2), [], color_array, 'filled')
-end    
-text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
 
-% Set axis labels and plot origin lines
+% Plot points
+a = gscatter(bdata(:,1), bdata(:,2), classes, [], 'o');
+
+% Fill marks
+if opt == 0
+    for i=1:length(a)
+        color = get(a(i), 'Color');
+        set(a(i), 'MarkerFaceColor',color);
+    end
+end
+
+% Plot labels
+text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom', 'HorizontalAlignment','left');
+
+% Set axis labels
 xlabel(axlabel(1), 'FontSize', 16);
 ylabel(axlabel(2), 'FontSize', 16);
 
+% Plot origin lines
 ax = axis;
 plot([0 0], ax(3:4), 'k--');
 plot(ax(1:2), [0 0], 'k--');
 axis(ax)
 
+%legend off
 box on
+
