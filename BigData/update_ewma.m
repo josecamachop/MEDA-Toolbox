@@ -118,6 +118,13 @@ for t=1:length(list),
     end
     
     N = Lmodel.N;
+    indMV = find(isnan(x));
+    if ~isempty(indMV)
+        disp('Missing values found in X. Set to average.');
+        av = ones(size(x,1),1)*Lmodel.av;
+        x(indMV) = av(indMV);
+    end
+         
     [xcs,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,Lmodel.prep,0,lambda,Lmodel.av,Lmodel.sc,Lmodel.N);
     
     Lmodel.XX = lambda*Lmodel.XX + xcs'*xcs;
@@ -129,6 +136,13 @@ for t=1:length(list),
         
     elseif Lmodel.type==2,
         
+        indMV = find(isnan(y));
+        if ~isempty(indMV)
+            disp('Missing values found in Y. Set to average.');
+            av = ones(size(y,1),1)*Lmodel.avy;
+            y(indMV) = av(indMV);
+        end
+    
         [ycs,Lmodel.avy,Lmodel.scy] = preprocess2Di(y,Lmodel.prepy,0,lambda,Lmodel.avy,Lmodel.scy,N);
         
         Lmodel.XY = lambda*Lmodel.XY + xcs'*ycs;
