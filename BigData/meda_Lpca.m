@@ -19,7 +19,7 @@ function [meda_map,meda_dis] = meda_Lpca(Lmodel,pcs,thres,opt,label,vars)
 % pcs: (1xA) Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs)
 %
-% thres: (1x1) threshold for the discretized MEDA matrix (0.1 by default)
+% thres: (1x1) threshold for discretization and discarding (0.1 by default)
 %
 % opt: (struct) options for data plotting
 %       plot:
@@ -47,7 +47,7 @@ function [meda_map,meda_dis] = meda_Lpca(Lmodel,pcs,thres,opt,label,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 11/Mar/15
+% last modification: 12/Mar/15
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -139,7 +139,7 @@ if opt2.plot,
     
     if opt2.discard == 1,
         Dmap = diag(map1);
-        ind = find(Dmap);
+        ind = find(Dmap > thres);
         map1 = map1(ind,ind);
         ord = ord(ind); 
     end
