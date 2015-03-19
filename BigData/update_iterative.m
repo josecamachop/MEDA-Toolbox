@@ -371,7 +371,7 @@ for t=1:length(list),
         endv = min(s(1),i+step2-1);
         ss = endv-i+1;
         xstep = xcs(i:endv,:);
-        clstep = class(i:endv,:);
+        clstep = class(i:endv);
         if isempty(obs_l)
             obs_step = {};
         else
