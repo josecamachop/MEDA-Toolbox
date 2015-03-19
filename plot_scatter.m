@@ -110,6 +110,6 @@ plot([0 0], ax(3:4), 'k--');
 plot(ax(1:2), [0 0], 'k--');
 axis(ax)
 
-%legend off
+legend off
 box on
 

@@ -122,31 +122,49 @@ end
 fig_h = figure;
 hold on;
 switch opt
-    case 0,
-        scatter(bdata(:,1), bdata(:,2), [], colors, 'filled');
+    case 0,  % 2D plot, No multiplicity info, filled marks
+        for i=1:length(unique_classes)
+            ind = classes == unique_classes(i);
+            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'filled','DisplayName',num2str(unique_classes(i)));
+        end
         text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
 
-    case 1,
-        scatter(bdata(:,1), bdata(:,2), [], colors);
-        text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
-    
-    case 2,
-        for i=1:length(bins)-1
-            ind = mult<=bins(i+1) & mult>bins(i);
-            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:), 'filled', markers(i));
+    case 1,  % 2D plot, No multiplicity info, empty marks
+        for i=1:length(unique_classes)
+            ind = classes == unique_classes(i);
+            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'DisplayName',num2str(unique_classes(i)));
         end
         text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
     
-    case 3,
-        scatter(bdata(:,1), bdata(:,2), sizes, colors, 'filled')
+    case 2,  % 2D plot, Multiplicity in markers
+        for i=1:length(unique_classes)
+            for j=1:length(bins)-1
+                ind = classes==unique_classes(i) & mult<=bins(j+1) & mult>bins(j);
+                disp_name = strcat(num2str(unique_classes(i)), ' (mult: > ', num2str(bins(j)), ')');
+                scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:), 'filled', markers(j), 'DisplayName', disp_name);
+            end
+        end
         text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
     
-    case 4,
-        scatter3(bdata(:,1), bdata(:,2), mult, [], colors, 'filled');
+    case 3,  % 2D plot, Multiplicity in size
+        for i=1:length(unique_classes)
+            ind = classes == unique_classes(i);
+            scatter(bdata(ind,1), bdata(ind,2),sizes(ind), colors(ind,:),'filled','DisplayName',num2str(unique_classes(i)));
+        end
+        text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
+    
+    case 4,  % 3D plot, Multiplicity in Z-axis
+        for i=1:length(unique_classes)
+            ind = classes == unique_classes(i);
+            scatter3(bdata(ind,1), bdata(ind,2), mult(ind), [], colors(ind,:), 'filled', 'DisplayName',num2str(unique_classes(i)));
+        end
         text(bdata(:,1), bdata(:,2), mult, olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
     
-    case 5,
-        scatter3(bdata(:,1), bdata(:,2), normal_classes, sizes, colors, 'filled');
+    case 5,  % 3D plot, Multiplicity in size, classes in Z-axis
+        for i=1:length(unique_classes)
+            ind = classes == unique_classes(i);
+            scatter3(bdata(ind,1), bdata(ind,2), normal_classes(ind), sizes(ind), colors(ind,:), 'filled', 'DisplayName',num2str(unique_classes(i)));
+        end
         text(bdata(:,1), bdata(:,2), normal_classes, olabel(:,1), 'VerticalAlignment','bottom','HorizontalAlignment','left');
 end
 
