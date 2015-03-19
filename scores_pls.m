@@ -113,7 +113,8 @@ end
 if opt,
     T = [T;TT];
     if length(lvs) == 1,
-        plot_vec(T(:,lvs), label, sprintf('LV %d',lvs), [], 0, 'r');
+        plot_vec2(T(:,lvs), label, classes, sprintf('LV %d',lvs));
+        %plot_vec(T(:,lvs), label, sprintf('LV %d',lvs), [], 0, 'r');
     end
     for i=1:length(lvs)-1,
         for j=i+1:length(lvs),

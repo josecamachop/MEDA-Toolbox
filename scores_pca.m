@@ -101,7 +101,8 @@ end
 if opt,
     T = [T;TT];
     if length(pcs) == 1,
-        plot_vec(T(:,pcs), label, sprintf('PC %d',pcs), [], 0, 'r');
+        plot_vec2(T(:,pcs), label, classes, sprintf('PC %d',pcs));
+        %plot_vec(T(:,pcs), label, sprintf('PC %d',pcs), [], 0, 'r');
     end
     for i=1:length(pcs)-1,
         for j=i+1:length(pcs),
