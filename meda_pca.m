@@ -23,7 +23,7 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %       1: mean centering.
 %       2: autoscaling (default)  
 %
-% thres: (1x1) threshold for the discretized MEDA matrix (0.1 by default)
+% thres: (1x1) threshold for discretization and discarding (0.1 by default)
 %
 % opt: (struct) options for data plotting
 %       plot:
@@ -53,7 +53,7 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 10/Mar/15
+% last modification: 12/Mar/15
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -148,7 +148,7 @@ if opt2.plot,
     
     if opt2.discard == 1,
         Dmap = diag(map1);
-        ind = find(Dmap);
+        ind = find(Dmap > thres);
         map1 = map1(ind,ind);
         ord = ord(ind); 
     end
