@@ -173,8 +173,8 @@ xlabel(axlabel(1), 'FontSize', 16);
 ylabel(axlabel(2), 'FontSize', 16);
 
 ax = axis;
-plot([0 0], ax(3:4), 'k--', 'DisplayName', 'X axis');
-plot(ax(1:2), [0 0], 'k--', 'DisplayName', 'X axis');
+plot([0 0], ax(3:4), 'k--','HandleVisibility', 'off');
+plot(ax(1:2), [0 0], 'k--','HandleVisibility', 'off');
 axis(ax)
 box on
 

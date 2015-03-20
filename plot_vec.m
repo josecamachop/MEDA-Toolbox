@@ -120,9 +120,9 @@ if ~isempty(lcont)
     hold on
     b = [0.5:(N+1);0.5:(N+1)];
     a = [lcont(1,:);lcont(1,:)];
-    plot(b(2:(end-1))',a(:),'r--','LineWidth',2);
+    plot(b(2:(end-1))',a(:),'r--','LineWidth',2,'HandleVisibility', 'off');
     a = [lcont(2,:);lcont(2,:)];
-    plot(b(2:(end-1))',a(:),'r--','LineWidth',2);
+    plot(b(2:(end-1))',a(:),'r--','LineWidth',2,'HandleVisibility', 'off');
 end    
 
 % Get axes handler

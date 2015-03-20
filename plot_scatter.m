@@ -106,8 +106,8 @@ ylabel(axlabel(2), 'FontSize', 16);
 
 % Plot origin lines
 ax = axis;
-plot([0 0], ax(3:4), 'k--', 'DisplayName', 'X axis');
-plot(ax(1:2), [0 0], 'k--', 'DisplayName', 'Y axis');
+plot([0 0], ax(3:4), 'k--', 'HandleVisibility', 'off');
+plot(ax(1:2), [0 0], 'k--', 'HandleVisibility', 'off');
 axis(ax)
 
 legend off
