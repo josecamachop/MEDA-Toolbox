@@ -54,7 +54,7 @@ function Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debu
 % can be chaged in line 365 of this routine.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 06/Feb/15
+% last modification: 19/Mar/15
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -111,7 +111,7 @@ if Lmodel.prep==0,
             load([path list{t}],'x')
         end
         
-        [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N);
+        [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
         
     end
         
@@ -127,7 +127,7 @@ elseif (Lmodel.type==1 & Lmodel.prep > 0) | (Lmodel.type==2 & Lmodel.prep > 0 & 
             load([path list{t}],'x')
         end
         
-        [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N);
+        [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
         
     end
     
@@ -144,8 +144,8 @@ elseif Lmodel.type==2 & Lmodel.prep > 0 & Lmodel.prepy > 0,
             load([path list{t}],'x','y')
         end
         
-        [xc,Lmodel.av,Lmodel.sc] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N);
-        [yc,Lmodel.avy,Lmodel.scy,Lmodel.N] = preprocess2Di(y,1,0,1,Lmodel.avy,Lmodel.scy,Lmodel.N);
+        [xc,Lmodel.av,Lmodel.sc] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
+        [yc,Lmodel.avy,Lmodel.scy,Lmodel.N] = preprocess2Di(y,1,0,1,Lmodel.avy,Lmodel.scy,Lmodel.N,Lmodel.weighty);
         
     end
     
@@ -168,7 +168,7 @@ if (Lmodel.type==1 & Lmodel.prep == 2) | (Lmodel.type==2 & Lmodel.prep == 2 & Lm
         end
         
         xc = x -  ones(size(x,1),1)*Lmodel.av;
-        [xsc,av,Lmodel.sc,N] = preprocess2Di(xc,3,0,1,[],Lmodel.sc,N);
+        [xsc,av,Lmodel.sc,N] = preprocess2Di(xc,3,0,1,[],Lmodel.sc,N,Lmodel.weight);
         
     end
     
@@ -186,9 +186,9 @@ elseif Lmodel.type==2 & Lmodel.prep == 2 & Lmodel.prepy == 2,
         end
         
         xc = x -  ones(size(x,1),1)*Lmodel.av;
-        [xc,av,Lmodel.sc] = preprocess2Di(xc,3,0,1,[],Lmodel.sc,N);
+        [xc,av,Lmodel.sc] = preprocess2Di(xc,3,0,1,[],Lmodel.sc,N,Lmodel.weight);
         yc = y -  ones(size(x,1),1)*Lmodel.avy;
-        [yc,avy,Lmodel.scy,N] = preprocess2Di(y,1,0,1,Lmodel.avy,Lmodel.scy,N);
+        [yc,avy,Lmodel.scy,N] = preprocess2Di(y,1,0,1,Lmodel.avy,Lmodel.scy,N,Lmodel.weighty);
         
     end
     

@@ -1,12 +1,12 @@
-function [meda_map,meda_dis] = meda_Lpls(Lmodel,lvs,thres,opt,label,vars)
+function [meda_map,meda_dis,ord] = meda_Lpls(Lmodel,lvs,thres,opt,label,vars)
 
 % Missing data methods for exploratory data analysis in PLS. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
 % 8-18. This algorithm follows the suggested computation by Arteaga, which
 % makes use of the covariance matrices.
 %
-% [meda_map,meda_dis] = meda_Lpls(Lmodel) % minimum call
-% [meda_map,meda_dis] = meda_Lpls(Lmodel,lvs,thres,opt,label,vars) %complete call
+% [meda_map,meda_dis,ord] = meda_Lpls(Lmodel) % minimum call
+% [meda_map,meda_dis,ord] = meda_Lpls(Lmodel,lvs,thres,opt,label,vars) %complete call
 %
 %
 % INPUTS:
@@ -47,9 +47,11 @@ function [meda_map,meda_dis] = meda_Lpls(Lmodel,lvs,thres,opt,label,vars)
 %
 % meda_dis: (MxM) discretized MEDA matrix.
 %
+% ord: (1xS) order of shown variables.
+%
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Mar/15
+% last modification: 22/Mar/15
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -118,6 +120,9 @@ if nargin < 6, vars = 1:s(2); end;
 
 %% Main code
 
+Lmodel.XX = Lmodel.XX(vars,vars);
+s = size(Lmodel.XX);
+
 Lmodel.lv = max(lvs);
 [beta,W,P,Q,R] = Lpls(Lmodel);
 
@@ -133,18 +138,22 @@ if opt2.plot,
         map1 = meda_dis;
     end
     
+    if opt2.discard == 1,
+        Dmap = diag(map1);
+        ind = find(Dmap > thres);
+        map1 = map1(ind,ind);
+        s(2) = length(ind);
+    else
+        ind = 1:s(2);
+    end
+    
     if opt2.seriated == 1,
         [map1, ord] = seriation(map1);
     else
         ord = 1:s(2);
     end
     
-    if opt2.discard == 1,
-        Dmap = diag(map1);
-        ind = find(Dmap > thres);
-        map1 = map1(ind,ind);
-        ord = ord(ind); 
-    end
+    ord = vars(ind(ord));
     
     if ~exist('label')
         label = num2str(ord');

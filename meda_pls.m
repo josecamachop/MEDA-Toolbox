@@ -60,7 +60,7 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Mar/15
+% last modification: 22/Mar/15
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -130,7 +130,8 @@ if nargin < 9, vars = 1:s(2); end;
 
 %% Main code
 
-ord = vars;
+x = x(:,vars);
+s = size(x);
 
 x2 = preprocess2D(x,prepx);
 y2 = preprocess2D(y,prepy);
@@ -151,6 +152,15 @@ if opt2.plot,
     else
         map1 = meda_dis;
     end
+            
+    if opt2.discard == 1,
+        Dmap = diag(map1);
+        ind = find(Dmap > thres);
+        map1 = map1(ind,ind);
+        s(2) = length(ind);
+    else
+        ind = 1:s(2);
+    end
     
     if opt2.seriated == 1,
         [map1, ord] = seriation(map1);
@@ -158,12 +168,7 @@ if opt2.plot,
         ord = 1:s(2);
     end
     
-    if opt2.discard == 1,
-        Dmap = diag(map1);
-        ind = find(Dmap > thres);
-        map1 = map1(ind,ind);
-        ord = ord(ind); 
-    end
+    ord = vars(ind(ord));
     
     if ~exist('label')
         label = num2str(ord');

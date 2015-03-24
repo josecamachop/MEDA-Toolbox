@@ -122,6 +122,7 @@ if nargin < 7, vars = 1:s(2); end;
 %% Main code
 
 x = x(:,vars);
+label = label(vars);
 s = size(x);
 
 x2 = preprocess2D(x,prep);
@@ -156,7 +157,7 @@ if opt2.plot,
         ord = 1:s(2);
     end
     
-    ord = vars(ind(ord));
+    ord = ind(ord);
     
     if ~exist('label')
         label = num2str(ord');

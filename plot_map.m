@@ -48,7 +48,6 @@ N = size(map,2);
 if nargin < 2 || isempty(label)
     label=num2str((1:N)'); 
 else
-    if size(label,2) > size(label,1), label = label'; end;
     if ischar(label), label = cellstr(label); end;
     assert (isequal(size(label), [N 1]), 'Dimension Error: label must be n-by-1.');
 end
