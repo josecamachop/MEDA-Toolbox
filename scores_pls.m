@@ -70,7 +70,7 @@ function [T,TT] = scores_pls(cal,y,lvs,test,prepx,prepy,opt,label,classes)
 %% Parameters checking
 
 if nargin < 3, error('Error in the number of arguments.'); end;
-if nargin < 4, x = cal; else x = [cal;test]; end;
+if nargin < 4, x = cal; test = []; else x = [cal;test]; end;
 s = size(x);
 if s(1) < 1 || s(2) < 1 || ndims(x)~=2, error('Error in the dimension of the arguments.'); end;
 
