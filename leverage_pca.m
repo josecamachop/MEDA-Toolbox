@@ -91,14 +91,15 @@ switch opt,
     otherwise
         T2 = diag(Ts*Ts');
         if ~isempty(test)
-            T2 = [T2;diag(TT*diag(1./(dtT2.^2))*TT')];
+            %T2 = [T2;diag(TT*diag(1./(dtT2.^2))*TT')];
+            T2 = diag(TT*diag(1./(dtT2.^2))*TT');
         end
 end;
 
 if opt, 
     if opt<3,
-        plot_vec(T2,label,'Leverage');
+        plot_vec(T2,label,'D-statistic');
     else
-        plot_vec(T2,label,'Leverage',(ones(size(T2,1),1)*[hot_lim(length(pcs),length(T2),0.05) hot_lim(length(pcs),length(T2),0.01)])');
+        plot_vec(T2,label,'D-statistic',(ones(size(T2,1),1)*[hot_lim(length(pcs),length(T2),0.05) hot_lim(length(pcs),length(T2),0.01)])');
     end
 end
