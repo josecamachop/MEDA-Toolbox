@@ -989,6 +989,9 @@ function selomedaButton_Callback(hObject, eventdata, handles)
 
 ID_list=get(0,'Children');
 ID=ID_list(2);%Identificador de la gr�fica seleccionada (debe ser un Score Plot).
+if ~isnumeric(ID),
+    ID = ID.Number;
+end
 
 check_tag=get(ID,'Tag');
 if strcmp(check_tag,'ScorePlot'),

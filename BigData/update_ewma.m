@@ -125,7 +125,7 @@ for t=1:length(list),
         x(indMV) = av(indMV);
     end
          
-    [xcs,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,Lmodel.prep,0,lambda,Lmodel.av,Lmodel.sc,Lmodel.N);
+    [xcs,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,Lmodel.prep,0,lambda,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
     
     Lmodel.XX = lambda*Lmodel.XX + xcs'*xcs;
     
@@ -143,7 +143,7 @@ for t=1:length(list),
             y(indMV) = av(indMV);
         end
     
-        [ycs,Lmodel.avy,Lmodel.scy] = preprocess2Di(y,Lmodel.prepy,0,lambda,Lmodel.avy,Lmodel.scy,N);
+        [ycs,Lmodel.avy,Lmodel.scy] = preprocess2Di(y,Lmodel.prepy,0,lambda,Lmodel.avy,Lmodel.scy,N,Lmodel.weight);
         
         Lmodel.XY = lambda*Lmodel.XY + xcs'*ycs;
         Lmodel.YY = lambda*Lmodel.YY + ycs'*ycs;

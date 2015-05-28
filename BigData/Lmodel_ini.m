@@ -25,6 +25,8 @@ function Lmodel = Lmodel_ini
 %
 % Lmodel.sc: (1xM) sample scale according to the preprocessing method.
 %
+% Lmodel.weight: (1xM) weight applied after the preprocessing method.
+%
 % Lmodel.XX: (MxM) sample cross-product matrix of X.
 %
 % Lmodel.prepy: (1x1) preprocesing of the data
@@ -36,6 +38,8 @@ function Lmodel = Lmodel_ini
 % Lmodel.avy: (1xM) sample average according to the preprocessing method.
 %
 % Lmodel.scy: (1xM) sample scale according to the preprocessing method.
+%
+% Lmodel.weighty: (1xM) weight applied after the preprocessing method.
 %
 % Lmodel.XY: (MxO) sample cross-product matrix of X and Y.
 %
@@ -61,7 +65,7 @@ function Lmodel = Lmodel_ini
 % Lmodel.path: (str) path to the file system for ITERATIVE models.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Feb/15.
+% last modification: 19/Mar/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -86,10 +90,12 @@ Lmodel.N = 0;
 Lmodel.prep = -1;
 Lmodel.av = 0;
 Lmodel.sc = 0;
+Lmodel.weight = 0;
 Lmodel.XX = 0;
 Lmodel.prepy =-1;
 Lmodel.avy = 0;
 Lmodel.scy = 0;
+Lmodel.weighty = 0;
 Lmodel.XY = 0;
 Lmodel.YY = 0;
 Lmodel.nc = 0;

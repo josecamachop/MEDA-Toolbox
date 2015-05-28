@@ -56,7 +56,7 @@ if nargin < 5, delay=0.1; end
 
 % Main code
 
-if ~console,
+if console==0,
     disp(text);
     return
 end
