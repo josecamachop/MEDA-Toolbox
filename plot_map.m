@@ -70,18 +70,15 @@ set(axes_h,'XAxisLocation','top');
 set(axes_h,'YDir','reverse');
 set(axes_h,'XTick',(1:N)+0.5);
 set(axes_h,'YTick',(1:N)+0.5);
-set(axes_h,'XTickLabel',[]);
+set(axes_h,'XTickLabel',label);
 set(axes_h,'YTickLabel',label);
 
 % Label font size
 label_size = max(min(14,round(300/length(label))), 9);
 set(axes_h, 'FontSize', label_size);
 
-% Show vertical labels
-xt = get(axes_h, 'XTick');
-yt = get(axes_h, 'YTick');
-text(xt, repmat(yt(1)-.7*(yt(2)-yt(1)),length(xt),1), label,...
-    'FontSize',label_size,'HorizontalAlignment','left','rotation',90);
+% Rotate X labels
+rotateXLabels(axes_h,90);
 
 % Resize axes position
 pos = get(axes_h, 'Position');

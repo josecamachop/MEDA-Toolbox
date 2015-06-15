@@ -115,16 +115,11 @@ set(axes_h, 'FontSize', label_size);
 if ~isempty(olabel)
     set(axes_h,'XTick',1:N);
     label_length = max(cellfun('length', olabel));
-    if label_length > 2
+    
+    set(axes_h,'XTickLabel',olabel);
+    if label_length > 1
         % rotate labels
-        set(axes_h,'XTickLabel',[]);
-        b = get(axes_h, 'XTick');
-        c = get(axes_h, 'YTick');
-        text(b, repmat(c(1)-.1*(c(2)-c(1)),length(b),1), olabel,...
-            'FontSize',label_size,'HorizontalAlignment','right','rotation',90);
-    else
-        % dont rotate labels
-        set(axes_h,'XTickLabel', olabel);
+        rotateXLabels(axes_h,90);
     end
 end
 if ~isempty(slabel)
