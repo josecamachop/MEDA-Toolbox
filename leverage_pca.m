@@ -26,6 +26,8 @@ function T2 = leverage_pca(cal,pcs,test,prep,opt,label)
 %       1: Squared residuals in the observations (default)
 %       2: Squared residuals in the variables 
 %       3: Squared residuals in the observations with control limits
+%       4: Squared residuals in the observations with control limits in
+%           Phase I
 %
 % label: name of the observations (opt 1, dimension ((L+N)x1) or 
 %   variables (opt 2, dimension (Mx1)) (numbers are used by default), eg.
@@ -39,10 +41,10 @@ function T2 = leverage_pca(cal,pcs,test,prep,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% last modification: 09/Jun/15.
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2015  University of Granada, Granada
+% Copyright (C) 2015  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -89,10 +91,11 @@ switch opt,
     case 2
         T2 = diag(P*P');
     otherwise
-        T2 = diag(Ts*Ts');
+        T2c = diag(Ts*Ts');
         if ~isempty(test)
-            %T2 = [T2;diag(TT*diag(1./(dtT2.^2))*TT')];
             T2 = diag(TT*diag(1./(dtT2.^2))*TT');
+        else
+            T2 = T2c;
         end
 end;
 
@@ -100,6 +103,10 @@ if opt,
     if opt<3,
         plot_vec(T2,label,'D-statistic');
     else
-        plot_vec(T2,label,'D-statistic',(ones(size(T2,1),1)*[hot_lim(length(pcs),length(T2),0.05) hot_lim(length(pcs),length(T2),0.01)])');
+        if opt<4,
+            plot_vec(T2,label,'D-statistic',(ones(size(T2,1),1)*[hot_lim(length(pcs),length(T2c),0.05) hot_lim(length(pcs),length(T2c),0.01)])');
+        else
+            plot_vec(T2,label,'D-statistic',(ones(size(T2,1),1)*[hot_lim(length(pcs),length(T2c),0.05,1) hot_lim(length(pcs),length(T2c),0.01,1)])');
+        end
     end
 end

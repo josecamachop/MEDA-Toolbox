@@ -25,7 +25,7 @@ function [xp,average,scale] = preprocess2D(x,prep)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% last modification: 03/Jun/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -75,7 +75,7 @@ switch prep,
         xc = x - ones(s(1),1)*average; 
         xc(find(nanM)) = 0;
         scale = sqrt(sum(xc.^2,1)./(sum(anM,1)-1));
-        scale(find(scale==0))=1; 
+        scale(find(scale==0))=min(scale(find(scale)))/2; % use 1 by default may reduce detection of anomalous events 
         xp = xc./(ones(s(1),1)*scale);
         xp(find(nanM)) = nan;
         

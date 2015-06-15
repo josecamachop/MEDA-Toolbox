@@ -1102,6 +1102,9 @@ function minusButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
+if ~isnumeric(ID),
+    ID = ID.Number;
+end
 
 check_tag=get(ID,'Tag');
 if strcmp(check_tag,'ScorePlot'),
@@ -1149,6 +1152,9 @@ function plusButton_Callback(hObject, eventdata, handles)
 
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
+if ~isnumeric(ID),
+    ID = ID.Number;
+end
 
 check_tag=get(ID,'Tag');
 if strcmp(check_tag,'ScorePlot'),
@@ -1193,6 +1199,9 @@ function trendButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
+if ~isnumeric(ID),
+    ID = ID.Number;
+end
 
 check_tag=get(ID,'Tag');
 if strcmp(check_tag,'ScorePlot'),
@@ -1304,6 +1313,9 @@ function cleanButton_Callback(hObject, eventdata, handles)
 
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
+if ~isnumeric(ID),
+    ID = ID.Number;
+end
 
 check_tag=get(ID,'Tag');
 if strcmp(check_tag,'ScorePlot'),
@@ -1340,6 +1352,9 @@ function omedaButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
+if ~isnumeric(ID),
+    ID = ID.Number;
+end
 
 check_tag=get(ID,'Tag');
 if strcmp(check_tag,'ScorePlot'),
@@ -1751,6 +1766,9 @@ function selmedaButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
+if ~isnumeric(ID),
+    ID = ID.Number;
+end
 
 check_tag=get(ID,'Tag');
 if strcmp(check_tag,'LoadingPlot'),

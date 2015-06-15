@@ -44,15 +44,11 @@ if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end;
 s = size(x);
 if find(s<1), error('Incorrect content of x.'); end;
 if pc<0, error('Incorrect value of prep.'); end;
-dmin = min(s);
-if pc>dmin, pc=dmin; end;
 
 % Computation
 
-[u,d,p]=svd(x,0);
+[u,d,p]=svd(x);
 t = u*d;
-p = p(:,1:pc);
-t = t(:,1:pc);
 
         
 

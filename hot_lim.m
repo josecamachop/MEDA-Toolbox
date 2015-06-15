@@ -1,8 +1,9 @@
-function lim = hot_lim(pc,nob,p_value)
+function lim = hot_lim(pc,nob,p_value,phase)
 
 % Control limit for D statistic.
 %
-% lim = hot_lim(pc,nob,p_value)       % complete call
+% lim = hot_lim(pc,nob,p_value)       % minimum call
+% lim = hot_lim(pc,nob,p_value,phase)       % complete call
 %
 % INPUTS:
 %
@@ -12,6 +13,10 @@ function lim = hot_lim(pc,nob,p_value)
 %
 % p_value: (1x1) p-value of the test.
 %
+% phase: (1x1) SPC phase:
+%   - 1: Phase I
+%   - 2: Phase II (by default)
+%
 %
 % OUTPUTS:
 %
@@ -19,10 +24,10 @@ function lim = hot_lim(pc,nob,p_value)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 04/Jan/13.
+% last modification: 09/Jul/15.
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2015  University of Granada, Granada
+% Copyright (C) 2015  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -44,8 +49,15 @@ if pc<1, error('Incorrect content of pc.'); end;
 if nob<1, error('Incorrect content of nob.'); end;
 if (p_value<0||p_value>1), error('Incorrect value of p_value.'); end;
 
+if nargin < 4, phase = 2; end;
+if (phase<1||phase>2), error('Incorrect value of phase.'); end;
+
 % Computation
 
-lim = (pc*(nob*nob-1)/(nob*(nob-pc)))*finv(1-p_value,pc,nob-pc);
+if phase ==2,
+    lim = (pc*(nob*nob-1)/(nob*(nob-pc)))*finv(1-p_value,pc,nob-pc);
+else
+    lim = (nob-1)^2/nob*icdf('Beta',1-p_value,pc/2,(nob-pc-1)/2);
+end
 
 

@@ -44,7 +44,7 @@ function [xp,average,scale,N] = preprocess2Di(x,prep,ndim,lambda,average,scale,N
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Mar/15.
+% last modification: 03/Jun/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -107,7 +107,7 @@ switch prep,
         xc = x - ones(s(1),1)*average; 
         acc2 = lambda*acc2 + sum(xc.^2,1);% update variability  
         scale = sqrt(acc2/(N-1));
-        scale(find(scale==0))=1; 
+        scale(find(scale==0))=min(scale(find(scale)))/2; % use 1 by default may reduce detection of anomalous events 
         xp = xc./(ones(s(1),1)*scale);
         
     case 3, % scaling  
@@ -115,7 +115,7 @@ switch prep,
         acc2 = lambda*acc2 + sum(x.^2,1);% update variability  
         if acc2 < 0, pause, end
         scale = sqrt(acc2/(N-1));
-        scale(find(scale==0))=1; 
+        scale(find(scale==0))=min(scale(find(scale)))/2; % use 1 by default may reduce detection of anomalous events 
         xp = x./(ones(s(1),1)*scale);
         
     otherwise, % No preprocessing 
