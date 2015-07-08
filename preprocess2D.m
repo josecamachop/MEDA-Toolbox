@@ -75,7 +75,11 @@ switch prep,
         xc = x - ones(s(1),1)*average; 
         xc(find(nanM)) = 0;
         scale = sqrt(sum(xc.^2,1)./(sum(anM,1)-1));
-        scale(find(scale==0))=min(scale(find(scale)))/2; % use 1 by default may reduce detection of anomalous events 
+        ind = find(scale==0);
+        scale(ind) = sqrt(ones(1,length(ind))./(2*sum(anM(:,ind),1)-1)); 
+        % use 1 by default may reduce detection of anomalous events 
+        % what we do is to infer that we need to double the calibration
+        % data to find one single element
         xp = xc./(ones(s(1),1)*scale);
         xp(find(nanM)) = nan;
         
