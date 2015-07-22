@@ -49,6 +49,8 @@ if pc<0, error('Incorrect value of prep.'); end;
 
 [u,d,p]=svd(x);
 t = u*d;
+p = p(:,1:pc);
+t = t(:,1:pc);
 
         
 

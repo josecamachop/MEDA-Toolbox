@@ -1,9 +1,9 @@
-function text_tot = cprint(console,text,text_tot,opt,delay)
+function text_tot = cprint(console,text,text_tot,opt,delay,maxl,maxr)
 
 % Print a text on a console.
 %
 % cprint(console,text) % standard options
-% cprint(console,text,text_tot,opt,delay) % complete call
+% cprint(console,text,text_tot,opt,delay,maxl,maxr) % complete call
 %
 %
 % INPUTS:
@@ -20,7 +20,11 @@ function text_tot = cprint(console,text,text_tot,opt,delay)
 %       - 1: write a new line (by default).
 %       - 2: write in the current line.
 %
-% delay: (1x1): delay in seconds after writting (0.1 by default).
+% delay: (1x1) delay in seconds after writting (0.1 by default).
+%
+% maxl: (1x1) maximum length of a line, in characters (500 by default).
+%
+% maxr: (1x1) maximum number of lines in console (10 by default).
 %
 %
 % OUTPUTS:
@@ -31,7 +35,7 @@ function text_tot = cprint(console,text,text_tot,opt,delay)
 %
 % codified by: José Camacho Páez.
 % version: 0.1
-% last modification: 16/Dic/08.
+% last modification: 08/Jul/15.
 %
 % Copyright (C) 2014  José Camacho Páez
 % 
@@ -53,6 +57,8 @@ function text_tot = cprint(console,text,text_tot,opt,delay)
 if nargin < 3, text_tot=' '; end
 if nargin < 4, opt=1; end
 if nargin < 5, delay=0.1; end
+if nargin < 6, maxl=500; end
+if nargin < 7, maxr=10; end
 
 % Main code
 
@@ -61,8 +67,7 @@ if console==0,
     return
 end
 
-maxl=500;
-maxr=10;
+
 
 switch opt,
     case -1,
