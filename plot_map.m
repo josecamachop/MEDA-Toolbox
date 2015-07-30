@@ -72,6 +72,9 @@ set(axes_h,'XTick',(1:N)+0.5);
 set(axes_h,'YTick',(1:N)+0.5);
 set(axes_h,'XTickLabel',label);
 set(axes_h,'YTickLabel',label);
+if ~verLessThan('matlab', '8.3'),
+    set(axes_h,'TicklabelInterpreter','None')
+end
 
 % Label font size
 label_size = max(min(14,round(300/length(label))), 9);
