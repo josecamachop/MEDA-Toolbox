@@ -1,0 +1,48 @@
+function ind = ADindex(L,A,R,traces)
+
+% ADICOV similarity index according to Chemometrics and Intelligent 
+% Laboratory Systems 105, 2011, pp. 171-180
+%
+% ind = ADindex(L,A,R) % complete call
+%
+%
+% INPUTS:
+%
+% L: {NxM} original data set.
+%
+% A: {NxM} data set approximated by ADICOV.
+%
+% R: (Mxpcs) proyection matrix.
+%
+%
+% OUTPUTS:
+%
+% ind: (Nx1) similarity index.
+%
+%
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 19/Aug/15
+%
+% Copyright (C) 2014  University of Granada, Granada
+% Copyright (C) 2014  Jose Camacho Paez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ux = L*R;
+uy = A*R;
+r = ux-uy;
+
+ind = sum(r.^2,2)/size(r,2);
+ 
+ind = sum(ind)/size(r,1);
