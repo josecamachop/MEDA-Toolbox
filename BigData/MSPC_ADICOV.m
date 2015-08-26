@@ -49,8 +49,8 @@ function [T2,Q] = MSPC_ADICOV(Lmodel,pcs,list,opt)
 
 %% Parameters checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-if nargin < 3, opt = 1; end;
+if nargin < 3, error('Error in the number of arguments.'); end;
+if nargin < 4, opt = 1; end;
 
 %% Main code
 
