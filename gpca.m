@@ -1,8 +1,9 @@
-function [p,t] = gpca(x,states,pc)
+function [p,t,bel] = gpca(x,states,pc,opt)
 
 % Group-wise Principal Component Analysis.
 %
-% [p,t] = gpca(x,states,pc)     % complete call
+% [p,t,bel] = gpca(x,states,pc)     % minimum call
+% [p,t,bel] = gpca(x,states,pc,opt)     % complete call
 %
 % INPUTS:
 %
@@ -10,18 +11,24 @@ function [p,t] = gpca(x,states,pc)
 %
 % states: {Sx1} Cell with the groups of variables.
 %
-% pc: number of principal components.
+% pc: number of principal components. 
+%
+% opt: options
+%   - 0: set the number of pcs to pc (by default)
+%   - 1: extract at least 1 PC per state.
 %
 %
 % OUTPUTS:
 %
-% p: (M x pc) matrix of loadings.
+% p: (M x A) matrix of loadings.
 %
-% t: (N x pc) matrix of scores.
+% t: (N x A) matrix of scores.
+%
+% bel: (A x 1) correspondence between PCs and States.
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% last modification: 28/Aug/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -42,11 +49,20 @@ function [p,t] = gpca(x,states,pc)
 % Parameters checking
 
 if nargin < 3, error('Error in the number of arguments.'); end;
+if nargin < 4, opt=0; end;
+
+% Main code
 
 map = x'*x;
 I =  eye(size(map));
 B = I;
-for j = 1:pc, 
+j=1;
+if opt,
+    finish = false;
+else
+    finish = j <= pc,
+end
+while ~finish, 
     
     for i=1:length(states), % construct eigenvectors according to states
         map_aux = zeros(size(map));
@@ -61,10 +77,21 @@ for j = 1:pc,
     ind = find(sS==max(sS),1);
     p(:,j) = R(:,ind);
     t(:,j) = S(:,ind);
+    bel(j) = ind;
     
     q = B*R(:,ind); % deflate (Mackey'09)
     map = (I-q*q')*map*(I-q*q');
     x = x*(I-q*q');
     B = B*(I-q*q');
+    
+    j = j+1;
+    
+    if opt,
+        if length(unique(bel))==length(states),
+            finish = true;
+        end
+    else
+        finish = j <= pc,
+    end
     
 end

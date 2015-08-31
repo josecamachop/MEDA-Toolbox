@@ -190,7 +190,11 @@ for i=1:length(states),
 end    
 
 [kk,ind] = sort(vs);
-states = stateso(ind);
+if isempty(ind)
+    states = [];
+else
+    states = stateso(ind);
+end
 
 bel = cell(l,1);
 for i=1:l,

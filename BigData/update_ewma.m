@@ -129,6 +129,9 @@ for t=1:length(list),
     
     Lmodel.XX = lambda*Lmodel.XX + xcs'*xcs;
     
+    ind = isnan(Lmodel.XX);
+    Lmodel.XX(ind) = 0;
+    
     if Lmodel.type==1
         
         [P,sdT] = Lpca(Lmodel);
