@@ -1,9 +1,8 @@
-function ind = ADindex(L,A,R)
+function ind = ADindex2(L,A,R)
 
-% ADICOV similarity index according to Chemometrics and Intelligent 
-% Laboratory Systems 105, 2011, pp. 171-180
+% Modified ADICOV similarity index based on division
 %
-% ind = ADindex(L,A,R) % complete call
+% ind = ADindex2(L,A,R) % complete call
 %
 %
 % INPUTS:
@@ -21,7 +20,7 @@ function ind = ADindex(L,A,R)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Sep/15
+% last modification: 04/Sep/15
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -41,7 +40,8 @@ function ind = ADindex(L,A,R)
 
 ux = L*R;
 uy = A*R;
-r = ux-uy;
+r = abs(ux) - abs(uy);
+r(find(r(:)<0)) = 0;
 
 ind = sum(r.^2,2)/size(r,2);
  

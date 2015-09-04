@@ -1,10 +1,10 @@
 
-function [T2,Q,Rt,Rq] = MSPC_ADICOV(Lmodel,pc,list,opt)
+function [T2,Q] = MSPC_PCA(Lmodel,pc,list,opt)
 
 % Compute and plot T2 (D-statistic) and the Q statistic using ADICOV.
 %
-% MSPC_ADICOV(Lmodel,pc,list) % minimum call
-% MSPC_ADICOV(Lmodel,pc,list,index,opt) % complete call
+% MSPC_PCA(Lmodel,pcs,list) % minimum call
+% MSPC_PCA(Lmodel,pcs,list,opt) % complete call
 %
 %
 % INPUTS:
@@ -15,11 +15,6 @@ function [T2,Q,Rt,Rq] = MSPC_ADICOV(Lmodel,pc,list,opt)
 %
 % list: {Fx1} list of strings with the names of the files with x (and
 %       optionally y) matrices for testing.
-%
-% index: (1x1) MSPC index defrinition
-%       1: ADICOV similarity index according to Chemometrics and Intelligent 
-%           Laboratory Systems 105, 2011, pp. 171-180
-%       otherwise: Modified index (default)
 %
 % opt: (1x1) options for data plotting.
 %       0: no plots
@@ -32,13 +27,9 @@ function [T2,Q,Rt,Rq] = MSPC_ADICOV(Lmodel,pc,list,opt)
 %
 % Q: Q statistics (Fx1) 
 %
-% Rt: Differential matrices in the projection subspace for the T2 statistics {Fx1} 
-%
-% Rq: Differential matrices in the projection subspace for the Q statistics {Fx1}  
-%
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Sep/15.
+% last modification: 19/Aug/15.
 %
 % Copyright (C) 2015  University of Granada, Granada
 % Copyright (C) 2015  Jose Camacho Paez
@@ -59,49 +50,34 @@ function [T2,Q,Rt,Rq] = MSPC_ADICOV(Lmodel,pc,list,opt)
 %% Parameters checking
 
 if nargin < 3, error('Error in the number of arguments.'); end;
-if nargin < 4, index = 0; end;
-if nargin < 5, opt = 1; end;
+if nargin < 4, opt = 1; end;
 
 %% Main code
 
 Lc =length(Lmodel);
-Rt = {};
-Rq = {};
+
 for j=1:Lc,
     
     load(list{j},'x');
     
     if Lmodel{j}.N,
-        Lm = Lmodel{j};
-        Lm.lv = rank(Lm.XX);
-        if Lm.type==2,
-            [beta,W,P,Q,mat,d] = Lpls(Lm);
-        else
-            [mat,d] = Lpca(Lm);
-        end
-        
-        onesV = ones(size(x,1),1);
 
-        if Lm.weight~=0,
-            xs = applyprep2D(x,Lm.av,Lm.sc,Lm.weight);
+        if Lmodel{j}.weight~=0,
+            xs = applyprep2D(x,Lmodel{j}.av,Lmodel{j}.sc,Lmodel{j}.weight);
         else
-            xs = applyprep2D(x,Lm.av,Lm.sc);
+            xs = applyprep2D(x,Lmodel{j}.av,Lmodel{j}.sc);
         end
         
-        ti = ADICOV(Lm.XX,xs,pc,mat(:,1:pc),mat(:,1:pc),onesV);
-        ri = ADICOV(Lm.XX,xs,size(mat,2)-pc,mat(:,pc+1:end),mat(:,pc+1:end),onesV);
+        xs = sum(xs,1);
         
-        if index==1,
-            iti = ADindex(xs,ti,mat(:,1:pc)*diag(1./sqrt(d(1:pc))));
-            iri = ADindex(xs,ri,mat(:,pc+1:end));     
-        else
-            iti = ADindex2(xs,ti,mat(:,1:pc)*diag(1./sqrt(d(1:pc))));
-            iri = ADindex2(xs,ri,mat(:,pc+1:end));
-        end
-        T2(j) = iti;
-        Q(j) = iri;
-        Rt{j} = xs - ti;
-        Rq{j} = xs - ri;
+        [p,sdT] = Lpca(Lmodel{j});
+        t = xs*p(:,1:pc);
+        e = xs - t*p(:,1:pc)';
+        
+        t = t./(ones(size(t,1),1)*sdT);
+    
+        T2(j) = sum((t).^2);
+        Q(j) = sum((e).^2);
     else
         T2(j) = 0;
         Q(j) = 0;

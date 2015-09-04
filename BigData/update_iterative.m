@@ -54,7 +54,7 @@ function Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debu
 % can be chaged in line 365 of this routine.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Mar/15
+% last modification: 03/Sep/15
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -382,14 +382,15 @@ for t=1:length(list),
         Lmodel.multr = [Lmodel.multr;ones(ss,1)];
         Lmodel.class = [Lmodel.class;clstep];
         Lmodel.obs_l = {Lmodel.obs_l{:} obs_step{:}};
+        Lmodel.updated = [zeros(size(Lmodel.centr,1),1);ones(size(xstep,1),1)]; 
         
         if files,
             for k=i:endv,
                 index_fich{1,indorig+k}=['MEDA_' num2str(t) '_o_' num2str(k) '_c_' num2str(class(k))]; %index of names of fich
             end
         end
-        
-        [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obs_l,obslist] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.mat,obslist);
+                   
+        [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,obslist] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,Lmodel.mat,obslist);
     end
     
     if files,

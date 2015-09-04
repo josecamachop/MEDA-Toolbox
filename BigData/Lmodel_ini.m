@@ -53,6 +53,8 @@ function Lmodel = Lmodel_ini
 %
 % Lmodel.class: (Nx1) class associated to each cluster.
 %
+% Lmodel.updated: (Nx1) specifies whether a data point is new.
+%
 % Lmodel.obs_l: {Nx1} label of each cluster.
 %
 % Lmodel.var_l: {Nx1} label of each variable.
@@ -65,7 +67,7 @@ function Lmodel = Lmodel_ini
 % Lmodel.path: (str) path to the file system for ITERATIVE models.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Mar/15.
+% last modification: 03/Sep/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -102,6 +104,7 @@ Lmodel.nc = 0;
 Lmodel.centr = [];
 Lmodel.multr = [];
 Lmodel.class = [];
+Lmodel.updated = [];
 Lmodel.obs_l = {};
 Lmodel.vars_l = {};
 Lmodel.mat = [];
