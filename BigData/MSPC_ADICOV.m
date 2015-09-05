@@ -1,5 +1,5 @@
 
-function [T2,Q,Rt,Rq] = MSPC_ADICOV(Lmodel,pc,list,opt)
+function [T2,Q,Rt,Rq] = MSPC_ADICOV(Lmodel,pc,list,index,opt)
 
 % Compute and plot T2 (D-statistic) and the Q statistic using ADICOV.
 %

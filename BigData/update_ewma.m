@@ -175,6 +175,7 @@ for t=1:length(list),
     if ~isempty(Lmodel.obs_l)
         Lmodel.obs_l = Lmodel.obs_l(ind_lab);    
     end
+    Lmodel.updated = zeros(length(ind_lab),1);
 
     s = size(x);
     step2 = max(10,round(s(1)*step));
@@ -193,7 +194,7 @@ for t=1:length(list),
         Lmodel.multr = [Lmodel.multr;ones(ss,1)];
         Lmodel.class = [Lmodel.class;clstep];
         Lmodel.obs_l = {Lmodel.obs_l{:} obs_step{:}};
-        Lmodel.updated = [zeros(size(Lmodel.centr,1),1);ones(size(xstep,1),1)]; 
+        Lmodel.updated = [Lmodel.updated;ones(size(xstep,1),1)]; 
             
         [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,Lmodel.mat);
 

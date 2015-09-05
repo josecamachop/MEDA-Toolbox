@@ -14,8 +14,8 @@ function E = sqresiduals_Lpca(Lmodel,pcs,Ltest,opt,label)
 %       Lmodel.multr: (Lx1) multiplicity of each cluster.
 %       Lmodel.class: (Lx1) class associated to each cluster.
 %
-% pcs: (1xA) Principal Components considered (e.g. pcs = 1:2 selects the
-%   first two PCs)
+% pcs: (1xA) Latent Variables considered (e.g. pcs = 1:2 selects the
+%   first two LVs)
 %
 % Ltest: (struct Lmodel) model with test data:
 %       Ltest.XX: (MxM) X-block cross-product matrix.
@@ -40,7 +40,7 @@ function E = sqresiduals_Lpca(Lmodel,pcs,Ltest,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 07/May/13.
+% last modification: 05/Sep/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -68,27 +68,18 @@ sp = length(pcs);
 if sp < 2, error('Error in the dimension of the arguments.'); end;
 if nargin < 4, opt = 1; end;
 if nargin < 5, 
-    switch opt,
-        case 2
-            label=num2str((1:s(2))');
-            a = 'v'*ones(size(cal,2),1);
-            label = [a label];
-        otherwise
-            label=num2str([1:size(cal,1) 1:size(test,1)]');
-            a = ['c'*ones(size(cal,1),1);'t'*ones(size(test,1),1)];
-            label = [a label];
-    end;
+    label = [];
 end
 
 %% Main code
 
 Lmodel.lv = max(pcs);
-P = Lpca(Lmodel);
+[beta,W,P,Q,R,S] = Lpls(Lmodel);
+P = P(:,pcs);
 T = Lmodel.centr*P;
 
-if exist('test')&~isempty(test),
+if exist('Ltest')&~isempty(Ltest),
     TT = Ltest.centr*P;
-    classes = [Lmodel.class;Ltest.class];
     mult = [Lmodel.multr;Ltest.multr];
 else
     TT = [];
@@ -96,16 +87,52 @@ else
     mult = [Lmodel.multr];
 end
 
-
+maxv = [0 1 10 100 1000 Inf];
 switch opt,
     case 2
-        E = sum((Lmodel.centr - T*P').^2,1);
-        if ~isempty(test)
-            E = [E;sum((Ltest.centr - TT*P').^2,1)]';
+        E = diag(Lmodel.XX - P*P'*Lmodel.XX*P*P');
+        if ~isempty(Ltest)
+            E = [E diag(Ltest.XX - P*P'*Ltest.XX*P*P')];
         end
-    otherwise
-        E = sum(([Lmodel.centr;Ltest.centr] - [T;TT]*P').^2,2);
+        plot_vec(E,label,'Squared Residuals');
+    case 1
+        for n_clus = 1:s(1), % Cálculo de la covarianza
+            if Lmodel.multr(n_clus)>1,
+                if isempty(Lmodel.index_fich)
+                    x = Lmodel.centr(n_clus,:)*Lmodel.multr(n_clus);
+                    XX = x'*x; % approximate
+                else
+                    XX = VCfile(Lmodel.index_fich{n_clus},s(2),0,Lmodel.path);
+                end
+            else
+                XX = Lmodel.centr(n_clus,:)'*Lmodel.centr(n_clus,:);
+            end
+            E(n_clus) = sum(diag(XX - P*P'*XX*P*P'));
+        end
+        mult=Lmodel.multr;
+        if ~isempty(Ltest)
+            mult = [mult;Ltest.multr];
+        for n_clus2 = 1:size(Ltest.centr,1), % Cálculo de la covarianza
+            if Ltest.multn(n_clus2)>1,
+                if isempty(Ltest.index_fich)
+                    x = Ltest.centr(n_clus,:)*Ltest.multr(n_clus);
+                    XX = x'*x; % approximate
+                else
+                    XX = VCfile(Ltest.index_fich{n_clus},s(2),0,Ltest.path);
+                end
+            else
+                XX = Ltest.centr(n_clus,:)'*Ltest.centr(n_clus,:);
+            end
+            E(n_clus+n_clus2) = sum(diag(XX - P*P'*XX*P*P'));
+        end
+        end
+        plot_Lvec(E,mult,label,'Squared Residuals',[],[10 100 1000]);
+    otherwise 
+        E = sum((Lmodel.centr - T*P').^2,2);
+        mult=Lmodel.multr;
+        if ~isempty(Ltest)
+            mult = [mult;Ltest.multr];
+            E = [E ; sum((Ltest.centr - TT*P').^2,2)];
+        end
+        plot_Lvec(E,mult,label,'Squared Residuals',[],[10 100 1000]);
 end;
-
-plot_vec(E,label,'Squared Residuals');
-        

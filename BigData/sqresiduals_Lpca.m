@@ -40,7 +40,7 @@ function E = sqresiduals_Lpca(Lmodel,pcs,Ltest,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 07/May/13.
+% last modification: 05/Sep/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -98,7 +98,12 @@ switch opt,
     case 1
         for n_clus = 1:s(1), % Cálculo de la covarianza
             if Lmodel.multr(n_clus)>1,
-                XX = VCfile(Lmodel.index_fich{n_clus},s(2),0,Lmodel.path);
+                if isempty(Lmodel.index_fich)
+                    x = Lmodel.centr(n_clus,:)*Lmodel.multr(n_clus);
+                    XX = x'*x; % approximate
+                else
+                    XX = VCfile(Lmodel.index_fich{n_clus},s(2),0,Lmodel.path);
+                end
             else
                 XX = Lmodel.centr(n_clus,:)'*Lmodel.centr(n_clus,:);
             end
@@ -109,7 +114,12 @@ switch opt,
             mult = [mult;Ltest.multr];
         for n_clus2 = 1:size(Ltest.centr,1), % Cálculo de la covarianza
             if Ltest.multn(n_clus2)>1,
-                XX = VCfile(Ltest.index_fich{n_clus},s(2),0,Ltest.path);
+                if isempty(Ltest.index_fich)
+                    x = Ltest.centr(n_clus,:)*Ltest.multr(n_clus);
+                    XX = x'*x; % approximate
+                else
+                    XX = VCfile(Ltest.index_fich{n_clus},s(2),0,Ltest.path);
+                end
             else
                 XX = Ltest.centr(n_clus,:)'*Ltest.centr(n_clus,:);
             end

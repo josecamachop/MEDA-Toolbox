@@ -354,7 +354,7 @@ for t=1:length(list),
     
     xcs = (x -  ones(size(x,1),1)*Lmodel.av)./(ones(size(x,1),1)*Lmodel.sc);
    
-    if files, 
+    if files, % The updated field is not included in the FS yet
         indorig = length(Lmodel.class);
         red = [Lmodel.centr;xcs];
         multr = [Lmodel.multr;ones(length(class),1)];
@@ -367,6 +367,7 @@ for t=1:length(list),
     
     s = size(x);
     step2 = round(s(1)*step);
+    Lmodel.updated(:) = 0;
     for i = 1:step2:s(1),
         endv = min(s(1),i+step2-1);
         ss = endv-i+1;
@@ -382,7 +383,7 @@ for t=1:length(list),
         Lmodel.multr = [Lmodel.multr;ones(ss,1)];
         Lmodel.class = [Lmodel.class;clstep];
         Lmodel.obs_l = {Lmodel.obs_l{:} obs_step{:}};
-        Lmodel.updated = [zeros(size(Lmodel.centr,1),1);ones(size(xstep,1),1)]; 
+        Lmodel.updated = [Lmodel.updated;ones(size(xstep,1),1)]; 
         
         if files,
             for k=i:endv,

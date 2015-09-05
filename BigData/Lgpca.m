@@ -1,20 +1,22 @@
-function [p,t,bel] = gpca(x,states,pc,opt)
+function [p,t,bel] = Lgpca(Lmodel,states,opt)
 
-% Group-wise Principal Component Analysis.
+% Group-wise Principal Component Analysis for large data.
 %
-% [p,t,bel] = gpca(x,states,pc)     % minimum call
-% [p,t,bel] = gpca(x,states,pc,opt)     % complete call
+% [p,t,bel] = Lgpca(Lmodel,states)     % minimum call
+% [p,t,bel] = Lgpca(Lmodel,states,opt)     % complete call
 %
 % INPUTS:
 %
-% x: (NxM) Two-way batch data matrix, N(observations) x M(variables)
+
+% Lmodel: (struct Lmodel) model with the information to compute the PCA
+%   model:
+%       Lmodel.XX: (MxM) X-block cross-product matrix.
+%       Lmodel.lv: (1x1) number of PCs A.
 %
 % states: {Sx1} Cell with the groups of variables.
 %
-% pc: number of principal components. 
-%
 % opt: options
-%   - 0: set the number of pcs to pc (by default)
+%   - 0: set the number of pcs to Lmodel.lv (by default)
 %   - 1: extract at least 1 PC per state.
 %
 %
@@ -28,7 +30,7 @@ function [p,t,bel] = gpca(x,states,pc,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 28/Aug/15.
+% last modification: 05/Sep/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -48,19 +50,20 @@ function [p,t,bel] = gpca(x,states,pc,opt)
 
 % Parameters checking
 
-if nargin < 3, error('Error in the number of arguments.'); end;
-if nargin < 4, opt=0; end;
+if nargin < 2, error('Error in the number of arguments.'); end;
+if nargin < 3, opt=0; end;
 
 % Main code
 
-map = x'*x;
+map = Lmodel.XX;
+x = Lmodel.centr;
 I =  eye(size(map));
 B = I;
 j=1;
 if opt,
     finish = false;
 else
-    finish = (j > pc);
+    finish = (j > Lmodel.lv);
 end
 while ~finish, 
     
@@ -91,7 +94,7 @@ while ~finish,
             finish = true;
         end
     else
-        finish = (j > pc);
+         finish = (j > Lmodel.lv);
     end
     
 end
