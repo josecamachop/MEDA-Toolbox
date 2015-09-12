@@ -71,9 +71,20 @@ if nargin < 6, label = []; end
 %% Main code
 
 [calp,m,dt] = preprocess2D(cal,prep);
-[P,T] = pca_pp(calp,max(pcs));
-P = P(:,pcs);
-T = T(:,pcs);
+
+
+if ~isempty(pcs)
+    
+    [P,T] = pca_pp(calp,max(pcs));
+    P = P(:,pcs);
+    T = T(:,pcs);
+    
+    res = (calp - T*P');
+else
+    res = calp;
+    T = [];
+    P = [];
+end
 
 if exist('test')&~isempty(test),
     testp = (test - ones(size(test,1),1)*m)./(ones(size(test,1),1)*dt);
@@ -83,18 +94,29 @@ else
     TT = [];
 end
 
-res = (calp - T*P');
 switch opt,
     case 2
         E = sum(res.^2,1)';
         if ~isempty(test)
-            E = [E sum((testp - TT*P').^2,1)'];
+            if ~isempty(pcs)
+                E = [E sum((testp - TT*P').^2,1)'];
+            else
+                E = [E sum((testp).^2,1)'];
+            end
+            
         end
         res = res';
     otherwise
-        E = sum(([calp;testp] - [T;TT]*P').^2,2);
-        if ~isempty(test)
-            E = sum(([testp] - [TT]*P').^2,2);
+        if ~isempty(pcs)
+            E = sum(([calp;testp] - [T;TT]*P').^2,2);
+            if ~isempty(test)
+                E = sum(([testp] - [TT]*P').^2,2);
+            end
+        else
+            E = sum(([calp;testp]).^2,2);
+            if ~isempty(test)
+                E = sum(([testp]).^2,2);
+            end
         end
 end;
 

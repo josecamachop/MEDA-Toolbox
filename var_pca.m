@@ -1,5 +1,5 @@
 
-function x_var = var_pca(cal,maxpcs,prep,opt)
+function [x_var,cumpress] = var_pca(cal,maxpcs,prep,opt)
 
 % Variability captured in terms of the number of PCs. It includes the ckf
 % algorithm.
@@ -30,9 +30,11 @@ function x_var = var_pca(cal,maxpcs,prep,opt)
 %
 % x_var: ((maxpcs+1)x1) Percentage of captured variance of X.
 %
+% cumpress: ((maxpcs+1)x1) ckf curve.
+%
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 02/Feb/15.
+% last modification: 06/Sep/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez

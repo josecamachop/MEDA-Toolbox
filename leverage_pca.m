@@ -72,41 +72,47 @@ if nargin < 6, label = []; end
 
 %% Main code
 
-[calp,m,dt] = preprocess2D(cal,prep);
-[P,T] = pca_pp(calp,max(pcs));
-P = P(:,pcs);
-T = T(:,pcs);
+T2 = [];
 
-if exist('test')&~isempty(test),
-    testp = (test - ones(size(test,1),1)*m)./(ones(size(test,1),1)*dt);
-    TT = testp*P;
-else
-    testp = [];
-    TT = [];
-end
-
-[Ts,notused,dtT2] = preprocess2D(T,2);
-
-switch opt,
-    case 2
-        T2 = diag(P*P');
-    otherwise
-        T2c = diag(Ts*Ts');
-        if ~isempty(test)
-            T2 = diag(TT*diag(1./(dtT2.^2))*TT');
-        else
-            T2 = T2c;
-        end
-end;
-
-if opt, 
-    if opt<3,
-        plot_vec(T2,label,'D-statistic');
+if ~isempty(pcs)
+    
+    [calp,m,dt] = preprocess2D(cal,prep);
+    [P,T] = pca_pp(calp,max(pcs));
+    P = P(:,pcs);
+    T = T(:,pcs);
+    
+    if exist('test')&~isempty(test),
+        testp = (test - ones(size(test,1),1)*m)./(ones(size(test,1),1)*dt);
+        TT = testp*P;
     else
-        if opt<4,
-            plot_vec(T2,label,'D-statistic',(ones(size(T2,1),1)*[hot_lim(length(pcs),length(T2c),0.05) hot_lim(length(pcs),length(T2c),0.01)])');
+        testp = [];
+        TT = [];
+    end
+
+    [Ts,notused,dtT2] = preprocess2D(T,2);
+
+    switch opt,
+        case 2
+            T2 = diag(P*P');
+        otherwise
+            T2c = diag(Ts*Ts');
+            if ~isempty(test)
+                T2 = diag(TT*diag(1./(dtT2.^2))*TT');
+            else
+                T2 = T2c;
+            end
+    end;
+    
+    if opt,
+        if opt<3,
+            plot_vec(T2,label,'D-statistic');
         else
-            plot_vec(T2,label,'D-statistic',(ones(size(T2,1),1)*[hot_lim(length(pcs),length(T2c),0.05,1) hot_lim(length(pcs),length(T2c),0.01,1)])');
+            if opt<4,
+                plot_vec(T2,label,'D-statistic',(ones(size(T2,1),1)*[hot_lim(length(pcs),length(T2c),0.05) hot_lim(length(pcs),length(T2c),0.01)])');
+            else
+                plot_vec(T2,label,'D-statistic',(ones(size(T2,1),1)*[hot_lim(length(pcs),length(T2c),0.05,1) hot_lim(length(pcs),length(T2c),0.01,1)])');
+            end
         end
     end
 end
+

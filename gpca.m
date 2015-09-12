@@ -1,4 +1,4 @@
-function [p,t,bel] = gpca(x,states,pc,opt)
+function [p,t,bel] = gpca(x,states,pc,opt,thres)
 
 % Group-wise Principal Component Analysis.
 %
@@ -16,6 +16,9 @@ function [p,t,bel] = gpca(x,states,pc,opt)
 % opt: options
 %   - 0: set the number of pcs to pc (by default)
 %   - 1: extract at least 1 PC per state.
+%   - 2: extract at least (thresx100)% of variability.
+%
+% thres: (1x1) [0-1] percentage of variability
 %
 %
 % OUTPUTS:
@@ -57,10 +60,14 @@ map = x'*x;
 I =  eye(size(map));
 B = I;
 j=1;
-if opt,
-    finish = false;
-else
-    finish = (j > pc);
+switch opt,
+    case 1
+        finish = false;
+    case 2
+        totalVx = sum(sum(x.^2));
+        finish = false;
+    otherwise
+        finish = (j > pc);
 end
 while ~finish, 
     
@@ -92,6 +99,19 @@ while ~finish,
         end
     else
         finish = (j > pc);
+    end
+    
+    switch opt,
+        case 1
+            if length(unique(bel))==length(states),
+                finish = true;
+            end
+        case 2
+            if(sum(eig(t'*t))/totalVx > thres)
+                finish = true;
+            end
+        otherwise
+            finish = (j > pc);
     end
     
 end
