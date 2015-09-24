@@ -41,7 +41,7 @@ function T2 = leverage_pca(cal,pcs,test,prep,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 09/Jun/15.
+% last modification: 24/Sep/15.
 %
 % Copyright (C) 2015  University of Granada, Granada
 % Copyright (C) 2015  Jose Camacho Paez
@@ -85,7 +85,6 @@ if ~isempty(pcs)
         testp = (test - ones(size(test,1),1)*m)./(ones(size(test,1),1)*dt);
         TT = testp*P;
     else
-        testp = [];
         TT = [];
     end
 

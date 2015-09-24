@@ -1,9 +1,9 @@
-function E = sqresiduals_Lpca(Lmodel,pcs,Ltest,opt,label)
+function T2 = leverage_Lpca(Lmodel,pcs,Ltest,opt,label)
 
-% Compute and plot squared residuals in PCA for large data.
+% Compute and plot leverages in PCA for large data.
 %
-% sqresiduals_Lpca(Lmodel,pcs) % minimum call
-% sqresiduals_Lpca(Lmodel,pcs,Ltest,opt,label) % complete call
+% leverage_Lpca(Lmodel,pcs) % minimum call
+% leverage_Lpca(Lmodel,pcs,Ltest,opt,label) % complete call
 %
 % INPUTS:
 %
@@ -35,7 +35,7 @@ function E = sqresiduals_Lpca(Lmodel,pcs,Ltest,opt,label)
 %
 % OUTPUTS:
 %
-% E: squared residuals (opt 0 o 1, dimension {1x(L+N)} or opt 2, dimension 
+% T2: leverage (opt 0,1 or 3, dimension {1x(L+N)} or opt 2 or 4, dimension 
 %   {1x(M)})
 %
 %
@@ -73,73 +73,48 @@ end
 
 %% Main code
 
+T2 = [];
+
 if ~isempty(pcs)
     Lmodel.lv = max(pcs);
     P = Lpca(Lmodel);
     P = P(:,pcs);
     T = Lmodel.centr*P;
-else
-    Lmodel.lv = 0;
-    T = [];
-    P = [];
-end
 
-if exist('Ltest')&~isempty(Ltest),
-    TT = Ltest.centr*P;
-    mult = [Lmodel.multr;Ltest.multr];
-else
-    TT = [];
-    mult = [Lmodel.multr];
-end
 
-switch opt,
-    case 2
-        E = diag(Lmodel.XX - P*P'*Lmodel.XX*P*P');
-        if ~isempty(Ltest)
-            E = [E diag(Ltest.XX - P*P'*Ltest.XX*P*P')];
-        end
-        plot_vec(E,label,'Squared Residuals');
-    case 1
-        for n_clus = 1:s(1), 
-            if Lmodel.multr(n_clus)>1,
-                %if isempty(Lmodel.index_fich)
-                    x = Lmodel.centr(n_clus,:)*Lmodel.multr(n_clus);
-                    XX = x'*x; % approximate
-                %else
-                %    XX = VCfile(Lmodel.index_fich{n_clus},s(2),0,Lmodel.path);
-                %end
+    if exist('Ltest')&~isempty(Ltest),
+        TT = Ltest.centr*P;
+        mult = [Lmodel.multr;Ltest.multr];
+    else
+        TT = [];
+        mult = [Lmodel.multr];
+    end
+    
+    [Ts,notused,dtT2] = preprocess2D(T,2);
+
+    switch opt,
+        case 2
+            T2 = diag(P*P');
+        otherwise
+            T2c = diag(Ts*Ts');
+            if ~isempty(test)
+                T2 = diag(TT*diag(1./(dtT2.^2))*TT');
             else
-                XX = Lmodel.centr(n_clus,:)'*Lmodel.centr(n_clus,:);
+                T2 = T2c;
             end
-            E(n_clus) = sum(diag(XX - P*P'*XX*P*P'));
-        end
-        mult=Lmodel.multr;
-        if ~isempty(Ltest)
-            mult = [mult;Ltest.multr];
-        for n_clus2 = 1:size(Ltest.centr,1), 
-            if Ltest.multn(n_clus2)>1,
-                if isempty(Ltest.index_fich)
-                    x = Ltest.centr(n_clus,:)*Ltest.multr(n_clus);
-                    XX = x'*x; % approximate
-                else
-                    XX = VCfile(Ltest.index_fich{n_clus},s(2),0,Ltest.path);
-                end
-            else
-                XX = Ltest.centr(n_clus,:)'*Ltest.centr(n_clus,:);
-            end
-            E(n_clus+n_clus2) = sum(diag(XX - P*P'*XX*P*P'));
-        end
-        end
-        plot_Lvec(E,mult,label,'Squared Residuals',[],[10 100 1000]);
-    otherwise 
-        E = sum((Lmodel.centr - T*P').^2,2);
-        mult=Lmodel.multr;
-        if ~isempty(Ltest)
-            mult = [mult;Ltest.multr];
-            E = [E ; sum((Ltest.centr - TT*P').^2,2)];
-        end
-        plot_Lvec(E,mult,label,'Squared Residuals',[],[10 100 1000]);
-end;
+    end;
+    
+    switch opt,
+        case 1
+            plot_Lvec(T2,mult,label,'D-statistic',[],[10 100 1000]);
+        case 2
+            plot_vec(T2,label,'D-statistic');
+        case 3
+            plot_Lvec(T2,mult,label,'D-statistic',(ones(size(T2,1),1)*[hot_lim(length(pcs),length(T2c),0.05) hot_lim(length(pcs),length(T2c),0.01)])',[10 100 1000]);
+        case 4
+             plot_Lvec(T2,mult,label,'D-statistic',(ones(size(T2,1),1)*[hot_lim(length(pcs),length(T2c),0.05,1) hot_lim(length(pcs),length(T2c),0.01,1)])',[10 100 1000]);
+    end
+end
 
 
         

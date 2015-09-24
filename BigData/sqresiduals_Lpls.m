@@ -1,9 +1,9 @@
-function E = sqresiduals_Lpca(Lmodel,pcs,Ltest,opt,label)
+function E = sqresiduals_Lpls(Lmodel,pcs,Ltest,opt,label)
 
-% Compute and plot squared residuals in PCA for large data.
+% Compute and plot squared residuals in PLS for large data.
 %
-% sqresiduals_pca(cal,pcs) % minimum call
-% sqresiduals_pca(cal,pcs,test,prep,opt,label) % complete call
+% sqresiduals_Lpls(Lmodel,pcs) % minimum call
+% sqresiduals_Lpls(Lmodel,pcs,Ltest,opt,label) % complete call
 %
 % INPUTS:
 %
@@ -40,7 +40,7 @@ function E = sqresiduals_Lpca(Lmodel,pcs,Ltest,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Sep/15.
+% last modification: 24/Sep/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -73,10 +73,16 @@ end
 
 %% Main code
 
-Lmodel.lv = max(pcs);
-[beta,W,P,Q,R,S] = Lpls(Lmodel);
-P = P(:,pcs);
-T = Lmodel.centr*P;
+if ~isempty(pcs)
+    Lmodel.lv = max(pcs);
+    [beta,W,P,Q,R,S] = Lpls(Lmodel);
+    P = P(:,pcs);
+    T = Lmodel.centr*P;
+else
+    Lmodel.lv = 0;
+    T = [];
+    P = [];
+end
 
 if exist('Ltest')&~isempty(Ltest),
     TT = Ltest.centr*P;

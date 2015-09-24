@@ -69,7 +69,9 @@ for j=1:length(maxv)-1,
     ind2 = find(mult<=maxv(j+1));
     ind3 = find(mult(ind2)>maxv(j));
     ind2 = ind2(ind3);
-    stem(ind2,vec(ind2),'MarkerSize',2*j);
+    if ~isempty(ind2)
+        stem(ind2,vec(ind2),'MarkerSize',2*j);
+    end
 end
 
 axes_h=get(fig_h,'Children');
