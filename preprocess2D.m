@@ -54,6 +54,8 @@ if (prep<0||prep>2), error('Incorrect value of prep.'); end;
 
 % Computation
 
+if s(1)==1 & prep == 2, prep =1; end;
+
 switch prep,
     
     case 1, % mean centering

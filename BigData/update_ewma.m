@@ -91,6 +91,8 @@ for t=1:length(list),
         end
     end
     
+    if size(x,1)<2, return; end
+    
     if isstruct(list(t))
         vars = fieldnames(list(t));
         if ismember('class', vars)
