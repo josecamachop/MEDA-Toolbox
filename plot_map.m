@@ -1,5 +1,5 @@
 
-function fig_h = plot_map(map,label,int)
+function fig_h = plot_map(map,label,int,ind)
 
 % Plot color map.
 %
@@ -14,7 +14,9 @@ function fig_h = plot_map(map,label,int)
 % label: (Mx1) name of the variables (numbers are used by default), eg.
 %   num2str((1:M)')'
 %
-% int: (2x1) color interval.
+% int: (2x1) color interval ([-1;1] by default)
+%
+% ind: (Lx1) color distribution ([0:.2:0.79 0.8:0.04:1]' by default);
 %
 % OUTPUTS:
 %
@@ -23,7 +25,7 @@ function fig_h = plot_map(map,label,int)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 04/Oct/15.
+% last modification: 07/Oct/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -53,6 +55,7 @@ else
     assert (isequal(size(label), [N 1]), 'Dimension Error: label must be n-by-1.');
 end
 if nargin < 3, int = [-1;1]; end;
+if nargin < 4, ind = [0:.2:0.79 0.8:0.04:1]'; end;
 
 %% Main code
 
@@ -90,7 +93,6 @@ pos = get(axes_h, 'Position');
 set(axes_h,'Position',[pos(1) pos(2)/2 pos(3) pos(4)])
 
 % Set colors
-ind = [0:.2:0.79 0.8:0.04:1]';
 set(fig_h,'Colormap',[[ind;ones(10,1)] [ind;flipud(ind)] [ones(10,1);flipud(ind)]])
 caxis(int);
 if find(map>0 & map<1)
