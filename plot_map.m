@@ -58,7 +58,6 @@ if nargin < 3, int = [-1;1]; end;
 if nargin < 4, ind = [0:.2:0.79 0.8:0.04:1]'; end;
 
 %% Main code
-
 fig_h=figure;
 map3 = [map map(:,end);map(end,:) map(end,end)];
 sur_h=surface((1:N+1)'*ones(1,N+1),ones(N+1,1)*(1:N+1),map3);
@@ -77,6 +76,7 @@ set(axes_h,'XTick',(1:N)+0.5);
 set(axes_h,'YTick',(1:N)+0.5);
 set(axes_h,'XTickLabel',label);
 set(axes_h,'YTickLabel',label);
+
 if ~verLessThan('matlab', '8.3'),
     set(axes_h,'TicklabelInterpreter','None')
 end
@@ -93,7 +93,7 @@ pos = get(axes_h, 'Position');
 set(axes_h,'Position',[pos(1) pos(2)/2 pos(3) pos(4)])
 
 % Set colors
-set(fig_h,'Colormap',[[ind;ones(10,1)] [ind;flipud(ind)] [ones(10,1);flipud(ind)]])
+set(fig_h,'Colormap',[[ind;ones(length(ind),1)] [ind;flipud(ind)] [ones(length(ind),1);flipud(ind)]])
 caxis(int);
 if find(map>0 & map<1)
     c_h=colorbar;
