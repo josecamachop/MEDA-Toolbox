@@ -81,6 +81,13 @@ if ~isempty(lcont),   assert (isequal(size(lcont), [2 N]),   'Dimension Error: l
 fig_h = figure;
 hold on;
 
+% Preprocess classes to force them start with 1, 2...n,
+unique_classes = unique(classes);
+if iscell(classes)
+    classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
+else
+    classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
+end
 
 % Plot bars
 if ~isempty(classes)
