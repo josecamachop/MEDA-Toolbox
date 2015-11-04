@@ -38,7 +38,7 @@ function [T2,Q,Rt,Rq] = MSPC_ADICOV(Lmodel,pc,list,index,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Sep/15.
+% last modification: 04/Nov/15.
 %
 % Copyright (C) 2015  University of Granada, Granada
 % Copyright (C) 2015  Jose Camacho Paez
@@ -73,35 +73,50 @@ for j=1:Lc,
     
     if Lmodel{j}.N,
         Lm = Lmodel{j};
-        Lm.lv = rank(Lm.XX);
-        if Lm.type==2,
-            [beta,W,P,Q,mat,d] = Lpls(Lm);
-        else
-            [mat,d] = Lpca(Lm);
-        end
+        %Lm.lv = rank(Lm.XX);
+        Lm.lv = size(Lm.XX,1); % relevant change for Q-statistic
         
-        onesV = ones(size(x,1),1);
+        if Lm.lv > 0
+            if Lm.type==2,
+                [beta,W,P,Q,mat,d] = Lpls(Lm);
+            else
+                [mat,d] = Lpca(Lm);
+            end
+        
+            onesV = ones(size(x,1),1);
 
-        if Lm.weight~=0,
-            xs = applyprep2D(x,Lm.av,Lm.sc,Lm.weight);
-        else
-            xs = applyprep2D(x,Lm.av,Lm.sc);
-        end
+            if Lm.weight~=0,
+                xs = applyprep2D(x,Lm.av,Lm.sc,Lm.weight);
+            else
+                xs = applyprep2D(x,Lm.av,Lm.sc);
+            end
         
-        ti = ADICOV(Lm.XX,xs,pc,mat(:,1:pc),mat(:,1:pc),onesV);
-        ri = ADICOV(Lm.XX,xs,size(mat,2)-pc,mat(:,pc+1:end),mat(:,pc+1:end),onesV);
+            ti = ADICOV(Lm.XX,xs,pc,mat(:,1:pc),mat(:,1:pc),onesV);
+            ri = ADICOV(Lm.XX,xs,size(mat,2)-pc,mat(:,pc+1:end),mat(:,pc+1:end),onesV);
         
-        if index==1,
-            iti = ADindex(xs,ti,mat(:,1:pc)*diag(1./sqrt(d(1:pc))));
-            iri = ADindex(xs,ri,mat(:,pc+1:end));     
+            if index==1,
+                iti = ADindex(xs,ti,mat(:,1:pc)*diag(1./sqrt(d(1:pc))));
+                if isempty(mat(:,pc+1:end)),
+                    iri = 0;
+                else
+                    iri = ADindex(xs,ri,mat(:,pc+1:end));   
+                end
+            else
+                iti = ADindex2(xs,ti,mat(:,1:pc)*diag(1./sqrt(d(1:pc))));
+                if isempty(mat(:,pc+1:end)),
+                    iri = 0;
+                else
+                    iri = ADindex2(xs,ri,mat(:,pc+1:end));
+                end
+            end
+            T2(j) = iti;
+            Q(j) = iri;
+            Rt{j} = xs - ti;
+            Rq{j} = xs - ri;    
         else
-            iti = ADindex2(xs,ti,mat(:,1:pc)*diag(1./sqrt(d(1:pc))));
-            iri = ADindex2(xs,ri,mat(:,pc+1:end));
+            T2(j) = 0;
+            Q(j) = 0;
         end
-        T2(j) = iti;
-        Q(j) = iri;
-        Rt{j} = xs - ti;
-        Rq{j} = xs - ri;
     else
         T2(j) = 0;
         Q(j) = 0;
