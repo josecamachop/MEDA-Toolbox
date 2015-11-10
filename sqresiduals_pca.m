@@ -13,8 +13,9 @@ function E = sqresiduals_pca(cal,pcs,test,prep,opt,label)
 % pcs: (1xA) Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs)
 %
-% test: (NxM) data set with the observations to be compared. These data 
-%   are preprocessed in the same way than calibration data.
+% test: (NxM) data set with test observations. These data are preprocessed 
+%    in the same way than calibration data and are only used in opts
+%    0,1,3.
 %
 % prep: (1x1) preprocesing of the data
 %       0: no preprocessing.
@@ -23,9 +24,9 @@ function E = sqresiduals_pca(cal,pcs,test,prep,opt,label)
 %
 % opt: (1x1) options for data plotting.
 %       0: no plots
-%       1: Squared residuals in the observations (default)
+%       1: Q-statistic in the observations (default)
 %       2: Squared residuals in the variables 
-%       3: Squared residuals in the observations with control limits
+%       3: Q-statistic in the observations with control limits
 %
 % label: name of the observations (opt 1, dimension ((L+N)x1) or 
 %   variables (opt 2, dimension (Mx1)) (numbers are used by default), eg.
@@ -39,7 +40,7 @@ function E = sqresiduals_pca(cal,pcs,test,prep,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% last modification: 09/Nov/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -73,7 +74,7 @@ if nargin < 6, label = []; end
 [calp,m,dt] = preprocess2D(cal,prep);
 
 
-if ~isempty(pcs)
+if ~isempty(pcs) && ~isempty(find(pcs))
     
     [P,T] = pca_pp(calp,max(pcs));
     P = P(:,pcs);
@@ -103,7 +104,12 @@ switch opt,
             else
                 E = [E sum((testp).^2,1)'];
             end
-            
+
+            if iscell(label),
+                label = {label{:} label{:}};
+            else
+                label = [label label];
+            end
         end
         res = res';
     otherwise
@@ -121,8 +127,10 @@ switch opt,
 end;
 
 if opt, 
-    if opt<3,
+    if opt<2,
         plot_vec(E,label,'Q-statistic');
+    elseif opt<3
+        plot_vec(E,label,'Residuals Sum-of-squares');   
     else
         plot_vec(E,label,'Q-statistic',(ones(size(E,1),1)*[spe_lim(res,0.05) spe_lim(res,0.01)])');
     end
