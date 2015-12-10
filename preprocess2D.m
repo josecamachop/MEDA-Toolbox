@@ -1,9 +1,9 @@
-function [xp,average,scale] = preprocess2D(x,prep)
+function [xp,average,scale] = preprocess2D(x,prep,weight)
 
 % Preprocess 2-way data.
 %
 % [xp,average,scale] = preprocess2D(x)          % for mean centering
-% [xp,average,scale] = preprocess2D(x,prep)     % complete call
+% [xp,average,scale] = preprocess2D(x,prep,weight)     % complete call
 %
 % INPUTS:
 %
@@ -15,6 +15,9 @@ function [xp,average,scale] = preprocess2D(x,prep)
 %       2: auto-scaling (centers and scales data so that each variable 
 %           has variance 1)  
 %
+% weight: (1xM) weight applied after preprocessing scaling. Set to 1 
+% by defect.
+%
 % OUTPUTS:
 %
 % xp: (NxM) preprocessed data.
@@ -25,7 +28,7 @@ function [xp,average,scale] = preprocess2D(x,prep)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jun/15.
+% last modification: 29/Oct/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -51,10 +54,13 @@ s = size(x);
 if find(s<1), error('Incorrect content of x.'); end;
 if nargin < 2, prep = 1; end;
 if (prep<0||prep>2), error('Incorrect value of prep.'); end;
+if nargin < 3 || weight==0, 
+    weight = ones(1,s(2));
+end
 
 % Computation
 
-if s(1)==1 & prep == 2, prep =1; end;
+if s(1)==1 && prep == 2, prep =1; end;
 
 switch prep,
     
@@ -91,4 +97,4 @@ switch prep,
         xp = x;
 end
 
-
+xp = xp.*(ones(s(1),1)*weight);

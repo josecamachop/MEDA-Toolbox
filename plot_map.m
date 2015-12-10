@@ -25,7 +25,7 @@ function fig_h = plot_map(map,label,int,ind)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 07/Oct/15.
+% last modification: 30/Nov/15.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -84,9 +84,6 @@ end
 % Label font size
 label_size = max(min(14,round(300/length(label))), 9);
 set(axes_h, 'FontSize', label_size);
-
-% Rotate X labels
-rotateXLabels(axes_h,90);
 
 % Resize axes position
 pos = get(axes_h, 'Position');

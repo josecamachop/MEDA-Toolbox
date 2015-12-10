@@ -87,7 +87,11 @@ fig_h = figure;
 hold on;
 
 % Plot points
-a = gscatter(bdata(:,1), bdata(:,2), classes, [], 'o');
+unique_classes = unique(classes);
+for i=1:length(unique_classes)
+    ind = find(classes == unique_classes(i));
+    a= scatter(bdata(ind,1), bdata(ind,2), [], 'o');
+end
 
 % Fill marks
 if opt == 0

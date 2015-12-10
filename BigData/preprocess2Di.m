@@ -107,7 +107,11 @@ switch prep,
         xc = x - ones(s(1),1)*average; 
         acc2 = lambda*acc2 + sum(xc.^2,1);% update variability  
         scale = sqrt(acc2/(N-1));
-        scale(find(scale==0))=min(scale(find(scale)))/2; % use 1 by default may reduce detection of anomalous events 
+        mS = min(scale(find(scale)));
+        if isempty(mS)
+            mS = 2;
+        end
+        scale(find(scale==0))=mS/2; % use 1 by default may reduce detection of anomalous events 
         xp = xc./(ones(s(1),1)*scale);
         
     case 3, % scaling  
@@ -115,7 +119,11 @@ switch prep,
         acc2 = lambda*acc2 + sum(x.^2,1);% update variability  
         if acc2 < 0, pause, end
         scale = sqrt(acc2/(N-1));
-        scale(find(scale==0))=min(scale(find(scale)))/2; % use 1 by default may reduce detection of anomalous events 
+        mS = min(scale(find(scale)));
+        if isempty(mS)
+            mS = 2;
+        end
+        scale(find(scale==0))=mS/2; % use 1 by default may reduce detection of anomalous events  
         xp = x./(ones(s(1),1)*scale);
         
     otherwise, % No preprocessing 
