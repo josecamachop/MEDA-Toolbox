@@ -54,7 +54,7 @@ s = size(x);
 if find(s<1), error('Incorrect content of x.'); end;
 if nargin < 2, prep = 1; end;
 if (prep<0||prep>2), error('Incorrect value of prep.'); end;
-if nargin < 3 || weight==0, 
+if nargin < 3 || isempty(weight), 
     weight = ones(1,s(2));
 end
 
