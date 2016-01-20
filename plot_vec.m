@@ -132,7 +132,11 @@ axes_h = get(fig_h,'Children');
 if length(axes_h)>1, axes_h = axes_h(1); end;
 
 % Set ticks and labels
-label_size = max(min(14,round(300/length(olabel))), 9);
+if length(olabel) == 0,
+    label_size = 14;
+else
+    label_size = max(min(14,round(300/length(olabel))), 9);
+end
 set(axes_h, 'FontSize', label_size);
 if ~isempty(olabel)
     set(axes_h,'XTick',1:N);
