@@ -77,7 +77,7 @@ set(axes_h,'YTick',(1:N)+0.5);
 set(axes_h,'XTickLabel',label);
 set(axes_h,'YTickLabel',label);
 
-if ~verLessThan('matlab', '8.3'),
+if ~verLessThan('matlab', '8.4'),
     set(axes_h,'TicklabelInterpreter','None')
 end
 
