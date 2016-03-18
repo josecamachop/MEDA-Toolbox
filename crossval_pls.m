@@ -58,7 +58,7 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-% Arguments checking
+%% Arguments checking
 
 if nargin < 3, error('Error in the number of arguments.'); end;
 
@@ -79,6 +79,8 @@ if nargin < 7, opt = 1; end;
 if blocks_r>s(1), blocks_r = s(1); end
 if (blocks_r<2), error('Incorrect value of blocks_r.'); end;
 
+
+%% Main code
 
 % Initialization
 cumpress = zeros(max(lvs)+1,1);
@@ -136,5 +138,6 @@ cumpress = sum(press,2);
 
 if opt == 1,
     fig_h = plot_vec(cumpress(lvs+1),num2str((lvs')),'PRESS',[],1);
+    %fig_h = plot_vec2(cumpress(lvs+1),num2str((pcs')),[],'PRESS'); % Problema!!!: plot_vec2 es sólo bar
 end
 

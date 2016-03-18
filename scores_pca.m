@@ -3,8 +3,8 @@ function [T,TT] = scores_pca(cal,pcs,test,prep,opt,label,classes)
 
 % Compute and plot scores in PCA.
 %
-% scores_pca(cal,pcs) % minimum call
-% scores_pca(cal,pcs,test,prep,opt,label,classes) % complete call
+% T = scores_pca(cal,pcs) % minimum call
+% [T,TT] = scores_pca(cal,pcs,test,prep,opt,label,classes) % complete call
 %
 % INPUTS:
 %
@@ -26,11 +26,11 @@ function [T,TT] = scores_pca(cal,pcs,test,prep,opt,label,classes)
 %       1: score plot (default)
 %       2: score plot with empty marks
 %
-% label: ((L+N)x1) name of the variables (numbers are used by default), eg.
-%   num2str((1:L+N))')', use ' ' to avoid labels.
+% label: (Kx1, k=L+N) name of the observations (empty by default), use ' ' 
+%   or [] to avoid labels. Numbers (vectors with K elements) can also be used.
 %
-% classes: ((L+N)x1) vector with the assignment of the variables to classes, 
-%   numbered from 1 onwards (1 class by default), eg. ones(L+N),1)
+% classes: ((L+N)x1) vector with the assignment of the obsaervations to classes, 
+%   numbered from 1 onwards (1 class by default), eg. ones((L+N),1)
 %
 %
 % OUTPUTS:
@@ -42,7 +42,7 @@ function [T,TT] = scores_pca(cal,pcs,test,prep,opt,label,classes)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 02/Feb/15.
+% last modification: 17/Mar/2016.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -72,13 +72,14 @@ pcs = pcs(sort(index));
 
 if nargin < 4, prep = 2; end;
 if nargin < 5, opt = 1; end;
-if nargin < 6 || isempty(label)
-    label = [];
-    %label=num2str((1:s(1))'); 
-elseif ~isequal(label,' '),
-    if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
-    if size(label,1)~=s(1), error('Error in the dimension of the arguments.'); end;
+
+if nargin < 6 || isempty(label) || isequal(label,' ')
+    label=[];  
 end
+if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
+if isnumeric(label), label=num2str(label); end
+if size(label,1)~=s(1), error('Error in the dimension of the arguments.'); end;
+
 if nargin < 7 || isempty(classes)
     classes = [];
 else

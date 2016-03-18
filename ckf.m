@@ -44,7 +44,7 @@ function cumpress = ckf(xcs,T,P,opt)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Parameters checking
+%% Arguments checking
 
 if nargin < 3, error('Error in the number of arguments.'); end;
 if nargin < 4, opt = 1; end;
@@ -85,6 +85,7 @@ for i=0:maxpcs,
 
 if opt == 1,
         fig_h = plot_vec(cumpress/cumpress(1),num2str((0:maxpcs)')','ckf',[],1,'r--');
+        %fig_h = plot_vec2(cumpress/cumpress(1),num2str((0:maxpcs)')',[],'ckf'); % Problema!!!: plot_vec2 es sólo bar
 end
 
         

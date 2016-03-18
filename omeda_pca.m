@@ -101,7 +101,12 @@ elseif opt == 2 | opt == 3,
     calr = cal2*P*P';
     l = length(find(dummy));
     vcal = l*sum(calr.^2,1)/s(1);
-    lim = 0.9*vcal + 0.1*sum(vcal)/length(vcal); % heuristic
+    lim = 0.9*vcal + 0.1*sum(vcal)/length(vcal) % heuristic
+    
+    % new heuristic: 95% limit for one-observation-dummy
+    omeda_cal = sort(abs((2*cal2-calr).*(calr)));
+    c = max(round(5*s(1)/100),1);
+    lim = omeda_cal(end-c,:)
     
     if opt==2
         plot_vec(omeda_vec,label,'d^2_A',[lim;lim]);

@@ -43,11 +43,12 @@ function [bel,states] = gia(map,gamma,siz)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Parameters checking
+%% Arguments checking
 
 if nargin < 1, error('Error in the number of arguments.'); end;
 if nargin < 2, gamma=0.7; end; 
 if nargin < 3, siz=2; end; 
+
 
 %% Main code
 

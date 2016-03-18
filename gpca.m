@@ -49,12 +49,12 @@ function [p,t,bel] = gpca(x,states,pc,opt,thres)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Parameters checking
+%% Arguments checking
 
 if nargin < 3, error('Error in the number of arguments.'); end;
 if nargin < 4, opt=0; end;
 
-% Main code
+%% Main code
 
 map = x'*x;
 I =  eye(size(map));

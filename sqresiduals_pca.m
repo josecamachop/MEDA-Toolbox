@@ -128,11 +128,14 @@ end;
 
 if opt, 
     if opt<2,
-        plot_vec(E,label,'Q-statistic');
+        %plot_vec(E,label,'Q-statistic');
+        plot_vec2(E,label,[],'Q-statistic');
     elseif opt<3
-        plot_vec(E,label,'Residuals Sum-of-squares');   
+        %plot_vec(E,label,'Residuals Sum-of-squares');
+        plot_vec2(E,label,[],'Residuals Sum-of-squares');   
     else
-        plot_vec(E,label,'Q-statistic',(ones(size(E,1),1)*[spe_lim(res,0.05) spe_lim(res,0.01)])');
+        %plot_vec(E,label,'Q-statistic',(ones(size(E,1),1)*[spe_lim(res,0.05) spe_lim(res,0.01)])');
+        plot_vec2(E,label,[],'Q-statistic',(ones(size(E,1),1)*[spe_lim(res,0.05) spe_lim(res,0.01)])');
     end
 end
         

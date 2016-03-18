@@ -59,7 +59,7 @@ function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,op
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-% Arguments checking
+%% Arguments checking
 
 if nargin < 2, error('Error in the number of arguments.'); end;
 
@@ -81,6 +81,8 @@ if (blocks_r<2), error('Incorrect value of blocks_r.'); end;
 if blocks_c>s(2), blocks_c = s(2); end
 if (blocks_c<2), error('Incorrect value of blocks_r.'); end;
 
+
+%% Main code
 
 % Initialization
 cumpress = zeros(max(pcs)+1,1);
@@ -195,6 +197,7 @@ cumpress = sum(press,2);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(cumpress(pcs+1),num2str((pcs')),'PRESS',[],1);
+    fig_h = plot_vec(cumpress(pcs+1),num2str((pcs')),'PRESS',[],1); 
+    %fig_h = plot_vec2(cumpress(pcs+1),num2str((pcs')),[],'PRESS'); % Problema!!!: plot_vec2 es sólo bar
 end
 

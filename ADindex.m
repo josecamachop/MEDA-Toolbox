@@ -39,6 +39,11 @@ function ind = ADindex(L,A,R)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+%% Arguments checking
+
+
+%% Main code
+
 ux = L*R;
 uy = A*R;
 r = ux-uy;

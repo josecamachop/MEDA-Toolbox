@@ -58,7 +58,7 @@ function A = ADICOV(XX,L,rC,R,Q,multn)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-%% Parameters checking
+%% Arguments checking
 
 if nargin < 3, error('Error in the number of arguments.'); end;
 s = size(XX,1);

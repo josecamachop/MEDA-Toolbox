@@ -24,7 +24,7 @@ function lim = hot_lim(pc,nob,p_value,phase)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 09/Jul/15.
+% last modification: 18/Mar/16.
 %
 % Copyright (C) 2015  University of Granada, Granada
 % Copyright (C) 2015  Jose Camacho Paez
@@ -42,7 +42,7 @@ function lim = hot_lim(pc,nob,p_value,phase)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Parameters checking
+%% Arguments checking
 
 if nargin < 3, error('Error in the number of arguments.'); end;
 if pc<1, error('Incorrect content of pc.'); end;
@@ -52,12 +52,13 @@ if (p_value<0||p_value>1), error('Incorrect value of p_value.'); end;
 if nargin < 4, phase = 2; end;
 if (phase<1||phase>2), error('Incorrect value of phase.'); end;
 
-% Computation
+
+%% Main code
 
 if phase ==2,
     lim = (pc*(nob*nob-1)/(nob*(nob-pc)))*finv(1-p_value,pc,nob-pc);
 else
-    lim = (nob-1)^2/nob*icdf('Beta',1-p_value,pc/2,(nob-pc-1)/2);
+    lim = (nob-1)^2/nob*betainv(1-p_value,pc/2,(nob-pc-1)/2);
 end
 
 
