@@ -21,7 +21,7 @@ function ind = ADindex(L,A,R)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Sep/15
+% last modification: 21/Mar/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -40,6 +40,17 @@ function ind = ADindex(L,A,R)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %% Arguments checking
+
+% Set default values
+routine=dbstack;
+assert (nargin == 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+
+% Validate dimensions of input data
+N = size(L, 1);
+M = size(L, 2);
+assert (isequal(size(L), [N M]), 'Dimension Error: 1st argument must be N-by-M. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(A), [N M]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(R,1), M), 'Dimension Error: 3rd argument must be M-by-PCs. Type ''help %s'' for more info.', routine.name);
 
 
 %% Main code
