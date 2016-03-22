@@ -16,7 +16,7 @@ function A = ADICOV(XX,L,rC,R,Q,multn)
 % L: (NxM) data set with the distribution of the observations to approximate.
 %
 % rC: (1x1) number of eigenvectors-eigenvalues of CV which are maintained 
-%   in the approaximation.
+%   in the approximation.
 %
 % R: (MxLVs) Matrix to perform the projection from the original to the  
 %   latent subspace. For PCA (A = T*P'), this is the matrix of loadings P. 
@@ -39,8 +39,18 @@ function A = ADICOV(XX,L,rC,R,Q,multn)
 % A: (NxM) approximation matrix.
 %
 %
+% EXAMPLE OF USE: To obtain a matrix 100x10 with random covariance matrix, 
+% use the following call:
+%
+% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
+%
+% The call to real is necessary to avoid imaginary part in the results
+% since we did not contrain XX to be positive definite. Also, the first
+% argument is raised to the 9 to induce correlation between variables.
+%
+%
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 26/Sep/11.
+% last modification: 21/Mar/16.
 %
 % Copyright (C) 2015  University of Granada, Granada
 % Copyright (C) 2015  Jose Camacho Paez
@@ -63,9 +73,9 @@ function A = ADICOV(XX,L,rC,R,Q,multn)
 if nargin < 3, error('Error in the number of arguments.'); end;
 s = size(XX,1);
 if nargin < 4, R = eye(s); end;
-if size(R,2)<rC || size(R,1)~=s, error('Error in the dimension of the arguments.'); end;
+if size(R,2)<rC || size(R,1)~=s, error('Dimension Error: R must be M-by-LVs.'); end;
 if nargin < 5, Q = R; end;
-if size(R) ~= size(Q), error('Error in the dimension of the arguments.'); end;
+if size(R) ~= size(Q), error('Dimension Error: label R and Q should be of the same dimension.'); end;
 if nargin < 6, multn = ones(size(L,1),1); end;
 
 %% Main code
