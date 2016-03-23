@@ -23,8 +23,9 @@ function [T,TT] = scores_pca(cal,pcs,test,prep,opt,label,classes)
 %
 % opt: (1x1) options for data plotting.
 %       0: no plots.
-%       1: score plot (default)
-%       2: score plot with empty marks
+%       1: scatter score plot (default)
+%       2: scatter score plot with empty marks
+%
 %
 % label: (Kx1, k=L+N) name of the observations (empty by default), use ' ' 
 %   or [] to avoid labels. Numbers (vectors with K elements) can also be used.

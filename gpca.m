@@ -1,37 +1,47 @@
-function [p,t,bel] = gpca(x,states,pc,opt,thres)
+function [p,t,bel] = gpca(xcs,states,pcs)
 
 % Group-wise Principal Component Analysis.
 %
-% [p,t,bel] = gpca(x,states,pc)     % minimum call
-% [p,t,bel] = gpca(x,states,pc,opt)     % complete call
+% p = gpca(xcs,states)     % minimum call
+% [p,t,bel] = gpca(xcs,states,pcs)     % complete call
 %
 % INPUTS:
 %
-% x: (NxM) Two-way batch data matrix, N(observations) x M(variables)
+% xcs: [NxM] preprocessed billinear data set 
 %
 % states: {Sx1} Cell with the groups of variables.
 %
-% pc: number of principal components. 
-%
-% opt: options
-%   - 0: set the number of pcs to pc (by default)
-%   - 1: extract at least 1 PC per state.
-%   - 2: extract at least (thresx100)% of variability.
-%
-% thres: (1x1) [0-1] percentage of variability
+% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+%   first two PCs). By default, pcs = 0:rank(xcs)
 %
 %
 % OUTPUTS:
 %
-% p: (M x A) matrix of loadings.
+% p: [MxA] matrix of loadings.
 %
-% t: (N x A) matrix of scores.
+% t: [NxA] matrix of scores.
 %
-% bel: (A x 1) correspondence between PCs and States.
+% bel: [Ax1] correspondence between PCs and States.
 %
+%
+% EXAMPLE OF USE: Random data:
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% pcs = 1:rank(X);
+% map = meda_pca(X,pcs);
+% [bel,states] = gia(map,0.3);
+% Xcs = preprocess2D(X,2);
+% pcs = 1:length(states);
+% [p,t,bel] = gpca(Xcs,states,pcs);
+% 
+% f = figure;
+% for i=pcs,
+%   subplot(max(pcs),1,i); 
+%   plot_vec(p(:,i),[],[],sprintf('PC %d',i),[],[],f);
+% end
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 28/Aug/15.
+% last modification: 23/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -51,25 +61,43 @@ function [p,t,bel] = gpca(x,states,pc,opt,thres)
 
 %% Arguments checking
 
-if nargin < 3, error('Error in the number of arguments.'); end;
-if nargin < 4, opt=0; end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+N = size(xcs, 1);
+M = size(xcs, 2);
+if nargin < 3 || isempty(pcs), pcs = 0:rank(xcs); end;
+
+% Convert column arrays to row arrays
+if size(pcs,2) == 1, pcs = pcs'; end;
+
+% Preprocessing
+pcs = unique(pcs);
+pcs(find(pcs==0)) = [];
+A = length(pcs);
+
+% Validate dimensions of input data
+assert (length(states)>0, 'Dimension Error: 2nd argument must contain at least one state. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+
+
+% Validate values of input data
+assert (iscell(states), 'Value Error: 2nd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine.name);
+for i=1:length(states),
+    assert (isempty(find(states{i}<1)) && isequal(fix(states{i}), states{i}), 'Value Error: 2nd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine.name);
+    assert (isempty(find(states{i}>M)), 'Value Error: 2nd argument must contain values not higher than M. Type ''help %s'' for more info.', routine.name);
+end
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(pcs>rank(xcs))), 'Value Error: 3rd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
+
+
 
 %% Main code
 
-map = x'*x;
+map = xcs'*xcs;
 I =  eye(size(map));
 B = I;
-j=1;
-switch opt,
-    case 1
-        finish = false;
-    case 2
-        totalVx = sum(sum(x.^2));
-        finish = false;
-    otherwise
-        finish = (j > pc);
-end
-while ~finish, 
+for j = 1:max(pcs),  
     
     for i=1:length(states), % construct eigenvectors according to states
         map_aux = zeros(size(map));
@@ -77,7 +105,7 @@ while ~finish,
         [V,D] = eig(map_aux);
         ind = find(diag(D)==max(diag(D)),1);
         R(:,i) = V(:,ind);
-        S(:,i) = x*R(:,i);       
+        S(:,i) = xcs*R(:,i);       
     end
 
     sS = sum(S.^2,1); % select pseudo-eigenvector with the highest variance
@@ -88,30 +116,17 @@ while ~finish,
     
     q = B*R(:,ind); % deflate (Mackey'09)
     map = (I-q*q')*map*(I-q*q');
-    x = x*(I-q*q');
+    xcs = xcs*(I-q*q');
     B = B*(I-q*q');
     
-    j = j+1;
-    
-    if opt,
-        if length(unique(bel))==length(states),
-            finish = true;
-        end
-    else
-        finish = (j > pc);
-    end
-    
-    switch opt,
-        case 1
-            if length(unique(bel))==length(states),
-                finish = true;
-            end
-        case 2
-            if(sum(eig(t'*t))/totalVx > thres)
-                finish = true;
-            end
-        otherwise
-            finish = (j > pc);
-    end
-    
 end
+
+% Postprocessing
+p = p(:,pcs);
+t = t(:,pcs);
+bel = bel(pcs);
+
+rT=rank(t);
+p = p(:,1:rT);
+t = t(:,1:rT);
+bel = bel(1:rT);

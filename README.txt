@@ -1,8 +1,8 @@
-﻿MEDA Toolbox for its use in MATLAB.
+﻿MEDA Toolbox for its use in MATLAB. 
 
-Coded by: José Camacho Páez
-GUI by: Elena Jiménez Mañas
-Last modification of this document: 05/Aug/14
+Coded by: José Camacho Páez, Alejandro Pérez-Villegas
+GUI by: Elena Jiménez Mañas, Rafael Rodríguez Gómez
+Last modification of this document: 23/Mar/16
 
 Installation
 
@@ -14,8 +14,9 @@ Installation
 		- <directory_path>/GUI
 
 
-Please, acknowledge the use of this software by referecing it: "MEDA Toolbox, available at https://github.com/josecamachop/MEDA-Toolbox/archive/master.zip. José Camacho and Elena Jiménez, 
-Network Engineering and Security Group, University of Granada, Spain." 
+Please, acknowledge the use of this software by refercing it: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate 
+Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at 
+https://github.com/josecamachop/MEDA-Toolbox" 
 
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
@@ -27,14 +28,14 @@ Items in the folder:
 
 - toolbox routines:
 
-	- projection models: pca_pp.m (PCA), kernel_pls.m (PLS)
+	- projection models: pca_pp.m (PCA), kernel_pls.m (PLS), gia & gpca (GPCA) 
 
 	- exploratory tools: SVIplot.m (SVI plots), scores_pca.m & scores_pls.m (Socre plots), loadings_pca.m & loadings_pls.m (Loading plots), 
-		meda.m, meda_pca.m & meda_pls.m (MEDA), omeda.m, omeda_pca.m & omeda_pls.m (oMEDA) 
+		meda.m, meda_pca.m & meda_pls.m (MEDA), omeda.m, omeda_pca.m & omeda_pls.m (oMEDA)
 
 	- statistical process control tools: sqresiduals_pca.m & sqresiduals_pls.m (Squared Residuals plots), leverage_pca.m & leverage_pls.m (Leverage or Hotelling T2 plots)
 
-	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca & crossval_pls (Cross-validation rutines)
+	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca, ckf & crossval_pls (Cross-validation rutines)
 
 	- graphical tools: plot_scatter.m, plot_vec.m, plot_map.m 
 

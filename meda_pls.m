@@ -1,66 +1,70 @@
 
 function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars)
 
-% Missing data methods for exploratory data analysis in PLS. The original
+% Missing data methods for exploratory data analysis in PCA. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
-% 8-18. This algorithm follows the suggested computation by Arteaga in his
-% technical report "A Note on MEDA", attached to the toolbox, which
-% makes use of the covariance matrices.
+% 8-18. 
 %
-% [meda_map,meda_dis,ord] = meda_pls(x,y,lvs) % minimum call
+% meda_map = meda_pls(x,y) % minimum call
 % [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars) %complete call
 %
 %
 % INPUTS:
 %
-% x: (NxM) billinear data set of predictor variables
+% x: [NxM] billinear data set for model fitting
 %
-% y: (NxO) billinear data set of predicted variables
+% y: [NxO] billinear data set of predicted variables
 %
-% lvs: (1xA) Latent Variables considered (e.g. lvs = 1:2 selects the
-%   first two lvs)
+% lvs: [1xA] Latent Variables considered (e.g. pcs = 1:2 selects the
+%   first two LVs). By default, lvs = 0:rank(x)
 %
-% prepx: (1x1) preprocesing of the x-block
-%       0: no preprocessing.
-%       1: mean centering.
+% prepx: [1x1] preprocesing of the x-block
+%       0: no preprocessing
+%       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: (1x1) preprocesing of the y-block
-%       0: no preprocessing.
-%       1: mean centering.
+% prepy: [1x1] preprocesing of the y-block
+%       0: no preprocessing
+%       1: mean centering
 %       2: autoscaling (default)  
 %
-% thres: (1x1) threshold for discretization and discarding (0.1 by default)
+% thres: [1x1] threshold (0,1] for discretization and discarding (0.1 by default)
 %
-% opt: (struct) options for data plotting
-%       plot:
+% opt: (str) binary code of the form 'cba' for:
+%       a:
 %           0: no plots
 %           1: plot MEDA matrix (default)
-%           2: plot discretized MEDA matrix
-%       seriated:
+%       b:
 %           0: no seriated
 %           1: seriated (default)
-%       discard:
+%       c:
 %           0: no discard
 %           1: discard 0 variance variables (default)
 %
-% label: (Mx1) name of the variables (numbers are used by default), eg.
-%   num2str((1:M)')'
+% label: [Mx1] name of the variables (numbers are used by default)
 %
-% vars: (1xS) Subset of variables to plot (1:M by default)
+% vars: [Sx1] Subset of variables to plot (1:M by default)
 %
 %
 % OUTPUTS:
 %
-% meda_map: (MxM) MEDA matrix.
+% meda_map: [MxM] non-seriated MEDA matrix.
 %
-% meda_dis: (MxM) discretized MEDA matrix.
+% meda_dis: [MxM] discretized MEDA matrix.
 %
-% ord: (1xS) order of shown variables.
+% ord: [Mx1] order of seriated variables.
+%
+%
+% EXAMPLE OF USE: Seriation and discarding uninformative variables
+%
+% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
+% Y = randn(100,2) + X(:,1:2);
+% lvs = 1:3;
+% map = meda_pls(X,Y,lvs,2,2,0.3,'111');
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Mar/15
+% last modification: 23/Mar/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -78,104 +82,107 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Parameters checking
+%% Arguments checking
 
-if nargin < 3, error('Error in the number of arguments.'); end;
-s = size(x);
-sy = size(y);
-if s(1) < 1 || s(1) ~= sy(1) || s(2) < 1 || ndims(x)~=2, error('Error in the dimension of the arguments.'); end;
-if nargin < 4, prepx = 2; end;
-if nargin < 5, prepy = 2; end;
-if nargin < 6, thres=0.1; end; 
-if nargin < 7, 
-    opt.plot = 1;
-    opt.seriated = 1;
-    opt.discard = 1;
-end;
-if isstruct(opt) % backward v1.0 compatibility
-    opt2 = opt;
-else
-    switch opt,
-        case 0
-            opt2.plot = 0;
-            opt2.seriated = 0;
-            opt2.discard = 0;
-        case 1
-            opt2.plot = 1;
-            opt2.seriated = 0;
-            opt2.discard = 0;
-        case 2
-            opt2.plot = 2;
-            opt2.seriated = 0;
-            opt2.discard = 0;       
-        case 3
-            opt2.plot = 1;
-            opt2.seriated = 1;
-            opt2.discard = 0; 
-        case 4
-            opt2.plot = 2;
-            opt2.seriated = 1;
-            opt2.discard = 0; 
-        otherwise
-            error('Error in the dimension of the arguments.'); 
-    end
+
+% [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars)
+
+% Set default values
+routine=dbstack;
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+N = size(x, 1);
+M = size(x, 2);
+O = size(y, 2);
+if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+if nargin < 4 || isempty(prepx), prepx = 2; end;
+if nargin < 5 || isempty(prepy), prepy = 2; end;
+if nargin < 6 || isempty(thres), thres = 0.1; end; 
+if nargin < 7 || isempty(opt), opt = '111'; end; 
+if nargin < 8 || isempty(label), label = 1:M; end
+if nargin < 9 || isempty(vars), vars = 1:M; end;
+
+% Convert row arrays to column arrays
+if size(label,1) == 1, label = label'; end;
+if size(vars,1)  == 1, vars = vars'; end;
+
+% Convert column arrays to row arrays
+if size(lvs,2) == 1, lvs = lvs'; end;
+
+% Preprocessing
+lvs = unique(lvs);
+lvs(find(lvs==0)) = [];
+A = length(lvs);
+if isstruct(opt) % opt backward compatibility
+    opt = opt.plot + 10*opt.seriated + 100*opt.discard;
 end
-if nargin < 8 || isempty(label)
-    label=num2str((1:s(2))'); 
-else
-    if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
-    if size(label,1)~=s(2), error('Error in the dimension of the arguments.'); end;
-end
-if nargin < 9, vars = 1:s(2); end;
+
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
+% Validate dimensions of input data
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(prepx), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(prepy), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(thres), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (ischar(opt), 'Dimension Error: 7th argument must be a string. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(label), [M 1]), 'Dimension Error: 8th argument must be M-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 9th argument must be at most M-by-1. Type ''help %s'' for more info.', routine.name);
+
+% Validate values of input data
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(lvs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
+assert (thres>0 && thres<=1, 'Value Error: 6th argument must be in (0,1]. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: 9th argument must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine.name);
+
 
 %% Main code
 
 x = x(:,vars);
-s = size(x);
+label = label(vars);
 
 x2 = preprocess2D(x,prepx);
 y2 = preprocess2D(y,prepy);
 
-[beta,W,P] = kernel_pls(x2'*x2,x2'*y2,max(lvs));
-W2 = W*inv(P'*W);
-W2 = W2(:,lvs);
-P = P(:,lvs);
+[beta,W,P,Q,R] = kernel_pls(x2'*x2,x2'*y2,lvs);
 
-[meda_map,meda_dis] = meda(x2'*x2,W2,P,thres);
+meda_map = meda(x2'*x2,R,P);
+
+if nargout > 1
+    meda_dis = meda_map; % discretize
+    ind = find(meda_dis(:)<thres);
+    meda_dis(ind) = 0;
+end
+
+if nargout > 2 || opt(2),
+    [map1, ord] = seriation(meda_map);
+end
     
+
 %% Show results
 
-if opt2.plot,
+if opt(1) == '1',
     
-    if opt2.plot==1,
-        map1 = meda_map;
+    map = meda_map;
+ 
+    if opt(2) == '1',
+        ord2 = ord;
     else
-        map1 = meda_dis;
+        ord2 = 1:s(2);
     end
-            
-    if opt2.discard == 1,
-        Dmap = diag(map1);
+    
+    map = map(ord2,ord2);
+    label = label(ord2);
+    
+    if opt(3) == '1',
+        Dmap = diag(map);
         ind = find(Dmap > thres);
-        map1 = map1(ind,ind);
-        s(2) = length(ind);
     else
         ind = 1:s(2);
     end
     
-    if opt2.seriated == 1,
-        [map1, ord] = seriation(map1);
-    else
-        ord = 1:s(2);
-    end
+    map = map(ind,ind);
+    label = label(ind);
     
-    ord = vars(ind(ord));
+    plot_map(map,label);
     
-    if ~exist('label')
-        label = num2str(ord');
-    end
-    
-    plot_map(map1,label(ord,:));
-    
-end
-
-        
+end  

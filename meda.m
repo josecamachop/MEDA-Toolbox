@@ -1,5 +1,5 @@
 
-function [meda_map,meda_dis] = meda(XX,R,Q,thres)
+function meda_map = meda(XX,R,Q)
 
 % Missing data methods for Exploratory Data Analysis (MEDA). The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
@@ -7,36 +7,60 @@ function [meda_map,meda_dis] = meda(XX,R,Q,thres)
 % technical report "A Note on MEDA", attached to the toolbox, which
 % makes use of the covariance matrices.
 %
-% [meda_map,meda_dis] = meda(XX,R)   % minimum call
-% [meda_map,meda_dis] = meda(XX,R,Q,thres) % complete call
+% meda_map = meda(XX,R)   % minimum call
+% meda_map = meda(XX,R,Q) % complete call
 %
 %
 % INPUTS:
 %
-% XX: (MxM) cross-product matrix (XX = xp'*xp) from the preprocessed 
-%   billinear data set under analysis (xp). 
+% XX: [MxM] cross-product X'*X 
 %
-% R: (MxLVs) Matrix to perform the projection from the original to the  
+% R: [MxA] Matrix to perform the projection from the original to the  
 %   latent subspace. For PCA (X = T*P'), this is the matrix of loadings P. 
-%   For PLS (Y = X*W*inv(P'*W)*Q), this matrix is W*inv(P'*W).  
+%   For PLS (X = App*W*inv(P'*W)*Q'), this matrix is W*inv(P'*W). For the 
+%   original space (default) the identity matrix is used. 
 %
-% Q: (MxLVs) Matrix to perform the projection from the latent subspace to 
+% Q: [MxA] Matrix to perform the projection from the latent subspace to 
 %   the original space. For PCA (X = T*P'), this is the matrix of loadings 
-%   P. For PLS (Y = X*W*inv(P'*W)*Q), this matrix is also P. (Q=R by
-%   default)
-%
-% thres: (1x1) threshold for the discretized MEDA matrix (0.1 by default)
+%   P. For PLS (Y = X*W*inv(P'*W)*Q), this matrix is also P. For the 
+%   original space the identity matrix is used. Q=R is used by default. 
 %
 %
 % OUTPUTS:
 %
-% meda_map: (MxM) MEDA matrix.
+% meda_map: [MxM] MEDA matrix.
 %
-% meda_dis: (MxM) discretized MEDA matrix.
+%
+% EXAMPLE OF USE: MEDA on PCA
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% Xcs = preprocess2D(X,2);
+% pcs = 1:3;
+% p = pca_pp(Xcs,pcs);
+%
+% meda_map = meda(Xcs'*Xcs,p,p);
+%
+% [meda_map,ord] = seriation(meda_map);
+% plot_map(meda_map,ord);
+%
+%
+% EXAMPLE OF USE: MEDA on PLS
+%
+% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
+% Y = randn(100,2) + X(:,1:2);
+% Xcs = preprocess2D(X,2);
+% Ycs = preprocess2D(Y,2);
+% lvs = 1:10;
+% [beta,W,P,Q,R] = kernel_pls(Xcs'*Xcs,Xcs'*Ycs,lvs);
+%
+% meda_map = meda(Xcs'*Xcs,R,P);
+%
+% [meda_map,ord] = seriation(meda_map);
+% plot_map(meda_map,ord);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% last modification: 23/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -54,14 +78,20 @@ function [meda_map,meda_dis] = meda(XX,R,Q,thres)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Parameters checking
+%% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-s = size(XX);
-if size(R,2)<1 || size(R,1)~=s(2), error('Error in the dimension of the arguments.'); end;
-if nargin < 3, Q = R; end;
-if size(R) ~= size(Q), error('Error in the dimension of the arguments.'); end;
-if nargin < 4, thres=0.1; end; 
+% Set default values
+routine=dbstack;
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+M = size(XX, 1);
+A = size(R, 2);
+if nargin < 3 || isempty(Q), Q = R; end;
+
+% Validate dimensions of input data
+assert (isequal(size(XX), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(R), [M A]), 'Dimension Error: 2nd argument must be M-by-LVs. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(Q), [M A]), 'Dimension Error: 3rd argument must be M-by-LVs. Type ''help %s'' for more info.', routine.name);
+
 
 %% Main code
 
@@ -72,9 +102,6 @@ meda_map = (2*XX.*abs(XXA) - XXA.*abs(XXA))./dXX;
 
 meda_map(find(~dXX))=0;
 
-meda_dis = meda_map;
-ind=find(abs(meda_map)<=thres);
-meda_dis(ind) = 0;
 
     
 

@@ -3,18 +3,17 @@ function [bel,states] = gia(map,gamma,siz)
 % Group identification algorithm (gia) to generate groups of variables from 
 % a correlation map of variables x variables.
 %
-% [bel,states] = gia(map,gamma,siz)   % minimum call
-%
+% bel = gia(map)   % minimum call
 % [bel,states] = gia(map,gamma,siz)   % complete call
 %
 %
 % INPUTS:
 %
-% map: (MxM) correlation matrix. 
+% map: [MxM] correlation matrix. Values should be between -1 and 1.
 %
-% gamma: (1x1) correlation threshold to identify groups (0.7 by default)
+% gamma: [1x1] correlation threshold to identify groups (0.7 by default)
 %
-% siz: (1x1) Minimum size of groups (2 by default)
+% siz: [1x1] Integer with the minimum size of groups (2 by default)
 %
 %
 % OUTPUTS:
@@ -24,8 +23,16 @@ function [bel,states] = gia(map,gamma,siz)
 % states: {Sx1} Cell with the groups of variables.
 %
 %
+% EXAMPLE OF USE: Random data. Check the value in states:
+%
+% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
+% pcs = 1:3;
+% map = meda_pca(X,pcs);
+% [bel,states] = gia(map,0.3);
+%
+%
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 26/Aug/15.
+% last modification: 23/Mar/16.
 %
 % Copyright (C) 2015  University of Granada, Granada
 % Copyright (C) 2015  Jose Camacho Paez
@@ -45,20 +52,35 @@ function [bel,states] = gia(map,gamma,siz)
 
 %% Arguments checking
 
-if nargin < 1, error('Error in the number of arguments.'); end;
-if nargin < 2, gamma=0.7; end; 
-if nargin < 3, siz=2; end; 
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+M = size(map, 1);
+if nargin < 2 || isempty(gamma), gamma=0.7; end;
+if nargin < 3 || isempty(siz), siz=2; end;
+
+% Validate dimensions of input data
+assert (isequal(size(map), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(gamma), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(siz), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+
+% Validate values of input data
+assert (isempty(find(map<-1-1e-10)), 'Value Error: 1st argument must contain values between -1 and 1. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(map>1+1e-10)), 'Value Error: 1st argument must contain values between -1 and 1. Type ''help %s'' for more info.', routine.name);
+assert (gamma>=0 && gamma<=1, 'Value Error: 2nd argument must be between 0 and 1. Type ''help %s'' for more info.', routine.name);
+assert (siz<M, 'Value Error: 3rd argument must be below M. Type ''help %s'' for more info.', routine.name);
+assert (siz>0, 'Value Error: 3rd argument must be above 0. Type ''help %s'' for more info.', routine.name);
+assert (isequal(fix(siz), siz), 'Value Error: 3rd argument must be an integer. Type ''help %s'' for more info.', routine.name);
 
 
 %% Main code
 
-l = length(map);
 map = abs(map);
 
 states = {};
-bel = cell(l,1);
+bel = cell(M,1);
 
-columns = ones(l,1)*(1:l);
+columns = ones(M,1)*(1:M);
 rows = columns';
 
 map_v = map - tril(map) + diag(diag(map)); % triangular inferior part is set to zero
@@ -107,8 +129,8 @@ while map_v(ind)>gamma,
             
             states = [states_n states];
             
-            bel = cell(l,1);
-            for i=1:l,
+            bel = cell(M,1);
+            for i=1:M,
                 for j=1:length(states),
                     if ismember(i,states{j}),
                         bel{i} = [bel{i} j];
@@ -133,9 +155,9 @@ while map_v(ind)>gamma,
             if j > length(state_rec),
                 for k = 1:length(state_rec),
                     if state_rec(k)<c
-                        map_v(state_rec(k) + l*(c-1)) = 0;
+                        map_v(state_rec(k) + M*(c-1)) = 0;
                     else
-                        map_v(c + l*(state_rec(k)-1)) = 0;
+                        map_v(c + M*(state_rec(k)-1)) = 0;
                     end
                 end
                 
@@ -156,9 +178,9 @@ while map_v(ind)>gamma,
             if j > length(state_rec),
                 for k = 1:length(state_rec),
                     if state_rec(k)<r
-                        map_v(state_rec(k) + l*r) = 0;
+                        map_v(state_rec(k) + M*r) = 0;
                     else
-                        map_v(r + l*state_rec(k)) = 0;
+                        map_v(r + M*state_rec(k)) = 0;
                     end
                 end
                 
@@ -180,7 +202,7 @@ while map_v(ind)>gamma,
 end
 
 vs = [];
-om = ceil(log10(l));
+om = ceil(log10(M));
 j=1;
 for i=1:length(states),
     if length(states{i})>=siz,
@@ -197,8 +219,8 @@ else
     states = stateso(ind);
 end
 
-bel = cell(l,1);
-for i=1:l,
+bel = cell(M,1);
+for i=1:M,
     for j=1:length(states),
         if ismember(i,states{j}),
             bel{i} = [bel{i} j];
