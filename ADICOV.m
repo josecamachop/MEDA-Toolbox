@@ -11,9 +11,9 @@ function App = ADICOV(XX,L,Neig,R,Q,multn)
 % INPUTS:
 %
 % XX: [MxM] cross-product or covariance matrix to approximate. M has to be 
-%   at least Neig.
+%   at least Neig
 %
-% L: [NxM] data set with the distribution of the observations to approximate.
+% L: [NxM] data set with the distribution of the observations to approximate
 %
 % Neig: [1x1] number of eigenvectors-eigenvalues of XX which are maintained 
 %   in the approximation.
@@ -22,14 +22,14 @@ function App = ADICOV(XX,L,Neig,R,Q,multn)
 %   latent subspace. For PCA (App = T*P'), this is the matrix of loadings P. 
 %   For PLS (Y = App*W*inv(P'*W)*Q'), this matrix is W*inv(P'*W). For the 
 %   approximation in the original space (default) the identity matrix is
-%   used. The number of director vectors in R (LVs) should be at least Neig. 
+%   used. The number of director vectors in R (LVs) should be at least Neig 
 %
 % Q: [MxA] Matrix to perform the projection from the latent subspace to 
 %   the original space. For PCA (App = T*P'), this is the matrix of loadings 
 %   P. For PLS (Y = App*W*inv(P'*W)*Q), this matrix is also P. For the 
 %   approximation in the original space the identity matrix is used. Q=R is 
 %   used by default. The number of director vectors in Q (LVs) should be at 
-%   least Neig.
+%   least Neig
 %
 % multn: [Nx1] multiplicity of the observations (ones by default)
 %
