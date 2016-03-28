@@ -34,7 +34,7 @@ function [x_var,cumpress] = var_pca(cal,maxpcs,prep,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 06/Sep/15.
+% last modification: 28/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -66,7 +66,7 @@ if opt >2 opt = 2; end;
 
 cal_prep = preprocess2D(cal,prep); 
 
-[p,T] = pca_pp(cal_prep,maxpcs);
+[p,T] = pca_pp(cal_prep,1:maxpcs);
 
 totalVx = sum(sum(cal_prep.^2));
 x_var = ones(maxpcs+1,1);

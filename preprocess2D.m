@@ -35,7 +35,7 @@ function [xcs,average,scale] = preprocess2D(x,prep,weights)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16.
+% last modification: 28/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -88,8 +88,8 @@ switch prep,
         anM = 1 - nanM;
         x(find(nanM)) = 0;
         average = sum(x,1)./sum(anM,1);    
-        scale = ones(1,s(2));
-        xcs = x - ones(s(1),1)*average;
+        scale = ones(1,M);
+        xcs = x - ones(N,1)*average;
         xcs(find(nanM)) = nan;
         
     case 2, % auto-sclaing
@@ -98,7 +98,7 @@ switch prep,
         anM = 1 - nanM;
         x(find(nanM)) = 0;
         average = sum(x,1)./sum(anM,1);
-        xc = x - ones(s(1),1)*average; 
+        xc = x - ones(N,1)*average; 
         xc(find(nanM)) = 0;
         scale = sqrt(sum(xc.^2,1)./(sum(anM,1)-1));
         ind = find(scale==0);
@@ -106,13 +106,13 @@ switch prep,
         % use 1 by default may reduce detection of anomalous events 
         % what we do is to infer that we need to double the calibration
         % data to find one single element
-        xcs = xc./(ones(s(1),1)*scale);
+        xcs = xc./(ones(N,1)*scale);
         xcs(find(nanM)) = nan;
         
     otherwise, % No preprocessing 
-        average = zeros(1,s(2));     
-        scale = ones(1,s(2)); 
+        average = zeros(1,M);     
+        scale = ones(1,M); 
         xcs = x;
 end
 
-xcs = xcs.*(ones(s(1),1)*weight);
+xcs = xcs.*(ones(N,1)*weights);

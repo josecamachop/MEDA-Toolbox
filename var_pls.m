@@ -76,7 +76,7 @@ y_prep = preprocess2D(y,prepy);
 
 XX = cal_prep'*cal_prep;
 XY = cal_prep'*y_prep;
-[beta,W,P,Q,R] = kernel_pls(XX,XY,maxlvs);
+[beta,W,P,Q,R] = kernel_pls(XX,XY,1:maxlvs);
 
 totalVt = sum(sum(cal_prep.^2));
 t_var = ones(maxlvs+1,1);
