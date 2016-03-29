@@ -116,9 +116,6 @@ if size(lvs,2) == 1, lvs = lvs'; end;
 lvs = unique(lvs);
 lvs(find(lvs==0)) = [];
 A = length(lvs);
-if isstruct(opt) % opt backward compatibility
-    opt = opt.plot + 10*opt.seriated + 100*opt.discard;
-end
 
 % Validate dimensions of input data
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);

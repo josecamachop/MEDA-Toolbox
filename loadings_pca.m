@@ -84,9 +84,6 @@ if size(pcs,2) == 1, pcs = pcs'; end;
 pcs = unique(pcs);
 pcs(find(pcs==0)) = [];
 A = length(pcs);
-if isstruct(opt) % opt backward compatibility
-    opt = opt.plot + 10*opt.seriated + 100*opt.discard;
-end
 
 % Validate dimensions of input data
 assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
