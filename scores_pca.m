@@ -23,7 +23,7 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes)
 %
 % opt: [1x1] options for data plotting
 %       0: no plots
-%       otherwise: scatter score plot (default)
+%       otherwise: score plot (default)
 %
 % label: [Kx1] K=N+L, name of the observations (numbers are used by default)
 %
@@ -61,7 +61,7 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 29/Mar/2016.
+% last modification: 29/Mar/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -81,6 +81,7 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes)
 
 %% Parameters checking
 
+% Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
 N = size(x, 1);
@@ -138,13 +139,13 @@ end
 %% Show results
 
 if opt,
-    T = [T;TT];
+    Tt = [T;TT];
     if length(pcs) == 1,
-        plot_vec(T, label, classes, sprintf('PC %d',pcs));
+        plot_vec(Tt, label, classes, sprintf('Scores PC %d',pcs));
     else
         for i=1:length(pcs)-1,
             for j=i+1:length(pcs),
-                plot_scatter([T(:,pcs(i)),T(:,pcs(j))], label, classes, {sprintf('PC %d',pcs(i)),sprintf('PC %d',pcs(j))}');
+                plot_scatter([Tt(:,pcs(i)),Tt(:,pcs(j))], label, classes, {sprintf('Scores PC %d',pcs(i)),sprintf('Scores PC %d',pcs(j))}');
             end      
         end
     end

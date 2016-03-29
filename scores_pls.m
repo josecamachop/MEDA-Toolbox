@@ -1,55 +1,76 @@
 
-function [T,TT] = scores_pls(cal,y,lvs,test,prepx,prepy,opt,label,classes)
+function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes)
 
 % Compute and plot scores in PLS.
 %
-% scores_pls(cal,y,lvs) % minimum call
-% scores_pls(cal,y,lvs,test,prepx,prepy,opt,label,classes) % complete call
+% T = scores_pls(x,y) % minimum call
+% [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes) % complete call
 %
 % INPUTS:
 %
-% cal: (LxM) billinear data set for model fitting
+% x: [NxM] billinear data set for model fitting
 %
-% y: (LxO) billinear data set of predicted variables
+% y: [NxO] billinear data set of predicted variables
 %
-% lvs: (1xA) Latent Variables considered (e.g. lvs = 1:2 selects the
-%   first two lvs)
+% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+%   first two LVs). By default, lvs = 0:rank(x)
 %
-% test: (NxM) billinear data set for test. These data are preprocessed in
-%   the same way than calibration data.
+% test: [LxM] data set with the observations to be compared. These data 
+%   are preprocessed in the same way than calibration data
 %
-% prepx: (1x1) preprocesing of the x-block
-%       0: no preprocessing.
-%       1: mean centering.
+% prepx: [1x1] preprocesing of the x-block
+%       0: no preprocessing
+%       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: (1x1) preprocesing of the y-block
-%       0: no preprocessing.
-%       1: mean centering.
-%       2: autoscaling (default)
+% prepy: [1x1] preprocesing of the y-block
+%       0: no preprocessing
+%       1: mean centering
+%       2: autoscaling (default)   
 %
-% opt: (1x1) options for data plotting.
-%       0: no plots.
-%       1: score plot (default)
-%       2: score plot with empty marks
+% opt: [1x1] options for data plotting
+%       0: no plots
+%       otherwise: score plot (default)
 %
-% label: ((L+N)x1) name of the variables (numbers are used by default), eg.
-%   num2str((1:L+N))')', use ' ' to avoid labels.
+% label: [Kx1] K=N+L, name of the observations (numbers are used by default)
 %
-% classes: ((L+N)x1) vector with the assignment of the variables to classes, 
-%   numbered from 1 onwards (1 class by default), eg. ones(L+N),1)
+% classes: [Kx1] K=N+L, groups for different visualization (a single group 
+%   by default per calibration and test)
 %
 %
 % OUTPUTS:
 %
-% T: (LxA) calibration scores.
+% T: [NxA] calibration scores
 %
-% TT: (NxA) test scores.
+% TT: [NxA] test scores
+%
+%
+% EXAMPLE OF USE: Random scores
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% Y = randn(100,2) + X(:,1:2);
+% T = scores_pls(X,Y,1:3);
+%
+%
+% EXAMPLE OF USE: Calibration and Test, both line and scatter plots
+%
+% n_obs = 100;
+% n_vars = 10;
+% n_PCs = 10;
+% XX = randn(n_vars,n_vars).^19; 
+% X = real(ADICOV(n_obs*XX,randn(n_obs,n_vars),n_vars));
+% Y = randn(n_obs,2) + X(:,1:2);
+%
+% n_obst = 10;
+% test = real(ADICOV(n_obst*XX,randn(n_obst,n_vars),n_vars));
+%
+% scores_pls(X,Y,1,test);
+% scores_pls(X,Y,1:2,test);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 02/Feb/15.
+% last modification: 29/Mar/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -69,57 +90,79 @@ function [T,TT] = scores_pls(cal,y,lvs,test,prepx,prepy,opt,label,classes)
 
 %% Parameters checking
 
-if nargin < 3, error('Error in the number of arguments.'); end;
-if nargin < 4, x = cal; test = []; else x = [cal;test]; end;
-s = size(x);
-if s(1) < 1 || s(2) < 1 || ndims(x)~=2, error('Error in the dimension of the arguments.'); end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+N = size(x, 1);
+M = size(x, 2);
+if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+if nargin < 4, test = []; end;
+L = size(test, 1);
+K = N+L;
+if nargin < 5 || isempty(prepx), prepx = 2; end;
+if nargin < 6 || isempty(prepy), prepy = 2; end;
+if nargin < 7 || isempty(opt), opt = 1; end; 
+if nargin < 8 || isempty(label), label = [1:N 1:L]; end
+if nargin < 9 || isempty(classes), classes = [ones(N,1);2*ones(L,1)]; end
 
-[something, index] = unique(lvs, 'first');
-lvs = lvs(sort(index));
+% Convert row arrays to column arrays
+if size(label,1) == 1,     label = label'; end;
+if size(classes,1) == 1, classes = classes'; end;
 
-if nargin < 5, prepx = 2; end;
-if nargin < 6, prepy = 2; end; 
-if nargin < 7, opt = 1; end;
-if nargin < 8 || isempty(label)
-    label = [];
-    %label=num2str((1:s(1))'); 
-elseif ~isequal(label,' '),
-    if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
-    if size(label,1)~=s(1), error('Error in the dimension of the arguments.'); end;
+% Convert column arrays to row arrays
+if size(lvs,2) == 1, lvs = lvs'; end;
+
+% Preprocessing
+lvs = unique(lvs);
+lvs(find(lvs==0)) = [];
+A = length(lvs);
+if isstruct(opt) % opt backward compatibility
+    opt = opt.plot + 10*opt.seriated + 100*opt.discard;
 end
-if nargin < 9 || isempty(classes)
-    classes = [ones(1,size(cal,1)) 2*ones(1,size(test,1))];
-else
-    if ndims(classes)==2 & find(size(classes)==max(size(classes)))==2, classes = classes'; end
-    if size(classes,1)~=s(1), error('Error in the dimension of the arguments.'); end;
-end
+
+% Validate dimensions of input data
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 4th argument must be L-by-M. Type ''help %s'' for more info.', routine.name); end
+assert (isequal(size(prepx), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(prepy), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(label), [K 1]), 'Dimension Error: 8th argument must be K-by-1. Type ''help %s'' for more info.', routine.name); 
+assert (isequal(size(classes), [K 1]), 'Dimension Error: 9th argument must be K-by-1. Type ''help %s'' for more info.', routine.name); 
+  
+% Validate values of input data
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(lvs>rank(x))), 'Value Error: 3rd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
+
+
 
 %% Main code
 
-[calp,m,dt] = preprocess2D(cal,prepx);
-yp = preprocess2D(y,prepy);
+[xcs,m,sd] = preprocess2D(x,prepx);
+ycs = preprocess2D(y,prepy);
 
-[beta,W,P] = kernel_pls(calp'*calp,calp'*yp,max(lvs));
-W2 = W*inv(P'*W);
-T = calp*W2;
+[beta,W,P,Q,R] = kernel_pls(xcs'*xcs,xcs'*ycs,lvs);
+T = xcs*R;
 
-if exist('test')&~isempty(test),
-    testp = (test - ones(size(test,1),1)*m)./(ones(size(test,1),1)*dt);
-    TT = testp*W2;
+if ~isempty(test),
+    testcs = preprocess2Dapp(test,m,sd);
+    TT = testcs*R;
 else
     TT = [];
 end
 
+
+%% Show results
+
 if opt,
-    T = [T;TT];
+    Tt = [T;TT];
     if length(lvs) == 1,
-        plot_vec2(T(:,lvs), label, classes, sprintf('LV %d',lvs));
-        %plot_vec(T(:,lvs), label, sprintf('LV %d',lvs), [], 0, 'r');
-    end
-    for i=1:length(lvs)-1,
-        for j=i+1:length(lvs),
-            plot_scatter([T(:,lvs(i)),T(:,lvs(j))],label,classes,{sprintf('LV %d',lvs(i)),sprintf('LV %d',lvs(j))},opt-1);
-        end      
+        plot_vec(Tt, label, classes, sprintf('Scores LV %d',lvs));
+    else
+        for i=1:length(lvs)-1,
+            for j=i+1:length(lvs),
+                plot_scatter([Tt(:,lvs(i)),Tt(:,lvs(j))], label, classes, {sprintf('Scores LV %d',lvs(i)),sprintf('Scores LV %d',lvs(j))}');
+            end      
+        end
     end
 end
         

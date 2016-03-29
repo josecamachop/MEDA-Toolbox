@@ -1,42 +1,48 @@
 
-function P = loadings_pca(cal,pcs,prep,opt,label,classes)
+function P = loadings_pca(x,pcs,prep,opt,label,classes)
 
-% Compute and plot loadings in PCA.
+% Compute and plot loadings in PCA
 %
-% loadings_pca(cal,pcs) % minimum call
-% loadings_pca(cal,pcs,prep,opt,label,classes) % complete call
+% P = loadings_pca(x) % minimum call
+% P = loadings_pca(x,pcs,prep,opt,label,classes) % complete call
 %
 % INPUTS:
 %
-% cal: (LxM) billinear data set for model fitting.
+% x: [NxM] billinear data set for model fitting
 %
-% pcs: (1xA) Principal Components considered (e.g. pcs = 1:2 selects the
-%   first two PCs)
+% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+%   first two PCs). By default, pcs = 0:rank(xcs)
 %
-% prep: (1x1) preprocesing of the data
-%       0: no preprocessing.
-%       1: mean centering.
-%       2: autoscaling (default)
+% prep: [1x1] preprocesing of the data
+%       0: no preprocessing
+%       1: mean centering
+%       2: autoscaling (default) 
 %
-% opt: (1x1) options for data plotting.
-%       0: no plots.
-%       1: loading plot (default)
-%       2: loading plot with empty marks
+% opt: [1x1] options for data plotting
+%       0: no plots
+%       otherwise: loadings plot (default)
 %
-% label: (Mx1) name of the variables (numbers are used by default), eg.
-%   num2str((1:M)')'
+% label: [Mx1] name of the variables (numbers are used by default)
 %
-% classes: (Mx1) vector with the assignment of the variables to classes, 
-%   numbered from 1 onwards (1 class by default), eg. ones(M,1)
+% classes: [Mx1] groups for different visualization (a single group 
+%   by default)
+%
 %
 % OUTPUTS:
 %
-% P: (MxA) scores.
+% P: [MxA] loadings
+%
+%
+% EXAMPLE OF USE: Random scores
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% loadings_pca(X,1);
+% P = loadings_pca(X,1:3);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 02/Feb/15.
+% last modification: 29/Mar/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -56,42 +62,61 @@ function P = loadings_pca(cal,pcs,prep,opt,label,classes)
 
 %% Parameters checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-s = size(cal);
-if s(1) < 1 || s(2) < 1 || ndims(cal)~=2, error('Error in the dimension of the arguments.'); end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+N = size(x, 1);
+M = size(x, 2);
+if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
+if nargin < 3 || isempty(prep), prep = 2; end;
+if nargin < 4 || isempty(opt), opt = 1; end; 
+if nargin < 5 || isempty(label), label = [1:M]; end
+if nargin < 6 || isempty(classes), classes = ones(M,1); end
 
-[something, index] = unique(pcs, 'first');
-pcs = pcs(sort(index));
+% Convert row arrays to column arrays
+if size(label,1) == 1,     label = label'; end;
+if size(classes,1) == 1, classes = classes'; end;
 
-if nargin < 3, prep = 2; end;
-if nargin < 4, opt = 1; end;
-if nargin < 5 || isempty(label) || isequal(label,' ')
-    label = [];
-else
-    if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
-    if size(label,1)~=s(2), error('Error in the dimension of the arguments.'); end;
+% Convert column arrays to row arrays
+if size(pcs,2) == 1, pcs = pcs'; end;
+
+% Preprocessing
+pcs = unique(pcs);
+pcs(find(pcs==0)) = [];
+A = length(pcs);
+if isstruct(opt) % opt backward compatibility
+    opt = opt.plot + 10*opt.seriated + 100*opt.discard;
 end
-if nargin < 6 || isempty(classes)
-    classes = ones(s(2),1); 
-else
-    if ndims(classes)==2 & find(size(classes)==max(size(classes)))==2, classes = classes'; end
-    if size(classes,1)~=s(2), error('Error in the dimension of the arguments.'); end;
-end
+
+% Validate dimensions of input data
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(label), [M 1]), 'Dimension Error: 5th argument must be K-by-1. Type ''help %s'' for more info.', routine.name); 
+assert (isequal(size(classes), [M 1]), 'Dimension Error: 6th argument must be K-by-1. Type ''help %s'' for more info.', routine.name); 
+  
+% Validate values of input data
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
 
 
 %% Main code
 
-[calp,m,dt] = preprocess2D(cal,prep);
-[P,T] = pca_pp(calp,max(pcs));
+xcs = preprocess2D(x,prep);
+P = pca_pp(xcs,pcs);
+
+
+%% Show results
 
 if opt,
     if length(pcs) == 1,
-        plot_vec(P(:,pcs), label, sprintf('PC %d',pcs), [], 0, 'r');
-    end
-    for i=1:length(pcs)-1,
-        for j=i+1:length(pcs),
-            plot_scatter([P(:,pcs(i)),P(:,pcs(j))],label,classes,{sprintf('PC %d',pcs(i)),sprintf('PC %d',pcs(j))},opt-1);
-        end      
+        plot_vec(P, label, classes, sprintf('Loadings PC %d',pcs));
+    else
+        for i=1:length(pcs)-1,
+            for j=i+1:length(pcs),
+                plot_scatter([P(:,pcs(i)),P(:,pcs(j))], label, classes, {sprintf('Loadings PC %d',pcs(i)),sprintf('Loadings PC %d',pcs(j))}');
+            end      
+        end
     end
 end
         

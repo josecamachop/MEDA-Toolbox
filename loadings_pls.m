@@ -1,54 +1,71 @@
 
-function [P,Q,R] = loadings_pls(cal,y,lvs,prepx,prepy,opt,label,classes)
+function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 
-% Compute and plot loadings in PLS.
+% Compute and plot loadings in PLS
 %
-% loadings_pls(cal,y,lvs) % minimum call
-% loadings_pls(cal,y,lvs,prepx,prepy,opt,label,classes) % complete call
+% P = loadings_pls(x,y) % minimum call
+% [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes) % complete call
 %
 % INPUTS:
 %
-% cal: (LxM) billinear data set for model fitting
+% x: [NxM] billinear data set for model fitting
 %
-% y: (LxO) billinear data set of predicted variables
+% y: [NxO] billinear data set of predicted variables
 %
-% lvs: (1xA) Latent Variables considered (e.g. lvs = 1:2 selects the
-%   first two lvs)
+% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+%   first two LVs). By default, lvs = 0:rank(x)
 %
-% prepx: (1x1) preprocesing of the x-block
-%       0: no preprocessing.
-%       1: mean centering.
+% prepx: [1x1] preprocesing of the x-block
+%       0: no preprocessing
+%       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: (1x1) preprocesing of the y-block
-%       0: no preprocessing.
-%       1: mean centering.
-%       2: autoscaling (default)
+% prepy: [1x1] preprocesing of the y-block
+%       0: no preprocessing
+%       1: mean centering
+%       2: autoscaling (default)   
 %
-% opt: (1x1) options for data plotting.
-%       0: no plots.
-%       1: loading plot of P (default)
-%       2: loading plot of P with empty marks
-%       3: loading plot of W*inv(P'*W)
-%       4: loading plot of W*inv(P'*W) with empty marks
+% opt: [1x1] options for data plotting
+%       0: no plots
+%       1: plot of weights (default)
+%       2: plot of X-block loadings
+%       otherwise: plot of Y-block loadings
 %
-% label: (Mx1) name of the variables (numbers are used by default), eg.
-%   num2str((1:M)')'
+% label: [Mx1] (opt = 1 o 2), [Ox1] (opt = otherwise), name of the 
+%   variables (numbers are used by default)
 %
-% classes: (Mx1) vector with the assignment of the variables to classes, 
-%   numbered from 1 onwards (1 class by default), eg. ones(M,1)
+% classes: [Mx1] (opt = 1 o 2), [Ox1] (opt = otherwise), groups for 
+%   different visualization (a single group by default)
 %
 %
 % OUTPUTS:
 %
-% P: (MxA) x-block scores.
-% Q: (OxA) y-block scores.
-% R: (MxA) W*inv(P'*W).
+% W: [MxA] X-block weights
+%
+% P: [MxA] X-block loadings
+%
+% Q: [OxA] Y-block loadings
+%
+%
+% EXAMPLE OF USE: Random loadings: bar and scatter plot of weights
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% Y = randn(100,2) + X(:,1:2);
+% loadings_pls(X,Y,1);
+% [W,P,Q] = loadings_pls(X,Y,1:3);
+%
+%
+% EXAMPLE OF USE: Random loadings, plotting x-block and y-block loadings
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% Y = randn(100,2) + X(:,1:2);
+% [W,P,Q] = loadings_pls(X,Y,1:2,[],[],2);
+% [W,P,Q] = loadings_pls(X,Y,1:2,[],[],3);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 02/Feb/15.
+% last modification: 29/Mar/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -68,49 +85,101 @@ function [P,Q,R] = loadings_pls(cal,y,lvs,prepx,prepy,opt,label,classes)
 
 %% Parameters checking
 
-if nargin < 3, error('Error in the number of arguments.'); end;
-s = size(cal);
-if s(1) < 1 || s(2) < 1 || ndims(cal)~=2, error('Error in the dimension of the arguments.'); end;
-
-[something, index] = unique(lvs, 'first');
-lvs = lvs(sort(index));
-
-if nargin < 4, prepx = 2; end;
-if nargin < 5, prepy = 2; end; 
-if nargin < 6, opt = 1; end;
-if nargin < 7 || isempty(label)
-    label = [];
-    %label=num2str((1:s(2))'); 
-else
-    if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
-    if size(label,1)~=s(2), error('Error in the dimension of the arguments.'); end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+N = size(x, 1);
+M = size(x, 2);
+O = size(y, 2);
+if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+if nargin < 4 || isempty(prepx), prepx = 2; end;
+if nargin < 5 || isempty(prepy), prepy = 2; end;
+if nargin < 6 || isempty(opt), opt = 1; end; 
+if nargin < 7 || isempty(label), 
+    switch opt,
+        case {0}
+            label = []; 
+        case {1,2} 
+            label = [1:M]; 
+            K = M;
+        otherwise
+            label = [1:O]; 
+            K = O;
+    end
 end
-if nargin < 8 || isempty(classes)
-    classes = ones(s(2),1); 
-else
-    if ndims(classes)==2 & find(size(classes)==max(size(classes)))==2, classes = classes'; end
-    if size(classes,1)~=s(2), error('Error in the dimension of the arguments.'); end;
+if nargin < 8 || isempty(classes), 
+    switch opt,
+        case {0}
+            classes = []; 
+        case {1,2} 
+            classes = ones(M,1); 
+            K = M;
+        otherwise
+            classes = ones(O,1); 
+            K = O;
+    end
 end
+
+% Convert row arrays to column arrays
+if size(label,1) == 1,     label = label'; end;
+if size(classes,1) == 1, classes = classes'; end;
+
+% Convert column arrays to row arrays
+if size(lvs,2) == 1, lvs = lvs'; end;
+
+% Preprocessing
+lvs = unique(lvs);
+lvs(find(lvs==0)) = [];
+A = length(lvs);
+if isstruct(opt) % opt backward compatibility
+    opt = opt.plot + 10*opt.seriated + 100*opt.discard;
+end
+
+% Validate dimensions of input data
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(prepx), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(prepy), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+if ~isempty(label), assert (isequal(size(label), [K 1]), 'Dimension Error: 7th argument must be K-by-1. Type ''help %s'' for more info.', routine.name); end;
+if ~isempty(classes), assert (isequal(size(classes), [K 1]), 'Dimension Error: 8th argument must be K-by-1. Type ''help %s'' for more info.', routine.name); end;
+  
+% Validate values of input data
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(lvs>rank(x))), 'Value Error: 3rd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
+
+
 
 %% Main code
 
-[calp,m,dt] = preprocess2D(cal,prepx);
-yp = preprocess2D(y,prepy);
+xcs = preprocess2D(x,prepx);
+ycs = preprocess2D(y,prepy);
 
-[beta,W,P,Q] = kernel_pls(calp'*calp,calp'*yp,max(lvs));
-R = W*inv(P'*W);
+[beta,W,P,Q] = kernel_pls(xcs'*xcs,xcs'*ycs,lvs);
+
+
+%% Show results
 
 if opt,
-    if length(lvs) == 1,
-        plot_vec(P(:,lvs), label, sprintf('LV %d',lvs), [], 0, 'r');
+    
+    switch opt,
+        case 1 
+            Pt = W;
+            text = 'Weights';
+        case 2 
+            Pt = P;
+            text = 'X-block loadings';
+        otherwise
+            Pt = Q;
+            text = 'Y-block loadings';
     end
-    for i=1:length(lvs)-1,
-        for j=i+1:length(lvs),
-            if opt ==1 || opt ==2,
-                plot_scatter([P(:,lvs(i)),P(:,lvs(j))],label,classes,{sprintf('LV %d',lvs(i)),sprintf('LV %d',lvs(j))},opt-1);   
-            elseif opt == 3 || opt ==4,
-                plot_scatter([R(:,lvs(i)),R(:,lvs(j))],label,classes,{sprintf('LV %d',lvs(i)),sprintf('LV %d',lvs(j))},opt-3);                
-            end    
+    
+    if length(lvs) == 1,
+        plot_vec(Pt, label, classes, sprintf('%s LV %d',text,lvs));
+    else
+        for i=1:length(lvs)-1,
+            for j=i+1:length(lvs),
+                plot_scatter([Pt(:,lvs(i)),Pt(:,lvs(j))], label, classes, {sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}');
+            end      
         end
     end
 end
