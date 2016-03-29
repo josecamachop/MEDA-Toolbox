@@ -21,16 +21,16 @@ function fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,fig_h)
 %
 % lcont: [NxL or Lx1] L control limits (nothing by default)
 %
-% opt: [1x1] options for data plotting.
+% opt: [1x1] options for data plotting
 %       0: bar plot (by default)
 %       otherwise: line plot
 %
-% fig_h: [1x1] figure handle to plot on.
+% fig_h: [1x1] figure handle to plot on
 %
 %
 % OUTPUTS:
 %
-% fig_h: [1x1] figure handle.
+% fig_h: [1x1] figure handle
 %
 %
 % EXAMPLE OF USE: To plot three lines with constant control limits:
@@ -38,7 +38,7 @@ function fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,fig_h)
 % fig_h = plot_vec(randn(100,3),[],[],{'Functions','Time'},[1, -1, 3], 1);
 %
 %
-% EXAMPLE OF USE: with labels and classes in observartions and variable limit:
+% EXAMPLE OF USE: with labels and classes in observations and variable limit:
 %
 % fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{'Functions'},randn(5,1));
 %

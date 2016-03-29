@@ -1,42 +1,67 @@
 
-function omeda_vec = omeda(test,dummy,R,Q)
+function omeda_vec = omeda(testcs,dummy,R,Q)
 
 % Observation-based Missing data methods for Exploratory Data Analysis 
 % (oMEDA). The original paper is Journal of Chemometrics, 2011, 25 
 % (11): 592-600. This algorithm follows the direct computation for
 % Known Data Regression (KDR) missing data imputation.
 %
-% omeda_vec = omeda(test,dummy,R) % minimum call
-% omeda_vec = omeda(test,dummy,R,Q) % complete call
+% omeda_vec = omeda(testcs,dummy,R) % minimum call
+% omeda_vec = omeda(testcs,dummy,R,Q) % complete call
 %
 %
 % INPUTS:
 %
-% test: (NxM) data set with the observations to be compared. These data 
-%   should be preprocessed in the same way than calibration data for R and 
-%   Q.
+% testcs: [NxM] preprocessed billinear data set with the observations to be 
+%   compared.
 %
-% dummy: (Nx1) dummy variable containing 1 for the observations in the
-%   first group for the comparison performed in oMEDA, -1 for the 
-%   observations in the second group, and 0 for the rest of observations.
+% dummy: [Nx1] dummy variable containing weights for the observations to 
+%   compare, and 0 for the rest of observations.
 %
-% R: (MxLVs) Matrix to perform the projection from the original to the  
-%   latent subspace. For PCA (test = T*P'), this is the matrix of loadings 
-%   P. For PLS (Y = test*W*inv(P'*W)*Q), this matrix is W*inv(P'*W).  
+% R: [MxA] Matrix to perform the projection from the original to the  
+%   latent subspace. For PCA (testcs = T*P'), this is the matrix of loadings 
+%   P. For PLS (Y = testcs*W*inv(P'*W)*Q), this matrix is W*inv(P'*W). For the 
+%   original space (default) the identity matrix is used.  
 %
-% Q: (MxLVs) Matrix to perform the projection from the latent subspace to 
-%   the original space. For PCA (test = T*P'), this is the matrix of 
-%   loadings P. For PLS (Y = test*W*inv(P'*W)*Q), this matrix is also P. 
-%   (Q=R by default)
+% Q: [MxA] Matrix to perform the projection from the latent subspace to 
+%   the original space. For PCA (testcs = T*P'), this is the matrix of 
+%   loadings P. For PLS (Y = testcs*W*inv(P'*W)*Q), this matrix is also P. 
+%   For the original space the identity matrix is used. Q=R is used by 
+%   default. 
 %
 %
 % OUTPUTS:
 %
-% omeda_vec: (Mx1) oMEDA vector.
+% omeda_vec: [Mx1] oMEDA vector.
+%
+%
+%
+% EXAMPLE OF USE: oMEDA on PCA, anomaly on first observation and first 2
+% variables.
+%
+% n_obs = 100;
+% n_vars = 10;
+% n_PCs = 10;
+% XX = randn(n_vars,n_vars).^19; 
+% X = real(ADICOV(n_obs*XX,randn(n_obs,n_vars),n_vars));
+% [Xcs, m, sc] = preprocess2D(X,2);
+% pcs = 1:n_PCs;
+% p = pca_pp(Xcs,pcs);
+%
+% n_obst = 10;
+% test = real(ADICOV(n_obst*XX,randn(n_obst,n_vars),n_vars));
+% test(1,1:2) = 10*max(abs(X(:,1:2))); 
+% dummy = zeros(10,1);
+% dummy(1) = 1;
+% testcs = preprocess2Dapp(test,m,sc);
+%
+% omeda_vec = omeda(testcs,dummy,p);
+%
+% plot_vec(omeda_vec);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% last modification: 29/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -56,12 +81,23 @@ function omeda_vec = omeda(test,dummy,R,Q)
 
 %% Parameters checking
 
-if nargin < 3, error('Error in the number of arguments.'); end;
-s = size(test);
-if ndims(dummy)==2 & find(size(dummy)==max(size(dummy)))==2, dummy = dummy'; end
-if size(R,2)<1 || size(R,1)~=s(2) || size(dummy,1)~=s(1), error('Error in the dimension of the arguments.'); end;
-if nargin < 4, Q = R; end;
-if size(R) ~= size(Q), error('Error in the dimension of the arguments.'); end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+N = size(testcs, 1);
+M = size(testcs, 2);
+A = size(R, 2);
+if nargin < 4 || isempty(Q), Q = R; end;
+
+% Convert row arrays to column arrays
+if size(dummy,1) == 1, dummy = dummy'; end;
+
+% Validate dimensions of input data
+assert (isequal(size(dummy), [N 1]), 'Dimension Error: 2nd argument must be 1-by-N. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(R), [M A]), 'Dimension Error: 3rd argument must be M-by-LVs. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(Q), [M A]), 'Dimension Error: 4th argument must be M-by-LVs. Type ''help %s'' for more info.', routine.name);
+
+
 
 %% Main code
 
@@ -70,10 +106,10 @@ dummy(ind) = dummy(ind)/max((dummy(ind)));
 ind=find(dummy<0);
 dummy(ind) = -dummy(ind)/min((dummy(ind)));
 
-xA = test*R*Q';
+xA = testcs*R*Q';
 sumA = xA'*dummy;
 
-omeda_vec = (2*(test'*dummy).*abs(sumA) - sumA.*abs(sumA))./sqrt(dummy'*dummy);
+omeda_vec = (2*(testcs'*dummy).*abs(sumA) - sumA.*abs(sumA))./sqrt(dummy'*dummy);
 
     
 

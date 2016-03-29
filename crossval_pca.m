@@ -31,7 +31,7 @@ function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,op
 %       2: auto-scaling (default)  
 %
 % opt: [1x1] options for data plotting
-%       0: no plots.
+%       0: no plots
 %       otherwise: line plot (default)
 %
 %

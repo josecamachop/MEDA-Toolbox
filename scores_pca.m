@@ -1,49 +1,67 @@
 
-function [T,TT] = scores_pca(cal,pcs,test,prep,opt,label,classes)
+function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes)
 
-% Compute and plot scores in PCA.
+% Compute and plot scores in PCA
 %
-% T = scores_pca(cal,pcs) % minimum call
-% [T,TT] = scores_pca(cal,pcs,test,prep,opt,label,classes) % complete call
+% T = scores_pca(x) % minimum call
+% [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes) % complete call
 %
 % INPUTS:
 %
-% cal: (LxM) billinear data set for model fitting.
+% x: [NxM] billinear data set for model fitting
 %
-% pcs: (1xA) Principal Components considered (e.g. pcs = 1:2 selects the
-%   first two PCs)
+% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+%   first two PCs). By default, pcs = 0:rank(xcs)
 %
-% test: (NxM) billinear data set for test. These data are preprocessed in
-%   the same way than calibration data.
+% test: [LxM] data set with the observations to be compared. These data 
+%   are preprocessed in the same way than calibration data
 %
-% prep: (1x1) preprocesing of the data
-%       0: no preprocessing.
-%       1: mean centering.
-%       2: autoscaling (default)
+% prep: [1x1] preprocesing of the data
+%       0: no preprocessing
+%       1: mean centering
+%       2: autoscaling (default) 
 %
-% opt: (1x1) options for data plotting.
-%       0: no plots.
-%       1: scatter score plot (default)
-%       2: scatter score plot with empty marks
+% opt: [1x1] options for data plotting
+%       0: no plots
+%       otherwise: scatter score plot (default)
 %
+% label: [Kx1] K=N+L, name of the observations (numbers are used by default)
 %
-% label: (Kx1, k=L+N) name of the observations (empty by default), use ' ' 
-%   or [] to avoid labels. Numbers (vectors with K elements) can also be used.
-%
-% classes: ((L+N)x1) vector with the assignment of the obsaervations to classes, 
-%   numbered from 1 onwards (1 class by default), eg. ones((L+N),1)
+% classes: [Kx1] K=N+L, groups for different visualization (a single group 
+%   by default per calibration and test)
 %
 %
 % OUTPUTS:
 %
-% T: (LxA) calibration scores.
+% T: [NxA] calibration scores
 %
-% TT: (NxA) test scores.
+% TT: [NxA] test scores
+%
+%
+% EXAMPLE OF USE: Random scores
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% T = scores_pca(X,1:3);
+%
+%
+% EXAMPLE OF USE: Calibration and Test, both line and scatter plots
+%
+% n_obs = 100;
+% n_vars = 10;
+% n_PCs = 10;
+% XX = randn(n_vars,n_vars).^19; 
+% X = real(ADICOV(n_obs*XX,randn(n_obs,n_vars),n_vars));
+%
+% n_obst = 10;
+% test = real(ADICOV(n_obst*XX,randn(n_obst,n_vars),n_vars));
+%
+% scores_pca(X,1,test);
+% scores_pca(X,1:2,test);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 17/Mar/2016.
+% last modification: 29/Mar/2016.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -63,53 +81,72 @@ function [T,TT] = scores_pca(cal,pcs,test,prep,opt,label,classes)
 
 %% Parameters checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-if nargin < 3, x = cal; test = []; else x = [cal;test]; end;
-s = size(x);
-if s(1) < 1 || s(2) < 1 || ndims(x)~=2, error('Error in the dimension of the arguments.'); end;
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+N = size(x, 1);
+M = size(x, 2);
+if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
+if nargin < 3, test = []; end;
+L = size(test, 1);
+K = N+L;
+if nargin < 4 || isempty(prep), prep = 2; end;
+if nargin < 5 || isempty(opt), opt = 1; end; 
+if nargin < 6 || isempty(label), label = [1:N 1:L]; end
+if nargin < 7 || isempty(classes), classes = [ones(N,1);2*ones(L,1)]; end
 
-[something, index] = unique(pcs, 'first');
-pcs = pcs(sort(index));
+% Convert row arrays to column arrays
+if size(label,1) == 1,     label = label'; end;
+if size(classes,1) == 1, classes = classes'; end;
 
-if nargin < 4, prep = 2; end;
-if nargin < 5, opt = 1; end;
+% Convert column arrays to row arrays
+if size(pcs,2) == 1, pcs = pcs'; end;
 
-if nargin < 6 || isempty(label) || isequal(label,' ')
-    label=[];  
+% Preprocessing
+pcs = unique(pcs);
+pcs(find(pcs==0)) = [];
+A = length(pcs);
+if isstruct(opt) % opt backward compatibility
+    opt = opt.plot + 10*opt.seriated + 100*opt.discard;
 end
-if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
-if isnumeric(label), label=num2str(label); end
-if size(label,1)~=s(1), error('Error in the dimension of the arguments.'); end;
 
-if nargin < 7 || isempty(classes)
-    classes = [];
-else
-    if ndims(classes)==2 & find(size(classes)==max(size(classes)))==2, classes = classes'; end
-    if size(classes,1)~=s(1), error('Error in the dimension of the arguments.'); end;
-end
+% Validate dimensions of input data
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 3rd argument must be L-by-M. Type ''help %s'' for more info.', routine.name); end
+assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(label), [K 1]), 'Dimension Error: 6th argument must be K-by-1. Type ''help %s'' for more info.', routine.name); 
+assert (isequal(size(classes), [K 1]), 'Dimension Error: 7th argument must be K-by-1. Type ''help %s'' for more info.', routine.name); 
+  
+% Validate values of input data
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
+
 
 %% Main code
 
-[calp,m,dt] = preprocess2D(cal,prep);
-[P,T] = pca_pp(calp,max(pcs));
+[xcs,m,sd] = preprocess2D(x,prep);
+[P,T] = pca_pp(xcs,pcs);
 
-if exist('test')&~isempty(test),
-    testp = (test - ones(size(test,1),1)*m)./(ones(size(test,1),1)*dt);
-    TT = testp*P;
+if ~isempty(test),
+    testcs = preprocess2Dapp(test,m,sd);
+    TT = testcs*P;
 else
     TT = [];
 end
 
+
+%% Show results
+
 if opt,
     T = [T;TT];
     if length(pcs) == 1,
-        plot_vec2(T(:,pcs), label, classes, sprintf('PC %d',pcs));
-        %plot_vec(T(:,pcs), label, sprintf('PC %d',pcs), [], 0, 'r');
-    end
-    for i=1:length(pcs)-1,
-        for j=i+1:length(pcs),
-            plot_scatter([T(:,pcs(i)),T(:,pcs(j))],label,classes,{sprintf('PC %d',pcs(i)),sprintf('PC %d',pcs(j))}',opt-1);
-        end      
+        plot_vec(T, label, classes, sprintf('PC %d',pcs));
+    else
+        for i=1:length(pcs)-1,
+            for j=i+1:length(pcs),
+                plot_scatter([T(:,pcs(i)),T(:,pcs(j))], label, classes, {sprintf('PC %d',pcs(i)),sprintf('PC %d',pcs(j))}');
+            end      
+        end
     end
 end
         
