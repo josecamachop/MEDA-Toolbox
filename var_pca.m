@@ -1,40 +1,47 @@
 
-function [x_var,cumpress] = var_pca(cal,maxpcs,prep,opt)
+function [x_var,cumpress] = var_pca(x,pcs,prep,opt)
 
 % Variability captured in terms of the number of PCs. It includes the ckf
 % algorithm.
 %
-% var_pca(cal,maxpcs) % minimum call
-% var_pca(cal,maxpcs,prep,opt) %complete call
+% var_pca(x,pcs) % minimum call
+% var_pca(x,pcs,prep,opt) %complete call
 %
 %
 % INPUTS:
 %
-% cal: (LxM) billinear data set
+% x: [NxM] billinear data set for model fitting
 %
-% maxpcs: (1x1) Principal Components considered (e.g. maxpcs = 2 selects the
-%   first two PCs)
+% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+%   first two PCs). By default, pcs = 0:rank(x)
 %
-% prep: (1x1) preprocesing 
-%       0: no preprocessing.
-%       1: mean centering.
-%       2: autoscaling (default)  
+% prep: [1x1] preprocesing
+%       0: no preprocessing 
+%       1: mean-centering 
+%       2: auto-scaling (default)  
 %
-% opt: (1x1) options for data plotting.
+% opt: [1x1] options for data plotting
 %       0: no plots.
-%       1: % Residual Variance in X 
-%       2: % Residual Variance in X and ckf (default)
+%       1: Residual Variance in X 
+%       otherwise: Residual Variance in X and ckf (default)
 %
 %
 % OUTPUTS:
 %
-% x_var: ((maxpcs+1)x1) Percentage of captured variance of X.
+% x_var: [Ax1] Percentage of captured variance of X.
 %
-% cumpress: ((maxpcs+1)x1) ckf curve.
+% cumpress: [Ax1] ckf curve.
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 28/Mar/16.
+% EXAMPLE OF USE: Random data
+%
+% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
+% pcs = 0:10;
+% x_var = var_pca(X,pcs);
+%
+%
+% codified by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 29/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -52,44 +59,61 @@ function [x_var,cumpress] = var_pca(cal,maxpcs,prep,opt)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Parameters checking
+%% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-s = size(cal);
-if s(1) < 1 || s(2) < 1 || ndims(cal)~=2, error('Error in the dimension of the arguments.'); end;
-if nargin < 3, prep = 2; end;
-if nargin < 4, opt = 2; end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+N = size(x, 1);
+M = size(x, 2);
+if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
+A = length(pcs);
+if nargin < 3 || isempty(prep), prep = 2; end;
+if nargin < 4 || isempty(opt), opt = 2; end;
 
-if opt >2 opt = 2; end;
+% Convert column arrays to row arrays
+if size(pcs,2) == 1, pcs = pcs'; end;
+
+% Validate dimensions of input data
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+
+% Preprocessing
+pcs = unique(pcs);
+
+% Validate values of input data
+assert (isempty(find(pcs<0)), 'Value Error: 2nd argument must not contain negative values. Type ''help %s'' for more info.', routine.name);
+assert (isequal(fix(pcs), pcs), 'Value Error: 2nd argumentmust contain integers. Type ''help %s'' for more info.', routine.name);
+
 
 %% Main code
 
-cal_prep = preprocess2D(cal,prep); 
+xcs = preprocess2D(x,prep); 
 
-[p,T] = pca_pp(cal_prep,1:maxpcs);
+[p,T] = pca_pp(xcs,pcs);
 
-totalVx = sum(sum(cal_prep.^2));
-x_var = ones(maxpcs+1,1);
-for i=1:maxpcs,
+totalVx = sum(sum(xcs.^2));
+x_var = ones(length(pcs),1);
+
+for i = pcs,
     x_var(i+1) = x_var(i+1) - sum(eig(T(:,1:i)'*T(:,1:i)))/totalVx;
 end
     
 if opt ==2,
 
-    cumpress = zeros(maxpcs+1,1);
-    press = zeros(maxpcs+1,s(2));
-
-    xcs = cal_prep;
+    cumpress = zeros(length(pcs),1);
+    press = zeros(length(pcs),M);
     
     if ~prep,
-        avs_prep=ones(s(1),1)*mean(xcs);
+        avs_prep=ones(N,1)*mean(xcs);
     else
-        avs_prep=zeros(s);
+        avs_prep=zeros(N,M);
     end
     
-    [p,t_est] = pca_pp(xcs,maxpcs);
+    [p,t_est] = pca_pp(xcs,pcs);
     
-    for i=0:maxpcs,
+    for i=pcs,
         
         if i > 0, % PCA Modelling
             
@@ -97,7 +121,7 @@ if opt ==2,
             srec = t_est(:,1:min(i,end))*p2';
             erec = xcs - srec;
             term3_p = erec;
-            term1_p = (xcs-avs_prep).*(ones(s(1),1)*(sum(p2.*p2,2))');
+            term1_p = (xcs-avs_prep).*(ones(N,1)*(sum(p2.*p2,2))');
             
         else % Modelling with the average
             term1_p = zeros(size(xcs));
@@ -116,10 +140,12 @@ end
     
 %% Show results
 
-if opt >= 1,
-    fig_h = plot_vec(x_var,num2str((0:maxpcs)')','% Residual Variance',[],1);
-    if opt == 2,
-        fig_h = plot_vec(cumpress/cumpress(1),num2str((0:maxpcs)')','% Residual Variance',[],1,'r--',fig_h,{'X','ckf'});
+if opt,
+    switch opt,
+        case 1
+            plot_vec(x_var,pcs,[],{'% Residual Variance','PCs'},[],1);
+        otherwise
+            plot_vec([x_var cumpress/cumpress(1)],pcs,[],{'% Residual Variance & ckf','PCs'},[],1);
     end
 end
 

@@ -15,7 +15,7 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label)
 % x: [NxM] billinear data set for model fitting
 %
 % pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
-%   first two PCs). By default, pcs = 0:rank(xcs)
+%   first two PCs). By default, pcs = 1:rank(xcs)
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -95,7 +95,7 @@ routine=dbstack;
 assert (nargin >= 4, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
 N = size(x, 1);
 M = size(x, 2);
-if isempty(pcs), pcs = 0:rank(x); end;
+if isempty(pcs), pcs = 1:rank(x); end;
 if isempty(test), test = x; end;
 L = size(test, 1);
 if isempty(dummy), dummyones(L,1); end;

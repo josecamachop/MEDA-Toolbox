@@ -14,7 +14,7 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 % x: [NxM] billinear data set 
 %
 % pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
-%   first two PCs). By default, pcs = 0:rank(xcs)
+%   first two PCs). By default, pcs = 1:rank(xcs)
 %
 % prep: [1x1] preprocesing of the data
 %       0: no preprocessing
@@ -81,7 +81,7 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
+if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
 if nargin < 3 || isempty(prep), prep = 2; end;
 if nargin < 4 || isempty(thres), thres = 0.1; end; 
 if nargin < 5 || isempty(opt), opt = '111'; end; 

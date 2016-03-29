@@ -13,7 +13,7 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes)
 % y: [NxO] billinear data set of predicted variables
 %
 % lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
-%   first two LVs). By default, lvs = 0:rank(x)
+%   first two LVs). By default, lvs = 1:rank(x)
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -95,7 +95,7 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+if nargin < 3 || isempty(lvs), lvs = 1:rank(x); end;
 if nargin < 4, test = []; end;
 L = size(test, 1);
 K = N+L;

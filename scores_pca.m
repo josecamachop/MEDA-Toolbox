@@ -11,7 +11,7 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes)
 % x: [NxM] billinear data set for model fitting
 %
 % pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
-%   first two PCs). By default, pcs = 0:rank(xcs)
+%   first two PCs). By default, pcs = 1:rank(xcs)
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -85,7 +85,7 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
+if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
 if nargin < 3, test = []; end;
 L = size(test, 1);
 K = N+L;

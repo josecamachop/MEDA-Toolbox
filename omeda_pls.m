@@ -17,7 +17,7 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 % y: [NxO] billinear data set of predicted variables
 %
 % lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
-%   first two LVs). By default, lvs = 0:rank(x)
+%   first two LVs). By default, lvs = 1:rank(x)
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -104,7 +104,7 @@ assert (nargin >= 5, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-if isempty(lvs), lvs = 0:rank(x); end;
+if isempty(lvs), lvs = 1:rank(x); end;
 if isempty(test), test = x; end;
 L = size(test, 1);
 if isempty(dummy), dummyones(L,1); end;

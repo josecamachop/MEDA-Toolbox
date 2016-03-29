@@ -11,7 +11,7 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes)
 % x: [NxM] billinear data set for model fitting
 %
 % pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
-%   first two PCs). By default, pcs = 0:rank(xcs)
+%   first two PCs). By default, pcs = 1:rank(xcs)
 %
 % prep: [1x1] preprocesing of the data
 %       0: no preprocessing
@@ -67,7 +67,7 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
+if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
 if nargin < 3 || isempty(prep), prep = 2; end;
 if nargin < 4 || isempty(opt), opt = 1; end; 
 if nargin < 5 || isempty(label), label = [1:M]; end
@@ -89,8 +89,8 @@ A = length(pcs);
 assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(label), [M 1]), 'Dimension Error: 5th argument must be K-by-1. Type ''help %s'' for more info.', routine.name); 
-assert (isequal(size(classes), [M 1]), 'Dimension Error: 6th argument must be K-by-1. Type ''help %s'' for more info.', routine.name); 
+assert (isequal(size(label), [M 1]), 'Dimension Error: 5th argument must be M-by-1. Type ''help %s'' for more info.', routine.name); 
+assert (isequal(size(classes), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine.name); 
   
 % Validate values of input data
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);

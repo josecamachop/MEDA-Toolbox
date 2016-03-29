@@ -16,7 +16,7 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 % y: [NxO] billinear data set of predicted variables
 %
 % lvs: [1xA] Latent Variables considered (e.g. pcs = 1:2 selects the
-%   first two LVs). By default, lvs = 0:rank(x)
+%   first two LVs). By default, lvs = 1:rank(x)
 %
 % prepx: [1x1] preprocesing of the x-block
 %       0: no preprocessing
@@ -93,7 +93,7 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+if nargin < 3 || isempty(lvs), lvs = 1:rank(x); end;
 if nargin < 4 || isempty(prepx), prepx = 2; end;
 if nargin < 5 || isempty(prepy), prepy = 2; end;
 if nargin < 6 || isempty(thres), thres = 0.1; end; 
