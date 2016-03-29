@@ -13,7 +13,7 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% lvs: [1xA] Latent Variables considered (e.g. pcs = 1:2 selects the
+% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
 % blocks_r: [1x1] maximum number of blocks of samples (N by default)

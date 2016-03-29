@@ -1,40 +1,49 @@
 
-function fig_h = plot_scatter(bdata,olabel,classes,axlabel,opt)
+function fig_h = plot_scatter(bdata,elabel,classes,yxlabel,opt,fig_h)
 
 % Scatter plot.
 %
-% plot_scatter(bdata) % minimum call
-% plot_scatter(bdata,olabel,classes,axlabel,opt) % complete call
+% fig_h = plot_scatter(bdata) % minimum call
+% fig_h = plot_scatter(bdata,elabel,classes,yxlabel,opt) % complete call
 %
 %
 % INPUTS:
 %
-% bdata: (Nx2) bidimensional data to plot. 
+% bdata: [Nx2] bidimensional data to plot. 
 %
-% olabel: {Nx1} name of the observations/variables
-%   Allowed cell array of strings, eg. {'first', 'second', 'third', ...}
-%   use [] to set the default, empty labels.
+% elabel: [Nx1] name of the elements (numbers are used by default)
 %
-% classes: (Nx1) vector with the assignment of the observations/variables to classes,
-%   Allowed numerical classes, eg. [1 1 2 2 2 3], 
-%   and cell array of strings, eg. {'blue','red','red','green','blue'}.
-%   use [] to set the default, a single class.
+% classes: [Nx1, str(N), {N}] groups for different visualization (a single 
+%   group by default)
 %
-% axlabel: {2x1} variable/statistic plotted (nothing by default)
+% yxlabel: {1 or 2} ylabel and xlabel. If only one label is specified, it 
+%   is understood as the ylabel (nothing by default)
 %
-% opt: (1x1) options for data plotting.
+% opt: [1x1] options for data plotting
 %       0: filled marks (by default)
 %       1: empty marks
+%
+% fig_h: [1x1] figure handle to plot on
 %
 %
 % OUTPUTS:
 %
-% fig_h: (1x1) figure handle.
+% fig_h: (1x1) figure handle
+%
+%
+% EXAMPLE OF USE: Plot random data with empty marks:
+%
+% fig_h = plot_scatter(randn(100,2),[],[],{'Y','X'},1);
+%
+%
+% EXAMPLE OF USE: with labels and classes in elements:
+%
+% fig_h = plot_scatter(randn(5,2),{'one','two','three','four','five'},[1 1 1 2 2],{'Y','X'});
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 25/Jan/15.
+% last modification: 29/Mar/2016.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -53,38 +62,53 @@ function fig_h = plot_scatter(bdata,olabel,classes,axlabel,opt)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %% Parameters checking
-assert (nargin >= 1, 'Error: Missing arguments.');
-N = size(bdata, 1);
-if nargin < 2 || isempty(olabel)
-    olabel = repmat({''}, N, 1);
-end
-if nargin < 3 || isempty(classes)
-    classes = ones(N, 1);
-end
-if nargin < 4 || isempty(axlabel)
-    axlabel = {'Dim 1';'Dim 2'};
-end
-if nargin < 5, opt = 0; end;
 
-% Convert char arrays to cell
-if ischar(olabel),  olabel = cellstr(olabel); end;
-if ischar(classes), classes = cellstr(classes); end;
-if ischar(axlabel), axlabel = cellstr(axlabel); end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+N = size(bdata, 1);
+if nargin < 2 || isempty(elabel), elabel = 1:N; end;
+if nargin < 3 || isempty(classes), classes = []; end;
+if nargin < 4 || isempty(yxlabel), yxlabel = ''; end;
+if nargin < 5 || isempty(opt),  opt = 0; end;
+if nargin < 6 || isempty(fig_h),  fig_h = []; end;
 
 % Convert row arrays to column arrays
-if size(olabel,1)  == 1, olabel = olabel'; end;
+if size(elabel,1)  == 1, elabel = elabel'; end;
 if size(classes,1) == 1, classes = classes'; end;
-if size(axlabel,1) == 1, axlabel = axlabel'; end;
+
+% Convert int arrays to str
+if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
+
+% Convert char arrays to cell
+if ischar(elabel),  elabel = cellstr(elabel); end;
+if ischar(classes), classes = cellstr(classes); end;
+if ischar(yxlabel),  yxlabel = cellstr(yxlabel); end;
 
 % Validate dimensions of input data
-assert (size(bdata,2) == 2, 'Dimension Error: bdata must be n-by-2.')
-assert (isequal(size(olabel), [N 1]), 'Dimension Error: label must be n-by-1.');
-assert (isequal(size(classes), [N 1]), 'Dimension Error: classes must be n-by-1.')
-assert (isequal(size(axlabel), [2 1]), 'Dimension Error: axlabel must be 2-by-1.')
+if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine.name); end;
+if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine.name); end;
+if ~isempty(yxlabel), assert (length(yxlabel) <= 2, 'Dimension Error: 4th argument must contain 2 cell elements at most. Type ''help %s'' for more info.', routine.name); end;
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+    
 
 %% Main code
-fig_h = figure;
+
+% Create or set figure window
+if isempty(fig_h),
+    fig_h = figure;
+else
+    figure(fig_h);
+end
 hold on;
+
+% Preprocess classes to force them start with 1, 2...n,
+unique_classes = unique(classes);
+if iscell(classes)
+    classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
+else
+    classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
+end
 
 % Plot points
 a = gscatter(bdata(:,1), bdata(:,2), classes, [], 'o');
@@ -98,11 +122,26 @@ if opt == 0
 end
 
 % Plot labels
-text(bdata(:,1), bdata(:,2), olabel(:,1), 'VerticalAlignment','bottom', 'HorizontalAlignment','left');
+ax = axis;
+f = 5;
+deltax = (ax(2)-ax(1))/100;
+deltay = (ax(4)-ax(3))/100;
+if ~isempty(elabel)
+    for i=1:N
+        nch = length(char(strtrim(elabel(i,1))));
+        if length(find((bdata(:,1)>bdata(i,1)) & (bdata(:,1)<bdata(i,1)+deltax*nch*f) & (bdata(:,2)<bdata(i,2)+deltay*f) & (bdata(:,2)>bdata(i,2)-deltay*f)))<1,
+            text(bdata(i,1)+deltax, bdata(i,2)+deltay, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
+        end
+    end
+end
 
 % Set axis labels
-xlabel(axlabel(1), 'FontSize', 16);
-ylabel(axlabel(2), 'FontSize', 16);
+if ~isempty(yxlabel)
+    ylabel(yxlabel{1}, 'FontSize', 16);
+    if length(yxlabel)>1,
+        xlabel(yxlabel{2}, 'FontSize', 16);
+    end
+end
 
 % Plot origin lines
 ax = axis;
@@ -112,4 +151,5 @@ axis(ax)
 
 legend off
 box on
+hold off
 

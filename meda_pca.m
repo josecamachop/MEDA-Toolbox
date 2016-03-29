@@ -17,8 +17,8 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %   first two PCs). By default, pcs = 0:rank(xcs)
 %
 % prep: [1x1] preprocesing of the data
-%       0: no preprocessing.
-%       1: mean centering.
+%       0: no preprocessing
+%       1: mean centering
 %       2: autoscaling (default)  
 %
 % thres: [1x1] threshold (0,1] for discretization and discarding (0.1 by default)
@@ -56,7 +56,7 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16
+% last modification: 29/Mar/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -104,7 +104,7 @@ if isstruct(opt) % opt backward compatibility
 end
 
 % Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
+if isnumeric(opt), opt=fliplr(num2str(opt,'%.3d')); end
 
 % Validate dimensions of input data
 assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
