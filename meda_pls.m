@@ -64,7 +64,7 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16
+% last modification: 28/Mar/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -129,8 +129,8 @@ assert (isequal(size(label), [M 1]), 'Dimension Error: 8th argument must be M-by
 assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 9th argument must be at most M-by-1. Type ''help %s'' for more info.', routine.name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
-assert (isempty(find(lvs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(lvs>rank(x))), 'Value Error: 3rd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
 assert (thres>0 && thres<=1, 'Value Error: 6th argument must be in (0,1]. Type ''help %s'' for more info.', routine.name);
 assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: 9th argument must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine.name);
 
