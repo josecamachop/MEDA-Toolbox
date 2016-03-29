@@ -8,18 +8,28 @@ function lim = spe_lim(res,p_value)
 %
 % INPUTS:
 %
-% res: (NxM) Two-way residuals data matrix, N(observations) x M(variables)
+% res: [NxM] Two-way residuals data matrix)
 %
-% p_value: (1x1) p-value of the test.
+% p_value: [1x1] p-value of the test, in (0,1]
 %
 %
 % OUTPUTS:
 %
-% lim: (1x1) control limit at a 1-p_value confidence level.
+% lim: [1x1] control limit at a 1-p_value confidence level.
+%
+%
+% EXAMPLE OF USE: For 2 PCs, 100 observations, the 99% confidence limit:
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% Xcs = preprocess2D(X,2);
+% pcs = 1:2;
+% [p,t] = pca_pp(Xcs,pcs);
+% res = Xcs - t*p'; 
+% lim = spe_lim(res,0.01)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 08/Sep/14.
+% last modification: 29/Mar/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -37,19 +47,25 @@ function lim = spe_lim(res,p_value)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Parameters checking
+%% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-if ndims(res)~=2, error('Incorrect number of dimensions of res.'); end;
-s = size(res);
-if find(s<1), error('Incorrect content of res.'); end;
-if (p_value<0||p_value>1), error('Incorrect value of p_value.'); end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+N = size(res, 1);
 
-% Computation
+% Validate dimensions of input data
+assert (isequal(size(p_value), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+
+% Validate values of input data
+assert (p_value>=0 && p_value<1, 'Value Error: 2nd argument must be in (0,1]. Type ''help %s'' for more info.', routine.name);
+
+
+%% Main code
 
 pcs_left = rank(res);
 
-lambda = eig(1/(s(1)-1)*res'*res);
+lambda = eig(1/(N-1)*res'*res);
 [kk,ord]=sort(abs(lambda),'descend');
 lambda = lambda(ord);
 

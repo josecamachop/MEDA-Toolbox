@@ -9,9 +9,9 @@ function lim = hot_lim(npc,nob,p_value,phase)
 %
 % INPUTS:
 %
-% npc: [1x1] Number of PCs.
+% npc: [1x1] Number of PCs
 %
-% nob: [1x1] Number of observations.
+% nob: [1x1] Number of observations
 %
 % p_value: [1x1] p-value of the test, in (0,1]
 %
@@ -32,10 +32,10 @@ function lim = hot_lim(npc,nob,p_value,phase)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16.
+% last modification: 23/Mar/16
 %
-% Copyright (C) 2015  University of Granada, Granada
-% Copyright (C) 2015  Jose Camacho Paez
+% Copyright (C) 2014  University of Granada, Granada
+% Copyright (C) 2014  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
