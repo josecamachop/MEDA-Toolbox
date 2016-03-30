@@ -147,7 +147,7 @@ else
     color_list = hsv(M);
     for i=1:M,
         if opt,
-            plot(vec(:,i), 'Color', color_list(i,:), 'DisplayName', vlabel{i});
+            plot(vec(:,i), 'LineWidth', 2, 'Color', color_list(i,:), 'DisplayName', vlabel{i});
         else
             bar(vec(:,i), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
         end

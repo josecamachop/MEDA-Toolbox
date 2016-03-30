@@ -146,6 +146,7 @@ if opt,
             plot_vec(x_var,pcs,[],{'% Residual Variance','PCs'},[],1);
         otherwise
             plot_vec([x_var cumpress/cumpress(1)],pcs,[],{'% Residual Variance','PCs'},[],1,{'X','ckf'});
+            legend('show');
     end
 end
 
