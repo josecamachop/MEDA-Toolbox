@@ -1,10 +1,10 @@
 
-function fig_h = plot_scatter(bdata,elabel,classes,yxlabel,opt,fig_h)
+function fig_h = plot_scatter(bdata,elabel,classes,yxlabel,lcont,opt)
 
 % Scatter plot.
 %
 % fig_h = plot_scatter(bdata) % minimum call
-% fig_h = plot_scatter(bdata,elabel,classes,yxlabel,opt) % complete call
+% fig_h = plot_scatter(bdata,elabel,classes,yxlabel,lcont,opt) % complete call
 %
 %
 % INPUTS:
@@ -23,6 +23,8 @@ function fig_h = plot_scatter(bdata,elabel,classes,yxlabel,opt,fig_h)
 %       0: filled marks (by default)
 %       1: empty marks
 %
+% lcont: {2} control limits on x and y axis (nothing by default)
+%
 % fig_h: [1x1] figure handle to plot on
 %
 %
@@ -31,9 +33,9 @@ function fig_h = plot_scatter(bdata,elabel,classes,yxlabel,opt,fig_h)
 % fig_h: (1x1) figure handle
 %
 %
-% EXAMPLE OF USE: Plot random data with empty marks:
+% EXAMPLE OF USE: Plot random data with empty marks and control limits:
 %
-% fig_h = plot_scatter(randn(100,2),[],[],{'Y','X'},1);
+% fig_h = plot_scatter(rand(100,2),[],[],{'Y','X'},{0.8,0.8},1);
 %
 %
 % EXAMPLE OF USE: with labels and classes in elements:
@@ -43,7 +45,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,yxlabel,opt,fig_h)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 29/Mar/2016.
+% last modification: 30/Mar/2016.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -70,12 +72,13 @@ N = size(bdata, 1);
 if nargin < 2 || isempty(elabel), elabel = 1:N; end;
 if nargin < 3 || isempty(classes), classes = []; end;
 if nargin < 4 || isempty(yxlabel), yxlabel = ''; end;
-if nargin < 5 || isempty(opt),  opt = 0; end;
-if nargin < 6 || isempty(fig_h),  fig_h = []; end;
+if nargin < 5 || isempty(lcont),  lcont = []; end;
+if nargin < 6 || isempty(opt),  opt = 0; end;
 
 % Convert row arrays to column arrays
 if size(elabel,1)  == 1, elabel = elabel'; end;
 if size(classes,1) == 1, classes = classes'; end;
+if size(lcont,1) == 1, lcont = lcont'; end;
 
 % Convert int arrays to str
 if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
@@ -89,17 +92,14 @@ if ischar(yxlabel),  yxlabel = cellstr(yxlabel); end;
 if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine.name); end;
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine.name); end;
 if ~isempty(yxlabel), assert (length(yxlabel) <= 2, 'Dimension Error: 4th argument must contain 2 cell elements at most. Type ''help %s'' for more info.', routine.name); end;
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+if ~isempty(lcont), assert (iscell(lcont) & isequal(size(lcont), [2 1]), 'Dimension Error: 5th argument must be a cell of 2 elements. Type ''help %s'' for more info.', routine.name); end;
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
     
 
 %% Main code
 
-% Create or set figure window
-if isempty(fig_h),
-    fig_h = figure;
-else
-    figure(fig_h);
-end
+% Create figure window
+fig_h = figure;
 hold on;
 
 % Preprocess classes to force them start with 1, 2...n,
@@ -135,6 +135,24 @@ if ~isempty(elabel)
     end
 end
 
+ax = axis;
+if ~isempty(lcont) % Plot control limits
+    if ~isempty(lcont{1})
+        for i=1:length(lcont{1}),
+            plot([lcont{1}(i) lcont{1}(i)], ax(3:4), 'r--','LineWidth',2, 'HandleVisibility', 'off');
+        end
+    end
+    if ~isempty(lcont{2})
+        for i=1:length(lcont{2}),
+            plot(ax(1:2),[lcont{2}(i) lcont{2}(i)], 'r--','LineWidth',2, 'HandleVisibility', 'off');
+        end
+    end    
+else % Plot origin lines
+    plot([0 0], ax(3:4), 'k--', 'HandleVisibility', 'off');
+    plot(ax(1:2), [0 0], 'k--', 'HandleVisibility', 'off');
+end    
+axis(ax)
+
 % Set axis labels
 if ~isempty(yxlabel)
     ylabel(yxlabel{1}, 'FontSize', 16);
@@ -143,11 +161,7 @@ if ~isempty(yxlabel)
     end
 end
 
-% Plot origin lines
-ax = axis;
-plot([0 0], ax(3:4), 'k--', 'HandleVisibility', 'off');
-plot(ax(1:2), [0 0], 'k--', 'HandleVisibility', 'off');
-axis(ax)
+
 
 legend off
 box on

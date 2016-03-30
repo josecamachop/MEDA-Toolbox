@@ -1,10 +1,10 @@
 
-function fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,fig_h)
+function fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,vlabel)
 
 % Bar plot.
 %
 % fig_h = plot_vec(vec) % minimum call
-% fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,fig_h) % complete call
+% fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,vlabel) % complete call
 %
 %
 % INPUTS:
@@ -25,7 +25,7 @@ function fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,fig_h)
 %       0: bar plot (by default)
 %       otherwise: line plot
 %
-% fig_h: [1x1] figure handle to plot on
+% vlabel: [Mx1] name of the vectors (numbers are used by default)
 %
 %
 % OUTPUTS:
@@ -45,7 +45,7 @@ function fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,fig_h)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 23/Mar/2016.
+% last modification: 30/Mar/2016.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -69,27 +69,31 @@ function fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,fig_h)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+if size(vec,1) == 1,     vec = vec'; end;
 N = size(vec, 1);
+M = size(vec, 2);
 if nargin < 2 || isempty(elabel), elabel = 1:N; end;
 if nargin < 3 || isempty(classes), classes = []; end;
 if nargin < 4 || isempty(yxlabel), yxlabel = ''; end;
 if nargin < 5 || isempty(lcont),  lcont = []; end;
 if nargin < 6 || isempty(opt),  opt = 0; end;
-if nargin < 7 || isempty(fig_h),  fig_h = []; end;
+if nargin < 7 || isempty(vlabel),  vlabel = 1:M; end;
 
 % Convert row arrays to column arrays
-if size(vec,1) == 1,     vec = vec'; end;
 if size(elabel,1)  == 1, elabel = elabel'; end;
 if size(classes,1) == 1, classes = classes'; end;
 if size(lcont,1) == 1, lcont = lcont'; end;
+if size(vlabel,1)  == 1, vlabel = vlabel'; end;
 
 % Convert int arrays to str
 if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
+if ~isempty(vlabel) && isnumeric(vlabel), vlabel=num2str(vlabel); end
 
 % Convert char arrays to cell
 if ischar(elabel),  elabel = cellstr(elabel); end;
 if ischar(classes), classes = cellstr(classes); end;
 if ischar(yxlabel),  yxlabel = cellstr(yxlabel); end;
+if ischar(vlabel),  vlabel = cellstr(vlabel); end;
 
 % Validate dimensions of input data
 if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine.name); end;
@@ -97,6 +101,7 @@ if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3
 if ~isempty(yxlabel), assert (length(yxlabel) <= 2, 'Dimension Error: 4th argument must contain 2 cell elements at most. Type ''help %s'' for more info.', routine.name); end;
 if ~isempty(lcont), assert (isequal(size(lcont,1), N) | isequal(size(lcont,2), 1), 'Dimension Error: 5th argument must be N-by-L or L-by-1. Type ''help %s'' for more info.', routine.name); end;
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine.name); end;
     
 % Convert constant limits in vectors
 if ~isempty(lcont) && ~isequal(size(lcont,1), N), lcont = (lcont*ones(1,N))'; end;
@@ -110,12 +115,8 @@ end;
 
 %% Main code
 
-% Create or set figure window
-if isempty(fig_h),
-    fig_h = figure;
-else
-    figure(fig_h);
-end
+% Create figure window
+fig_h = figure;
 hold on;
 
 % Preprocess classes to force them start with 1, 2...n,
@@ -143,10 +144,13 @@ if ~isempty(classes)
         end
     end
 else
-    if opt,
-        plot(vec,'HandleVisibility', 'off');
-    else
-        bar(vec,'HandleVisibility', 'off');
+    color_list = hsv(M);
+    for i=1:M,
+        if opt,
+            plot(vec(:,i), 'Color', color_list(i,:), 'DisplayName', vlabel{i});
+        else
+            bar(vec(:,i), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
+        end
     end
 end
 
@@ -187,6 +191,8 @@ axis auto
 ax2 = axis;
 axis([ax(1:2) ax2(3:4)])
 
+legend off
+box on
 hold off
 
        
