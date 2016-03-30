@@ -91,7 +91,7 @@ assert (isequal(fix(pcs), pcs), 'Value Error: 2nd argumentmust contain integers.
 
 xcs = preprocess2D(x,prep); 
 
-[p,T] = pca_pp(xcs,1:max(pcs));
+[P,T] = pca_pp(xcs,1:max(pcs));
 
 totalVx = sum(sum(xcs.^2));
 x_var = ones(length(pcs),1);
@@ -100,43 +100,10 @@ for i = 1:length(pcs),
     x_var(i) = x_var(i) - sum(eig(T(:,1:pcs(i))'*T(:,1:pcs(i))))/totalVx;
 end
     
-if opt ==2,
-
-    cumpress = zeros(length(pcs),1);
-    press = zeros(length(pcs),M);
-    
-    if ~prep,
-        avs_prep=ones(N,1)*mean(xcs);
-    else
-        avs_prep=zeros(N,M);
-    end
-    
-    [p,t_est] = pca_pp(xcs,1:max(pcs));
-    
-    for i=1:length(pcs),
-        
-        if i > 0, % PCA Modelling
-            
-            p2 = p(:,1:min(pcs(i),end));
-            srec = t_est(:,1:min(pcs(i),end))*p2';
-            erec = xcs - srec;
-            term3_p = erec;
-            term1_p = (xcs-avs_prep).*(ones(N,1)*(sum(p2.*p2,2))');
-            
-        else % Modelling with the average
-            term1_p = zeros(size(xcs));
-            term3_p = xcs;
-        end
-        
-        term1 = sum(term1_p.^2,1);
-        term2 = sum(2*term1_p.*term3_p,1);
-        term3 = sum(term3_p.^2,1);
-        
-        press(i,:) = sum([term1;term2;term3]);
-        
-        cumpress(i) = sum(press(i,:));
-    end
+if nargout>1 | (opt~=0 & opt~=1),
+    cumpress = ckf(xcs,T(:,pcs(2:end)),P(:,pcs(2:end)),0);
 end
+
     
 %% Show results
 

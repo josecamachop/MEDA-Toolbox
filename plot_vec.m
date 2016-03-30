@@ -172,11 +172,14 @@ if length(axes_h)>1, axes_h = axes_h(1); end;
 label_size = max(min(14,round(300/length(elabel))), 9);
 set(axes_h, 'FontSize', label_size);
 if ~isempty(elabel)
-    set(axes_h,'XTick',1:N);
+    stepN = round(N/10);
+    vals = fliplr(N:-stepN:1);
+    set(axes_h,'XTick',vals);
     label_length = max(cellfun('length', elabel));
     
-    set(axes_h,'XTickLabel',elabel);
+    set(axes_h,'XTickLabel',elabel(vals));
 end
+
 if ~isempty(yxlabel)
     ylabel(yxlabel{1}, 'FontSize', 16);
     if length(yxlabel)>1,

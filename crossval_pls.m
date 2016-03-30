@@ -49,7 +49,7 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16.
+% last modification: 30/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
