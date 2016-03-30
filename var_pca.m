@@ -80,7 +80,7 @@ assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
 
 % Preprocessing
-pcs = unique(pcs);
+pcs = unique([0 pcs]);
 
 % Validate values of input data
 assert (isempty(find(pcs<0)), 'Value Error: 2nd argument must not contain negative values. Type ''help %s'' for more info.', routine.name);
@@ -91,13 +91,13 @@ assert (isequal(fix(pcs), pcs), 'Value Error: 2nd argumentmust contain integers.
 
 xcs = preprocess2D(x,prep); 
 
-[p,T] = pca_pp(xcs,pcs);
+[p,T] = pca_pp(xcs,1:max(pcs));
 
 totalVx = sum(sum(xcs.^2));
 x_var = ones(length(pcs),1);
 
-for i = pcs,
-    x_var(i+1) = x_var(i+1) - sum(eig(T(:,1:i)'*T(:,1:i)))/totalVx;
+for i = 1:length(pcs),
+    x_var(i) = x_var(i) - sum(eig(T(:,1:pcs(i))'*T(:,1:pcs(i))))/totalVx;
 end
     
 if opt ==2,
@@ -111,14 +111,14 @@ if opt ==2,
         avs_prep=zeros(N,M);
     end
     
-    [p,t_est] = pca_pp(xcs,pcs);
+    [p,t_est] = pca_pp(xcs,1:max(pcs));
     
-    for i=pcs,
+    for i=1:length(pcs),
         
         if i > 0, % PCA Modelling
             
-            p2 = p(:,1:min(i,end));
-            srec = t_est(:,1:min(i,end))*p2';
+            p2 = p(:,1:min(pcs(i),end));
+            srec = t_est(:,1:min(pcs(i),end))*p2';
             erec = xcs - srec;
             term3_p = erec;
             term1_p = (xcs-avs_prep).*(ones(N,1)*(sum(p2.*p2,2))');
@@ -132,9 +132,9 @@ if opt ==2,
         term2 = sum(2*term1_p.*term3_p,1);
         term3 = sum(term3_p.^2,1);
         
-        press(i+1,:) = sum([term1;term2;term3]);
+        press(i,:) = sum([term1;term2;term3]);
         
-        cumpress(i+1) = sum(press(i+1,:));
+        cumpress(i) = sum(press(i,:));
     end
 end
     
