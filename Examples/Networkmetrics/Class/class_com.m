@@ -41,18 +41,18 @@ load data_proc
 
 %% Step 1: Selection of the LVs
 
-var_pca(cal,max_PCs,prep_x); % 2 PCs seem to be adequate
+var_pca(cal,1:max_PCs,prep_x); % 2 PCs seem to be adequate
 
 
 %% Step 2: observations distribution and relationships 
 %   scores and residuals, outliers detection
 
 scores_pca(cal,1:2,[],prep_x,1); 
-% there are two directions of variability, and observations 2, 9 and 10
+% there are two directions of variability, and observations 2, 9, 10 and 35
 % should be studied with more detail
 
-sqresiduals_pca(cal,1:2,[],prep_x,1); 
-% check 5 and 2 with more detail
+mspc_pca(cal,1:2,[],prep_x,1); 
+% check also 5
 
 
 %% Step 3: variables distribution and relationships  
@@ -64,7 +64,7 @@ loadings_pca(cal,1:2,prep_x,1,lab);
 % GR2: C.ifOut9, A.ifOut8, C.ifIn1, C.ifIn9, A.ifIn8, C.ifOut1, A.ifIn14, 
 %    A.ifOut14:  traffic between Px/1 <=> SWx-A
 
-meda_pca(cal,1:2,prep_x,0.5,3,lab);
+meda_pca(cal,1:2,prep_x,0.5,11,lab);
 % the same two groups are found (zoom to see the labels properly)
 
 sqresiduals_pca(cal,1:2,[],prep_x,2,lab); 

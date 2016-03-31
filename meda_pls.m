@@ -167,7 +167,7 @@ if opt(1) == '1',
     if opt(2) == '1',
         ord2 = ord;
     else
-        ord2 = 1:s(2);
+        ord2 = 1:M;
     end
     
     map = map(ord2,ord2);
@@ -177,7 +177,7 @@ if opt(1) == '1',
         Dmap = diag(map);
         ind = find(Dmap > thres);
     else
-        ind = 1:s(2);
+        ind = 1:M;
     end
     
     map = map(ind,ind);
