@@ -1,10 +1,10 @@
 
-function fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,vlabel)
+function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel)
 
 % Bar plot.
 %
 % fig_h = plot_vec(vec) % minimum call
-% fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,vlabel) % complete call
+% fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel) % complete call
 %
 %
 % INPUTS:
@@ -16,8 +16,7 @@ function fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,vlabel)
 % classes: [Nx1, str(N), {N}] groups for different visualization (a single 
 %   group by default)
 %
-% yxlabel: {1 or 2} ylabel and xlabel. If only one label is specified, it 
-%   is understood as the ylabel (nothing by default)
+% xylabel: {2} xlabel and ylabel (nothing by default)
 %
 % lcont: [NxL or Lx1] L control limits (nothing by default)
 %
@@ -40,7 +39,7 @@ function fig_h = plot_vec(vec,elabel,classes,yxlabel,lcont,opt,vlabel)
 %
 % EXAMPLE OF USE: with labels and classes in observations and variable limit:
 %
-% fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{'Functions'},randn(5,1));
+% fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{[],'Functions'},randn(5,1));
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -74,7 +73,7 @@ N = size(vec, 1);
 M = size(vec, 2);
 if nargin < 2 || isempty(elabel), elabel = 1:N; end;
 if nargin < 3 || isempty(classes), classes = []; end;
-if nargin < 4 || isempty(yxlabel), yxlabel = ''; end;
+if nargin < 4 || isempty(xylabel), xylabel = ''; end;
 if nargin < 5 || isempty(lcont),  lcont = []; end;
 if nargin < 6 || isempty(opt),  opt = 0; end;
 if nargin < 7 || isempty(vlabel),  vlabel = 1:M; end;
@@ -92,13 +91,13 @@ if ~isempty(vlabel) && isnumeric(vlabel), vlabel=num2str(vlabel); end
 % Convert char arrays to cell
 if ischar(elabel),  elabel = cellstr(elabel); end;
 if ischar(classes), classes = cellstr(classes); end;
-if ischar(yxlabel),  yxlabel = cellstr(yxlabel); end;
+if ischar(xylabel),  xylabel = cellstr(xylabel); end;
 if ischar(vlabel),  vlabel = cellstr(vlabel); end;
 
 % Validate dimensions of input data
 if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine.name); end;
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine.name); end;
-if ~isempty(yxlabel), assert (length(yxlabel) <= 2, 'Dimension Error: 4th argument must contain 2 cell elements at most. Type ''help %s'' for more info.', routine.name); end;
+if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine.name); end;
 if ~isempty(lcont), assert (isequal(size(lcont,1), N) | isequal(size(lcont,2), 1), 'Dimension Error: 5th argument must be N-by-L or L-by-1. Type ''help %s'' for more info.', routine.name); end;
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
 if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine.name); end;
@@ -180,11 +179,9 @@ if ~isempty(elabel)
     set(axes_h,'XTickLabel',elabel(vals));
 end
 
-if ~isempty(yxlabel)
-    ylabel(yxlabel{1}, 'FontSize', 16);
-    if length(yxlabel)>1,
-        xlabel(yxlabel{2}, 'FontSize', 16);
-    end
+if ~isempty(xylabel)
+    xlabel(xylabel{1}, 'FontSize', 16);
+    ylabel(xylabel{2}, 'FontSize', 16);
 end
 
 % Set axis

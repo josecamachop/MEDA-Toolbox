@@ -23,7 +23,8 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes)
 %
 % opt: [1x1] options for data plotting
 %       0: no plots
-%       otherwise: score plot (default)
+%       1: scatter plot of pairs of PCs (default)
+%       otherwise: bar plot of each single PC
 %
 % label: [Kx1] K=N+L, name of the observations (numbers are used by default)
 %
@@ -60,7 +61,7 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 29/Mar/2016
+% last modification: 31/Mar/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -136,8 +137,10 @@ end
 
 if opt,
     Tt = [T;TT];
-    if length(pcs) == 1,
-        plot_vec(Tt, label, classes, sprintf('Scores PC %d',pcs));
+    if length(pcs) == 1 | opt ~=1,
+        for i=1:length(pcs),
+            plot_vec(Tt(:,pcs(i)), label, classes, sprintf('Scores PC %d',pcs(i)));
+        end
     else
         for i=1:length(pcs)-1,
             for j=i+1:length(pcs),

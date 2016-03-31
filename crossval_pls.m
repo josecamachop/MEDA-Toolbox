@@ -138,7 +138,7 @@ for i=1:blocks_r,
         scs_y(j,:) = (sample_y(j,:)-av_y)./st_y;
     end
     
-    [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,max(lvs));
+    [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,1:max(lvs));
     
     for lv=lvs,
     

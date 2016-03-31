@@ -42,7 +42,7 @@ xn = x(:,1:end-1);
 
 %% Step 1: Selection of the LVs
 
-var_pls(xn,y,max_LVs,prep_x,prep_y); % 3 or 6 LVs
+var_pls(xn,y,0:max_LVs,prep_x,prep_y); % 3 or 6 LVs
 
 cumpress=crossval_pls(xn,y,0:10); % LVs 2 and 3 are not predictive 
 
@@ -56,30 +56,28 @@ T = scores_pls(xn,y,1:5,[],prep_x,prep_y,1,Obs);
 % which should be studied with more detail. Also, N31(16) is an outlier in
 % LV2 vs LV3, and M6(18) in LV4.
 
-leverage_pls(xn,y,1:5,[],prep_x,prep_y,1); 
-% M6(18) is the clearest outlier. 
-
-sqresiduals_pls(xn,y,1:5,[],prep_x,prep_y,1); 
-% No high residual are found. 
+mspc_pls(xn,y,1:5,[],prep_x,prep_y,2,[],[],[],[]); 
+% M6(18) is the clearest outlier in the D-st 
+% No high residual (Q-st) are found. 
 
 %% Step 3: investigate differences between observations
 %   apply oMEDA to outliers found
 
 dummy=-ones(31,1);
 dummy([1,3,5,6])=1;
-omeda_pls(xn,y,1,xn,dummy,prep_x,prep_y,3);
+omeda_pls(xn,y,1,xn,dummy,prep_x,prep_y,111);
 % the abnormal observations present a generalized higher magnitude value
 % than common observations (in both positive and negative directions)
 
 dummy=-ones(31,1);
 dummy(16)=1;
-omeda_pls(xn,y,2:3,xn,dummy,prep_x,prep_y,3);
+omeda_pls(xn,y,2:3,xn,dummy,prep_x,prep_y,111);
 % The deviation of N31(16) is mainly related to an anomalous low value of 
 % ATCH8  
 
 dummy=-ones(31,1);
 dummy(18)=1;
-omeda_pls(xn,y,4,xn,dummy,prep_x,prep_y,3);
+omeda_pls(xn,y,4,xn,dummy,prep_x,prep_y,111);
 % the anomalour residual in M6(18) is related to a generalized low value in
 % most of NSDL variables
 

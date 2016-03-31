@@ -102,7 +102,7 @@ assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argumentmust contain integers.
 xcs = preprocess2D(x,prepx); 
 ycs = preprocess2D(y,prepy); 
 
-[beta,W,P,Q,R] = kernel_pls(xcs'*xcs,xcs'*ycs,1:lvs);
+[beta,W,P,Q,R] = kernel_pls(xcs'*xcs,xcs'*ycs,1:max(lvs));
 
 totalVt = sum(sum(xcs.^2));
 t_var = ones(length(lvs),1);

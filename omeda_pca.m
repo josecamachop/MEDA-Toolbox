@@ -167,7 +167,7 @@ if opt(1) == '1',
         end
     end
     
-    plot_vec(vec,label,[],'d^2_A',[limp -limp]);
+    plot_vec(vec,label,[],{[],'d^2_A'},[limp -limp]);
     
 end
 

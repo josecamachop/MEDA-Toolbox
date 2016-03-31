@@ -1,10 +1,10 @@
 
-function fig_h = plot_scatter(bdata,elabel,classes,yxlabel,lcont,opt)
+function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt)
 
 % Scatter plot.
 %
 % fig_h = plot_scatter(bdata) % minimum call
-% fig_h = plot_scatter(bdata,elabel,classes,yxlabel,lcont,opt) % complete call
+% fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt) % complete call
 %
 %
 % INPUTS:
@@ -16,16 +16,13 @@ function fig_h = plot_scatter(bdata,elabel,classes,yxlabel,lcont,opt)
 % classes: [Nx1, str(N), {N}] groups for different visualization (a single 
 %   group by default)
 %
-% yxlabel: {1 or 2} ylabel and xlabel. If only one label is specified, it 
-%   is understood as the ylabel (nothing by default)
+% xylabel: {2} xlabel and ylabel (nothing by default)
+%
+% lcont: {2} control limits on x and y axis (nothing by default)
 %
 % opt: [1x1] options for data plotting
 %       0: filled marks (by default)
 %       1: empty marks
-%
-% lcont: {2} control limits on x and y axis (nothing by default)
-%
-% fig_h: [1x1] figure handle to plot on
 %
 %
 % OUTPUTS:
@@ -45,7 +42,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,yxlabel,lcont,opt)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 30/Mar/2016.
+% last modification: 31/Mar/2016.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -71,7 +68,7 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(bdata, 1);
 if nargin < 2 || isempty(elabel), elabel = 1:N; end;
 if nargin < 3 || isempty(classes), classes = []; end;
-if nargin < 4 || isempty(yxlabel), yxlabel = ''; end;
+if nargin < 4 || isempty(xylabel), xylabel = ''; end;
 if nargin < 5 || isempty(lcont),  lcont = []; end;
 if nargin < 6 || isempty(opt),  opt = 0; end;
 
@@ -86,12 +83,12 @@ if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
 % Convert char arrays to cell
 if ischar(elabel),  elabel = cellstr(elabel); end;
 if ischar(classes), classes = cellstr(classes); end;
-if ischar(yxlabel),  yxlabel = cellstr(yxlabel); end;
+if ischar(xylabel),  xylabel = cellstr(xylabel); end;
 
 % Validate dimensions of input data
 if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine.name); end;
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine.name); end;
-if ~isempty(yxlabel), assert (length(yxlabel) <= 2, 'Dimension Error: 4th argument must contain 2 cell elements at most. Type ''help %s'' for more info.', routine.name); end;
+if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine.name); end;
 if ~isempty(lcont), assert (iscell(lcont) & isequal(size(lcont), [2 1]), 'Dimension Error: 5th argument must be a cell of 2 elements. Type ''help %s'' for more info.', routine.name); end;
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
     
@@ -136,8 +133,17 @@ if ~isempty(elabel)
 end
 
 ax = axis;
+ax([1 3]) = min(ax([1 3]),zeros(1,2));
+ax([2 4]) = max(ax([2 4]),zeros(1,2));
+
 if ~isempty(lcont) % Plot control limits
+    if ~isempty(lcont{2})
+        ax(3) = min([ax(3);lcont{2}(:)]);
+        ax(4) = max([ax(4);lcont{2}(:)]);
+    end
     if ~isempty(lcont{1})
+        ax(1) = min([ax(1);lcont{1}(:)]);
+        ax(2) = max([ax(2);lcont{1}(:)]);
         for i=1:length(lcont{1}),
             plot([lcont{1}(i) lcont{1}(i)], ax(3:4), 'r--','LineWidth',2, 'HandleVisibility', 'off');
         end
@@ -154,11 +160,9 @@ end
 axis(ax)
 
 % Set axis labels
-if ~isempty(yxlabel)
-    ylabel(yxlabel{1}, 'FontSize', 16);
-    if length(yxlabel)>1,
-        xlabel(yxlabel{2}, 'FontSize', 16);
-    end
+if ~isempty(xylabel)
+    xlabel(xylabel{1}, 'FontSize', 16);
+    ylabel(xylabel{2}, 'FontSize', 16);
 end
 
 

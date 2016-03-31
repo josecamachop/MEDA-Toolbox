@@ -20,7 +20,8 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes)
 %
 % opt: [1x1] options for data plotting
 %       0: no plots
-%       otherwise: loadings plot (default)
+%       1: scatter plot of pairs of PCs (default)
+%       otherwise: bar plot of each single PC
 %
 % label: [Mx1] name of the variables (numbers are used by default)
 %
@@ -42,7 +43,7 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 29/Mar/2016
+% last modification: 31/Mar/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -106,8 +107,10 @@ P = pca_pp(xcs,pcs);
 %% Show results
 
 if opt,
-    if length(pcs) == 1,
-        plot_vec(P, label, classes, sprintf('Loadings PC %d',pcs));
+    if length(pcs) == 1 | opt ~=1,
+        for i=1:length(pcs),
+                plot_vec(P(:,pcs(i)), label, classes, sprintf('Loadings PC %d',pcs(i)));
+        end
     else
         for i=1:length(pcs)-1,
             for j=i+1:length(pcs),

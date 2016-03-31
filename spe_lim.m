@@ -8,7 +8,7 @@ function lim = spe_lim(res,p_value)
 %
 % INPUTS:
 %
-% res: [NxM] Two-way residuals data matrix)
+% res: [NxM] Two-way residuals data matrix
 %
 % p_value: [1x1] p-value of the test, in (0,1]
 %
@@ -18,7 +18,8 @@ function lim = spe_lim(res,p_value)
 % lim: [1x1] control limit at a 1-p_value confidence level.
 %
 %
-% EXAMPLE OF USE: For 2 PCs, 100 observations, the 99% confidence limit:
+% EXAMPLE OF USE: Compute the 99% confidence limit for 2 PCs and 100 
+%   observations:
 %
 % X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
 % Xcs = preprocess2D(X,2);
