@@ -126,7 +126,7 @@ if ~isempty(olabel)
     set(axes_h,'XTickLabel',olabel);
     if label_length > 1
         % rotate labels
-        rotateXLabels(axes_h,90);
+%        rotateXLabels(axes_h,90);
     end
 end
 if ~isempty(slabel)
