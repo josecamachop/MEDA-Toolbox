@@ -109,12 +109,12 @@ P = pca_pp(xcs,pcs);
 if opt,
     if length(pcs) == 1 | opt ~=1,
         for i=1:length(pcs),
-                plot_vec(P(:,pcs(i)), label, classes, sprintf('Loadings PC %d',pcs(i)));
+                plot_vec(P(:,i), label, classes, sprintf('Loadings PC %d',pcs(i)));
         end
     else
         for i=1:length(pcs)-1,
             for j=i+1:length(pcs),
-                plot_scatter([P(:,pcs(i)),P(:,pcs(j))], label, classes, {sprintf('Loadings PC %d',pcs(i)),sprintf('Loadings PC %d',pcs(j))}');
+                plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d',pcs(i)),sprintf('Loadings PC %d',pcs(j))}');
             end      
         end
     end

@@ -175,7 +175,7 @@ if opt,
     else
         for i=1:length(lvs)-1,
             for j=i+1:length(lvs),
-                plot_scatter([Pt(:,lvs(i)),Pt(:,lvs(j))], label, classes, {sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}');
+                plot_scatter([Pt(:,i),Pt(:,j)], label, classes, {sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}');
             end      
         end
     end

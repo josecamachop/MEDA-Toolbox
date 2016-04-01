@@ -155,12 +155,12 @@ if opt,
     Tt = [T;TT];
     if length(lvs) == 1 | opt ~=1,
         for i=1:length(lvs),
-            plot_vec(Tt(:,lvs(i)), label, classes, sprintf('Scores LV %d',lvs(i)));
+            plot_vec(Tt(:,i), label, classes, sprintf('Scores LV %d',lvs(i)));
         end
     else
         for i=1:length(lvs)-1,
             for j=i+1:length(lvs),
-                plot_scatter([Tt(:,lvs(i)),Tt(:,lvs(j))], label, classes, {sprintf('Scores LV %d',lvs(i)),sprintf('Scores LV %d',lvs(j))}');
+                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores LV %d',lvs(i)),sprintf('Scores LV %d',lvs(j))}');
             end      
         end
     end

@@ -139,12 +139,12 @@ if opt,
     Tt = [T;TT];
     if length(pcs) == 1 | opt ~=1,
         for i=1:length(pcs),
-            plot_vec(Tt(:,pcs(i)), label, classes, sprintf('Scores PC %d',pcs(i)));
+            plot_vec(Tt(:,i), label, classes, sprintf('Scores PC %d',pcs(i)));
         end
     else
         for i=1:length(pcs)-1,
             for j=i+1:length(pcs),
-                plot_scatter([Tt(:,pcs(i)),Tt(:,pcs(j))], label, classes, {sprintf('Scores PC %d',pcs(i)),sprintf('Scores PC %d',pcs(j))}');
+                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d',pcs(i)),sprintf('Scores PC %d',pcs(j))}');
             end      
         end
     end
