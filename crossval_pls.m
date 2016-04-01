@@ -140,10 +140,10 @@ for i=1:blocks_r,
     
     [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,1:max(lvs));
     
-    for lv=lvs,
+    for lv=1:length(lvs),
     
-        if lv > 0,
-            beta = R(:,max(min(lvs),1):lv)*Q(:,max(min(lvs),1):lv)';
+        if lvs(lv) > 0,
+            beta = R(:,1:min(lvs(lv),end))*Q(:,1:min(lvs(lv),end))';
             srec = scs*beta;
             
             pem = scs_y-srec;
@@ -152,7 +152,7 @@ for i=1:blocks_r,
             pem = scs_y;
         end
         
-        press(lv+1,:) = press(lv+1,:) + sum(pem.^2,1);
+        press(lvs(lv)+1,:) = press(lvs(lv)+1,:) + sum(pem.^2,1);
         
     end
 end

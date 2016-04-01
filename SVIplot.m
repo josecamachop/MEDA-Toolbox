@@ -97,20 +97,20 @@ assert (isequal(size(prep), [1 1]), 'Dimension Error: 5th argument must be 1-by-
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
   
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(pcs<0)) & isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
 assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
 
 
 %% Main code
 
 xcs = preprocess2D(x,prep);
-p = pca_pp(xcs,pcs);
+p = pca_pp(xcs,1:max(pcs));
 
 alpha=0;
 betas=zeros(M-1,1);
 r2 = 0;
-for i=pcs,
-    q = p(:,1:i)*p(:,1:i)';
+for i=1:length(pcs),
+    q = p(:,1:pcs(i))*p(:,1:pcs(i))';
     alpha = [alpha q(var,var)];
     betas = [betas q([1:var-1 var+1:end],var)];
     res = xcs*(eye(M)-q);
@@ -134,11 +134,11 @@ for j=1:groups,
     [cal_c,m,sd] = preprocess2D(cal,prep);
     test_c = preprocess2Dapp(test,m,sd);
     
-    p = pca_pp(cal_c,pcs);
+    p = pca_pp(cal_c,1:max(pcs));
     alpha2=0;
     res2 = test_c(:,var);
-    for i=pcs,
-        q = p(:,1:i)*p(:,1:i)';
+    for i=1:length(pcs),
+        q = p(:,1:pcs(i))*p(:,1:pcs(i))';
         alpha2 = [alpha2 q(var,var)];
         res = test_c*(eye(M)-q);
         res2 = [res2 res(:,var)];

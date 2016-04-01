@@ -99,9 +99,13 @@ x_var = ones(length(pcs),1);
 for i = 1:length(pcs),
     x_var(i) = x_var(i) - sum(eig(T(:,1:pcs(i))'*T(:,1:pcs(i))))/totalVx;
 end
-    
+
+cumpress = zeros(length(pcs),1);
 if nargout>1 | (opt~=0 & opt~=1),
-    cumpress = ckf(xcs,T(:,pcs(2:end)),P(:,pcs(2:end)),0);
+    for i = 1:length(pcs),
+         c = ckf(xcs,T(:,1:pcs(i)),P(:,1:pcs(i)),0);
+         cumpress(i) = c(end);
+    end
 end
 
     

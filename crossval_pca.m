@@ -149,13 +149,13 @@ for i=1:blocks_r,
         scs(j,:) = (sample(j,:)-av)./st;
     end
      
-    p = pca_pp(ccs,pcs(end));
+    p = pca_pp(ccs,1:max(pcs));
     
-    for pc=pcs,
+    for pc=1:length(pcs),
         
-        if pc > 0, % PCA Modelling
+        if pcs(pc) > 0, % PCA Modelling
                                
-            p2 = p(:,max(1,pcs(1)):min(pc,end));
+            p2 = p(:,1:min(pcs(pc),end));
             
             switch lower(leave_m)
                 
@@ -212,7 +212,7 @@ for i=1:blocks_r,
             pem = sum(scs.^2,1);
         end
         
-        press(pc+1,:) = press(pc+1,:) + pem;
+        press(pcs(pc)+1,:) = press(pcs(pc)+1,:) + pem;
         
     end            
 end
