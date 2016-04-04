@@ -12,7 +12,7 @@ function testcs = preprocess2Dapp(test,average,scale)
 %
 % average: [1xM] average to subtract from test.
 %
-% weights: [1xM] scale to divide test. A vector or ones is used by default.
+% scale: [1xM] scale to divide test. A vector or ones is used by default.
 %
 %
 % OUTPUTS:

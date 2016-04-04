@@ -73,7 +73,7 @@ assert (isequal(size(weights), [1 M]), 'Dimension Error: 3rd argument must be 1-
 
 % Validate values of input data
 assert (prep>=0 && prep<=2 && isequal(fix(prep), prep), 'Value Error: 2nd argument must contain integers between 0 and 2. Type ''help %s'' for more info.', routine.name);
-assert (isempty(find(weights<0)) && isempty(find(weights==Inf)), 'Value Error: 3rd argument must contain positive values. Type ''help %s'' for more info.', routine.name);
+%assert (isempty(find(weights<0)) && isempty(find(weights==Inf)), 'Value Error: 3rd argument must contain positive values. Type ''help %s'' for more info.', routine.name);
 
 
 %% Main code
