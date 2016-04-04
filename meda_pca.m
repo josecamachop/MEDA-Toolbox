@@ -23,7 +23,7 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 % thres: [1x1] threshold (0,1] for discretization and discarding (0.1 by default)
 %
-% opt: (str) binary code of the form 'cba' for:
+% opt: (str or num) options for data plotting: binary code of the form cba for:
 %       a:
 %           0: no plots
 %           1: plot MEDA matrix (default)
@@ -31,8 +31,10 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %           0: no seriated
 %           1: seriated (default)
 %       c:
-%           0: no discard
-%           1: discard 0 variance variables (default)
+%           0: no discard (default)
+%           1: discard 0 variance variables 
+%   If less than 3 digits are specified, most significant digits are set to 
+%   0, i.e. opt = 1 means a=1, b=0 and c=0. If a=0, b and c are ignored.  
 %
 % label: [Mx1] name of the variables (numbers are used by default)
 %
@@ -84,7 +86,7 @@ M = size(x, 2);
 if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
 if nargin < 3 || isempty(prep), prep = 2; end;
 if nargin < 4 || isempty(thres), thres = 0.1; end; 
-if nargin < 5 || isempty(opt), opt = '111'; end; 
+if nargin < 5 || isempty(opt), opt = '011'; end; 
 if nargin < 6 || isempty(label), label = 1:M; end
 if nargin < 7 || isempty(vars), vars = 1:M; end;
 
@@ -104,13 +106,13 @@ if isstruct(opt) % opt backward compatibility
 end
 
 % Convert int arrays to str
-if isnumeric(opt), opt=fliplr(num2str(opt,'%.3d')); end
+if isnumeric(opt), opt=num2str(opt,'%.3d'); end
 
 % Validate dimensions of input data
 assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
 assert (isequal(size(thres), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (ischar(opt), 'Dimension Error: 5th argument must be a string. Type ''help %s'' for more info.', routine.name);
+assert (ischar(opt) & length(opt)==3, 'Dimension Error: 5th argument must be a string of 3 bits. Type ''help %s'' for more info.', routine.name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine.name);
 assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 7th argument must be at most M-by-1. Type ''help %s'' for more info.', routine.name);
 
@@ -145,7 +147,7 @@ end
     
 %% Show results
 
-if opt(1) == '1',
+if opt(3) == '1',
     
     map = meda_map;
  
@@ -158,7 +160,7 @@ if opt(1) == '1',
     map = map(ord2,ord2);
     label = label(ord2);
     
-    if opt(3) == '1',
+    if opt(1) == '1',
         Dmap = diag(map);
         ind = find(Dmap > thres);
     else
