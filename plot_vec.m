@@ -174,8 +174,6 @@ if ~isempty(elabel)
     stepN = ceil(N/10);
     vals = fliplr(N:-stepN:1);
     set(axes_h,'XTick',vals);
-    label_length = max(cellfun('length', elabel));
-    
     set(axes_h,'XTickLabel',elabel(vals));
 end
 

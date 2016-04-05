@@ -121,8 +121,8 @@ end
 % Plot labels
 ax = axis;
 f = 5;
-deltax = (ax(2)-ax(1))/100;
-deltay = (ax(4)-ax(3))/100;
+deltax = (ax(2)-ax(1))/150;
+deltay = (ax(4)-ax(3))/150;
 if ~isempty(elabel)
     for i=1:N
         nch = length(char(strtrim(elabel(i,1))));

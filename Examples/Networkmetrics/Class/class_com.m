@@ -52,7 +52,7 @@ scores_pca(cal,1:2,[],prep_x,1);
 % should be studied with more detail
 
 mspc_pca(cal,1:2,[],prep_x,1); 
-% check also 5
+% check also 5 (residuals)
 
 
 %% Step 3: variables distribution and relationships  
@@ -64,7 +64,7 @@ loadings_pca(cal,1:2,prep_x,1,lab);
 % GR2: C.ifOut9, A.ifOut8, C.ifIn1, C.ifIn9, A.ifIn8, C.ifOut1, A.ifIn14, 
 %    A.ifOut14:  traffic between Px/1 <=> SWx-A
 
-meda_pca(cal,1:2,prep_x,0.5,11,lab);
+meda_pca(cal,1:2,prep_x,0.5,'11',lab);
 % the same two groups are found (zoom to see the labels properly)
 
 sqresiduals_pca(cal,1:2,[],prep_x,2,lab); 

@@ -24,7 +24,7 @@ function fig_h = plot_map(map,label,int,ind)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 30/Nov/15.
+% last modification: 05/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -71,23 +71,37 @@ else
     set(sur_h,'EdgeColor','none');
 end
 
-% Set axis properties
+% Label font size
 axes_h = get(sur_h,'Parent');
+label_size = max(min(14,round(100/length(label))), 9);
+set(axes_h, 'FontSize', label_size);
+
+% Set axis properties
 set(axes_h,'Box','on');
 set(axes_h,'XAxisLocation','top');
 set(axes_h,'YDir','reverse');
-set(axes_h,'XTick',(1:M)+0.5);
-set(axes_h,'YTick',(1:M)+0.5);
-set(axes_h,'XTickLabel',label);
-set(axes_h,'YTickLabel',label);
+label_length = max(cellfun('length', label));
+stepY = ceil(0.2*M/label_size);
+stepX = ceil(2*M/label_size);
+valsY = fliplr(M:-stepY:1);
+valsX = fliplr(M:-stepX:1);
+if stepX<10,
+    set(axes_h,'XTick',valsX+0.5);
+    set(axes_h,'XTickLabel',label(valsX));
+else
+    set(axes_h,'XTick',[]);
+end
+if stepY<10,
+    set(axes_h,'YTick',valsY+0.5);
+    set(axes_h,'YTickLabel',label(valsY));
+else
+    set(axes_h,'YTick',[]);
+end
+%get(axes_h)
 
 if ~verLessThan('matlab', '8.4'),
     set(axes_h,'TicklabelInterpreter','None')
 end
-
-% Label font size
-label_size = max(min(14,round(300/length(label))), 9);
-set(axes_h, 'FontSize', label_size);
 
 % Resize axes position
 pos = get(axes_h, 'Position');
