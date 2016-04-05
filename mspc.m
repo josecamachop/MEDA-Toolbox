@@ -83,15 +83,15 @@ function [Dst,Qst] = mspc(testcs,invCT,R,Q)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(testcs, 2);
 A = size(invCT, 1);
 if nargin < 4 || isempty(Q), Q = R; end;
 
 % Validate dimensions of input data
-assert (isequal(size(invCT), [A A]), 'Dimension Error: 2nd argument must be LVs-by-LVs. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(R), [M A]), 'Dimension Error: 3rd argument must be M-by-LVs. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(Q), [M A]), 'Dimension Error: 4th argument must be M-by-LVs. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(invCT), [A A]), 'Dimension Error: 2nd argument must be LVs-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(R), [M A]), 'Dimension Error: 3rd argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Q), [M A]), 'Dimension Error: 4th argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

@@ -56,16 +56,16 @@ function cumpress = ckf(xcs,T,P,opt)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(xcs, 1);
 M = size(xcs, 2);
 A = size(T, 2);
 if nargin < 4 || isempty(opt), opt=1; end;
 
 % Validate dimensions of input data
-assert (isequal(size(T), [N A]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(P), [M A]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(T), [N A]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(P), [M A]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

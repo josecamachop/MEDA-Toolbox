@@ -13,7 +13,8 @@ function [x_var,cumpress] = var_pca(x,pcs,prep,opt)
 % x: [NxM] billinear data set for model fitting
 %
 % pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
-%   first two PCs). By default, pcs = 0:rank(x)
+%   first two PCs). By default, pcs = 0:rank(x). The value for 0 PCs is
+%   added at the begining if not specified.
 %
 % prep: [1x1] preprocesing
 %       0: no preprocessing 
@@ -41,7 +42,7 @@ function [x_var,cumpress] = var_pca(x,pcs,prep,opt)
 %
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 29/Mar/16.
+% last modification: 05/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -63,7 +64,7 @@ function [x_var,cumpress] = var_pca(x,pcs,prep,opt)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
 if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
@@ -75,16 +76,16 @@ if nargin < 4 || isempty(opt), opt = 2; end;
 if size(pcs,2) == 1, pcs = pcs'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 pcs = unique([0 pcs]);
 
 % Validate values of input data
-assert (isempty(find(pcs<0)), 'Value Error: 2nd argument must not contain negative values. Type ''help %s'' for more info.', routine.name);
-assert (isequal(fix(pcs), pcs), 'Value Error: 2nd argumentmust contain integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(pcs<0)), 'Value Error: 2nd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(pcs), pcs), 'Value Error: 2nd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -92,6 +93,7 @@ assert (isequal(fix(pcs), pcs), 'Value Error: 2nd argumentmust contain integers.
 xcs = preprocess2D(x,prep); 
 
 [P,T] = pca_pp(xcs,1:max(pcs));
+pcs(find(pcs>size(P,2))) = [];
 
 totalVx = sum(sum(xcs.^2));
 x_var = ones(length(pcs),1);

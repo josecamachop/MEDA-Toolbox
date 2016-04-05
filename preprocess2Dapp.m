@@ -44,7 +44,7 @@ function testcs = preprocess2Dapp(test,average,scale)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(test, 1);
 M = size(test, 2);
 if nargin < 3 || isempty(scale), scale = ones(1,M); end;
@@ -54,8 +54,8 @@ if size(average,2) == 1, average = average'; end;
 if size(scale,2) == 1, scale = scale'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(average), [1 M]), 'Dimension Error: 2nd argument must be 1-by-M. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(scale), [1 M]), 'Dimension Error: 3rd argument must be 1-by-M. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(average), [1 M]), 'Dimension Error: 2nd argument must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(scale), [1 M]), 'Dimension Error: 3rd argument must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

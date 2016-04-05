@@ -34,16 +34,21 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes)
 % P: [MxA] loadings
 %
 %
-% EXAMPLE OF USE: Random scores
+% EXAMPLE OF USE: Scatter plot of random scores
 %
 % X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
-% loadings_pca(X,1);
 % P = loadings_pca(X,1:3);
+%
+%
+% EXAMPLE OF USE: Line plot of random scores
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% P = loadings_pca(X,1:3,[],2);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 31/Mar/2016
+% last modification: 05/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -65,7 +70,7 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
 if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
@@ -87,15 +92,15 @@ pcs(find(pcs==0)) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(label), [M 1]), 'Dimension Error: 5th argument must be M-by-1. Type ''help %s'' for more info.', routine.name); 
-assert (isequal(size(classes), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine.name); 
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [M 1]), 'Dimension Error: 5th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
-assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -109,7 +114,7 @@ P = pca_pp(xcs,pcs);
 if opt,
     if length(pcs) == 1 | opt ~=1,
         for i=1:length(pcs),
-                plot_vec(P(:,i), label, classes, sprintf('Loadings PC %d',pcs(i)));
+                plot_vec(P(:,i), label, classes, {'',sprintf('Loadings PC %d',pcs(i))});
         end
     else
         for i=1:length(pcs)-1,

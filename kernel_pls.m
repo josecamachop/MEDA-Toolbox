@@ -44,7 +44,7 @@ function [beta,W,P,Q,R] = kernel_pls(XX,XY,lvs)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16.
+% last modification: 5/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -67,7 +67,7 @@ function [beta,W,P,Q,R] = kernel_pls(XX,XY,lvs)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(XX, 1);
 O = size(XY, 2);
 if nargin < 3 || isempty(lvs), lvs = 0:rank(XX); end;
@@ -78,16 +78,16 @@ if size(lvs,2) == 1, lvs = lvs'; end;
 % Preprocessing
 lvs = unique(lvs);
 lvs(find(lvs==0)) = [];
+lvs(find(lvs>rank(XX))) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (isequal(size(XX), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(XY), [M O]), 'Dimension Error: 2nd argument must be M-by-O. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(XX), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(XY), [M O]), 'Dimension Error: 2nd argument must be M-by-O. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
-assert (isempty(find(lvs>rank(XX))), 'Value Error: 3rd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(lvs<0)) & isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

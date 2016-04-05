@@ -82,15 +82,15 @@ function meda_map = meda(XX,R,Q)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(XX, 1);
 A = size(R, 2);
 if nargin < 3 || isempty(Q), Q = R; end;
 
 % Validate dimensions of input data
-assert (isequal(size(XX), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(R), [M A]), 'Dimension Error: 2nd argument must be M-by-LVs. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(Q), [M A]), 'Dimension Error: 3rd argument must be M-by-LVs. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(XX), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(R), [M A]), 'Dimension Error: 2nd argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Q), [M A]), 'Dimension Error: 3rd argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

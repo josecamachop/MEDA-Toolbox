@@ -49,11 +49,11 @@ function [mapo,ord] = seriation(mapi)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(mapi, 1);
 
 % Validate dimensions of input data
-assert (isequal(size(mapi), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(mapi), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

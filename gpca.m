@@ -41,7 +41,7 @@ function [p,t,bel] = gpca(xcs,states,pcs)
 % end
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16.
+% last modification: 05/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -63,7 +63,7 @@ function [p,t,bel] = gpca(xcs,states,pcs)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(xcs, 1);
 M = size(xcs, 2);
 if nargin < 3 || isempty(pcs), pcs = 0:rank(xcs); end;
@@ -74,21 +74,21 @@ if size(pcs,2) == 1, pcs = pcs'; end;
 % Preprocessing
 pcs = unique(pcs);
 pcs(find(pcs==0)) = [];
+pcs(find(pcs>rank(xcs))) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (length(states)>0, 'Dimension Error: 2nd argument must contain at least one state. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+assert (length(states)>0, 'Dimension Error: 2nd argument must contain at least one state. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 
 % Validate values of input data
-assert (iscell(states), 'Value Error: 2nd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine.name);
+assert (iscell(states), 'Value Error: 2nd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine(1).name);
 for i=1:length(states),
-    assert (isempty(find(states{i}<1)) && isequal(fix(states{i}), states{i}), 'Value Error: 2nd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine.name);
-    assert (isempty(find(states{i}>M)), 'Value Error: 2nd argument must contain values not higher than M. Type ''help %s'' for more info.', routine.name);
+    assert (isempty(find(states{i}<1)) && isequal(fix(states{i}), states{i}), 'Value Error: 2nd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine(1).name);
+    assert (isempty(find(states{i}>M)), 'Value Error: 2nd argument must contain values not higher than M. Type ''help %s'' for more info.', routine(1).name);
 end
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
-assert (isempty(find(pcs>rank(xcs))), 'Value Error: 3rd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 

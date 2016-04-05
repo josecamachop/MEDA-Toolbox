@@ -54,23 +54,23 @@ function [bel,states] = gia(map,gamma,siz)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(map, 1);
 if nargin < 2 || isempty(gamma), gamma=0.7; end;
 if nargin < 3 || isempty(siz), siz=2; end;
 
 % Validate dimensions of input data
-assert (isequal(size(map), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(gamma), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(siz), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(map), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(gamma), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(siz), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(map<-1-1e-10)), 'Value Error: 1st argument must contain values between -1 and 1. Type ''help %s'' for more info.', routine.name);
-assert (isempty(find(map>1+1e-10)), 'Value Error: 1st argument must contain values between -1 and 1. Type ''help %s'' for more info.', routine.name);
-assert (gamma>=0 && gamma<=1, 'Value Error: 2nd argument must be between 0 and 1. Type ''help %s'' for more info.', routine.name);
-assert (siz<M, 'Value Error: 3rd argument must be below M. Type ''help %s'' for more info.', routine.name);
-assert (siz>0, 'Value Error: 3rd argument must be above 0. Type ''help %s'' for more info.', routine.name);
-assert (isequal(fix(siz), siz), 'Value Error: 3rd argument must be an integer. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(map<-1-1e-10)), 'Value Error: 1st argument must contain values between -1 and 1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(map>1+1e-10)), 'Value Error: 1st argument must contain values between -1 and 1. Type ''help %s'' for more info.', routine(1).name);
+assert (gamma>=0 && gamma<=1, 'Value Error: 2nd argument must be between 0 and 1. Type ''help %s'' for more info.', routine(1).name);
+assert (siz<M, 'Value Error: 3rd argument must be below M. Type ''help %s'' for more info.', routine(1).name);
+assert (siz>0, 'Value Error: 3rd argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(siz), siz), 'Value Error: 3rd argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

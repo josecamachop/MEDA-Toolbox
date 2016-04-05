@@ -2,7 +2,7 @@
 
 Coded by: José Camacho Páez, Alejandro Pérez-Villegas
 GUI by: Elena Jiménez Mañas, Rafael Rodríguez Gómez
-Last modification of this document: 23/Mar/16
+Last modification of this document: 05/Apr/16
 
 The Multivariate Exploratory Data Analysis (MEDA) Toolbox in Matlab is a set of multivariate analysis tools for the exploration of data sets. 
 There are several alternative tools in the market for that purpose, both commercial and free. The PLS_Toolbox from Eigenvector Inc. 
@@ -71,6 +71,8 @@ The commands provide of much more functionality. Each command includes helping i
 in the command line of Matlab. Also, in the Examples directory, several examples based on commands are included. It is suggested to
 have a look at the examples.
 
+There are two types of commands or routines. Those that do not provide visualization (e.g. meda, mspc, omeda, ...) are optimized for data 
+computing. Those that issue a plot (e.g meda_pca, meda_pls, scores_pca, ...) are optimized for interactive scripting.  
 
 Please, acknowledge the use of this software by refercing it: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate 
 Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at 

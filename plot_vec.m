@@ -67,7 +67,7 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 if size(vec,1) == 1,     vec = vec'; end;
 N = size(vec, 1);
 M = size(vec, 2);
@@ -95,12 +95,12 @@ if ischar(xylabel),  xylabel = cellstr(xylabel); end;
 if ischar(vlabel),  vlabel = cellstr(vlabel); end;
 
 % Validate dimensions of input data
-if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine.name); end;
-if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine.name); end;
-if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine.name); end;
-if ~isempty(lcont), assert (isequal(size(lcont,1), N) | isequal(size(lcont,2), 1), 'Dimension Error: 5th argument must be N-by-L or L-by-1. Type ''help %s'' for more info.', routine.name); end;
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine.name); end;
+if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(lcont), assert (isequal(size(lcont,1), N) | isequal(size(lcont,2), 1), 'Dimension Error: 5th argument must be N-by-L or L-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); end;
     
 % Convert constant limits in vectors
 if ~isempty(lcont) && ~isequal(size(lcont,1), N), lcont = (lcont*ones(1,N))'; end;
@@ -171,7 +171,7 @@ if length(axes_h)>1, axes_h = axes_h(1); end;
 label_size = max(min(14,round(300/length(elabel))), 9);
 set(axes_h, 'FontSize', label_size);
 if ~isempty(elabel)
-    stepN = round(N/10);
+    stepN = ceil(N/10);
     vals = fliplr(N:-stepN:1);
     set(axes_h,'XTick',vals);
     label_length = max(cellfun('length', elabel));

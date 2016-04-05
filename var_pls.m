@@ -14,7 +14,8 @@ function [y_var,t_var] = var_pls(x,y,lvs,prepx,prepy,opt)
 % y: [NxO] billinear data set of predicted variables
 %
 % lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
-%   first two LVs). By default, lvs = 0:rank(x)
+%   first two LVs). By default, lvs = 0:rank(x). The value for 0 PCs is
+%   added at the begining if not specified.
 %
 % prepx: [1x1] preprocesing of the x-block
 %       0: no preprocessing
@@ -70,7 +71,7 @@ function [y_var,t_var] = var_pls(x,y,lvs,prepx,prepy,opt)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
@@ -84,17 +85,17 @@ if nargin < 6 || isempty(opt), opt = 2; end;
 if size(lvs,2) == 1, lvs = lvs'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(prepx), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(prepy), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepx), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepy), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
-lvs = unique(lvs);
+lvs = unique([0 lvs]);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)), 'Value Error: 3rd argument must not contain negative values. Type ''help %s'' for more info.', routine.name);
-assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argumentmust contain integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(lvs<0)), 'Value Error: 3rd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -103,6 +104,7 @@ xcs = preprocess2D(x,prepx);
 ycs = preprocess2D(y,prepy); 
 
 [beta,W,P,Q,R] = kernel_pls(xcs'*xcs,xcs'*ycs,1:max(lvs));
+lvs(find(lvs>size(W,2))) = [];
 
 totalVt = sum(sum(xcs.^2));
 t_var = ones(length(lvs),1);

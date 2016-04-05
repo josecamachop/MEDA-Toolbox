@@ -46,7 +46,7 @@ function fig_h = plot_map(map,label,int,ind)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(map,2);
 if nargin < 2 || isempty(label), label= []; end
 if nargin < 3 || isempty(int), int = [-1;1]; end;

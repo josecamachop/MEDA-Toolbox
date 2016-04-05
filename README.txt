@@ -2,7 +2,7 @@
 
 Coded by: José Camacho Páez, Alejandro Pérez-Villegas
 GUI by: Elena Jiménez Mañas, Rafael Rodríguez Gómez
-Last modification of this document: 23/Mar/16
+Last modification of this document: 05/Apr/16
 
 Installation
 
@@ -30,16 +30,16 @@ Items in the folder:
 
 	- projection models: pca_pp.m (PCA), kernel_pls.m (PLS), gia & gpca (GPCA) 
 
-	- exploratory tools: SVIplot.m (SVI plots), scores_pca.m & scores_pls.m (Socre plots), loadings_pca.m & loadings_pls.m (Loading plots), 
-		meda.m, meda_pca.m & meda_pls.m (MEDA), omeda.m, omeda_pca.m & omeda_pls.m (oMEDA)
-
-	- statistical process control tools: sqresiduals_pca.m & sqresiduals_pls.m (Squared Residuals plots), leverage_pca.m & leverage_pls.m (Leverage or Hotelling T2 plots)
+	- exploratory & visualization tools: SVIplot.m (SVI plots), scores_pca.m & scores_pls.m (Socre plots), loadings_pca.m & loadings_pls.m (Loading plots), 
+		meda_pca.m & meda_pls.m (MEDA), omeda_pca.m & omeda_pls.m (oMEDA), mspc_pca.m & mspc_pls.m (MSPC), leverages_pca.m & leverages_pls.m (leverages of variables)
+		
+	- exploratory tools without visualization: meda.m, omeda.m, mspc.m
 
 	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca, ckf & crossval_pls (Cross-validation rutines)
 
 	- graphical tools: plot_scatter.m, plot_vec.m, plot_map.m 
 
-	- auxiliary routines: preprocess2D.m, seriation.m, spe_lim.m, hot_lim.m   
+	- auxiliary routines: preprocess2D.m, preprocess2Dapp.m, seriation.m, spe_lim.m, hot_lim.m   
 
 	- data simulation tools: ADICOV.m  
 

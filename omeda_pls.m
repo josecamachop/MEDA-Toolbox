@@ -35,7 +35,7 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% opt: (str) binary code of the form 'cba' for:
+% opt: (str or num) options for data plotting: binary code of the form 'cba' for:
 %       a:
 %           0: no plots
 %           1: plot oMEDA vector (default)
@@ -44,7 +44,9 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 %           1: plot control limits 
 %       c:
 %           0: no normalization (default)
-%           1: normalize by control limits)
+%           1: normalize by control limits
+%   If less than 3 digits are specified, most significant digits are set to 
+%   0, i.e. opt = 1 means a=1, b=0 and c=0. If a=0, then b and c are ignored.
 %
 %
 % label: [Mx1] name of the variables (numbers are used by default)
@@ -78,7 +80,7 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% last modification: 05/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -100,7 +102,7 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 5, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 5, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
@@ -123,25 +125,23 @@ if size(lvs,2) == 1, lvs = lvs'; end;
 lvs = unique(lvs);
 lvs(find(lvs==0)) = [];
 A = length(lvs);
-if isstruct(opt) % opt backward compatibility
-    opt = opt.plot + 10*opt.seriated + 100*opt.discard;
-end
 
 % Convert int arrays to str
-if isnumeric(opt), opt=fliplr(num2str(opt,'%.3d')); end
+if isnumeric(opt), opt=num2str(opt,'%.3d'); end
 
 % Validate dimensions of input data
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(test), [L M]), 'Dimension Error: 4th argument must be L-by-M. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(dummy), [L 1]), 'Dimension Error: 5th argument must be L-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(prepx), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(prepy), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (ischar(opt), 'Dimension Error: 8th argument must be a string. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(label), [M 1]), 'Dimension Error: 9th argument must be M-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(test), [L M]), 'Dimension Error: 4th argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(dummy), [L 1]), 'Dimension Error: 5th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepx), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepy), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) & length(opt)==3, 'Dimension Error: 8th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [M 1]), 'Dimension Error: 9th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
-assert (isempty(find(lvs>rank(x))), 'Value Error: 3rd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs>rank(x))), 'Value Error: 3rd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 8th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -162,7 +162,7 @@ lim = prctile(omeda_x,95)';
 
 %% Show results
 
-if opt(1) == '1',
+if opt(3) == '1',
     
     vec = omeda_vec;
  
@@ -172,7 +172,7 @@ if opt(1) == '1',
         limp = [];
     end
     
-    if opt(3) == '1',
+    if opt(1) == '1',
         vec = vec./lim;
     	if ~isempty(limp),
             limp = limp./lim;

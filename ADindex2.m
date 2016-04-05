@@ -42,14 +42,14 @@ function ind = ADindex2(L,App,R)
 
 % Set default values
 routine=dbstack;
-assert (nargin == 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin == 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(L, 1);
 M = size(L, 2);
 
 % Validate dimensions of input data
-assert (isequal(size(L), [N M]), 'Dimension Error: 1st argument must be N-by-M. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(App), [N M]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(R,1), M), 'Dimension Error: 3rd argument must be M-by-PCs. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(L), [N M]), 'Dimension Error: 1st argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(App), [N M]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(R,1), M), 'Dimension Error: 3rd argument must be M-by-PCs. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

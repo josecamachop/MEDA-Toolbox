@@ -72,7 +72,7 @@ function App = ADICOV(XX,L,Neig,R,Q,multn)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(XX, 1);
 N = size(L, 1);
 if nargin < 4 || isempty(R), R = eye(M); end;
@@ -84,20 +84,20 @@ if nargin < 6 || isempty(multn),  multn = ones(size(L,1),1); end;
 if size(multn,1) == 1,     multn = multn'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(XX), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(L), [N M]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(Neig), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(R), [M A]), 'Dimension Error: 4th argument must be M-by-LVs. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(Q), [M A]), 'Dimension Error: 5th argument must be M-by-LVs. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(multn), [N 1]), 'Dimension Error: 6th argument must be N-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(XX), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(L), [N M]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Neig), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(R), [M A]), 'Dimension Error: 4th argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Q), [M A]), 'Dimension Error: 5th argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(multn), [N 1]), 'Dimension Error: 6th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (Neig>0, 'Value Error: 3rd argument must be above 0. Type ''help %s'' for more info.', routine.name);
-assert (Neig<=rank(XX), 'Value Error: 3rd argument must not be above the rank of XX. Type ''help %s'' for more info.', routine.name);
-assert (Neig<=A, 'Value Error: 3rd argument must not be above the number of columns of 4th and 5th arguments. Type ''help %s'' for more info.', routine.name);
-assert (isequal(fix(Neig), Neig), 'Value Error: 3rd argument must be an integer. Type ''help %s'' for more info.', routine.name);
-assert (isempty(find(multn<0)), 'Value Error: 6th argument must not contain negative values. Type ''help %s'' for more info.', routine.name);
-assert (isequal(fix(multn), multn), 'Value Error: 6th argument must contain integers. Type ''help %s'' for more info.', routine.name);
+assert (Neig>0, 'Value Error: 3rd argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
+assert (Neig<=rank(XX), 'Value Error: 3rd argument must not be above the rank of XX. Type ''help %s'' for more info.', routine(1).name);
+assert (Neig<=A, 'Value Error: 3rd argument must not be above the number of columns of 4th and 5th arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(Neig), Neig), 'Value Error: 3rd argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(multn<0)), 'Value Error: 6th argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(multn), multn), 'Value Error: 6th argument must contain integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

@@ -54,7 +54,7 @@ function lim = hot_lim(npc,nob,p_value,phase)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 if nargin < 4 || isempty(phase), phase = 2; end;
 
 % Convert char values in numerical 
@@ -67,16 +67,16 @@ if ischar(phase),
 end
 
 % Validate dimensions of input data
-assert (isequal(size(npc), [1 1]), 'Dimension Error: 1st argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(nob), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(p_value), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(phase), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(npc), [1 1]), 'Dimension Error: 1st argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(nob), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(p_value), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(phase), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (npc>0 && isequal(fix(npc), npc), 'Value Error: 1st argument must be a positive integer. Type ''help %s'' for more info.', routine.name);
-assert (nob>0 && isequal(fix(nob), nob), 'Value Error: 2nd argument must be a positive integer. Type ''help %s'' for more info.', routine.name);
-assert (p_value>=0 && p_value<1, 'Value Error: 3rd argument must be in (0,1]. Type ''help %s'' for more info.', routine.name);
-assert (phase==1 || phase==2, 'Value Error: 4th argument must be 1 or 2. Type ''help %s'' for more info.', routine.name);
+assert (npc>0 && isequal(fix(npc), npc), 'Value Error: 1st argument must be a positive integer. Type ''help %s'' for more info.', routine(1).name);
+assert (nob>0 && isequal(fix(nob), nob), 'Value Error: 2nd argument must be a positive integer. Type ''help %s'' for more info.', routine(1).name);
+assert (p_value>=0 && p_value<1, 'Value Error: 3rd argument must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
+assert (phase==1 || phase==2, 'Value Error: 4th argument must be 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

@@ -23,7 +23,7 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 % thres: [1x1] threshold (0,1] for discretization and discarding (0.1 by default)
 %
-% opt: (str or num) options for data plotting: binary code of the form cba for:
+% opt: (str or num) options for data plotting: binary code of the form 'cba' for:
 %       a:
 %           0: no plots
 %           1: plot MEDA matrix (default)
@@ -34,7 +34,7 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %           0: no discard (default)
 %           1: discard 0 variance variables 
 %   If less than 3 digits are specified, most significant digits are set to 
-%   0, i.e. opt = 1 means a=1, b=0 and c=0. If a=0, b and c are ignored.  
+%   0, i.e. opt = 1 means a=1, b=0 and c=0. If a=0, then b and c are ignored.  
 %
 % label: [Mx1] name of the variables (numbers are used by default)
 %
@@ -58,7 +58,7 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 29/Mar/16
+% last modification: 5/Apr/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -80,7 +80,7 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine.name);
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
 if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
@@ -108,19 +108,24 @@ end
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt,'%.3d'); end
 
+% Complete opt
+if length(opt)<2, opt = strcat('00',opt); end
+if length(opt)<3, opt = strcat('0',opt); end
+
 % Validate dimensions of input data
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(thres), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine.name);
-assert (ischar(opt) & length(opt)==3, 'Dimension Error: 5th argument must be a string of 3 bits. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(label), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine.name);
-assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 7th argument must be at most M-by-1. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(thres), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) & length(opt)==3, 'Dimension Error: 5th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 7th argument must be at most M-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
-assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine.name);
-assert (thres>0 && thres<=1, 'Value Error: 4th argument must be in (0,1]. Type ''help %s'' for more info.', routine.name);
-assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: 7th argument must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine(1).name);
+assert (thres>0 && thres<=1, 'Value Error: 4th argument must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: 7th argument must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
