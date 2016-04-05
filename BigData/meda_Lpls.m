@@ -51,7 +51,7 @@ function [meda_map,meda_dis,ord] = meda_Lpls(Lmodel,lvs,thres,opt,label,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Mar/15
+% last modification: 05/Apr/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -126,7 +126,13 @@ s = size(Lmodel.XX);
 Lmodel.lv = max(lvs);
 [beta,W,P,Q,R] = Lpls(Lmodel);
 
-[meda_map,meda_dis] = meda(Lmodel.XX,R,P,thres);
+meda_map = meda(Lmodel.XX,R,P);
+
+if nargout > 1
+    meda_dis = meda_map; % discretize
+    ind = find(meda_dis(:)<thres);
+    meda_dis(ind) = 0;
+end
 
 %% Show results
 

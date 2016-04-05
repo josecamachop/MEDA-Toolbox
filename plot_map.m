@@ -56,7 +56,25 @@ if nargin < 4 || isempty(ind), ind = [0:.2:0.79 0.8:0.04:1]'; end;
 if size(label,1)  == 1, label = label'; end;
 
 % Convert int arrays to str
-if ~isempty(label) && isnumeric(label), label=num2str(label); end
+if ~isempty(label) && isnumeric(label), 
+    vecn = label;  
+    max_lab = 30; % limit the number of labels displayed
+    ini = 2;
+    stepN = [];
+    while isempty(stepN),
+        lenv = length(vecn(ini:end));
+        div = 1:(lenv-1);
+        div = div(rem(lenv,div)==0);
+        stepN = div(find(div>lenv/max_lab,1));
+        ini = ini+1;
+    end
+    veci = 1:(lenv+ini-2);
+    veci = veci(round([1 (ini-2+stepN):stepN:end]));
+    for i=veci,
+        labele{i} = num2str(vecn(i));
+    end
+    label=labele'; 
+end
 
 % Convert char arrays to cell
 if ischar(label),  label = cellstr(label); end;
@@ -74,7 +92,7 @@ end
 % Label font size
 axes_h = get(sur_h,'Parent');
 label_length = max(cellfun('length', label));
-label_size = 300/(length(label)*label_length);
+label_size = 300/(length(find(~cellfun('isempty', label)))*label_length);
 set(axes_h, 'FontSize', max(min(14,round(label_size)), 10));
 
 % Set axis properties
@@ -83,17 +101,15 @@ set(axes_h,'XAxisLocation','top');
 set(axes_h,'YDir','reverse');
 stepY = ceil(0.05*M/label_size);
 stepX = ceil(0.2*M/label_size);
-valsY = fliplr(M:-stepY:1);
-valsX = fliplr(M:-stepX:1);
 if stepX==1,
-    set(axes_h,'XTick',valsX+0.5);
-    set(axes_h,'XTickLabel',label(valsX));
+    set(axes_h,'XTick',(1:M)+0.5);
+    set(axes_h,'XTickLabel',label);
 else
-    set(axes_h,'XTickMode','auto');
+    set(axes_h,'XTickLabel','');
 end
 if stepY==1,
-    set(axes_h,'YTick',valsY+0.5);
-    set(axes_h,'YTickLabel',label(valsY));
+    set(axes_h,'YTick',(1:M)+0.5);
+    set(axes_h,'YTickLabel',label);
 else
     set(axes_h,'YTickMode','auto');
 end

@@ -56,7 +56,7 @@ T = scores_pls(xn,y,1:5,[],prep_x,prep_y,1,Obs);
 % which should be studied with more detail. Also, N31(16) is an outlier in
 % LV2 vs LV3, and M6(18) in LV4.
 
-mspc_pls(xn,y,1:5,[],prep_x,prep_y,2,[],[],[],[]); 
+mspc_pls(xn,y,1:5,[],prep_x,prep_y,1,Obs,[],[],[]); 
 % M6(18) is the clearest outlier in the D-st 
 % No high residual (Q-st) are found. 
 
@@ -72,13 +72,13 @@ omeda_pls(xn,y,1,xn,dummy,prep_x,prep_y,111);
 dummy=-ones(31,1);
 dummy(16)=1;
 omeda_pls(xn,y,2:3,xn,dummy,prep_x,prep_y,111);
-% The deviation of N31(16) is mainly related to an anomalous low value of 
-% ATCH8  
+% The deviation of N31(16) is mainly related to an anomalous value of 
+% ATCH8-ATCH10  
 
 dummy=-ones(31,1);
 dummy(18)=1;
 omeda_pls(xn,y,4,xn,dummy,prep_x,prep_y,111);
-% the anomalour residual in M6(18) is related to a generalized low value in
+% the anomalour residual in M6(18) is related to a generalized high value in
 % most of NSDL variables
 
 
@@ -86,46 +86,38 @@ omeda_pls(xn,y,4,xn,dummy,prep_x,prep_y,111);
 %   loadings, MEDA and residuals
 
 P = loadings_pls(xn,y,1:5,prep_x,prep_y,1,Vars);
-% a main limitation of loading plots is that only two variables are
+% a main limitation of loading plots is that only two LVs are
 % assessed at a time. Also, although some correlations are found (e.g ATCH9
 % and ATCH10), it is hard to interpret
 
-meda_res = meda_pls(xn,y,1:5,prep_x,prep_y,0.5,3);
-% with MEDA, the contribution of the 3 or 6 LVs selected previously can be 
-% observed at once. Also, the groups of variables are easily found. There
-% are several groups of related variables, which cannot be observed in the
-% loading plots, but it is not clear which are the most predictive. Here
-% we can use a simple trick (Step 3b): join xn and y in a single block and
-% perform PCA and MEDA. 
+meda_res = meda_pls(xn,y,1:5,prep_x,prep_y,0.5,111);
+% with MEDA, the contribution of the selected LVs can be observed at once. 
+% Also, the groups of variables are easily found. There are several groups 
+% of related variables, which cannot be observed in the loading plots, but 
+% it is not clear which are the most predictive. Here we can use a simple 
+% trick (Step 3b): join xn and y in a single block and perform PCA and MEDA. 
 
-leverage_pls(xn,y,1:5,[],prep_x,prep_y,2); 
-% nothing relevant
+leverages_pls(xn,y,1:5,prep_x,prep_y,1,Vars); 
+% ATCH4, DIPV_X and LOGP variables with the higest leverage on the model 
 
-sqresiduals_pls(xn,y,1:5,[],prep_x,prep_y,2); 
-% several high residuals are found, considering data are auto-scaled (SQ = 30 per 
-%   variable)
 
 %% Step 4b: variables distribution and relationships in PCA join xn and y
 
 Vars2 = {Vars{:} '-LOGEC50'};
 xaug = [xn y];
 
-SVIplot(xaug,min(max_LVs,rank(xaug)),size(xaug,2),size(xaug,1),prep_x); 
+SVIplot(xaug,[],size(xaug,2),size(xaug,1),prep_x); 
 % the SVI plot is useful to determine the number of PCs when a single
 % variable is of interest. 2 PCs may be a good choice (low uncertainty of
 % alpha parameters while Q2 remains high)
 
-meda_res = meda_pca(xaug,1:2,prep_x,0.5,3);
+[meda_res,map,ord] = meda_pca(xaug,1:2,prep_x,0.5,1);
 % it may be useful to combine this plot with the one focused on the column 
 % representing -LOGEC50 (variable 54)
 
-[map,ord] = seriation(meda_res); 
-plot_vec(map(:,find(ord==54)),num2str(ord')','-LOGEC50',[0.1, -0.1]'*ones(1,size(xaug,2)));
-% the limits are chosen to highlight some variables. Combining the two
-% plots, we can find groups of related variables in which none of them are
-% related to -LOGEC50. These can be discarded afterwards (the reasoning is
-% not explained here)
-
+plot_vec(meda_res(:,54),1:54,[],{[],'-LOGEC50'},[0.25, -0.25]);
+% variables highlighted are 'ATCH1', 'ATCH3', 'ATCH5', 'ATCH7', 'ESDL3', 
+% 'SUM_F', 'ATCH6', 'NSDL1'
 
 
 

@@ -42,7 +42,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 31/Mar/2016.
+% last modification: 05/Apr/2016.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -165,7 +165,8 @@ if ~isempty(xylabel)
     ylabel(xylabel{2}, 'FontSize', 16);
 end
 
-
+axes_h = get(fig_h,'Children');
+set(axes_h, 'FontSize', 12);
 
 legend off
 box on

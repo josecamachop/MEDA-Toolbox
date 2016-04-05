@@ -78,6 +78,7 @@ if nargin < 5 || isempty(lcont),  lcont = []; end;
 if nargin < 6 || isempty(opt),  opt = 0; end;
 if nargin < 7 || isempty(vlabel),  vlabel = 1:M; end;
 
+
 % Convert row arrays to column arrays
 if size(elabel,1)  == 1, elabel = elabel'; end;
 if size(classes,1) == 1, classes = classes'; end;
@@ -85,7 +86,25 @@ if size(lcont,1) == 1, lcont = lcont'; end;
 if size(vlabel,1)  == 1, vlabel = vlabel'; end;
 
 % Convert int arrays to str
-if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
+if ~isempty(elabel) && isnumeric(elabel), 
+    vecn = elabel;  
+    max_lab = 30; % limit the number of labels displayed
+    ini = 2;
+    stepN = [];
+    while isempty(stepN),
+        lenv = length(vecn(ini:end));
+        div = 1:(lenv-1);
+        div = div(rem(lenv,div)==0);
+        stepN = div(find(div>lenv/max_lab,1));
+        ini = ini+1;
+    end
+    veci = 1:(lenv+ini-2);
+    veci = veci(round([1 (ini-2+stepN):stepN:end]));
+    for i=veci,
+        labele{i} = num2str(vecn(i));
+    end
+    elabel=labele'; 
+end
 if ~isempty(vlabel) && isnumeric(vlabel), vlabel=num2str(vlabel); end
 
 % Convert char arrays to cell
@@ -169,7 +188,7 @@ if length(axes_h)>1, axes_h = axes_h(1); end;
 
 % Set ticks and labels
 label_length = max(cellfun('length', elabel));
-label_size = 300/(length(elabel)*label_length);
+label_size = 300/(length(find(~cellfun('isempty', elabel)))*label_length);
 set(axes_h, 'FontSize', max(min(14,round(label_size)), 10));
 if ~isempty(elabel)
     stepN = ceil(0.2*N/label_size);

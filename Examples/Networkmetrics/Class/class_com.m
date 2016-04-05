@@ -96,7 +96,7 @@ dummy([37,29,33,45])=1;
 dummy([10,2,6,8,1,25,14,24,13,9])=0;
 omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
 
-figure, plot(cal([12 16 19 18],:)','c'), hold on, plot(cal([37,29,33,45],:)','r')
+figure, plot(1:size(cal,2),cal([12 16 19 18],:)','c'), hold on, plot(1:size(cal,2),cal([37,29,33,45],:)','r'), axis tight
 
 % the second trend is mainly related to the group of variables GR2
 dummy=-ones(48,1);
@@ -105,7 +105,7 @@ dummy([13,24,14,25])=1;
 dummy([10,2,9,6,8,1,26,28,36,22,23,29,35,37,45])=0;
 omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
 
-figure, plot(cal([12 16 19 18],:)','c'), hold on, plot(cal([13,24,14,25],:)','r')
+figure, plot(1:size(cal,2),cal([12 16 19 18],:)','c'), hold on, plot(1:size(cal,2),cal([13,24,14,25],:)','r'), axis tight
 
 
 %% Step 4b: investigate differences with outliers
@@ -131,7 +131,7 @@ dummy(10)=1;
 omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
 
 % line plot to confirm results
-figure, plot(cal([12 16 19 18],:)','c'), hold on, plot(cal([2,9,10],:)','r')
+figure, plot(1:size(cal,2),cal([12 16 19 18],:)','c'), hold on, plot(1:size(cal,2),cal([2,9,10],:)','r'), axis tight
 
 
 %% Step 5: data set de test

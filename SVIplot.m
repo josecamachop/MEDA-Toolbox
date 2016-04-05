@@ -50,7 +50,7 @@ function [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(x,pcs,var,groups,prep,opt
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 29/Mar/2016
+% last modification: 05/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -75,7 +75,8 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
+xcs = preprocess2D(x,prep);
+if nargin < 2 || isempty(pcs), pcs = 0:rank(xcs); end;
 if nargin < 3 || isempty(var), var = 1; end;
 if nargin < 4 || isempty(groups), groups = 7; end; 
 if nargin < 5 || isempty(prep), prep = 2; end;
@@ -103,7 +104,6 @@ assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain valu
 
 %% Main code
 
-xcs = preprocess2D(x,prep);
 p = pca_pp(xcs,1:max(pcs));
 
 alpha=0;
@@ -138,7 +138,8 @@ for j=1:groups,
     alpha2=0;
     res2 = test_c(:,var);
     for i=1:length(pcs),
-        q = p(:,1:pcs(i))*p(:,1:pcs(i))';
+        kk = p(:,1:min(pcs(i),size(p,2)));
+        q = kk*kk';
         alpha2 = [alpha2 q(var,var)];
         res = test_c*(eye(M)-q);
         res2 = [res2 res(:,var)];

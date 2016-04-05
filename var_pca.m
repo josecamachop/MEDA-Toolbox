@@ -114,21 +114,11 @@ end
 %% Show results
 
 if opt,
-    vecn = pcs;
-    lv = length(vecn(2:end));
-    div = 1:lv;
-    div = div(rem(lv,div)==0);
-    stepN = div(find(div>lv/20,1));
-    vec = 1:(lv+1);
-    vec = vec(round(1:stepN:end));
-    for i=vec,
-        label{i} = num2str(vecn(i));
-    end
     switch opt,
         case 1
-            plot_vec(x_var,label,[],{'% Residual Variance','PCs'},[],1);
+            plot_vec(x_var,pcs,[],{'% Residual Variance','PCs'},[],1);
         otherwise
-            plot_vec([x_var cumpress/cumpress(1)],label,[],{'% Residual Variance','PCs'},[],1,{'X','ckf'});
+            plot_vec([x_var cumpress/cumpress(1)],pcs,[],{'% Residual Variance','PCs'},[],1,{'X','ckf'});
             legend('show');
     end
 end
