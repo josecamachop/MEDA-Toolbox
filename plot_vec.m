@@ -168,13 +168,19 @@ axes_h = get(fig_h,'Children');
 if length(axes_h)>1, axes_h = axes_h(1); end;
 
 % Set ticks and labels
-label_size = max(min(14,round(300/length(elabel))), 9);
-set(axes_h, 'FontSize', label_size);
+label_length = max(cellfun('length', elabel));
+label_size = 300/(length(elabel)*label_length);
+set(axes_h, 'FontSize', max(min(14,round(label_size)), 10));
 if ~isempty(elabel)
-    stepN = ceil(N/10);
-    vals = fliplr(N:-stepN:1);
-    set(axes_h,'XTick',vals);
-    set(axes_h,'XTickLabel',elabel(vals));
+    stepN = ceil(0.2*N/label_size);
+    if stepN==1,
+        vals = 1:N;
+        set(axes_h,'XTick',vals);
+        set(axes_h,'XTickLabel',elabel(vals));
+    else
+        set(axes_h,'XTickMode','auto');
+        set(axes_h, 'FontSize', 14);
+    end
 end
 
 if ~isempty(xylabel)

@@ -73,29 +73,29 @@ end
 
 % Label font size
 axes_h = get(sur_h,'Parent');
-label_size = max(min(14,round(100/length(label))), 9);
-set(axes_h, 'FontSize', label_size);
+label_length = max(cellfun('length', label));
+label_size = 300/(length(label)*label_length);
+set(axes_h, 'FontSize', max(min(14,round(label_size)), 10));
 
 % Set axis properties
 set(axes_h,'Box','on');
 set(axes_h,'XAxisLocation','top');
 set(axes_h,'YDir','reverse');
-label_length = max(cellfun('length', label));
-stepY = ceil(0.2*M/label_size);
-stepX = ceil(2*M/label_size);
+stepY = ceil(0.05*M/label_size);
+stepX = ceil(0.2*M/label_size);
 valsY = fliplr(M:-stepY:1);
 valsX = fliplr(M:-stepX:1);
-if stepX<10,
+if stepX==1,
     set(axes_h,'XTick',valsX+0.5);
     set(axes_h,'XTickLabel',label(valsX));
 else
-    set(axes_h,'XTick',[]);
+    set(axes_h,'XTickMode','auto');
 end
-if stepY<10,
+if stepY==1,
     set(axes_h,'YTick',valsY+0.5);
     set(axes_h,'YTickLabel',label(valsY));
 else
-    set(axes_h,'YTick',[]);
+    set(axes_h,'YTickMode','auto');
 end
 %get(axes_h)
 

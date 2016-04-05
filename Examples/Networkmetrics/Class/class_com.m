@@ -29,8 +29,8 @@
 % where the name of each variable follows the format <switch>.if[In|Out]<N>. 
 % The remaining ports of the switches did not present any traffic load.
 
-% coded by: JosÃ© Camacho PÃ¡ez.
-% last modification: 11/Jul/13.
+% coded by: José Camacho Páez.
+% last modification: 05/Apr/16.
 
 %% Inicialization, remember to set the path of the toolbox
 
@@ -64,11 +64,8 @@ loadings_pca(cal,1:2,prep_x,1,lab);
 % GR2: C.ifOut9, A.ifOut8, C.ifIn1, C.ifIn9, A.ifIn8, C.ifOut1, A.ifIn14, 
 %    A.ifOut14:  traffic between Px/1 <=> SWx-A
 
-meda_pca(cal,1:2,prep_x,0.5,'11',lab);
-% the same two groups are found (zoom to see the labels properly)
-
-sqresiduals_pca(cal,1:2,[],prep_x,2,lab); 
-% three variables present high residuals: A.ifOut14, C.ifIn12, C.ifOut12
+meda_pca(cal,1:2,prep_x,0.5,'111',lab);
+% the same two groups are found
 
 
 %% Steps 1-3 can be repeated for a subset of selected variables 
@@ -97,7 +94,7 @@ dummy=-ones(48,1);
 dummy(35)=2;
 dummy([37,29,33,45])=1;
 dummy([10,2,6,8,1,25,14,24,13,9])=0;
-omeda_pca(cal,1:2,cal,dummy,prep_x,3,lab);
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
 
 figure, plot(cal([12 16 19 18],:)','c'), hold on, plot(cal([37,29,33,45],:)','r')
 
@@ -106,7 +103,7 @@ dummy=-ones(48,1);
 dummy(9)=2;
 dummy([13,24,14,25])=1;
 dummy([10,2,9,6,8,1,26,28,36,22,23,29,35,37,45])=0;
-omeda_pca(cal,1:2,cal,dummy,prep_x,3,lab);
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
 
 figure, plot(cal([12 16 19 18],:)','c'), hold on, plot(cal([13,24,14,25],:)','r')
 
@@ -119,19 +116,19 @@ figure, plot(cal([12 16 19 18],:)','c'), hold on, plot(cal([13,24,14,25],:)','r'
 dummy=-ones(48,1);
 dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
 dummy(2)=1;
-omeda_pca(cal,1:2,cal,dummy,prep_x,3,lab);
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
 
 % outlier 9
 dummy=-ones(48,1);
 dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
 dummy(9)=1;
-omeda_pca(cal,1:2,cal,dummy,prep_x,3,lab);
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
 
 % outlier 10
 dummy=-ones(48,1);
 dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
 dummy(10)=1;
-omeda_pca(cal,1:2,cal,dummy,prep_x,3,lab);
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
 
 % line plot to confirm results
 figure, plot(cal([12 16 19 18],:)','c'), hold on, plot(cal([2,9,10],:)','r')
@@ -147,9 +144,9 @@ scores_pca(cal,1:2,test,prep_x,1);
 dummy=-ones(101,1);
 dummy([61,100,73,74,60,59])=1;
 dummy([63,75,101])=0;
-omeda_pca(cal,1:2,[cal;test],dummy,prep_x,3,lab);
+omeda_pca(cal,1:2,[cal;test],dummy,prep_x,111,lab);
 
 dummy=-ones(101,1);
 dummy([61,100,73,74,60,59])=0;
 dummy([63,75,101])=1;
-omeda_pca(cal,1:2,[cal;test],dummy,prep_x,3,lab);
+omeda_pca(cal,1:2,[cal;test],dummy,prep_x,111,lab);

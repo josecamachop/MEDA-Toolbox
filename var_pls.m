@@ -118,11 +118,15 @@ end
 %% Show results
         
 if opt,
+    stepN = length(lvs)/20;
+    vec = 1:length(lvs);
+    vec = vec(round(1:stepN:end));
+    vec(end) = length(lvs);
     switch opt,
         case 1
-            plot_vec(y_var,lvs,[],{'% Residual Variance in Y','PCs'},[],1);
+            plot_vec(y_var(vec),lvs(vec),[],{'% Residual Variance in Y','PCs'},[],1);
         otherwise
-            plot_vec([y_var t_var],lvs,[],{'% Residual Variance','PCs'},[],1,{'Y','Scores'});
+            plot_vec([y_var(vec) t_var(vec)],lvs(vec),[],{'% Residual Variance','PCs'},[],1,{'Y','Scores'});
             legend('show');
     end
 end
