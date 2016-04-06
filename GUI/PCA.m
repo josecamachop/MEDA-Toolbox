@@ -50,7 +50,7 @@ function varargout = PCA(varargin)
 
 % Edit the above text to modify the response to help PCA
 
-% Last Modified by GUIDE v2.5 03-Feb-2015 18:39:14
+% Last Modified by GUIDE v2.5 04-Apr-2016 12:57:01
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -101,7 +101,7 @@ set(handles.medaPopup,'Enable','off');
 set(handles.medaPopup,'String',' ');
 set(handles.text5,'Enable','off');
 set(handles.thresEdit,'Enable','off');
-set(handles.thresRadio,'Enable','off');
+set(handles.discardRadio,'Enable','off');
 set(handles.serRadio,'Enable','off');
 set(handles.medaButton,'Enable','off');
 set(handles.selmedaButton,'Enable','off');
@@ -128,7 +128,7 @@ set(handles.loadingButton,'Enable','off');
 
 %Residue
 set(handles.resomedaButton,'Enable','off');
-set(handles.resvarButton,'Enable','off');
+set(handles.resmedaButton,'Enable','off');
 
 %Model
 set(handles.modelomedaButton,'Enable','off');
@@ -509,12 +509,12 @@ function generalButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[pc_num,status]=str2num(get(handles.generalEdit, 'String'));
+[pcs,status]=str2num(get(handles.generalEdit, 'String'));
 sizeMat = size(handles.data.data_matrix);
 if status == false
     errordlg('Please enter a number of PCs.');
     return;
-elseif pc_num > sizeMat(2) || pc_num < 1
+elseif pcs > sizeMat(2) || pcs < 1
     errordlg(sprintf('The number of PCs can not exceed the number of variables in the data matrix which is %d.',sizeMat(2)));
     return;
 end
@@ -523,16 +523,18 @@ end
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
     case 'Var X'
-        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,1);
+        x_var = var_pca(handles.data.data_matrix,1:pcs,handles.data.prep,1);
     case 'Var X + ckf'
-        x_var = var_pca(handles.data.data_matrix,pc_num,handles.data.prep,2);
+        x_var = var_pca(handles.data.data_matrix,1:pcs,handles.data.prep,2);
     case 'ekf crossval '
-        x_var = crossval_pca(handles.data.data_matrix,0:pc_num,'ekf',Inf,Inf,handles.data.prep);
+        [blocks_r blocks_c] = size(handles.data.data_matrix);
+        x_var = crossval_pca(handles.data.data_matrix,0:pcs,'ekf',blocks_r,blocks_c,handles.data.prep);
     case 'cekf crossval'
-        x_var = crossval_pca(handles.data.data_matrix,0:pc_num,'cekf',Inf,Inf,handles.data.prep);
+        [blocks_r blocks_c] = size(handles.data.data_matrix);
+        x_var = crossval_pca(handles.data.data_matrix,0:pcs,'cekf',blocks_r,blocks_c,handles.data.prep);
     case 'SVI plot'
         chosenVar = str2num(getCurrentPopupString(handles.selectPopup));
-        SVIplot(handles.data.data_matrix,pc_num,chosenVar,7,handles.data.prep);
+        SVIplot(handles.data.data_matrix,1:pcs,chosenVar,7,handles.data.prep);
     otherwise
         disp('No case detected')
 end
@@ -666,7 +668,7 @@ set(handles.classcorePopup,'Enable','on');
 set(handles.labscorePopup,'Enable','on');
 
 %MEDA
-set(handles.thresRadio,'Enable','on');
+set(handles.discardRadio,'Enable','on');
 set(handles.serRadio,'Enable','on');
 set(handles.medaButton,'Enable','on');
 set(handles.medaPopup,'Enable','on');
@@ -685,7 +687,7 @@ set(handles.loadingButton,'Enable','on');
 
 %Residue
 set(handles.resomedaButton,'Enable','on');
-set(handles.resvarButton,'Enable','on');
+set(handles.resmedaButton,'Enable','on');
 
 %Model
 set(handles.modelomedaButton,'Enable','on');
@@ -967,7 +969,13 @@ end
 fig=gcf;
 set(fig,'Tag','ScorePlot');%En la opci�n etiqueta se indica que el gr�fico es un Score Plot
 
-matrixPCs_oMEDA=[T(:,handles.data.PC1),T(:,handles.data.PC2)];
+%matrixPCs_oMEDA=[T(:,handles.data.PC1),T(:,handles.data.PC2)];
+T_size = size(T);
+if T_size(2) > 1,
+    matrixPCs_oMEDA=[T(:,1),T(:,2)];
+else
+    matrixPCs_oMEDA=T(:,1);
+end
 
 handles.data.sp_ID_figures=[handles.data.sp_ID_figures fig];%Vector con los identificadores de los Score Plots abiertos
 handles.data.sp_matrix={handles.data.sp_matrix{:} matrixPCs_oMEDA};
@@ -1387,8 +1395,8 @@ function resomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-E=sqresiduals_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,1,handles.data.label);
-
+[Dst,Qst] = mspc_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,0,handles.data.label,handles.data.classes);
+plot_vec(Qst, handles.data.label,handles.data.classes, {[],'Q-st'});
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Loading Plot%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1675,15 +1683,15 @@ end
 set(hObject, 'String', 0.1);
 thresEdit_Callback(hObject, eventdata, handles);
 
-% --- Executes on button press in thresRadio.
-%thresRadio==thresold
-function thresRadio_Callback(hObject, eventdata, handles)
-% hObject    handle to thresRadio (see GCBO)
+% --- Executes on button press in discardRadio.
+%discardRadio==thresold
+function discardRadio_Callback(hObject, eventdata, handles)
+% hObject    handle to discardRadio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% Hint: get(hObject,'Value') returns toggle state of thresRadio
+% Hint: get(hObject,'Value') returns toggle state of discardRadio
 %Si radio button se�alado q ecit 6 este ON si no se�alado q este OFF
-if get(handles.thresRadio, 'Value'),
+if get(handles.discardRadio, 'Value'),
     set(handles.thresEdit, 'Enable', 'on');
     set(handles.text5, 'Enable', 'on');
 else
@@ -1695,7 +1703,7 @@ guidata(hObject,handles);
 
 
 % --- Executes on button press in serRadio.
-%thresRadio==seriation
+%discardRadio==seriation
 function serRadio_Callback(hObject, eventdata, handles)
 % hObject    handle to serRadio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1743,13 +1751,13 @@ function medaButton_Callback(hObject, eventdata, handles)
 handles.data.PCs_MEDA=getCurrentPopupString(handles.medaPopup);
 PCs_MEDA_cell = strread(handles.data.PCs_MEDA,'%s','delimiter',':');
 pcs = [str2num(PCs_MEDA_cell{1}):str2num(PCs_MEDA_cell{2})];
-if get(handles.thresRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
-    handles.data.opt=2;
-else if get(handles.thresRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
-        handles.data.opt=3;
+if get(handles.discardRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
+    handles.data.opt='101';
+else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
+        handles.data.opt='011';
     else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0,
-            handles.data.opt=1;
-        else handles.data.opt=4;
+            handles.data.opt='001';
+        else handles.data.opt='111';
         end
     end
 end
@@ -1877,31 +1885,38 @@ for l=1:M,
     end
 end
 
-if get(handles.thresRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
-    handles.data.opt=2;
-else if get(handles.thresRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
-        handles.data.opt=3;
+handles.data.PCs_MEDA=getCurrentPopupString(handles.medaPopup);
+PCs_MEDA_cell = strread(handles.data.PCs_MEDA,'%s','delimiter',':');
+pcs = [str2num(PCs_MEDA_cell{1}):str2num(PCs_MEDA_cell{2})];
+if get(handles.discardRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
+    handles.data.opt='101';
+else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
+        handles.data.opt='011';
     else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0,
-            handles.data.opt=1;
-        else handles.data.opt=4;
+            handles.data.opt='001';
+        else handles.data.opt='111';
         end
     end
 end
 
-[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,[min(handles.data.PC1_LP,handles.data.PC2_LP) max(handles.data.PC1_LP,handles.data.PC2_LP)],handles.data.prep,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
+disp(handles.data.opt);
+%[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,[min(handles.data.PC1_LP,handles.data.PC2_LP) max(handles.data.PC1_LP,handles.data.PC2_LP)],handles.data.prep,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
+[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,pcs,handles.data.prep,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
 
 guidata(hObject,handles);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Residue%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% --- Executes on button press in resvarButton.
-%resvarButton==Plot (residue)
-function resvarButton_Callback(hObject, eventdata, handles)
-% hObject    handle to resvarButton (see GCBO)
+% --- Executes on button press in resmedaButton.
+%resmedaButton==Plot (residue)
+function resmedaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to resmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-E=sqresiduals_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,2,handles.data.label_LP);
+size_x = size(handles.data.data_matrix);
+num_var = size_x(2);
+E=leverages_pca(handles.data.data_matrix,max(handles.data.PCs)+1:num_var,handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%Information panel%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1919,15 +1934,16 @@ function modelomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-E=leverage_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,1,handles.data.label);
-
+[Dst,Qst] = mspc_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,0,handles.data.label,handles.data.classes);
+plot_vec(Dst, handles.data.label,handles.data.classes, {[],'D-st'});
 
 % --- Executes on button press in modelmedaButton.
 function modelmedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-E=leverage_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,2,handles.data.label_LP);
+%E=leverage_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),handles.data.prep,1,handles.data.label_LP,handles.data.classes);
+E=leverages_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),handles.data.prep,1,handles.data.label_LP);
 
 
 % --- Executes on button press in nextButton.
