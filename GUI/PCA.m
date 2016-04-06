@@ -1395,8 +1395,8 @@ function resomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst] = mspc_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,1,handles.data.label,handles.data.classes);
-
+[Dst,Qst] = mspc_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,0,handles.data.label,handles.data.classes);
+plot_vec(Qst, handles.data.label,handles.data.classes, {[],'Q-st'});
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Loading Plot%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1914,7 +1914,9 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-E=leverages_pca(handles.data.data_matrix,4:18,handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
+size_x = size(handles.data.data_matrix);
+num_var = size_x(2);
+E=leverages_pca(handles.data.data_matrix,max(handles.data.PCs)+1:num_var,handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%Information panel%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1932,7 +1934,8 @@ function modelomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst] = mspc_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,1,handles.data.label,handles.data.classes);
+[Dst,Qst] = mspc_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,0,handles.data.label,handles.data.classes);
+plot_vec(Dst, handles.data.label,handles.data.classes, {[],'D-st'});
 
 % --- Executes on button press in modelmedaButton.
 function modelmedaButton_Callback(hObject, eventdata, handles)

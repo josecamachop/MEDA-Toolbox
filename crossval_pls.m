@@ -4,7 +4,7 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 % [cumpress,press] = crossval_pls(x,y,lvs) % minimum call
 % [cumpress,press] =
-% crossval_pls(x,y,lvs,blocks_r,blocks_c,prepx,prepy,opt) % complete call
+% crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt) % complete call
 %
 %
 % INPUTS:
