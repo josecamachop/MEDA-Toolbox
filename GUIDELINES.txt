@@ -1,19 +1,20 @@
-MEDA Toolbox for its use in MATLAB. Guidelines of use.
+﻿MEDA Toolbox for its use in MATLAB. Guidelines of use.
 
-Coded by: José Camacho Páez
-GUI by: Elena Jiménez Mañas
-Last modification of this document: 03/Jul/14
+Coded by: José Camacho Páez, Alejandro Pérez-Villegas
+GUI by: Elena Jiménez Mañas, Rafael Rodríguez Gómez
+Last modification of this document: 05/Apr/16
 
 The Multivariate Exploratory Data Analysis (MEDA) Toolbox in Matlab is a set of multivariate analysis tools for the exploration of data sets. 
 There are several alternative tools in the market for that purpose, both commercial and free. The PLS_Toolbox from Eigenvector Inc. 
 is a very nice example. The MEDA Toolbox is not intended to replace or being a competitor of any of these toolkits. Rather, the MEDA
-Toolbox is a complementary tool which includes several of my recent contributions to the field. Thus, traditional exploratory plots 
+Toolbox is a complementary tool which includes several of our recent contributions to the field. Thus, traditional exploratory plots 
 based on Principal Component Analysis (PCA) or Partial Least Squares (PLS), such as score, loading and residual plots, are combined 
-with new methods: MEDA, oMEDA and SVI plots. The latter are aimed at solving some of the limitations found in the former to
-adequately extract conclusions from a data set.
+with new methods: MEDA, oMEDA, SVI plots, ADICOV, EKF & CKF crossvalidation, CSP, GPCA, .... 
 
 The MEDA Toolbox can be used to analyze normal size data sets (several hundreds of observations times several hundreds of variables)
-I am currently working with my colleagues on an extension of the toolbox for large data sets, with millions of items. 
+There is also an extension of the toolbox for large data sets, with millions of items, under folder BigData. 
+
+The MEDA Toolbox is expected to work on Octave.
 
 1) The tools: 
 
@@ -27,33 +28,55 @@ An introduction to the exploratory tools in the MEDA toolbox can be found in:
 
 - SVI plots ==> Chemometrics and Intelligent Laboratory Systems 100, 2010, pp. 48-56.
 
+- ADICOV ==> Chemometrics and Intelligent Laboratory Systems 105(2), 2011, pp. 171-180.
+
+- EKF ==> Chemometrics and Intelligent Laboratory Systems 131, 2014, pp. 37-50
+
+- CKF ==> Journal of Chemometrics, 29(8), 2015, pp. 467-478.
+
+- CSP ==> Chemometrics and Intelligent Laboratory Systems, 135, 2014, pp. 110-125.
+
+- GPCA ==> Journal of Computational and Graphical Statistics, under review.
+
+
 
 Loading and Score plots in the toolbox are 2D scatter plots in the sub-space of the PCA or PLS model. Residual plots are line/bar plots
 of the squared residuals of the variables/observations. Leverage plots are line/bar plots of the squared scores of the variables/observations.
 
-MEDA plots are map plots which contain the relationship between each pair of variables. They look similar to correlation plots, but 
+MEDA plots are map plots that contain the relationship between each pair of variables. They look similar to correlation plots, but 
 they present better properties for exploration.
 
-oMEDA plots are bar plots which compute the differences between groups of observations in the latent subspace. They are similar to 
+oMEDA plots are bar plots that compute the differences between groups of observations in the latent subspace. They are similar to 
 contribution plots but again with better properties.
 
 SVI plots are useful to understand how a variable is related to the rest of the data set. The reading of the reference above is recommended.
 
+ADICOV is a method to approximate a specific data distribution imposing a certain correlation structure. It is very useful for realistic data
+simulation.
+
+EKF and CKF are differen versions of cross-validation in PCA, useful in some applications to infer an adequate number of PCs.
+
+CSP are compressed versions of score plots, where millions of observations can be visualized thanks to clustering techniques.
+
+GPCA is a PCA modification where loadings are constrain to one group of variables.
+
 
 2) Working with the MEDA Toolbox
  
-There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (expert user). The GUI is seft 
-explanatory. It incorporates help messages to guide its use. To launch the GUI, type "EDA" in the command line of Matlab after the 
-installation as explained in the README.txt document. 
+There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (expert user). The GUI is self 
+explanatory. It incorporates help messages to guide its use. To launch the GUI, type "MEDA" in the command line of Matlab after the 
+installation, as explained in the README.txt document. 
 
 The commands provide of much more functionality. Each command includes helping information, that can be seen by typing "help <command>" 
-in the command line of Matlab. Also, in the Examples directory, several EDA examples based on commands are included. It is suggested to
-have a look at the examples.
+in the command line of Matlab. This helping information includes examples. Also, in the Examples directory, several real data examples 
+are included. It is suggested to have a look at these examples.
 
+There are two types of commands or routines. Those that do not provide visualization (e.g. meda, mspc, omeda, ...) are optimized for data 
+computing. Those that issue a plot (e.g meda_pca, meda_pls, scores_pca, ...) are optimized for interactive scripting.  
 
-
-Please, acknowledge the use of this software by refercing it: "MEDA Toolbox, available at https://github.com/josecamachop/MEDA-Toolbox/archive/master.zip 
-José Camacho and Elena Jiménez, Network Engineering and Security Group, University of Granada, Spain." 
+Please, acknowledge the use of this software by refercing it: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate 
+Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at 
+https://github.com/josecamachop/MEDA-Toolbox" 
 
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have 

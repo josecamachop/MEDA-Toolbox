@@ -21,7 +21,7 @@ function [P,sdT] = Lpca(Lmodel)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 02/May/09.
+% last modification: 05/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez

@@ -1,8 +1,7 @@
-MEDA Toolbox for its use in MATLAB.
+﻿EDA example with PCA using the MEDA Toolbox. 
 
-Codified by: José Camacho Páez.
-GUI by: Elena Jiménez Mañas
-Last modification of this document: 10/Jul/13
+Coded by: José Camacho Páez
+Last modification of this document: 05/Apr/16
 
 References:
 

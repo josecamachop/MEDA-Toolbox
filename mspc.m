@@ -1,22 +1,19 @@
 
-function omeda_vec = omeda(testcs,dummy,R,Q)
+function [Dst,Qst] = mspc(testcs,invCT,R,Q)
 
-% Observation-based Missing data methods for Exploratory Data Analysis 
-% (oMEDA). The original paper is Journal of Chemometrics, 2011, 25 
-% (11): 592-600. This algorithm follows the direct computation for
-% Known Data Regression (KDR) missing data imputation.
+% Multivariate Statistical Process Control statistics
 %
-% omeda_vec = omeda(testcs,dummy,R) % minimum call
-% omeda_vec = omeda(testcs,dummy,R,Q) % complete call
+% Dst = mspc(testcs,invCT,R) % minimum call
+% [Dst,Qst] = mspc(testcs,invCT,R,Q) % complete call
 %
 %
 % INPUTS:
 %
 % testcs: [NxM] preprocessed billinear data set with the observations to be 
-%   compared.
+%   monitored.
 %
-% dummy: [Nx1] dummy variable containing weights for the observations to 
-%   compare, and 0 for the rest of observations.
+% invCT: [AxA] inverse of covariance matrix of T, where T are the 
+%   calibration scores.
 %
 % R: [MxA] Matrix to perform the projection from the original to the  
 %   latent subspace. For PCA (testcs = T*P'), this is the matrix of loadings 
@@ -32,36 +29,39 @@ function omeda_vec = omeda(testcs,dummy,R,Q)
 %
 % OUTPUTS:
 %
-% omeda_vec: [Mx1] oMEDA vector.
+% Dst: [Nx1] D-statistic or Hotelling T2
+%
+% Qst: [Nx1] Q-statistic
 %
 %
 %
-% EXAMPLE OF USE: oMEDA on PCA, anomaly on first observation and first 2
-% variables.
+% EXAMPLE OF USE: PCA-based MSPC on NOC test data and anomalies.
 %
 % n_obs = 100;
 % n_vars = 10;
-% n_PCs = 10;
+% n_PCs = 1;
 % XX = randn(n_vars,n_vars).^19; 
 % X = real(ADICOV(n_obs*XX,randn(n_obs,n_vars),n_vars));
 % [Xcs, m, sc] = preprocess2D(X,2);
+% 
 % pcs = 1:n_PCs;
-% p = pca_pp(Xcs,pcs);
-%
+% [p,t] = pca_pp(Xcs,pcs);
+% e = Xcs - t*p';
+% UCLd = hot_lim(n_PCs,n_obs,0.05,2);
+% UCLq = spe_lim(e,0.01);
+% 
 % n_obst = 10;
 % test = real(ADICOV(n_obst*XX,randn(n_obst,n_vars),n_vars));
-% test(1,1:2) = 10*max(abs(X(:,1:2))); 
-% dummy = zeros(10,1);
-% dummy(1) = 1;
+% test(6:10,:) = (1 + 1)*test(6:10,:);
 % testcs = preprocess2Dapp(test,m,sc);
-%
-% omeda_vec = omeda(testcs,dummy,p);
-%
-% plot_vec(omeda_vec);
+% 
+% [Dst,Qst] = mspc(testcs,inv(cov(t)),p);
+% 
+% plot_scatter([Dst,Qst],[],[ones(5,1);2*ones(5,1)],{'D-st','Q-st'},{UCLd,UCLq}); 
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 29/Mar/16.
+% last modification: 31/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -84,32 +84,24 @@ function omeda_vec = omeda(testcs,dummy,R,Q)
 % Set default values
 routine=dbstack;
 assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-N = size(testcs, 1);
 M = size(testcs, 2);
-A = size(R, 2);
+A = size(invCT, 1);
 if nargin < 4 || isempty(Q), Q = R; end;
 
-% Convert row arrays to column arrays
-if size(dummy,1) == 1, dummy = dummy'; end;
-
 % Validate dimensions of input data
-assert (isequal(size(dummy), [N 1]), 'Dimension Error: 2nd argument must be 1-by-N. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(invCT), [A A]), 'Dimension Error: 2nd argument must be LVs-by-LVs. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(R), [M A]), 'Dimension Error: 3rd argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(Q), [M A]), 'Dimension Error: 4th argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
 
 
-
 %% Main code
 
-ind=find(dummy>0);
-dummy(ind) = dummy(ind)/max((dummy(ind)));
-ind=find(dummy<0);
-dummy(ind) = -dummy(ind)/min((dummy(ind)));
+t = testcs * R;
+e = testcs - t * Q';
 
-xA = testcs*R*Q';
-sumA = xA'*dummy;
+Dst = sum((t * invCT) .* t,2);
+Qst = sum(e.^2,2);
 
-omeda_vec = (2*(testcs'*dummy).*abs(sumA) - sumA.*abs(sumA))./sqrt(dummy'*dummy);
 
     
 

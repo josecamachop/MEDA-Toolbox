@@ -4,43 +4,53 @@ function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,op
 % papers are Chemometrics and Intelligent Laboratory Systems 131, 2014, pp.
 % 37-50 and Journal of Chemometrics, 26(7), 2012, pp. 361-373.
 %
-% [cumpress,press] = crossval_pca(x,pcs) % minimum call
+% cumpress = crossval_pca(x,pcs) % minimum call
 % [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,opt)
 % % complete call
 %
+%
 % INPUTS:
 %
-% x: (NxM) billinear data set for model fitting
+% x: [NxM] billinear data set for model fitting
 %
-% pcs: (1xA) Principal Components considered (e.g. pcs = 1:2 selects the
-%   first two PCs)
+% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+%   first two PCs). By default, pcs = 0:rank(x)
 %
 % leave_m: (str) cross-validation procedure:
 %   'rkf': row-wise k fold (default)
 %   'ekf': element-wise k fold
 %   'cekf': corrected element-wise k fold
 %
-% blocks_r: (1x1) maximum number of blocks of samples (Inf by default)
+% blocks_r: [1x1] maximum number of blocks of samples (N by default)
 %
-% blocks_c: (1x1) maximum number of blocks of variables (Inf by default)
+% blocks_c: [1x1] maximum number of blocks of variables (M by default)
 %
-% prep: (1x1) preprocesing
+% prep: [1x1] preprocesing
 %       0: no preprocessing 
 %       1: mean-centering 
 %       2: auto-scaling (default)  
 %
-% opt: (1x1) options for data plotting.
-%       0: no plots.
-%       1: bar plot (default)
+% opt: [1x1] options for data plotting
+%       0: no plots
+%       otherwise: line plot (default)
+%
 %
 % OUTPUTS:
 %
-% cumpress: (pcs x 1) Cumulative PRESS.
+% cumpress: [Ax1] Cumulative PRESS
 %
-% press: (pcs x M) PRESS per variable.
+% press: [AxM] PRESS per variable.
+%
+%
+% EXAMPLE OF USE: Random data
+%
+% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
+% pcs = 0:10;
+% cumpress = crossval_pca(X,pcs,'ekf');
+%
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 2/Feb/15.
+% last modification: 23/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -61,49 +71,65 @@ function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,op
 
 %% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+N = size(x, 1);
+M = size(x, 2);
+if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
+A = length(pcs);
+if nargin < 3 || isempty(leave_m), leave_m = 'rkf'; end;
+if nargin < 4 || isempty(blocks_r), blocks_r = N; end;
+if nargin < 5 || isempty(blocks_c), blocks_c = M; end;
+if nargin < 6 || isempty(prep), prep = 2; end;
+if nargin < 7 || isempty(opt), opt = 1; end;
 
-if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end;
-s = size(x);
-if find(s<1), error('Incorrect content of x.'); end;
+% Convert column arrays to row arrays
+if size(pcs,2) == 1, pcs = pcs'; end;
 
-if min(pcs)<0, pcs = 0:max(pcs); end;
+% Validate dimensions of input data
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(leave_m), 'Dimension Error: 3rd argument must be a string. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocks_c), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
-if nargin < 3, leave_m = 'rkf'; end;
-if nargin < 4, blocks_r = Inf; end;
-if nargin < 5, blocks_c = Inf; end;
-if nargin < 6, prep = 2; end;
-if nargin < 7, opt = 1; end;
+% Preprocessing
+pcs = unique(pcs);
 
-if pcs<0, error('Incorrect value of pc.'); end;
-if blocks_r>s(1), blocks_r = s(1); end
-if (blocks_r<2), error('Incorrect value of blocks_r.'); end;
-if blocks_c>s(2), blocks_c = s(2); end
-if (blocks_c<2), error('Incorrect value of blocks_r.'); end;
+% Validate values of input data
+assert (isempty(find(pcs<0)), 'Value Error: 2nd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(pcs), pcs), 'Value Error: 2nd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (~isempty(strmatch(leave_m,char('rkf','ekf','cekf'))), 'Value Error: 3rd argument must be one of the possible strings. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 4th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocks_c), blocks_c), 'Value Error: 5th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r>2, 'Value Error: 4th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_c>2, 'Value Error: 5th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r<=N, 'Value Error: 4th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_c<=M, 'Value Error: 5th argument must be at most M. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
 % Initialization
 cumpress = zeros(max(pcs)+1,1);
-press = zeros(max(pcs)+1,s(2));
+press = zeros(max(pcs)+1,M);
 
-rows = rand(1,s(1));
+rows = rand(1,N);
 [a,r_ind]=sort(rows);
-elem_r=s(1)/blocks_r;
+elem_r=N/blocks_r;
 
-cols = rand(1,s(2));
+cols = rand(1,M);
 [a,c_ind]=sort(cols);
-elem_c=s(2)/blocks_c;
+elem_c=M/blocks_c;
 
 
 % Cross-validation
 for i=1:blocks_r,
     
-    %disp(sprintf('Block %i of %i',i,blocks_r))
-    
     ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
-    i2 = ones(s(1),1);
+    i2 = ones(N,1);
     i2(ind_i)=0;
     sample = x(ind_i,:);
     calibr = x(find(i2),:); 
@@ -123,13 +149,13 @@ for i=1:blocks_r,
         scs(j,:) = (sample(j,:)-av)./st;
     end
      
-    p = pca_pp(ccs,pcs(end));
+    p = pca_pp(ccs,1:max(pcs));
     
-    for pc=pcs,
+    for pc=1:length(pcs),
         
-        if pc > 0, % PCA Modelling
+        if pcs(pc) > 0, % PCA Modelling
                                
-            p2 = p(:,max(1,pcs(1)):min(pc,end));
+            p2 = p(:,1:min(pcs(pc),end));
             
             switch lower(leave_m)
                 
@@ -143,7 +169,7 @@ for i=1:blocks_r,
                     srec = t_est*p2';
                     erec = scs - srec;
                     term3_p = erec;
-                    if blocks_c == s(2),
+                    if blocks_c == M,
                         term1_p = (scs-avs_prep).*(ones(ss(1),1)*(sum(p2.*p2,2))');
                     else
                         term1_p = zeros(size(term3_p));
@@ -186,7 +212,7 @@ for i=1:blocks_r,
             pem = sum(scs.^2,1);
         end
         
-        press(pc+1,:) = press(pc+1,:) + pem;
+        press(pcs(pc)+1,:) = press(pcs(pc)+1,:) + pem;
         
     end            
 end
@@ -197,7 +223,6 @@ cumpress = sum(press,2);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(cumpress(pcs+1),num2str((pcs')),'PRESS',[],1); 
-    %fig_h = plot_vec2(cumpress(pcs+1),num2str((pcs')),[],'PRESS'); % Problema!!!: plot_vec2 es sólo bar
+    fig_h = plot_vec(cumpress(pcs+1),pcs,[],{'PRESS','#PCs'},[],1); 
 end
 

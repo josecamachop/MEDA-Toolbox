@@ -1,25 +1,36 @@
-function [p,t] = pca_pp(x,pc)
+function [p,t] = pca_pp(xcs,pcs)
 
-% Principal Component Analysis.
+% Principal Component Analysis based on svd.
 %
-% [p,t] = pca_pp(x,pc)     % complete call
+% p = pca_pp(xcs)     % minimum call
+% [p,t] = pca_pp(xcs,pcs)     % complete call
+%
 %
 % INPUTS:
 %
-% x: (NxM) Two-way batch data matrix, N(observations) x M(variables)
+% xcs: [NxM] preprocessed billinear data set 
 %
-% pc: number of principal components.
+% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+%   first two PCs). By default, pcs = 0:rank(xcs)
 %
 %
 % OUTPUTS:
 %
-% p: (M x pc) matrix of loadings.
+% p: [MxA] matrix of loadings.
 %
-% t: (N x pc) matrix of scores.
+% t: [NxA] matrix of scores.
+%
+%
+% EXAMPLE OF USE: Random data:
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% Xcs = preprocess2D(X,2);
+% pcs = 1:3;
+% [p,t] = pca_pp(Xcs,pcs);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% last modification: 5/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -37,20 +48,37 @@ function [p,t] = pca_pp(x,pc)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Parameters checking
+%% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end;
-s = size(x);
-if find(s<1), error('Incorrect content of x.'); end;
-if pc<0, error('Incorrect value of prep.'); end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+N = size(xcs, 1);
+M = size(xcs, 2);
+if nargin < 2 || isempty(pcs), pcs = 0:rank(xcs); end;
 
-% Computation
+% Convert column arrays to row arrays
+if size(pcs,2) == 1, pcs = pcs'; end;
 
-[u,d,p]=svd(x);
+% Preprocessing
+pcs = unique(pcs);
+pcs(find(pcs==0)) = [];
+pcs(find(pcs>rank(xcs))) = [];
+A = length(pcs);
+
+% Validate dimensions of input data
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+
+% Validate values of input data
+assert (isempty(find(pcs<0)) & isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+
+
+%% Main code
+
+[u,d,p]=svd(xcs);
 t = u*d;
-p = p(:,1:pc);
-t = t(:,1:pc);
+p = p(:,pcs);
+t = t(:,pcs);
 
         
 

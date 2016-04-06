@@ -1,26 +1,26 @@
-function ind = ADindex2(L,A,R)
+function ind = ADindex2(L,App,R)
 
 % Modified ADICOV similarity index based on division
 %
-% ind = ADindex2(L,A,R) % complete call
+% ind = ADindex(L,App,R) % complete call
 %
 %
 % INPUTS:
 %
-% L: {NxM} original data set.
+% L: [NxM] original data set.
 %
-% A: {NxM} data set approximated by ADICOV.
+% App: [NxM] data set approximated by ADICOV.
 %
-% R: (Mxpcs) proyection matrix.
+% R: [MxA] proyection matrix.
 %
 %
 % OUTPUTS:
 %
-% ind: (Nx1) similarity index.
+% ind: [Nx1] similarity index.
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 04/Sep/15
+% last modification: 22/Mar/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -38,14 +38,24 @@ function ind = ADindex2(L,A,R)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 %% Arguments checking
+
+% Set default values
+routine=dbstack;
+assert (nargin == 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+N = size(L, 1);
+M = size(L, 2);
+
+% Validate dimensions of input data
+assert (isequal(size(L), [N M]), 'Dimension Error: 1st argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(App), [N M]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(R,1), M), 'Dimension Error: 3rd argument must be M-by-PCs. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
 ux = L*R;
-uy = A*R;
+uy = App*R;
 r = abs(ux) - abs(uy);
 r(find(r(:)<0)) = 0;
 

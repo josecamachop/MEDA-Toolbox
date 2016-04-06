@@ -1,10 +1,10 @@
 
-function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes)
+function L = leverages_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 
 % Compute and plot loadings in PLS
 %
-% P = loadings_pls(x,y) % minimum call
-% [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes) % complete call
+% L = leverages_pls(x,y) % minimum call
+% L = leverages_pls(x,y,lvs,prepx,prepy,opt,label,classes) % complete call
 %
 % INPUTS:
 %
@@ -27,9 +27,7 @@ function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 %
 % opt: [1x1] options for data plotting
 %       0: no plots
-%       1: plot of weights (default)
-%       2: plot of X-block loadings
-%       otherwise: plot of Y-block loadings
+%       otherwise: bar plot of leverages
 %
 % label: [Mx1] (opt = 1 o 2), [Ox1] (opt = otherwise), name of the 
 %   variables (numbers are used by default)
@@ -40,27 +38,14 @@ function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 %
 % OUTPUTS:
 %
-% W: [MxA] X-block weights
-%
-% P: [MxA] X-block loadings
-%
-% Q: [OxA] Y-block loadings
+% L: [Mx1] leverages of the variables
 %
 %
 % EXAMPLE OF USE: Random loadings: bar and scatter plot of weights
 %
 % X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
 % Y = randn(100,2) + X(:,1:2);
-% loadings_pls(X,Y,1);
-% [W,P,Q] = loadings_pls(X,Y,1:3);
-%
-%
-% EXAMPLE OF USE: Random loadings, plotting x-block and y-block loadings
-%
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
-% Y = randn(100,2) + X(:,1:2);
-% [W,P,Q] = loadings_pls(X,Y,1:2,[],[],2);
-% [W,P,Q] = loadings_pls(X,Y,1:2,[],[],3);
+% L = leverages_pls(X,Y,1:3);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -151,31 +136,12 @@ ycs = preprocess2D(y,prepy);
 
 [beta,W,P,Q] = kernel_pls(xcs'*xcs,xcs'*ycs,lvs);
 
+L = diag(W*W');
+
 
 %% Show results
 
 if opt,
-    
-    switch opt,
-        case 1 
-            Pt = W;
-            text = 'Weights';
-        case 2 
-            Pt = P;
-            text = 'X-block loadings';
-        otherwise
-            Pt = Q;
-            text = 'Y-block loadings';
-    end
-    
-    if length(lvs) == 1,
-        plot_vec(Pt, label, classes, {'',sprintf('%s LV %d',text,lvs)});
-    else
-        for i=1:length(lvs)-1,
-            for j=i+1:length(lvs),
-                plot_scatter([Pt(:,i),Pt(:,j)], label, classes, {sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}');
-            end      
-        end
-    end
+    plot_vec(L, label, classes, {'Variables','Leverages'});
 end
         

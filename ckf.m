@@ -1,32 +1,40 @@
-
 function cumpress = ckf(xcs,T,P,opt)
 
 % CKF Algorithm: Journal of Chemometrics, 29(8): 467-478, 2015
 %
-% ckf(xcs,T,P) % minimum call
-% ckf(xcs,T,P,opt) % complete call
+% cumpress = ckf(xcs,T,P) % minimum call
+% cumpress = ckf(xcs,T,P,opt) % complete call
 %
 %
 % INPUTS:
 %
-% xcs: (LxM) billinear data set preprocessed
+% xcs: [NxM] preprocessed billinear data set 
 %
-% T: (LxA) scores.
+% T: [NxA] scores.
 %
-% P: (MxA) loadings.
+% P: [MxA] loadings.
 %
-% opt: (1x1) options for data plotting.
+% opt: [1x1] options for data plotting.
 %       0: no plots.
-%       1: plot (default)
+%       otherwise: plot (default)
 %
 %
 % OUTPUTS:
 %
-% cumpress: ((maxpcs+1)x1) ckf curve.
+% cumpress: [Ax1] ckf curve.
+%
+%
+%
+% EXAMPLE OF USE: Random curve
+%
+% X = randn(100,10);
+% T = randn(100,3);
+% P = randn(10,3);
+% cumpress = ckf(X,T,P);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 07/Sep/15.
+% last modification: 22/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -46,22 +54,30 @@ function cumpress = ckf(xcs,T,P,opt)
 
 %% Arguments checking
 
-if nargin < 3, error('Error in the number of arguments.'); end;
-if nargin < 4, opt = 1; end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+N = size(xcs, 1);
+M = size(xcs, 2);
+A = size(T, 2);
+if nargin < 4 || isempty(opt), opt=1; end;
 
-maxpcs = size(P,2);
+% Validate dimensions of input data
+assert (isequal(size(T), [N A]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(P), [M A]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+
 
 %% Main code
 
-cumpress = zeros(maxpcs+1,1);
-press = zeros(maxpcs+1,size(P,1));
+cumpress = zeros(A+1,1);
+press = zeros(A+1,size(P,1));
 
 s = size(xcs);
 
-for i=0:maxpcs,
+for i=0:A,
     
     if i > 0, % PCA Modelling
-        
         p2 = P(:,1:i);
         srec = T(:,1:i)*p2';
         erec = xcs - srec;
@@ -79,13 +95,13 @@ for i=0:maxpcs,
     press(i+1,:) = sum([term1;term2;term3]);
     
     cumpress(i+1) = sum(press(i+1,:));
-    end
+end
+    
     
 %% Show results
 
-if opt == 1,
-        fig_h = plot_vec(cumpress/cumpress(1),num2str((0:maxpcs)')','ckf',[],1,'r--');
-        %fig_h = plot_vec2(cumpress/cumpress(1),num2str((0:maxpcs)')',[],'ckf'); % Problema!!!: plot_vec2 es sólo bar
+if opt,    
+    fig_h = plot_vec(cumpress/cumpress(1),0:A,[],{'ckf','#PCs'},[],1); 
 end
 
         

@@ -44,7 +44,7 @@ function omeda_vec = omeda_Lpca(Lmodel,pcs,Ltest,dummy,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 04/Jul/13.
+% last modification: 05/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -99,10 +99,10 @@ elseif opt == 2 | opt == 3,
     lim = 0.9*vcal + 0.1*sum(vcal)/length(vcal); % heuristic
     
     if opt==2
-        plot_vec(omeda_vec,label,'d^2_A',[lim;lim]);
+        plot_vec(omeda_vec,label,[],{'','d^2_A'},[lim;lim]);
     else       
         omeda_vec = omeda_vec./(lim');
-        plot_vec(omeda_vec,label,'d^2_A',[ones(1,s(2));-ones(1,s(2))]);
+        plot_vec(omeda_vec,label,[],{'','d^2_A'},[1;-1]);
     end
         
 end

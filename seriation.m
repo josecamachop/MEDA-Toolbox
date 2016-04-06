@@ -3,22 +3,31 @@ function [mapo,ord] = seriation(mapi)
 
 % Seriation (ordination) of a covariance-like matrix.
 %
-% mapo = seriation(mapi) % complete call
+% [mapo, ord] = seriation(mapi) % complete call
 %
 %
 % INPUTS:
 %
-% mapi: (MxM) symmetric input matrix. 
+% mapi: [MxM] symmetric input matrix. 
+%
 %
 % OUTPUTS:
 %
-% mapo: (MxM) symmetric output matrix.
+% mapo: [MxM] symmetric output matrix.
 %
-% ord: (1xM) seriated indices.
+% ord: [Mx1] seriated indices.
+%
+%
+% EXAMPLE OF USE: Random data
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% Xcs = preprocess2D(X,2);
+% mapo = seriation(Xcs'*Xcs/99);
+% plot_map(mapo);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Jul/14.
+% last modification: 23/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -36,27 +45,31 @@ function [mapo,ord] = seriation(mapi)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Parameters checking
+%% Arguments checking
 
-if nargin < 1, error('Error in the number of arguments.'); end;
-s = size(mapi);
-if s(1)~=s(2), error('Error in the dimension of the arguments.'); end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+M = size(mapi, 1);
+
+% Validate dimensions of input data
+assert (isequal(size(mapi), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
 mapo = mapi;
-for i=1:s(1),
+for i=1:M,
     fragment{i} = i;
 end
 mapoa = abs(mapo);
-mapoa(1:(s(1)+1):end) = -Inf;
+mapoa(1:(M+1):end) = -Inf;
 
 finish = false;
 while ~finish,
    i = find(mapoa(:)==max(mapoa(:)),1);
-   ci = 1+fix((i-1)/s(1));
-   fi = i-s(1)*fix((i-1)/s(1));
+   ci = 1+fix((i-1)/M);
+   fi = i-M*fix((i-1)/M);
    
    fci = 0;
    ffi = 0;

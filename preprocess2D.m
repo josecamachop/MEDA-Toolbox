@@ -1,34 +1,41 @@
-function [xp,average,scale] = preprocess2D(x,prep,weight)
+function [xcs,average,scale] = preprocess2D(x,prep,weights)
 
 % Preprocess 2-way data.
 %
-% [xp,average,scale] = preprocess2D(x)          % for mean centering
-% [xp,average,scale] = preprocess2D(x,prep,weight)     % complete call
+% xcs = preprocess2D(x)          % minimum call
+% [xcs,average,scale] = preprocess2D(x,prep,weights)     % complete call
 %
 % INPUTS:
 %
-% x: (NxM) Two-way batch data matrix, N(observations) x M(variables)
+% x: [NxM] billinear data set
 %
-% prep: (1x1) preprocesing of the data
-%       0: no preprocessing.
-%       1: mean centering (default) 
-%       2: auto-scaling (centers and scales data so that each variable 
-%           has variance 1)  
+% prep: [1x1] preprocesing
+%       0: no preprocessing 
+%       1: mean-centering 
+%       2: auto-scaling (default)   
 %
-% weight: (1xM) weight applied after preprocessing scaling. Set to 1 
+% weights: [1xM] weight applied after preprocessing. Set to a vector of 1s 
 % by defect.
+%
 %
 % OUTPUTS:
 %
-% xp: (NxM) preprocessed data.
+% xcs: [NxM] preprocessed data.
 %
-% average: (1 x M) sample average according to the preprocessing method.
+% average: [1xM] sample average according to the preprocessing method.
 %
-% scale: (1 x M) sample scale according to the preprocessing method.
+% scale: [1xM] sample scale according to the preprocessing method.
+%
+%
+% EXAMPLE OF USE: Random data:
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% [Xcs,av,sc] = preprocess2D(X,2);
+% plot_vec([av' sc'],[],[],{'Avergae & Std Dev'},[], 1);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 29/Oct/15.
+% last modification: 28/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -46,21 +53,32 @@ function [xp,average,scale] = preprocess2D(x,prep,weight)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Parameters checking
 
-if nargin < 1, error('Error in the number of arguments.'); end;
-if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end;
-s = size(x);
-if find(s<1), error('Incorrect content of x.'); end;
-if nargin < 2, prep = 1; end;
-if (prep<0||prep>2), error('Incorrect value of prep.'); end;
-if nargin < 3 || isempty(weight), 
-    weight = ones(1,s(2));
-end
+%% Arguments checking
 
-% Computation
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+N = size(x, 1);
+M = size(x, 2);
+if nargin < 2 || isempty(prep), prep = 2; end;
+if nargin < 3 || isempty(weights), weights = ones(1,M); end;
 
-if s(1)==1 && prep == 2, prep =1; end;
+% Convert column arrays to row arrays
+if size(weights,2) == 1, weights = weights'; end;
+
+% Validate dimensions of input data
+assert (isequal(size(prep), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(weights), [1 M]), 'Dimension Error: 3rd argument must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
+
+% Validate values of input data
+assert (prep>=0 && prep<=2 && isequal(fix(prep), prep), 'Value Error: 2nd argument must contain integers between 0 and 2. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(weights<0)) && isempty(find(weights==Inf)), 'Value Error: 3rd argument must contain positive values. Type ''help %s'' for more info.', routine(1).name);
+
+
+%% Main code
+
+if N==1 && prep == 2, prep =1; end;
 
 switch prep,
     
@@ -70,17 +88,17 @@ switch prep,
         anM = 1 - nanM;
         x(find(nanM)) = 0;
         average = sum(x,1)./sum(anM,1);    
-        scale = ones(1,s(2));
-        xp = x - ones(s(1),1)*average;
-        xp(find(nanM)) = nan;
+        scale = ones(1,M);
+        xcs = x - ones(N,1)*average;
+        xcs(find(nanM)) = nan;
         
-    case 2, % Trajectory centering and scaling
+    case 2, % auto-sclaing
         
         nanM = isnan(x);
         anM = 1 - nanM;
         x(find(nanM)) = 0;
         average = sum(x,1)./sum(anM,1);
-        xc = x - ones(s(1),1)*average; 
+        xc = x - ones(N,1)*average; 
         xc(find(nanM)) = 0;
         scale = sqrt(sum(xc.^2,1)./(sum(anM,1)-1));
         ind = find(scale==0);
@@ -88,13 +106,13 @@ switch prep,
         % use 1 by default may reduce detection of anomalous events 
         % what we do is to infer that we need to double the calibration
         % data to find one single element
-        xp = xc./(ones(s(1),1)*scale);
-        xp(find(nanM)) = nan;
+        xcs = xc./(ones(N,1)*scale);
+        xcs(find(nanM)) = nan;
         
     otherwise, % No preprocessing 
-        average = zeros(1,s(2));     
-        scale = ones(1,s(2)); 
-        xp = x;
+        average = zeros(1,M);     
+        scale = ones(1,M); 
+        xcs = x;
 end
 
-xp = xp.*(ones(s(1),1)*weight);
+xcs = xcs.*(ones(N,1)*weights);

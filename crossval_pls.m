@@ -4,42 +4,52 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 % [cumpress,press] = crossval_pls(x,y,lvs) % minimum call
 % [cumpress,press] =
-% crossval_pls(x,y,lvs,blocks_r,blocks_c,prepx,prepy,opt) % complete call
+% crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt) % complete call
+%
 %
 % INPUTS:
 %
-% x: (NxM) billinear data set for model fitting
+% x: [NxM] billinear data set for model fitting
 %
-% y: (NxO) billinear data set of predicted variables
+% y: [NxO] billinear data set of predicted variables
 %
-% lvs: (1x1) Latent Variables considered (e.g. pcs = 1:2 selects the
-%   first two LVs)
+% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+%   first two LVs). By default, lvs = 0:rank(x)
 %
-% blocks_r: (1x1) maximum number of blocks of samples (Inf by default)
+% blocks_r: [1x1] maximum number of blocks of samples (N by default)
 %
-% prepx: (1x1) preprocesing of the x-block
-%       0: no preprocessing.
-%       1: mean centering.
+% prepx: [1x1] preprocesing of the x-block
+%       0: no preprocessing
+%       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: (1x1) preprocesing of the y-block
-%       0: no preprocessing.
-%       1: mean centering.
+% prepy: [1x1] preprocesing of the y-block
+%       0: no preprocessing
+%       1: mean centering
 %       2: autoscaling (default)  
 %
-% opt: (1x1) options for data plotting.
-%       0: no plots.
+% opt: [1x1] options for data plotting
+%       0: no plots
 %       1: bar plot (default)
+%
 %
 % OUTPUTS:
 %
-% cumpress: (lvs x 1) Cumulative PRESS.
+% cumpress: [Ax1] Cumulative PRESS
 %
-% press: (lvs x O) PRESS per variable.
+% press: [AxO] PRESS per variable.
+%
+%
+% EXAMPLE OF USE: Random data with structural relationship
+%
+% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
+% Y = randn(100,2) + X(:,1:2);
+% lvs = 0:10;
+% cumpress = crossval_pls(X,Y,lvs);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 02/Feb/15.
+% last modification: 30/Mar/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -60,35 +70,50 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 
 %% Arguments checking
 
-if nargin < 3, error('Error in the number of arguments.'); end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+N = size(x, 1);
+M = size(x, 2);
+O = size(y, 2);
+if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+A = length(lvs);
+if nargin < 4 || isempty(blocks_r), blocks_r = N; end;
+if nargin < 5 || isempty(prepx), prepx = 2; end;
+if nargin < 6 || isempty(prepy), prepy = 2; end;
+if nargin < 7 || isempty(opt), opt = 1; end;
 
-if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end;
-s = size(x);
-if find(s<1), error('Incorrect content of x.'); end;
-if ndims(y)~=2, error('Incorrect number of dimensions of y.'); end;
-sy = size(y);
-if find(s<1), error('Incorrect content of y.'); end;
+% Convert column arrays to row arrays
+if size(lvs,2) == 1, lvs = lvs'; end;
 
-if min(lvs)<0, lvs = 0:max(lvs); end;
+% Validate dimensions of input data
+assert (isequal(size(y), [N O]), 'Dimension Error: 2nd argument must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepx), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepy), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
-if nargin < 4, blocks_r = Inf; end;
-if nargin < 5, prepx = 2; end;
-if nargin < 6, prepy = 2; end;
-if nargin < 7, opt = 1; end;
+% Preprocessing
+lvs = unique(lvs);
 
-if blocks_r>s(1), blocks_r = s(1); end
-if (blocks_r<2), error('Incorrect value of blocks_r.'); end;
+% Validate values of input data
+assert (isempty(find(lvs<0)), 'Value Error: 3rd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 4th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r>2, 'Value Error: 4th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r<=N, 'Value Error: 4th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
 % Initialization
 cumpress = zeros(max(lvs)+1,1);
-press = zeros(max(lvs)+1,sy(2));
+press = zeros(max(lvs)+1,O);
 
-rows = rand(1,s(1));
+rows = rand(1,N);
 [a,r_ind]=sort(rows);
-elem_r=s(1)/blocks_r;
+elem_r=N/blocks_r;
 
 
 % Cross-validation
@@ -96,7 +121,7 @@ elem_r=s(1)/blocks_r;
 for i=1:blocks_r,
     
     ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
-    i2 = ones(s(1),1);
+    i2 = ones(N,1);
     i2(ind_i)=0;
     sample = x(ind_i,:);
     calibr = x(find(i2),:); 
@@ -113,12 +138,12 @@ for i=1:blocks_r,
         scs_y(j,:) = (sample_y(j,:)-av_y)./st_y;
     end
     
-    [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,max(lvs));
+    [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,1:max(lvs));
     
-    for lv=lvs,
+    for lv=1:length(lvs),
     
-        if lv > 0,
-            beta = R(:,max(min(lvs),1):lv)*Q(:,max(min(lvs),1):lv)';
+        if lvs(lv) > 0,
+            beta = R(:,1:min(lvs(lv),end))*Q(:,1:min(lvs(lv),end))';
             srec = scs*beta;
             
             pem = scs_y-srec;
@@ -127,7 +152,7 @@ for i=1:blocks_r,
             pem = scs_y;
         end
         
-        press(lv+1,:) = press(lv+1,:) + sum(pem.^2,1);
+        press(lvs(lv)+1,:) = press(lvs(lv)+1,:) + sum(pem.^2,1);
         
     end
 end
@@ -137,7 +162,6 @@ cumpress = sum(press,2);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(cumpress(lvs+1),num2str((lvs')),'PRESS',[],1);
-    %fig_h = plot_vec2(cumpress(lvs+1),num2str((pcs')),[],'PRESS'); % Problema!!!: plot_vec2 es sólo bar
+    fig_h = plot_vec(cumpress(lvs+1),lvs,[],{'PRESS','#LVs'},[],1); 
 end
 

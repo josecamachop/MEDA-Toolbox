@@ -1,4 +1,4 @@
-% EDA example for Big Data using the EDA Toolbox. See README.txt for more
+% EDA example for Big Data using the MEDA Toolbox. See README.txt for more
 % details.
 % 
 %  Data set and Analisys: 
@@ -29,7 +29,7 @@
 % each one with 122 features.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Aug/14.
+% last modification: 05/Apr/16.
 
 %% Inicialization, remember to set the path of the toolbox
 
@@ -39,7 +39,7 @@ load kdd
 
 Lmodel = Lmodel_ini; % Initialization
 Lmodel.update = 2; % Change this to 1 for EWMA and 2 for Iterative
-Lmodel.type = 2; % Change this to 1 for PCA and 2 for PLS
+Lmodel.type = 1; % Change this to 1 for PCA and 2 for PLS
 Lmodel.lv = 3; % Initial number of LVs
 Lmodel.prep = 2; % X-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling 
 Lmodel.prepy = 2; % Y-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling

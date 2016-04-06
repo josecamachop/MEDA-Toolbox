@@ -50,7 +50,7 @@ function omeda_vec = omeda_Lpls(Lmodel,lvs,Ltest,dummy,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 02/Feb/15.
+% last modification: 05/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -108,11 +108,11 @@ elseif opt == 2 | opt == 3,
     dev = sqrt(sum(ov.^2)/100);
     
     if opt==2
-        plot_vec(omeda_vec,label,'d^2_A',3*[dev;-dev]);
+        plot_vec(omeda_vec,label,[],{'','d^2_A'},3*[dev;-dev]);
     else       
         idev = find(dev<(1e-2)*max(dev));
         dev(idev)=(1e-2)*max(dev);
-        plot_vec(omeda_vec./(3*dev'),label,'d^2_A',[ones(1,s(2));-ones(1,s(2))]);
+        plot_vec(omeda_vec./(3*dev'),label,[],{'','d^2_A'},[1;-1]);
     end
         
 end

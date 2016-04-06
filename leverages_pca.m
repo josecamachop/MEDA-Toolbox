@@ -1,10 +1,10 @@
 
-function P = loadings_pca(x,pcs,prep,opt,label,classes)
+function L = leverages_pca(x,pcs,prep,opt,label,classes)
 
-% Compute and plot loadings in PCA
+% Compute and plot the leverages of variables in the PCA model
 %
-% P = loadings_pca(x) % minimum call
-% P = loadings_pca(x,pcs,prep,opt,label,classes) % complete call
+% L = leverages_pca(x) % minimum call
+% L = leverages_pca(x,pcs,prep,opt,label,classes) % complete call
 %
 % INPUTS:
 %
@@ -20,8 +20,7 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes)
 %
 % opt: [1x1] options for data plotting
 %       0: no plots
-%       1: scatter plot of pairs of PCs (default)
-%       otherwise: bar plot of each single PC
+%       otherwise: bar plot of leverages
 %
 % label: [Mx1] name of the variables (numbers are used by default)
 %
@@ -31,19 +30,13 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes)
 %
 % OUTPUTS:
 %
-% P: [MxA] loadings
+% L: [Mx1] leverages of the variables
 %
 %
-% EXAMPLE OF USE: Scatter plot of random scores
-%
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
-% P = loadings_pca(X,1:3);
-%
-%
-% EXAMPLE OF USE: Line plot of random scores
+% EXAMPLE OF USE: Random scores
 %
 % X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
-% P = loadings_pca(X,1:3,[],2);
+% L = leverages_pca(X,1:3);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -107,20 +100,12 @@ assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argume
 xcs = preprocess2D(x,prep);
 P = pca_pp(xcs,pcs);
 
+L = diag(P*P');
+
 
 %% Show results
 
 if opt,
-    if length(pcs) == 1 | opt ~=1,
-        for i=1:length(pcs),
-                plot_vec(P(:,i), label, classes, {'',sprintf('Loadings PC %d',pcs(i))});
-        end
-    else
-        for i=1:length(pcs)-1,
-            for j=i+1:length(pcs),
-                plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d',pcs(i)),sprintf('Loadings PC %d',pcs(j))}');
-            end      
-        end
-    end
+    plot_vec(L, label, classes, {'Variables','Leverages'});
 end
         

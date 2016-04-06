@@ -49,7 +49,7 @@ function varargout = PLS(varargin)
 
 % Edit the above text to modify the response to help PLS
 
-% Last Modified by GUIDE v2.5 04-Feb-2015 13:13:05
+% Last Modified by GUIDE v2.5 06-Apr-2016 10:23:01
 % Fixing some minor bugs on the GUI
 
 % Begin initialization code - DO NOT EDIT
@@ -101,7 +101,7 @@ set(handles.medaPopup,'Enable','off');
 set(handles.medaPopup,'String',' ');
 set(handles.text5,'Enable','off');
 set(handles.thresEdit,'Enable','off');
-set(handles.thresRadio,'Enable','off');
+set(handles.discardRadio,'Enable','off');
 set(handles.serRadio,'Enable','off');
 set(handles.medaButton,'Enable','off');
 set(handles.selmedaButton,'Enable','off');
@@ -584,11 +584,11 @@ function generalButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 sizeMat = size(handles.data.data_matrixX);
-[LVs_num,status]=str2num(get(handles.generalEdit, 'String'));
+[lvs,status]=str2num(get(handles.generalEdit, 'String'));
 if status == false
     errordlg('Please enter a number of latent variables.');
     return;
-elseif LVs_num > sizeMat(2) || LVs_num < 1
+elseif lvs > sizeMat(2) || lvs < 1
     errordlg(sprintf('The number of LVs can not exceed the number of variables in the data matrix which is %d.',sizeMat(2)));
     return;
 end
@@ -597,14 +597,15 @@ end
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
     case 'Var Y'
-        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,1);
+        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,1:lvs,handles.data.prepX,handles.data.prepY,1);
     case 'Var Y + scores'
-        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,LVs_num,handles.data.prepX,handles.data.prepY,2);
+        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,1:lvs,handles.data.prepX,handles.data.prepY,2);
     case 'Y-SVI plot'
         chosenVar = str2num(getCurrentPopupString(handles.selectPopup));
-        SVIplot([handles.data.data_matrixY handles.data.data_matrixX],LVs_num,1,7,handles.data.prepX);
+        SVIplot([handles.data.data_matrixY handles.data.data_matrixX],1:lvs,1,7,handles.data.prepX);
     case 'Y-crossval'
-        crossval_pls(handles.data.data_matrixX,handles.data.data_matrixY,0:LVs_num,Inf,handles.data.prepX,handles.data.prepY,1);
+        [blocks_r blocks_c] = size(handles.data.data_matrixX);
+        crossval_pls(handles.data.data_matrixX,handles.data.data_matrixY,0:lvs,blocks_r,handles.data.prepX,handles.data.prepY,1);
     otherwise
         disp('No case detected')
 end
@@ -793,7 +794,7 @@ set(handles.labscorePopup,'Enable','on');
 set(handles.classcorePopup,'Enable','on');
 
 %MEDA
-set(handles.thresRadio,'Enable','on');
+set(handles.discardRadio,'Enable','on');
 set(handles.serRadio,'Enable','on');
 set(handles.medaButton,'Enable','on');
 set(handles.medaPopup,'Enable','on');
@@ -1090,7 +1091,13 @@ end
 fig=gcf;
 set(fig,'Tag','ScorePlot');%A cada ScorePlot que abro le pongo en su propiedad 'Tag' que es un ScorePlot
 
-matrixLVs_oMEDA=[T(:,LV1),T(:,LV2)];
+%matrixLVs_oMEDA=[T(:,LV1),T(:,LV2)];
+T_size = size(T);
+if T_size(2) > 1,
+    matrixLVs_oMEDA=[T(:,1),T(:,2)];
+else
+    matrixLVs_oMEDA=T(:,1);
+end
 
 handles.data.sp_ID_figures=[handles.data.sp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.sp_matrix={handles.data.sp_matrix{:} matrixLVs_oMEDA};
@@ -1506,8 +1513,8 @@ function resomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-E=sqresiduals_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,1,handles.data.label);
-
+[Dst,Qst] = mspc_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,0,handles.data.label,handles.data.classes);
+plot_vec(Qst, handles.data.label,handles.data.classes, {[],'Q-st'});
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Loading Plot%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1757,8 +1764,13 @@ end
 fig=gcf;
 set(fig,'Tag','LoadingPlot');%A cada LoadingPlot que abro le pongo en su propiedad 'Tag' que es un LoadingPlot
 
-matrixLVs_MEDA_LP=[P(:,LV1_LP),P(:,LV2_LP)];
-
+%matrixLVs_MEDA_LP=[P(:,LV1_LP),P(:,LV2_LP)];
+T_size = size(P);
+if T_size(2) > 1,
+    matrixLVs_MEDA_LP=[P(:,1),P(:,2)];
+else
+    matrixLVs_MEDA_LP=P(:,1);
+end
 handles.data.lp_ID_figures=[handles.data.lp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.lp_matrix={handles.data.lp_matrix{:} matrixLVs_MEDA_LP};
 
@@ -1798,15 +1810,15 @@ end
 set(hObject, 'String', 0.1);
 thresEdit_Callback(hObject, eventdata, handles);
 
-% --- Executes on button press in thresRadio.
-%thresRadio==thresold
-function thresRadio_Callback(hObject, eventdata, handles)
-% hObject    handle to thresRadio (see GCBO)
+% --- Executes on button press in discardRadio.
+%discardRadio==thresold
+function discardRadio_Callback(hObject, eventdata, handles)
+% hObject    handle to discardRadio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-% Hint: get(hObject,'Value') returns toggle state of thresRadio
+% Hint: get(hObject,'Value') returns toggle state of discardRadio
 %Si radio button señalado q ecit 6 este ON si no señalado q este OFF
-if get(handles.thresRadio, 'Value'),
+if get(handles.discardRadio, 'Value'),
     set(handles.thresEdit, 'Enable', 'on');
     set(handles.text5, 'Enable', 'on');
 else
@@ -1872,13 +1884,13 @@ lvs = [str2num(LVs_MEDA_cell{1}):str2num(LVs_MEDA_cell{2})];
 %    return;
 %end
 
-if get(handles.thresRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
-    handles.data.opt=2;
-else if get(handles.thresRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
-        handles.data.opt=3;
+if get(handles.discardRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
+    handles.data.opt='101';
+else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
+        handles.data.opt='011';
     else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0,
-            handles.data.opt=1;
-        else handles.data.opt=4;
+            handles.data.opt='001';
+        else handles.data.opt='111';
         end
     end
 end
@@ -2004,9 +2016,9 @@ for l=1:M,
     end
 end
 
-if get(handles.thresRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
+if get(handles.discardRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
     handles.data.opt=2;
-else if get(handles.thresRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
+else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
         handles.data.opt=3;
     else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0,
             handles.data.opt=1;
@@ -2028,7 +2040,10 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-E=sqresiduals_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,2,handles.data.label_LP);
+size_x = size(handles.data.data_matrixX);
+num_var = size_x(2);
+E=leverages_pls(handles.data.data_matrixX,handles.data.data_matrixY,max(handles.data.LVs)+1:num_var,handles.data.prepX,handles.data.prepY,1,handles.data.label_LP,handles.data.classes_LP);
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%Information panel%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2044,14 +2059,15 @@ function modelmedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-E=leverage_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,2,handles.data.label_LP);
+E=leverages_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),handles.data.prepX,handles.data.prepY,1,handles.data.label_LP,handles.data.classes_LP);
 
 % --- Executes on button press in modelomedaButton.
 function modelomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-E=leverage_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,1,handles.data.label);
+[Dst,Qst] = mspc_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,0,handles.data.label,handles.data.classes);
+plot_vec(Dst, handles.data.label,handles.data.classes, {[],'D-st'});
 % --- Executes on selection change in generalPopup.
 function generalPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to generalPopup (see GCBO)

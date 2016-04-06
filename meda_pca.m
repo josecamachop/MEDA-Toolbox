@@ -3,57 +3,62 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 
 % Missing data methods for exploratory data analysis in PCA. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
-% 8-18. This algorithm follows the suggested computation by Arteaga in his
-% technical report "A Note on MEDA", attached to the toolbox, which
-% makes use of the covariance matrices.
+% 8-18. 
 %
-% [meda_map,meda_dis,ord] = meda_pca(x,pcs) % minimum call
-% [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars) %complete call
+% meda_map = meda_pca(x) % minimum call
+% [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars) % complete call
 %
 %
 % INPUTS:
 %
-% x: (NxM) billinear data set under analysis
+% x: [NxM] billinear data set 
 %
-% pcs: (1xA) Principal Components considered (e.g. pcs = 1:2 selects the
-%   first two PCs)
+% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+%   first two PCs). By default, pcs = 1:rank(xcs)
 %
-% prep: (1x1) preprocesing of the data
-%       0: no preprocessing.
-%       1: mean centering.
+% prep: [1x1] preprocesing of the data
+%       0: no preprocessing
+%       1: mean centering
 %       2: autoscaling (default)  
 %
-% thres: (1x1) threshold for discretization and discarding (0.1 by default)
+% thres: [1x1] threshold (0,1] for discretization and discarding (0.1 by default)
 %
-% opt: (struct) options for data plotting
-%       plot:
+% opt: (str or num) options for data plotting: binary code of the form 'cba' for:
+%       a:
 %           0: no plots
 %           1: plot MEDA matrix (default)
-%           2: plot discretized MEDA matrix
-%       seriated:
+%       b:
 %           0: no seriated
 %           1: seriated (default)
-%       discard:
-%           0: no discard
-%           1: discard 0 variance variables (default)
+%       c:
+%           0: no discard (default)
+%           1: discard 0 variance variables 
+%   If less than 3 digits are specified, most significant digits are set to 
+%   0, i.e. opt = 1 means a=1, b=0 and c=0. If a=0, then b and c are ignored.  
 %
-% label: (Mx1) name of the variables (numbers are used by default), eg.
-%   num2str((1:M)')'
+% label: [Mx1] name of the variables (numbers are used by default)
 %
-% vars: (1xS) Subset of variables to plot (1:M by default)
+% vars: [Sx1] Subset of variables to plot (1:M by default)
 %
 %
 % OUTPUTS:
 %
-% meda_map: (MxM) MEDA matrix.
+% meda_map: [MxM] non-seriated MEDA matrix.
 %
-% meda_dis: (MxM) discretized MEDA matrix.
+% meda_dis: [MxM] discretized MEDA matrix.
 %
-% ord: (1xS) order of shown variables.
+% ord: [Mx1] order of seriated variables.
+%
+%
+% EXAMPLE OF USE: Seriation and discarding uninformative variables
+%
+% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% pcs = 1:3;
+% map = meda_pca(X,pcs,2,0.3,'111');
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Mar/15
+% last modification: 6/Apr/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -71,98 +76,106 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Parameters checking
+%% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-s = size(x);
-if s(1) < 1 || s(2) < 1 || ndims(x)~=2, error('Error in the dimension of the arguments.'); end;
-if nargin < 3, prep = 2; end;
-if nargin < 4, thres=0.1; end; 
-if nargin < 5,  
-    opt.plot = 1;
-    opt.seriated = 1;
-    opt.discard = 1;
-end;
-if isstruct(opt) % backward v1.0 compatibility
-    opt2 = opt;
-else
-    switch opt,
-        case 0
-            opt2.plot = 0;
-            opt2.seriated = 0;
-            opt2.discard = 0;
-        case 1
-            opt2.plot = 1;
-            opt2.seriated = 0;
-            opt2.discard = 0;
-        case 2
-            opt2.plot = 2;
-            opt2.seriated = 0;
-            opt2.discard = 0;       
-        case 3
-            opt2.plot = 1;
-            opt2.seriated = 1;
-            opt2.discard = 0; 
-        case 4
-            opt2.plot = 2;
-            opt2.seriated = 1;
-            opt2.discard = 0; 
-        otherwise
-            error('Error in the dimension of the arguments.'); 
-    end
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+N = size(x, 1);
+M = size(x, 2);
+if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
+if nargin < 3 || isempty(prep), prep = 2; end;
+if nargin < 4 || isempty(thres), thres = 0.1; end; 
+if nargin < 5 || isempty(opt), opt = '011'; end; 
+if nargin < 6 || isempty(label), label = 1:M; end
+if nargin < 7 || isempty(vars), vars = 1:M; end;
+
+% Convert row arrays to column arrays
+if size(label,1) == 1, label = label'; end;
+if size(vars,1)  == 1, vars = vars'; end;
+
+% Convert column arrays to row arrays
+if size(pcs,2) == 1, pcs = pcs'; end;
+
+% Preprocessing
+pcs = unique(pcs);
+pcs(find(pcs==0)) = [];
+A = length(pcs);
+if isstruct(opt) % opt backward compatibility
+    opt = opt.plot + 10*opt.seriated + 100*opt.discard;
 end
-if nargin < 6 || isempty(label)
-    label=num2str((1:s(2))'); 
-else
-    if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
-    if size(label,1)~=s(2), error('Error in the dimension of the arguments.'); end;
-end
-if nargin < 7, vars = 1:s(2); end;
+
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt,'%.3d'); end
+
+% Complete opt
+if length(opt)<2, opt = strcat('00',opt); end
+if length(opt)<3, opt = strcat('0',opt); end
+
+% Validate dimensions of input data
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(thres), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) & length(opt)==3, 'Dimension Error: 5th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 7th argument must be at most M-by-1. Type ''help %s'' for more info.', routine(1).name);
+
+% Validate values of input data
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine(1).name);
+assert (thres>0 && thres<=1, 'Value Error: 4th argument must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: 7th argument must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine(1).name);
+
 
 %% Main code
 
 x = x(:,vars);
-s = size(x);
+label = label(vars);
 
 x2 = preprocess2D(x,prep);
 
-P = pca_pp(x2,max(pcs));
-P = P(:,pcs);
+P = pca_pp(x2,pcs);
         
-[meda_map,meda_dis] = meda(x2'*x2,P,P,thres);
+meda_map = meda(x2'*x2,P,P);
+
+if nargout > 1
+    meda_dis = meda_map; % discretize
+    ind = find(meda_dis(:)<thres);
+    meda_dis(ind) = 0;
+end
+
+if nargout > 2 || opt(2),
+    [map1, ord] = seriation(meda_map);
+end
+
     
 %% Show results
 
-if opt2.plot,
+if opt(3) == '1',
     
-    if opt2.plot==1,
-        map1 = meda_map;
+    map = meda_map;
+ 
+    if opt(2) == '1',
+        ord2 = ord;
     else
-        map1 = meda_dis;
+        ord2 = 1:length(vars);
     end
     
-    if opt2.discard == 1,
-        Dmap = diag(map1);
+    map = map(ord2,ord2);
+    label = label(ord2);
+    
+    if opt(1) == '1',
+        Dmap = diag(map);
         ind = find(Dmap > thres);
-        map1 = map1(ind,ind);
-        s(2) = length(ind);
     else
-        ind = 1:s(2);
+        ind = 1:length(vars);
     end
     
-    if opt2.seriated == 1,
-        [map1, ord] = seriation(map1);
-    else
-        ord = 1:s(2);
-    end
+    map = map(ind,ind);
+    label = label(ind);
     
-    ord = vars(ind(ord));
-    
-    if ~exist('label')
-        label = num2str(ord');
-    end
-    
-    plot_map(map1,label(ord,:));
+    plot_map(map,label);
     
 end
 

@@ -31,7 +31,7 @@ function [beta,W,P,Q,R,sdT] = Lpls(Lmodel)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 02/May/09.
+% last modification: 05/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -51,7 +51,7 @@ function [beta,W,P,Q,R,sdT] = Lpls(Lmodel)
     
 %
 
-[beta,W,P,Q,R] = kernel_pls(Lmodel.XX,Lmodel.XY,Lmodel.lv);
+[beta,W,P,Q,R] = kernel_pls(Lmodel.XX,Lmodel.XY,1:Lmodel.lv);
         
 [V2,d2] = eig(R'*Lmodel.XX*R);
 dd = diag(d2);
