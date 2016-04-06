@@ -2017,12 +2017,12 @@ for l=1:M,
 end
 
 if get(handles.discardRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
-    handles.data.opt=2;
+    handles.data.opt='101';
 else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
-        handles.data.opt=3;
+        handles.data.opt='011';
     else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0,
-            handles.data.opt=1;
-        else handles.data.opt=4;
+            handles.data.opt='001';
+        else handles.data.opt='111';
         end
     end
 end

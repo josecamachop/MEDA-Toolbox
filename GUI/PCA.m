@@ -1899,7 +1899,6 @@ else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1
     end
 end
 
-disp(handles.data.opt);
 %[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,[min(handles.data.PC1_LP,handles.data.PC2_LP) max(handles.data.PC1_LP,handles.data.PC2_LP)],handles.data.prep,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
 [meda_map,meda_dis]=meda_pca(handles.data.data_matrix,pcs,handles.data.prep,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
 
