@@ -1,7 +1,6 @@
-﻿MEDA Toolbox for its use in MATLAB.
+﻿EDA example with GPCA using the MEDA Toolbox. 
 
-Coded by: José Camacho Páez, Alejandro Pérez-Villegas
-GUI by: Elena Jiménez Mañas, Rafael Rodríguez Gómez
+Coded by: José Camacho Páez
 Last modification of this document: 05/Apr/16
 
 References:

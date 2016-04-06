@@ -68,8 +68,8 @@ explanatory. It incorporates help messages to guide its use. To launch the GUI, 
 installation, as explained in the README.txt document. 
 
 The commands provide of much more functionality. Each command includes helping information, that can be seen by typing "help <command>" 
-in the command line of Matlab. Also, in the Examples directory, several examples based on commands are included. It is suggested to
-have a look at the examples.
+in the command line of Matlab. This helping information includes examples. Also, in the Examples directory, several real data examples 
+are included. It is suggested to have a look at these examples.
 
 There are two types of commands or routines. Those that do not provide visualization (e.g. meda, mspc, omeda, ...) are optimized for data 
 computing. Those that issue a plot (e.g meda_pca, meda_pls, scores_pca, ...) are optimized for interactive scripting.  

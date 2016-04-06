@@ -19,7 +19,8 @@ Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laborator
 https://github.com/josecamachop/MEDA-Toolbox" 
 
 
-Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
+Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have 
+suggestions, please contact josecamacho@ugr.es
 
 
 Items in the folder:

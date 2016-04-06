@@ -66,7 +66,7 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Apr/16
+% last modification: 7/Apr/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -171,7 +171,7 @@ if opt(3) == '1',
     if opt(2) == '1',
         ord2 = ord;
     else
-        ord2 = 1:M;
+        ord2 = 1:length(vars);
     end
     
     map = map(ord2,ord2);
@@ -181,7 +181,7 @@ if opt(3) == '1',
         Dmap = diag(map);
         ind = find(Dmap > thres);
     else
-        ind = 1:M;
+        ind = 1:length(vars);
     end
     
     map = map(ind,ind);
