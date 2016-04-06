@@ -1,4 +1,4 @@
-% EDA example for Big Data using the EDA Toolbox. See README.txt for more
+% EDA example for Big Data using the MEDA Toolbox. See README.txt for more
 % details.
 % 
 %  Data set and Analisys: 

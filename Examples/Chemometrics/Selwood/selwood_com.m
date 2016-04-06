@@ -1,4 +1,4 @@
-% EDA example with PLS using the EDA Toolbox. See README.txt for more
+% EDA example with PLS using the MEDA Toolbox. See README.txt for more
 % details.
 % 
 %  Data set: 
