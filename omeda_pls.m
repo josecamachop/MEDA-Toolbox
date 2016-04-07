@@ -80,7 +80,7 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Apr/16.
+% last modification: 07/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -172,9 +172,10 @@ if opt(3) == '1',
     end
     
     if opt(1) == '1',
-        vec = vec./lim;
+        ind = find(lim>1e-10);
+        vec(ind) = vec(ind)./lim(ind);
     	if ~isempty(limp),
-            limp = limp./lim;
+            limp(ind) = limp(ind)./lim(ind);
         end
     end
     
