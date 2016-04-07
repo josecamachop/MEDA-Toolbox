@@ -160,8 +160,6 @@ handles.data.CORTES={};
 handles.data.matrix_2PCs={};
 handles.data.PCs_MEDA='';
 handles.data.auxPCs=0;
-handles.data.loadingPT = 0;
-handles.data.scorePT = 0;
 
 %Change icon
 %warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
@@ -193,9 +191,9 @@ function score_closereq(hObject, eventdata)
 % hObject    handle to YourGuiName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-selmedaButton = guidata(hObject);
+selomedaButton = guidata(hObject);
 if isscalar(findobj('Tag','ScorePlot'))
-    set(selmedaButton,'Enable','off');
+    set(selomedaButton,'Enable','off');
 end
 shh=get(0,'ShowHiddenHandles');
 set(0,'ShowHiddenHandles','on');
@@ -1023,8 +1021,6 @@ handles.data.sp_matrix={handles.data.sp_matrix{:} matrixPCs_oMEDA};
 %oMEDA (Select)
 if ~(handles.data.PC1 == 1 && handles.data.PC2 == 1)
     set(handles.selomedaButton,'Enable','on');
-    %Get all the open figures
-    figures = get(0,'children');
     %Set new close funtion to new figure
     set(gcf,'CloseRequestFcn',@score_closereq)
     guidata(gcf,handles.selomedaButton);

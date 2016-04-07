@@ -182,6 +182,34 @@ function varargout = PLS_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
+%Function to be executed on closing a Loading Plot
+function loading_closereq(hObject, eventdata)
+% hObject    handle to YourGuiName (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+selmedaButton = guidata(hObject);
+if isscalar(findobj('Tag','LoadingPlot'))
+    set(selmedaButton,'Enable','off');
+end
+shh=get(0,'ShowHiddenHandles');
+set(0,'ShowHiddenHandles','on');
+delete(get(0,'CurrentFigure'));
+set(0,'ShowHiddenHandles',shh);
+
+%Function to be executed on closing a Score plot
+function score_closereq(hObject, eventdata)
+% hObject    handle to YourGuiName (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+selomedaButton = guidata(hObject);
+if isscalar(findobj('Tag','ScorePlot'))
+    set(selomedaButton,'Enable','off');
+end
+shh=get(0,'ShowHiddenHandles');
+set(0,'ShowHiddenHandles','on');
+delete(get(0,'CurrentFigure'));
+set(0,'ShowHiddenHandles',shh);
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLS Analysis%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -585,6 +613,11 @@ function generalButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 sizeMat = size(handles.data.data_matrixX);
 [lvs,status]=str2num(get(handles.generalEdit, 'String'));
+lvs_int = uint8(lvs);
+if ~isscalar(lvs) || lvs ~= lvs_int
+    errordlg('Please enter an integer number of LVs.');
+    return;
+end
 if status == false
     errordlg('Please enter a number of latent variables.');
     return;
@@ -729,6 +762,11 @@ function plsButton_Callback(hObject, eventdata, handles)
 %Take the values of the GUI
 [LVs_num,status]=str2num(get(handles.lvsEdit, 'String'));
 sizeMat = size(handles.data.data_matrixX);
+LVs_num_int = uint8(LVs_num);
+if ~isscalar(LVs_num) || LVs_num ~= LVs_num_int
+    errordlg('Please enter an integer number of LVs.');
+    return;
+end
 if status == false
     errordlg('No LVs defined, please define them properly.');
     return;
@@ -1089,21 +1127,28 @@ else if ~isempty(handles.data.label) && isempty(handles.data.classes),
     end
 end
 fig=gcf;
-set(fig,'Tag','ScorePlot');%A cada ScorePlot que abro le pongo en su propiedad 'Tag' que es un ScorePlot
+
 
 %matrixLVs_oMEDA=[T(:,LV1),T(:,LV2)];
 T_size = size(T);
 if T_size(2) > 1,
     matrixLVs_oMEDA=[T(:,1),T(:,2)];
+    set(fig,'Tag','ScorePlot');%A cada ScorePlot que abro le pongo en su propiedad 'Tag' que es un ScorePlot
 else
     matrixLVs_oMEDA=T(:,1);
+    set(fig,'Tag','BarScorePlot');%A cada ScorePlot que abro le pongo en su propiedad 'Tag' que es un ScorePlot
 end
 
 handles.data.sp_ID_figures=[handles.data.sp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.sp_matrix={handles.data.sp_matrix{:} matrixLVs_oMEDA};
 
 %oMEDA (Select)
-set(handles.selomedaButton,'Enable','on');
+if ~(LV1 == 1 && LV2 == 1)
+    set(handles.selomedaButton,'Enable','on');
+    %Set new close funtion to new figure
+    set(gcf,'CloseRequestFcn',@score_closereq)
+    guidata(gcf,handles.selomedaButton);
+end
 
 guidata(hObject,handles);
 
@@ -1762,21 +1807,25 @@ else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP),
     end
 end
 fig=gcf;
-set(fig,'Tag','LoadingPlot');%A cada LoadingPlot que abro le pongo en su propiedad 'Tag' que es un LoadingPlot
 
 %matrixLVs_MEDA_LP=[P(:,LV1_LP),P(:,LV2_LP)];
 T_size = size(P);
 if T_size(2) > 1,
     matrixLVs_MEDA_LP=[P(:,1),P(:,2)];
+    set(fig,'Tag','LoadingPlot');%A cada LoadingPlot que abro le pongo en su propiedad 'Tag' que es un LoadingPlot
 else
     matrixLVs_MEDA_LP=P(:,1);
+    set(fig,'Tag','BarLoadingPlot');%A cada LoadingPlot que abro le pongo en su propiedad 'Tag' que es un LoadingPlot
 end
 handles.data.lp_ID_figures=[handles.data.lp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.lp_matrix={handles.data.lp_matrix{:} matrixLVs_MEDA_LP};
 
-set(handles.selmedaButton,'Enable','on');
-
-text=sprintf('To perform a MEDA plot, push on the SELECT button in the MEDA menu (upon selection of Loading Plot).');
+if ~(LV1_LP == 1 && LV2_LP == 1)
+    set(handles.selmedaButton,'Enable','on');
+    %Set new close funtion to new figure
+    set(fig,'CloseRequestFcn',@loading_closereq)
+    guidata(fig,handles.selmedaButton);
+end
 
 guidata(hObject,handles);
 
@@ -1968,6 +2017,7 @@ for i=1:N,%Desde 1 hasta el número de vértices que tenga el polinomio
     C=[C,c];%Lista del parámetro C, uno por recta.
 end
 
+
 %PASO 2:
 %Obtener los puntos de corte entre cada una de las anteriores rectas y la
 %semirrecta(paralela al eje X) que forma el punto del Score matrix a estudio.
@@ -1999,6 +2049,7 @@ for j=1:M, %All the observations from the Score Matrix: t
     CORTES=[CORTES,corte];
 end
 
+
 CortesVector=CORTES;
 vector_vars=[];
 for l=1:M,
@@ -2028,7 +2079,6 @@ else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1
 end
 
 [meda_map,meda_dis]=meda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(handles.data.LV1_LP,handles.data.LV2_LP) max(handles.data.LV1_LP,handles.data.LV2_LP)],handles.data.prepX,handles.data.prepY,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
-
 guidata(hObject,handles);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
