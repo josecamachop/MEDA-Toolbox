@@ -50,7 +50,7 @@ function varargout = PCA(varargin)
 
 % Edit the above text to modify the response to help PCA
 
-% Last Modified by GUIDE v2.5 04-Apr-2016 12:57:01
+% Last Modified by GUIDE v2.5 07-Apr-2016 09:28:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -70,7 +70,6 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
-
 
 % --- Executes just before PCA is made visible.
 function PCA_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -161,6 +160,8 @@ handles.data.CORTES={};
 handles.data.matrix_2PCs={};
 handles.data.PCs_MEDA='';
 handles.data.auxPCs=0;
+handles.data.loadingPT = 0;
+handles.data.scorePT = 0;
 
 %Change icon
 %warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
@@ -171,8 +172,35 @@ handles.data.auxPCs=0;
 guidata(hObject, handles);
 
 % UIWAIT makes PCA wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+% uiwait(handles.PCA);
 
+%Function to be executed on closing a Loading Plot
+function loading_closereq(hObject, eventdata)
+% hObject    handle to YourGuiName (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+selmedaButton = guidata(hObject);
+if isscalar(findobj('Tag','LoadingPlot'))
+    set(selmedaButton,'Enable','off');
+end
+shh=get(0,'ShowHiddenHandles');
+set(0,'ShowHiddenHandles','on');
+delete(get(0,'CurrentFigure'));
+set(0,'ShowHiddenHandles',shh);
+
+%Function to be executed on closing a Score plot
+function score_closereq(hObject, eventdata)
+% hObject    handle to YourGuiName (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+selmedaButton = guidata(hObject);
+if isscalar(findobj('Tag','ScorePlot'))
+    set(selmedaButton,'Enable','off');
+end
+shh=get(0,'ShowHiddenHandles');
+set(0,'ShowHiddenHandles','on');
+delete(get(0,'CurrentFigure'));
+set(0,'ShowHiddenHandles',shh);
 
 % --- Outputs from this function are returned to the command line.
 function varargout = PCA_OutputFcn(hObject, eventdata, handles)
@@ -511,6 +539,11 @@ function generalButton_Callback(hObject, eventdata, handles)
 
 [pcs,status]=str2num(get(handles.generalEdit, 'String'));
 sizeMat = size(handles.data.data_matrix);
+pcs_int = uint8(pcs);
+if ~isscalar(pcs) || pcs ~= pcs_int
+    errordlg('Please enter an integer number of PCs.');
+    return;
+end
 if status == false
     errordlg('Please enter a number of PCs.');
     return;
@@ -608,6 +641,11 @@ if isempty(handles.data.data_matrix),
     return;
 end
 [pc_num,status]=str2num(get(handles.pcEdit, 'String'));
+pc_num_int = uint8(pc_num);
+if ~isscalar(pc_num) || pc_num ~= pc_num_int
+    errordlg('Please enter an integer number of PCs.');
+    return;
+end
 sizeMat = size(handles.data.data_matrix);
 if status == false
     errordlg('Please enter a number of PCs.');
@@ -931,6 +969,7 @@ new_sp_ID_figures=[];
 new_sp_matrix={};
 clean_ind=[];
 
+
 for i=1:length(handles.data.sp_ID_figures),
     if ~isempty(find(handles.data.sp_ID_figures(i)==all_opened_graphs,1)),
         new_sp_ID_figures=[new_sp_ID_figures handles.data.sp_ID_figures(i)];
@@ -967,21 +1006,29 @@ else if ~isempty(handles.data.label) && isempty(handles.data.classes),
     end
 end
 fig=gcf;
-set(fig,'Tag','ScorePlot');%En la opci�n etiqueta se indica que el gr�fico es un Score Plot
 
 %matrixPCs_oMEDA=[T(:,handles.data.PC1),T(:,handles.data.PC2)];
 T_size = size(T);
 if T_size(2) > 1,
     matrixPCs_oMEDA=[T(:,1),T(:,2)];
+    set(fig,'Tag','ScorePlot');%En la opci�n etiqueta se indica que el gr�fico es un Score Plot
 else
     matrixPCs_oMEDA=T(:,1);
+    set(fig,'Tag','BarScorePlot');%En la opci�n etiqueta se indica que el gr�fico es un Score Plot
 end
 
 handles.data.sp_ID_figures=[handles.data.sp_ID_figures fig];%Vector con los identificadores de los Score Plots abiertos
 handles.data.sp_matrix={handles.data.sp_matrix{:} matrixPCs_oMEDA};
 
 %oMEDA (Select)
-set(handles.selomedaButton,'Enable','on');
+if ~(handles.data.PC1 == 1 && handles.data.PC2 == 1)
+    set(handles.selomedaButton,'Enable','on');
+    %Get all the open figures
+    figures = get(0,'children');
+    %Set new close funtion to new figure
+    set(gcf,'CloseRequestFcn',@score_closereq)
+    guidata(gcf,handles.selomedaButton);
+end
 
 guidata(hObject,handles);
 
@@ -1641,15 +1688,21 @@ else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP),
         end
     end
 end
+
 fig=gcf;
-set(fig,'Tag','LoadingPlot');%A cada LoadingPlot que abro le pongo en su propiedad 'Tag' que es un LoadingPlot
-
 matrixPCs_MEDA_LP=[P(:,handles.data.PC1_LP),P(:,handles.data.PC2_LP)];
-
 handles.data.lp_ID_figures=[handles.data.lp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.lp_matrix={handles.data.lp_matrix{:} matrixPCs_MEDA_LP};
 
-set(handles.selmedaButton,'Enable','on');
+if ~(handles.data.PC1_LP == 1 && handles.data.PC2_LP == 1)
+    set(handles.selmedaButton,'Enable','on');
+    %Set new close funtion to new figure
+    set(fig,'CloseRequestFcn',@loading_closereq)
+    set(fig,'Tag','LoadingPlot');%A cada LoadingPlot que abro le pongo en su propiedad 'Tag' que es un LoadingPlot
+    guidata(fig,handles.selmedaButton);
+else
+    set(fig,'Tag','BarLoadingPlot');%A cada LoadingPlot que abro le pongo en su propiedad 'Tag' que es un LoadingPlot
+end
 
 guidata(hObject,handles);
 
