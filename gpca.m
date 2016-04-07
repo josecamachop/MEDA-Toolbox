@@ -125,8 +125,3 @@ end
 p = p(:,pcs);
 t = t(:,pcs);
 bel = bel(pcs);
-
-rT=rank(t);
-p = p(:,1:rT);
-t = t(:,1:rT);
-bel = bel(1:rT);

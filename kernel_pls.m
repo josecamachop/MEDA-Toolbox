@@ -17,7 +17,7 @@ function [beta,W,P,Q,R] = kernel_pls(XX,XY,lvs)
 % XY: [MxO] cross-product X'*Y
 %
 % lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
-%   first two LVs). By default, lvs = 0:rank(xcs)
+%   first two LVs). By default, lvs = 0:size(XX)
 %
 %
 % OUTPUTS:
@@ -44,7 +44,7 @@ function [beta,W,P,Q,R] = kernel_pls(XX,XY,lvs)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Apr/16.
+% last modification: 07/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -70,7 +70,7 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(XX, 1);
 O = size(XY, 2);
-if nargin < 3 || isempty(lvs), lvs = 0:rank(XX); end;
+if nargin < 3 || isempty(lvs), lvs = 0:size(XX,1); end;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -78,7 +78,7 @@ if size(lvs,2) == 1, lvs = lvs'; end;
 % Preprocessing
 lvs = unique(lvs);
 lvs(find(lvs==0)) = [];
-lvs(find(lvs>rank(XX))) = [];
+lvs(find(lvs>size(XX,1))) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
@@ -123,5 +123,5 @@ end
 W = W(:,lvs);
 P = P(:,lvs);
 Q = Q(:,lvs);
-R = W*inv(P'*W);
+R = R(:,lvs);
 beta=R*Q';
