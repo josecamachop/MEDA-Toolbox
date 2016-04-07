@@ -87,19 +87,22 @@ if size(vlabel,1)  == 1, vlabel = vlabel'; end;
 
 % Convert int arrays to str
 if ~isempty(elabel) && isnumeric(elabel), 
-    vecn = elabel;  
-    max_lab = 30; % limit the number of labels displayed
-    ini = 2;
-    stepN = [];
-    while isempty(stepN),
-        lenv = length(vecn(ini:end));
-        div = 1:(lenv-1);
-        div = div(rem(lenv,div)==0);
-        stepN = div(find(div>lenv/max_lab,1));
-        ini = ini+1;
+    vecn = elabel; 
+    veci = 1:length(vecn);
+    if length(label)>2,  
+        max_lab = 30; % limit the number of labels displayed
+        ini = 2;
+        stepN = [];
+        while isempty(stepN),
+            lenv = length(vecn(ini:end));
+            div = 1:(lenv-1);
+            div = div(rem(lenv,div)==0);
+            stepN = div(find(div>lenv/max_lab,1));
+            ini = ini+1;
+        end
+        veci = 1:(lenv+ini-2);
+        veci = veci(round([1 (ini-2+stepN):stepN:end]));
     end
-    veci = 1:(lenv+ini-2);
-    veci = veci(round([1 (ini-2+stepN):stepN:end]));
     for i=veci,
         labele{i} = num2str(vecn(i));
     end
