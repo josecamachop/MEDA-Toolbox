@@ -124,7 +124,7 @@ assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 7th argument must b
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine(1).name);
 assert (thres>0 && thres<=1, 'Value Error: 4th argument must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' && opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: 7th argument must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine(1).name);
 
 

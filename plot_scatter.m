@@ -42,7 +42,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 05/Apr/2016.
+% last modification: 08/Apr/2016.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -68,7 +68,7 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(bdata, 1);
 if nargin < 2 || isempty(elabel), elabel = 1:N; end;
 if nargin < 3 || isempty(classes), classes = []; end;
-if nargin < 4 || isempty(xylabel), xylabel = ''; end;
+if nargin < 4 || isempty(xylabel), xylabel = {'',''}; end;
 if nargin < 5 || isempty(lcont),  lcont = []; end;
 if nargin < 6 || isempty(opt),  opt = 0; end;
 
@@ -108,7 +108,8 @@ else
 end
 
 % Plot points
-if ~exist ('OCTAVE-VERSION')
+a=license('inuse');
+if strcmp(a(1).feature,'matlab'),
     a = gscatter(bdata(:,1), bdata(:,2), classes, [], 'o');
     
     % Fill marks
@@ -132,7 +133,7 @@ deltay = (ax(4)-ax(3))/150;
 if ~isempty(elabel)
     for i=1:N
         nch = length(char(strtrim(elabel(i,1))));
-        if length(find((bdata(:,1)>bdata(i,1)) && (bdata(:,1)<bdata(i,1)+deltax*nch*f) && (bdata(:,2)<bdata(i,2)+deltay*f) && (bdata(:,2)>bdata(i,2)-deltay*f)))<1,
+        if length(find((bdata(:,1)>bdata(i,1)) & (bdata(:,1)<bdata(i,1)+deltax*nch*f) & (bdata(:,2)<bdata(i,2)+deltay*f) & (bdata(:,2)>bdata(i,2)-deltay*f)))<1,
             text(bdata(i,1)+deltax, bdata(i,2)+deltay, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
         end
     end

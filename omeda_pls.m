@@ -140,7 +140,7 @@ assert (isequal(size(label), [M 1]), 'Dimension Error: 9th argument must be M-by
 
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' && opt~='1')), 'Value Error: 8th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 8th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
