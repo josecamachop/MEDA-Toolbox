@@ -121,10 +121,6 @@ if ~isempty(label)
     end
 end
 
-if ~verLessThan('matlab', '8.4'),
-    set(axes_h,'TicklabelInterpreter','None')
-end
-
 % Resize axes position
 pos = get(axes_h, 'Position');
 set(axes_h,'Position',[pos(1) pos(2)/2 pos(3) pos(4)])
