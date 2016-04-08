@@ -127,7 +127,7 @@ assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(thres), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) & length(opt)==3, 'Dimension Error: 7th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==3, 'Dimension Error: 7th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: 8th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 9th argument must be at most M-by-1. Type ''help %s'' for more info.', routine(1).name);
 
@@ -135,7 +135,7 @@ assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 9th argument must b
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(lvs>rank(x))), 'Value Error: 3rd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine(1).name);
 assert (thres>0 && thres<=1, 'Value Error: 6th argument must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' && opt~='1')), 'Value Error: 7th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: 9th argument must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine(1).name);
 
 

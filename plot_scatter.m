@@ -89,7 +89,7 @@ if ischar(xylabel),  xylabel = cellstr(xylabel); end;
 if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(lcont), assert (iscell(lcont) & isequal(size(lcont), [2 1]), 'Dimension Error: 5th argument must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(lcont), assert (iscell(lcont) && isequal(size(lcont), [2 1]), 'Dimension Error: 5th argument must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
     
 
@@ -126,7 +126,7 @@ deltay = (ax(4)-ax(3))/150;
 if ~isempty(elabel)
     for i=1:N
         nch = length(char(strtrim(elabel(i,1))));
-        if length(find((bdata(:,1)>bdata(i,1)) & (bdata(:,1)<bdata(i,1)+deltax*nch*f) & (bdata(:,2)<bdata(i,2)+deltay*f) & (bdata(:,2)>bdata(i,2)-deltay*f)))<1,
+        if length(find((bdata(:,1)>bdata(i,1)) && (bdata(:,1)<bdata(i,1)+deltax*nch*f) && (bdata(:,2)<bdata(i,2)+deltay*f) && (bdata(:,2)>bdata(i,2)-deltay*f)))<1,
             text(bdata(i,1)+deltax, bdata(i,2)+deltay, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
         end
     end

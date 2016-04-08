@@ -136,7 +136,7 @@ end
 
 if opt,
     Tt = [T;TT];
-    if length(pcs) == 1 | opt ~=1,
+    if length(pcs) == 1 || opt ~=1,
         for i=1:length(pcs),
             plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d',pcs(i))});
         end

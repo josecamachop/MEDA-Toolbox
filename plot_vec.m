@@ -120,7 +120,7 @@ if ischar(vlabel),  vlabel = cellstr(vlabel); end;
 if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(lcont), assert (isequal(size(lcont,1), N) | isequal(size(lcont,2), 1), 'Dimension Error: 5th argument must be N-by-L or L-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(lcont), assert (isequal(size(lcont,1), N) || isequal(size(lcont,2), 1), 'Dimension Error: 5th argument must be N-by-L or L-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); end;
     

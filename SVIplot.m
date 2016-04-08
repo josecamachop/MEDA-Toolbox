@@ -98,7 +98,7 @@ assert (isequal(size(prep), [1 1]), 'Dimension Error: 5th argument must be 1-by-
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
   
 % Validate values of input data
-assert (isempty(find(pcs<0)) & isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine(1).name);
 
 

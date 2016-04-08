@@ -89,7 +89,7 @@ while ~finish,
        end
    end
    
-   if fci & ffi,
+   if fci && ffi,
        if fci<ffi,
             fragment = fragment([1:fci-1 fci+1:ffi-1 ffi+1:end]);
        else

@@ -111,7 +111,7 @@ P = pca_pp(xcs,pcs);
 %% Show results
 
 if opt,
-    if length(pcs) == 1 | opt ~=1,
+    if length(pcs) == 1 || opt ~=1,
         for i=1:length(pcs),
                 plot_vec(P(:,i), label, classes, {'',sprintf('Loadings PC %d',pcs(i))});
         end

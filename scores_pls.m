@@ -151,7 +151,7 @@ end
 
 if opt,
     Tt = [T;TT];
-    if length(lvs) == 1 | opt ~=1,
+    if length(lvs) == 1 || opt ~=1,
         for i=1:length(lvs),
             plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores LV %d',lvs(i))});
         end

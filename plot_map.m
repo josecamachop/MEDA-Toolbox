@@ -132,7 +132,7 @@ set(axes_h,'Position',[pos(1) pos(2)/2 pos(3) pos(4)])
 % Set colors
 set(fig_h,'Colormap',[[ind;ones(length(ind),1)] [ind;flipud(ind)] [ones(length(ind),1);flipud(ind)]])
 caxis(int);
-if find(map>0 & map<1)
+if find(map>0 && map<1)
     c_h=colorbar;
     set(c_h,'FontSize',14);
 end

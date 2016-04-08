@@ -116,7 +116,7 @@ if length(opt)<3, opt = strcat('0',opt); end
 assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(thres), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) & length(opt)==3, 'Dimension Error: 5th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==3, 'Dimension Error: 5th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 7th argument must be at most M-by-1. Type ''help %s'' for more info.', routine(1).name);
 
@@ -124,7 +124,7 @@ assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 7th argument must b
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine(1).name);
 assert (thres>0 && thres<=1, 'Value Error: 4th argument must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' && opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: 7th argument must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine(1).name);
 
 

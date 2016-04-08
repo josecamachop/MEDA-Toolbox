@@ -132,8 +132,8 @@ end;
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
-if ~isempty(p_valueD) & size(p_valueD,1) == 1,     p_valueD = p_valueD'; end;
-if ~isempty(p_valueQ) & size(p_valueQ,1) == 1, p_valueQ = p_valueQ'; end;
+if ~isempty(p_valueD) && size(p_valueD,1) == 1,     p_valueD = p_valueD'; end;
+if ~isempty(p_valueQ) && size(p_valueQ,1) == 1, p_valueQ = p_valueQ'; end;
 Ld = size(p_valueD,1);
 Lq = size(p_valueQ,1);
 
@@ -157,10 +157,10 @@ if ~isempty(p_valueD), assert (isequal(size(p_valueD), [Ld 1]), 'Dimension Error
 if ~isempty(p_valueQ), assert (isequal(size(p_valueQ), [Lq 1]), 'Dimension Error: 11th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) & isequal(fix(lvs), lvs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(lvs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(p_valueD), assert (isempty(find(p_valueD<0 | p_valueD>1)), 'Value Error: 10th argument must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<0 | p_valueQ>1)), 'Value Error: 11th argument must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(p_valueD), assert (isempty(find(p_valueD<0 || p_valueD>1)), 'Value Error: 10th argument must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<0 || p_valueQ>1)), 'Value Error: 11th argument must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
 
 
 %% Main code
