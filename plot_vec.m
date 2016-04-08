@@ -89,7 +89,7 @@ if size(vlabel,1)  == 1, vlabel = vlabel'; end;
 if ~isempty(elabel) && isnumeric(elabel), 
     vecn = elabel; 
     veci = 1:length(vecn);
-    if length(label)>2,  
+    if length(elabel)>2,  
         max_lab = 30; % limit the number of labels displayed
         ini = 2;
         stepN = [];
