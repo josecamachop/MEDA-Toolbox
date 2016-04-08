@@ -103,7 +103,7 @@ for i = 1:length(pcs),
 end
 
 cumpress = zeros(length(pcs),1);
-if nargout>1 | (opt~=0 & opt~=1),
+if nargout>1 || (opt~=0 && opt~=1),
     for i = 1:length(pcs),
          c = ckf(xcs,T(:,1:pcs(i)),P(:,1:pcs(i)),0);
          cumpress(i) = c(end);
