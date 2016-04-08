@@ -108,15 +108,21 @@ else
 end
 
 % Plot points
-a = gscatter(bdata(:,1), bdata(:,2), classes, [], 'o');
-
-% Fill marks
-if opt == 0
-    for i=1:length(a)
-        color = get(a(i), 'Color');
-        set(a(i), 'MarkerFaceColor',color);
+if ~exist ('OCTAVE-VERSION')
+    a = gscatter(bdata(:,1), bdata(:,2), classes, [], 'o');
+    
+    % Fill marks
+    if opt == 0
+        for i=1:length(a)
+            color = get(a(i), 'Color');
+            set(a(i), 'MarkerFaceColor',color);
+        end
     end
+else
+    plot(bdata(:,1), bdata(:,2), 'o');
 end
+    
+
 
 % Plot labels
 ax = axis;
