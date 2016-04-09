@@ -144,7 +144,7 @@ if nargout > 1
     meda_dis(ind) = 0;
 end
 
-if nargout > 2 || opt(2),
+if nargout > 2 || opt(2) == '1',
     [map1, ord] = seriation(meda_map);
 end
 
