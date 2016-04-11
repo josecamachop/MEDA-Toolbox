@@ -49,7 +49,7 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 30/Mar/16.
+% last modification: 08/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -131,12 +131,8 @@ for i=1:blocks_r,
     [ccs,av,st] = preprocess2D(calibr,prepx);
     [ccs_y,av_y,st_y] = preprocess2D(calibr_y,prepy);
         
-    scs=sample;
-    scs_y=sample_y;
-    for j=1:length(ind_i),
-        scs(j,:) = (sample(j,:)-av)./st;
-        scs_y(j,:) = (sample_y(j,:)-av_y)./st_y;
-    end
+    scs = preprocess2Dapp(sample,av,st);
+    scs_y = preprocess2Dapp(sample_y,av_y,st_y);
     
     [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,1:max(lvs));
     

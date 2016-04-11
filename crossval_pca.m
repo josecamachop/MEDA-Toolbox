@@ -50,7 +50,7 @@ function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,op
 %
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16.
+% last modification: 08/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -143,11 +143,8 @@ for i=1:blocks_r,
     else
         avs_prep=zeros(ss);
     end
-        
-    scs=sample;
-    for j=1:length(ind_i),
-        scs(j,:) = (sample(j,:)-av)./st;
-    end
+  
+    scs = preprocess2Dapp(sample,av,st);
      
     p = pca_pp(ccs,1:max(pcs));
     
