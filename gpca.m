@@ -41,7 +41,7 @@ function [p,t,bel] = gpca(xcs,states,pcs)
 % end
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Apr/16.
+% last modification: 12/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -99,13 +99,18 @@ I =  eye(size(map));
 B = I;
 for j = 1:max(pcs),  
     
+    R = zeros(M,length(states));
+    S = zeros(N,length(states));
+    
     for i=1:length(states), % construct eigenvectors according to states
         map_aux = zeros(size(map));
         map_aux(states{i},states{i})= map(states{i},states{i});
-        [V,D] = eig(map_aux);
-        ind = find(diag(D)==max(diag(D)),1);
-        R(:,i) = V(:,ind);
-        S(:,i) = xcs*R(:,i);       
+        if rank(map_aux),
+            [V,D] = eig(map_aux);
+            ind = find(diag(D)==max(diag(D)),1);
+            R(:,i) = V(:,ind);
+            S(:,i) = xcs*R(:,i);   
+        end
     end
 
     sS = sum(S.^2,1); % select pseudo-eigenvector with the highest variance

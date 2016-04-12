@@ -32,7 +32,7 @@ function [bel,states] = gia(map,gamma,siz)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16.
+% last modification: 12/Apr/16.
 %
 % Copyright (C) 2015  University of Granada, Granada
 % Copyright (C) 2015  Jose Camacho Paez
@@ -58,6 +58,9 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 M = size(map, 1);
 if nargin < 2 || isempty(gamma), gamma=0.7; end;
 if nargin < 3 || isempty(siz), siz=2; end;
+
+% Avoid gamma with just 1
+if gamma==1, gamma = 1 -1e-10; end;
 
 % Validate dimensions of input data
 assert (isequal(size(map), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
@@ -89,7 +92,7 @@ columns_v = columns(:);
 rows_v = rows(:);
 
 ind = find(map_v==max(map_v),1);
-while map_v(ind)>gamma,
+while map_v(ind)>=gamma,
     
     r = rows_v(ind); % r is always minor than c
     c = columns_v(ind);
