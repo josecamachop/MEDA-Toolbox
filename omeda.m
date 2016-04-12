@@ -109,7 +109,9 @@ dummy(ind) = -dummy(ind)/min((dummy(ind)));
 xA = testcs*R*Q';
 sumA = xA'*dummy;
 
-omeda_vec = (2*(testcs'*dummy).*abs(sumA) - sumA.*abs(sumA))./sqrt(dummy'*dummy);
+%omeda_vec = (2*(testcs'*dummy).*abs(sumA) - sumA.*abs(sumA))./sqrt(dummy'*dummy);
+
+omeda_vec = (((testcs*(R*Q'))'*dummy).*abs(sumA))./sqrt(dummy'*dummy);
 
     
 
