@@ -78,6 +78,12 @@ assert (isequal(fix(siz), siz), 'Value Error: 3rd argument must be an integer. T
 
 %% Main code
 
+if gamma == 0,
+    states = {1:M};
+    bel = ones(M,1);
+    return
+end
+
 map = abs(map);
 
 states = {};
