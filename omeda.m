@@ -61,7 +61,7 @@ function omeda_vec = omeda(testcs,dummy,R,Q)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 29/Mar/16.
+% last modification: 14/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -108,10 +108,9 @@ dummy(ind) = -dummy(ind)/min((dummy(ind)));
 
 xA = testcs*R*Q';
 sumA = xA'*dummy;
+sum = testcs'*dummy;
 
-%omeda_vec = (2*(testcs'*dummy).*abs(sumA) - sumA.*abs(sumA))./sqrt(dummy'*dummy);
-
-omeda_vec = (((testcs*(R*Q'))'*dummy).*abs(sumA))./sqrt(dummy'*dummy);
+omeda_vec = ((2*sum-sumA).*abs(sumA))./sqrt(dummy'*dummy);
 
     
 
