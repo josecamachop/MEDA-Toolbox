@@ -50,7 +50,7 @@ function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,op
 %
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 08/Apr/16.
+% last modification: 15/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -113,8 +113,8 @@ assert (blocks_c<=M, 'Value Error: 5th argument must be at most M. Type ''help %
 %% Main code
 
 % Initialization
-cumpress = zeros(max(pcs)+1,1);
-press = zeros(max(pcs)+1,M);
+cumpress = zeros(length(pcs),1);
+press = zeros(length(pcs),M);
 
 rows = rand(1,N);
 [a,r_ind]=sort(rows);
@@ -209,7 +209,7 @@ for i=1:blocks_r,
             pem = sum(scs.^2,1);
         end
         
-        press(pcs(pc)+1,:) = press(pcs(pc)+1,:) + pem;
+        press(pc,:) = press(pc,:) + pem;
         
     end            
 end
@@ -220,6 +220,6 @@ cumpress = sum(press,2);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(cumpress(pcs+1),pcs,[],{'PRESS','#PCs'},[],1); 
+    fig_h = plot_vec(cumpress,pcs,[],{'#PCs','PRESS'},[],1); 
 end
 
