@@ -99,7 +99,7 @@ lvs = unique(lvs);
 
 % Validate values of input data
 assert (isempty(find(lvs<0)), 'Value Error: 3rd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 4th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r>2, 'Value Error: 4th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r<=N, 'Value Error: 4th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
@@ -114,7 +114,6 @@ press = zeros(length(lvs),O);
 rows = rand(1,N);
 [a,r_ind]=sort(rows);
 elem_r=N/blocks_r;
-
 
 % Cross-validation
         
@@ -134,7 +133,7 @@ for i=1:blocks_r,
     scs = preprocess2Dapp(sample,av,st);
     scs_y = preprocess2Dapp(sample_y,av_y,st_y);
     
-    [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,1:max(lvs));
+    [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,0:max(lvs));
     
     for lv=1:length(lvs),
     

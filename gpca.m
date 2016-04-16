@@ -97,6 +97,10 @@ assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 3rd argume
 map = xcs'*xcs;
 I =  eye(size(map));
 B = I;
+
+p = [];
+t = [];
+bel = [];
 for j = 1:max(pcs),  
     
     R = zeros(M,length(states));

@@ -116,6 +116,10 @@ assert (blocks_c<=M, 'Value Error: 5th argument must be at most M. Type ''help %
 cumpress = zeros(length(pcs),1);
 press = zeros(length(pcs),M);
 
+if ~pcs
+    return
+end
+
 rows = rand(1,N);
 [a,r_ind]=sort(rows);
 elem_r=N/blocks_r;
@@ -146,7 +150,7 @@ for i=1:blocks_r,
   
     scs = preprocess2Dapp(sample,av,st);
      
-    p = pca_pp(ccs,1:max(pcs));
+    p = pca_pp(ccs,0:max(pcs));
     
     for pc=1:length(pcs),
         
