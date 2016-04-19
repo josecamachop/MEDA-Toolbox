@@ -102,7 +102,7 @@ if isempty(test), test = x; end;
 L = size(test, 1);
 if isempty(dummy), dummyones(L,1); end;
 if nargin < 5 || isempty(prep), prep = 2; end;
-if nargin < 6 || isempty(opt), opt = 1; end; 
+if nargin < 6 || isempty(opt), opt = '100'; end; 
 if nargin < 7 || isempty(label), label = 1:M; end
 
 % Convert row arrays to column arrays

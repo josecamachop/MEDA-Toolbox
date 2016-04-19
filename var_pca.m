@@ -21,10 +21,16 @@ function [x_var,cumpress] = var_pca(x,pcs,prep,opt)
 %       1: mean-centering 
 %       2: auto-scaling (default)  
 %
-% opt: [1x1] options for data plotting
-%       0: no plots.
-%       1: Residual Variance in X 
-%       otherwise: Residual Variance in X and ckf (default)
+% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+%       a:
+%           0: no plots
+%           1: plot residual variance
+%       b:
+%           0: Residual Variance in X and ckf 
+%           1: Residual Variance in X 
+%   By deafult, opt = '10'. If less than 2 digits are specified, least 
+%   significant digit is set to 0, i.e. opt = 1 means a=1 and b=0. If a=0, 
+%   then b is ignored.
 %
 %
 % OUTPUTS:
@@ -42,7 +48,7 @@ function [x_var,cumpress] = var_pca(x,pcs,prep,opt)
 %
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Apr/16.
+% last modification: 19/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -68,18 +74,27 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
-A = length(pcs);
 if nargin < 3 || isempty(prep), prep = 2; end;
-if nargin < 4 || isempty(opt), opt = 2; end;
+if nargin < 4 || isempty(opt), opt = '10'; end;
+
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
+% Complete opt
+if length(opt)<2, opt = strcat(opt,'0'); end
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
+
+% Preprocessing
+pcs = unique(pcs);
+A = length(pcs);
 
 % Validate dimensions of input data
 assert (A>0, 'Dimension Error: 2nd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==2, 'Dimension Error: 4th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 pcs = unique([0 pcs]);
@@ -87,6 +102,7 @@ pcs = unique([0 pcs]);
 % Validate values of input data
 assert (isempty(find(pcs<0)), 'Value Error: 2nd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(pcs), pcs), 'Value Error: 2nd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -104,7 +120,7 @@ for i = 1:length(pcs),
 end
 
 cumpress = zeros(length(pcs),1);
-if nargout>1 || (opt~=0 && opt~=1),
+if nargout>1 || opt(2) == '0',
     for i = 1:length(pcs),
          c = ckf(xcs,T(:,1:pcs(i)),P(:,1:pcs(i)),0);
          cumpress(i) = c(end);
@@ -114,13 +130,12 @@ end
     
 %% Show results
 
-if opt,
-    switch opt,
-        case 1
-            plot_vec(x_var,pcs,[],{'% Residual Variance','PCs'},[],1);
-        otherwise
-            plot_vec([x_var cumpress/cumpress(1)],pcs,[],{'% Residual Variance','PCs'},[],1,{'X','ckf'});
-            legend('show');
+if opt(1) == '1',
+    if opt(2) == '1',
+        plot_vec(x_var,pcs,[],{'% Residual Variance','PCs'},[],0);
+    else
+        plot_vec([x_var cumpress/cumpress(1)],pcs,[],{'% Residual Variance','PCs'},[],0,{'X','ckf'});
+        legend('show');
     end
 end
 

@@ -18,9 +18,9 @@ function L = leverages_pca(x,pcs,prep,opt,label,classes)
 %       1: mean centering
 %       2: autoscaling (default) 
 %
-% opt: [1x1] options for data plotting
-%       0: no plots
-%       otherwise: bar plot of leverages
+% opt: (str or num) options for data plotting
+%       0: no plots.
+%       1: plot bar plot of leverages (default) 
 %
 % label: [Mx1] name of the variables (numbers are used by default)
 %
@@ -40,8 +40,7 @@ function L = leverages_pca(x,pcs,prep,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-%           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 05/Apr/2016
+% last modification: 19/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -72,6 +71,9 @@ if nargin < 4 || isempty(opt), opt = 1; end;
 if nargin < 5 || isempty(label), label = [1:M]; end
 if nargin < 6 || isempty(classes), classes = ones(M,1); end
 
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
@@ -94,6 +96,7 @@ assert (isequal(size(classes), [M 1]), 'Dimension Error: 6th argument must be M-
   
 % Validate values of input data
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -106,7 +109,7 @@ L = diag(P*P');
 
 %% Show results
 
-if opt,
+if opt == '1', 
     plot_vec(L, label, classes, {'Variables','Leverages'});
 end
         

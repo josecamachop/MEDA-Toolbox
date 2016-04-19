@@ -23,10 +23,16 @@ function [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(x,pcs,var,groups,prep,opt
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% opt: [1x1] options for data plotting.
-%       0: no plots.
-%       1: SVIplot (default)
-%       otherwise: SVIplot plus beta terms
+% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+%       a:
+%           0: no plots
+%           1: SVIplot
+%       b:
+%           0: SVIplot without beta terms
+%           1: SVIplot plus beta terms
+%   By deafult, opt = '10'. If less than 2 digits are specified, least 
+%   significant digit is set to 0, i.e. opt = 1 means a=1 and b=0. If a=0, 
+%   then b is ignored.
 %
 %
 % OUTPUTS:
@@ -50,7 +56,7 @@ function [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(x,pcs,var,groups,prep,opt
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Apr/2016
+% last modification: 19/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -75,12 +81,17 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-xcs = preprocess2D(x,prep);
-if nargin < 2 || isempty(pcs), pcs = 0:rank(xcs); end;
+if nargin < 2 || isempty(pcs), pcs = 0:min(size(x)); end;
 if nargin < 3 || isempty(var), var = 1; end;
 if nargin < 4 || isempty(groups), groups = 7; end; 
 if nargin < 5 || isempty(prep), prep = 2; end;
-if nargin < 6 || isempty(opt), opt = 1; end; 
+if nargin < 6 || isempty(opt), opt = '10'; end;
+
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
+% Complete opt
+if length(opt)<2, opt = strcat(opt,'0'); end
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -88,6 +99,7 @@ if size(pcs,2) == 1, pcs = pcs'; end;
 % Preprocessing
 pcs = unique(pcs);
 pcs(find(pcs==0)) = [];
+pcs(find(pcs>min(size(x)))) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
@@ -95,15 +107,16 @@ assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A
 assert (isequal(size(var), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(groups), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==2, 'Dimension Error: 6th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
   
 % Validate values of input data
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(pcs>rank(x))), 'Value Error: 2nd argument must contain values below the rank of the data. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
+xcs = preprocess2D(x,prep);
 p = pca_pp(xcs,1:max(pcs));
 
 alpha=0;
@@ -156,7 +169,7 @@ q2 = 1-sum(res_cross.^2)/sum(res_cross(:,1).^2);
 
 %% Show results
 
-if opt,
+if opt(1) == '1'
     fig_h=figure;
     hold on
     plot([0 pcs],r2,'.-');
@@ -166,7 +179,7 @@ if opt,
     ch_h=get(fig_h,'Children');
     set(ch_h,'FontSize',14)
     legend('R^2_{A,m}','\alpha^A_{m}','Q^2_{A,m}','\alpha^A_{m}(i)','Location','NorthOutside','Orientation','Horizontal')
-    if opt~=1,
+    if  opt(2) == '1',
         plot([0 pcs],betas','c')
     end
 end

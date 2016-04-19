@@ -27,14 +27,14 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,lvs,test,prepx,prepy,opt,l
 % opt: (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
-%           1: plot MSPC charts (default)
+%           1: plot MSPC charts
 %       b:
-%           0: bar plot of each single statistic
-%           1: scatter plot (default)
+%           0: scatter plot
+%           1: bar plot of each single statistic
 %       c:
-%           0: plot calibration and test data (default)
+%           0: plot calibration and test data
 %           1: plot only test data 
-%   By deafult, opt = '110'. If less than 3 digits are specified, least 
+%   By deafult, opt = '100'. If less than 3 digits are specified, least 
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
 %   If a=0, then b and c are ignored.
 %
@@ -69,7 +69,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,lvs,test,prepx,prepy,opt,l
 %
 % UCLd: [Ldx1] Control limits in D-statistic
 %
-% UCLd: [Lqx1] Control limits in Q-statistic
+% UCLq: [Lqx1] Control limits in Q-statistic
 %
 %
 % EXAMPLE OF USE: Random scores
@@ -94,7 +94,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,lvs,test,prepx,prepy,opt,l
 % test = real(ADICOV(n_obst*XX,randn(n_obst,n_vars),n_vars));
 % test(6:10,:) = (1 + 1)*test(6:10,:);
 % 
-% [Dst,Qst,Dstt,Qstt] = mspc_pls(X,Y,lvs,test,2,2,111,[],[ones(100,1);2*ones(5,1);3*ones(5,1)]);
+% [Dst,Qst,Dstt,Qstt] = mspc_pls(X,Y,lvs,test,2,2,100,[],[ones(100,1);2*ones(5,1);3*ones(5,1)]);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -128,7 +128,7 @@ if nargin < 4, test = []; end;
 L = size(test, 1);
 if nargin < 5 || isempty(prepx), prepx = 2; end;
 if nargin < 6 || isempty(prepy), prepy = 2; end;
-if nargin < 7 || isempty(opt), opt = '110'; end; 
+if nargin < 7 || isempty(opt), opt = '100'; end; 
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -157,14 +157,14 @@ if nargin < 9 || isempty(classes),
     end
 end
 if nargin < 10 || isempty(p_valueD), 
-    if opt(2) == 1 || opt(2) == '1',
+    if opt(2) == 0 || opt(2) == '0',
         p_valueD = 0.01; 
     else
         p_valueD = [0.01 0.05]; 
     end
 end;
 if nargin < 11 || isempty(p_valueQ), 
-    if opt(2) == 1 || opt(2) == '1',
+    if opt(2) == 0 || opt(2) == '0',
         p_valueQ = 0.01; 
     else
         p_valueQ = [0.01 0.05]; 
@@ -265,11 +265,10 @@ if opt(1) == '1',
     end
     
     if opt(2) == '0',
+        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq});
+    else
         plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd);
         plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq);
-    else
-        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq});
-
     end
 end
         

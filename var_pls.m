@@ -27,10 +27,16 @@ function [y_var,t_var] = var_pls(x,y,lvs,prepx,prepy,opt)
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% opt: [1x1] options for data plotting.
-%       0: no plots.
-%       1: Residual Variance in Y 
-%       2: Residual Variance in Y and Scores (default)
+% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+%       a:
+%           0: no plots
+%           1: plot Residual variance
+%       b:
+%           0: Residual Variance in Y and Scores 
+%           1: Residual Variance in Y 
+%   By deafult, opt = '10'. If less than 2 digits are specified, least 
+%   significant digit is set to 0, i.e. opt = 1 means a=1 and b=0. If a=0, 
+%   then b is ignored.
 %
 %
 % OUTPUTS:
@@ -49,7 +55,7 @@ function [y_var,t_var] = var_pls(x,y,lvs,prepx,prepy,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 30/Mar/16.
+% last modification: 19/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -76,20 +82,29 @@ N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
 if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
-A = length(lvs);
 if nargin < 4 || isempty(prepx), prepx = 2; end;
 if nargin < 5 || isempty(prepy), prepy = 2; end;
-if nargin < 6 || isempty(opt), opt = 2; end;
+if nargin < 6 || isempty(opt), opt = '10'; end;
+
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
+% Complete opt
+if length(opt)<2, opt = strcat(opt,'0'); end
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
+
+% Preprocessing
+lvs = unique(lvs);
+A = length(lvs);
 
 % Validate dimensions of input data
 assert (A>0, 'Dimension Error: 3rd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==2, 'Dimension Error: 6th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique([0 lvs]);
@@ -97,6 +112,7 @@ lvs = unique([0 lvs]);
 % Validate values of input data
 assert (isempty(find(lvs<0)), 'Value Error: 3rd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -117,13 +133,12 @@ for i=1:length(lvs),
 end
     
 %% Show results
-        
-if opt,    
-    switch opt,
-        case 1
-            plot_vec(y_var,lvs,[],{'% Residual Variance in Y','PCs'},[],1);
-        otherwise
-            plot_vec([y_var t_var],lvs,[],{'% Residual Variance','PCs'},[],1,{'Y','Scores'});
-            legend('show');
+           
+if opt(1) == '1',
+    if opt(2) == '1',
+        plot_vec(y_var,lvs,[],{'% Residual Variance in Y','PCs'},[],0);
+    else
+        plot_vec([y_var t_var],lvs,[],{'% Residual Variance','PCs'},[],0,{'Y','Scores'});
+        legend('show');
     end
 end

@@ -39,8 +39,8 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 %           1: seriated
 %       c:
 %           0: no discard
-%           1: discard 0 variance variables 
-%   By deafult, opt = '110'. If less than 3 digits are specified, least 
+%           1: discard variables with diagonal below threshold 
+%   By deafult, opt = '100'. If less than 3 digits are specified, least 
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
 %   If a=0, then b and c are ignored.
 %
@@ -97,7 +97,7 @@ if nargin < 3 || isempty(lvs), lvs = 1:rank(x); end;
 if nargin < 4 || isempty(prepx), prepx = 2; end;
 if nargin < 5 || isempty(prepy), prepy = 2; end;
 if nargin < 6 || isempty(thres), thres = 0.1; end; 
-if nargin < 7 || isempty(opt), opt = '110'; end; 
+if nargin < 7 || isempty(opt), opt = '100'; end; 
 if nargin < 8 || isempty(label), label = 1:M; end
 if nargin < 9 || isempty(vars), vars = 1:M; end;
 

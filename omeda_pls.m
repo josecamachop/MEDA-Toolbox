@@ -112,7 +112,7 @@ L = size(test, 1);
 if isempty(dummy), dummyones(L,1); end;
 if nargin < 6 || isempty(prepx), prepx = 2; end;
 if nargin < 7 || isempty(prepy), prepy = 2; end;
-if nargin < 8 || isempty(opt), opt = 1; end; 
+if nargin < 8 || isempty(opt), opt = '100'; end; 
 if nargin < 9 || isempty(label), label = 1:M; end
 
 % Convert row arrays to column arrays

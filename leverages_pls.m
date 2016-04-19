@@ -25,9 +25,9 @@ function L = leverages_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% opt: [1x1] options for data plotting
-%       0: no plots
-%       otherwise: bar plot of leverages
+% opt: (str or num) options for data plotting
+%       0: no plots.
+%       1: plot bar plot of leverages (default) 
 %
 % label: [Mx1] (opt = 1 o 2), [Ox1] (opt = otherwise), name of the 
 %   variables (numbers are used by default)
@@ -49,8 +49,7 @@ function L = leverages_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-%           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 05/Apr/2016
+% last modification: 19/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -80,30 +79,11 @@ if nargin < 3 || isempty(lvs), lvs = 1:rank(x); end;
 if nargin < 4 || isempty(prepx), prepx = 2; end;
 if nargin < 5 || isempty(prepy), prepy = 2; end;
 if nargin < 6 || isempty(opt), opt = 1; end; 
-if nargin < 7 || isempty(label), 
-    switch opt,
-        case {0}
-            label = []; 
-        case {1,2} 
-            label = [1:M]; 
-            K = M;
-        otherwise
-            label = [1:O]; 
-            K = O;
-    end
-end
-if nargin < 8 || isempty(classes), 
-    switch opt,
-        case {0}
-            classes = []; 
-        case {1,2} 
-            classes = ones(M,1); 
-            K = M;
-        otherwise
-            classes = ones(O,1); 
-            K = O;
-    end
-end
+if nargin < 7 || isempty(label), label = [1:M]; end
+if nargin < 8 || isempty(classes), classes = ones(M,1); end
+
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -123,11 +103,12 @@ assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(label), assert (isequal(size(label), [K 1]), 'Dimension Error: 7th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(classes), assert (isequal(size(classes), [K 1]), 'Dimension Error: 8th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+assert (isequal(size(label), [M 1]), 'Dimension Error: 5th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -142,7 +123,7 @@ L = diag(W*W');
 
 %% Show results
 
-if opt,
+if opt == '1', 
     plot_vec(L, label, classes, {'Variables','Leverages'});
 end
         

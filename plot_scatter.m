@@ -20,9 +20,9 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt)
 %
 % lcont: {2} control limits on x and y axis (nothing by default)
 %
-% opt: [1x1] options for data plotting
-%       0: filled marks (by default)
-%       1: empty marks
+% opt: (str or num) options for data plotting.
+%       0: empty marks
+%       1: filled marks (default)
 %
 %
 % OUTPUTS:
@@ -32,7 +32,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt)
 %
 % EXAMPLE OF USE: Plot random data with empty marks and control limits:
 %
-% fig_h = plot_scatter(rand(100,2),[],[],{'Y','X'},{0.8,0.8},1);
+% fig_h = plot_scatter(rand(100,2),[],[],{'Y','X'},{0.8,0.8},0);
 %
 %
 % EXAMPLE OF USE: with labels and classes in elements:
@@ -42,7 +42,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 08/Apr/2016.
+% last modification: 19/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -70,7 +70,10 @@ if nargin < 2 || isempty(elabel), elabel = 1:N; end;
 if nargin < 3 || isempty(classes), classes = []; end;
 if nargin < 4 || isempty(xylabel), xylabel = {'',''}; end;
 if nargin < 5 || isempty(lcont),  lcont = []; end;
-if nargin < 6 || isempty(opt),  opt = 0; end;
+if nargin < 6 || isempty(opt),  opt = '1'; end;
+
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
 
 % Convert row arrays to column arrays
 if size(elabel,1)  == 1, elabel = elabel'; end;
@@ -92,6 +95,9 @@ if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argume
 if ~isempty(lcont), assert (iscell(lcont) && isequal(size(lcont), [2 1]), 'Dimension Error: 5th argument must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
     
+% Validate values of input data
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
+
 
 %% Main code
 
@@ -113,7 +119,7 @@ if strcmp(a(1).feature,'matlab'),
     a = gscatter(bdata(:,1), bdata(:,2), classes, [], 'o');
     
     % Fill marks
-    if opt == 0
+    if opt == '1',
         for i=1:length(a)
             color = get(a(i), 'Color');
             set(a(i), 'MarkerFaceColor',color);

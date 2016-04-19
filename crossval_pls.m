@@ -28,9 +28,9 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% opt: [1x1] options for data plotting
-%       0: no plots
-%       1: bar plot (default)
+% opt: (str or num) options for data plotting.
+%       0: no plots.
+%       1: plot (default)
 %
 %
 % OUTPUTS:
@@ -49,7 +49,7 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 15/Apr/16.
+% last modification: 19/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -83,6 +83,9 @@ if nargin < 5 || isempty(prepx), prepx = 2; end;
 if nargin < 6 || isempty(prepy), prepy = 2; end;
 if nargin < 7 || isempty(opt), opt = 1; end;
 
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
 
@@ -103,6 +106,7 @@ assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain integers
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 4th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r>2, 'Value Error: 4th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r<=N, 'Value Error: 4th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -156,7 +160,7 @@ cumpress = sum(press,2);
 
 %% Show results
 
-if opt == 1,
-    fig_h = plot_vec(cumpress,lvs,[],{'#LVs','PRESS'},[],1); 
+if opt == '1', 
+    fig_h = plot_vec(cumpress,lvs,[],{'#LVs','PRESS'},[],0); 
 end
 

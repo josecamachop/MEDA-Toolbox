@@ -1,7 +1,7 @@
 
 function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel)
 
-% Bar plot.
+% Bar or line plot.
 %
 % fig_h = plot_vec(vec) % minimum call
 % fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel) % complete call
@@ -20,9 +20,9 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel)
 %
 % lcont: [NxL or Lx1] L control limits (nothing by default)
 %
-% opt: [1x1] options for data plotting
-%       0: bar plot (by default)
-%       otherwise: line plot
+% opt: (str or num) options for data plotting.
+%       0: line plot
+%       1: bar plot (default)
 %
 % vlabel: [Mx1] name of the vectors (numbers are used by default)
 %
@@ -34,7 +34,7 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel)
 %
 % EXAMPLE OF USE: To plot three lines with constant control limits:
 %
-% fig_h = plot_vec(randn(100,3),[],[],{'Functions','Time'},[1, -1, 3], 1);
+% fig_h = plot_vec(randn(100,3),[],[],{'Functions','Time'},[1, -1, 3], 0);
 %
 %
 % EXAMPLE OF USE: with labels and classes in observations and variable limit:
@@ -44,7 +44,7 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 30/Mar/2016.
+% last modification: 19/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -75,9 +75,11 @@ if nargin < 2 || isempty(elabel), elabel = 1:N; end;
 if nargin < 3 || isempty(classes), classes = []; end;
 if nargin < 4 || isempty(xylabel), xylabel = {'',''}; end;
 if nargin < 5 || isempty(lcont),  lcont = []; end;
-if nargin < 6 || isempty(opt),  opt = 0; end;
+if nargin < 6 || isempty(opt),  opt = '1'; end;
 if nargin < 7 || isempty(vlabel),  vlabel = 1:M; end;
 
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
 
 % Convert row arrays to column arrays
 if size(elabel,1)  == 1, elabel = elabel'; end;
@@ -123,7 +125,10 @@ if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argume
 if ~isempty(lcont), assert (isequal(size(lcont,1), N) || isequal(size(lcont,2), 1), 'Dimension Error: 5th argument must be N-by-L or L-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-    
+ 
+% Validate values of input data
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
+   
 % Convert constant limits in vectors
 if ~isempty(lcont) && ~isequal(size(lcont,1), N), lcont = (lcont*ones(1,N))'; end;
     
@@ -153,12 +158,12 @@ end
 if ~isempty(classes)
     unique_classes = unique(classes);
     color_list = hsv(length(unique_classes));
-    if opt,
+    if opt == '0',
         plot(vec,'k','HandleVisibility', 'off');
     end  
     for i=1:length(unique_classes)
         ind = classes == unique_classes(i);
-        if opt,
+        if opt == '0',
             plot(find(ind), vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', color_list(i,:), 'DisplayName', num2str(unique_classes(i)));
         else 
             bar(find(ind), vec(ind,:), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
@@ -167,7 +172,7 @@ if ~isempty(classes)
 else
     color_list = hsv(M);
     for i=1:M,
-        if opt,
+        if opt == '0',
             plot(vec(:,i), 'LineWidth', 2, 'Color', color_list(i,:), 'DisplayName', vlabel{i});
         else
             bar(vec(:,i), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});

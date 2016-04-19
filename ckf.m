@@ -14,15 +14,14 @@ function cumpress = ckf(xcs,T,P,opt)
 %
 % P: [MxA] loadings.
 %
-% opt: [1x1] options for data plotting.
+% opt: (str or num) options for data plotting.
 %       0: no plots.
-%       otherwise: plot (default)
+%       1: plot (default)
 %
 %
 % OUTPUTS:
 %
 % cumpress: [Ax1] ckf curve.
-%
 %
 %
 % EXAMPLE OF USE: Random curve
@@ -34,7 +33,7 @@ function cumpress = ckf(xcs,T,P,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Mar/16.
+% last modification: 19/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -62,10 +61,16 @@ M = size(xcs, 2);
 A = size(T, 2);
 if nargin < 4 || isempty(opt), opt=1; end;
 
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
 % Validate dimensions of input data
 assert (isequal(size(T), [N A]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(P), [M A]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+
+% Validate values of input data
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -100,8 +105,8 @@ end
     
 %% Show results
 
-if opt,    
-    fig_h = plot_vec(cumpress/cumpress(1),0:A,[],{'ckf','#PCs'},[],1); 
+if opt == '1',    
+    fig_h = plot_vec(cumpress/cumpress(1),0:A,[],{'ckf','#PCs'},[],0); 
 end
 
         
