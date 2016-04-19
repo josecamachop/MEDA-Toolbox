@@ -32,7 +32,7 @@ function [bel,states] = gia(map,gamma,siz)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Apr/16.
+% last modification: 19/Apr/16.
 %
 % Copyright (C) 2015  University of Granada, Granada
 % Copyright (C) 2015  Jose Camacho Paez
@@ -85,17 +85,21 @@ if gamma == 0,
 end
 
 map = abs(map);
+indm = find(max(map)>gamma); % reduce map
+map = map(indm,indm);
+map_v = map - tril(map) + diag(diag(map)); % triangular inferior part is set to zero
+map_v = map_v(:);
+M2 = M;
+M = size(map, 1);
+
+columns = ones(M,1)*(1:M);
+rows = columns';
+columns_v = columns(:);
+rows_v = rows(:);
 
 states = {};
 bel = cell(M,1);
 
-columns = ones(M,1)*(1:M);
-rows = columns';
-
-map_v = map - tril(map) + diag(diag(map)); % triangular inferior part is set to zero
-map_v = map_v(:);
-columns_v = columns(:);
-rows_v = rows(:);
 
 ind = find(map_v==max(map_v),1);
 while map_v(ind)>=gamma,
@@ -109,12 +113,10 @@ while map_v(ind)>=gamma,
             bel{r} = [bel{r} length(states)];
         end
     else
-        int = intersect(bel{r},bel{c});
+        bel_r = setdiff(bel{r},bel{c});
+        bel_c = setdiff(bel{c},bel{r});
         
-        bel_r = setdiff(bel{r},int);
-        bel_c = setdiff(bel{c},int);
-        
-        mod = zeros(length(bel_r),length(bel_c));
+        mod = 0;%zeros(length(bel_r),length(bel_c));
         mod2 = 0;
         states_n = {};
         
@@ -123,7 +125,11 @@ while map_v(ind)>=gamma,
                 que = (map(states{bel_r(i)},states{bel_c(j)}) > gamma);
                 if isempty(find(~que)),
                     mod(i,j) = 1;
-                    states_n{end+1} = [states{bel_r(i)} states{bel_c(j)}]; % ERROR: REVISAR
+                    states_n{end+1} = [states{bel_r(i)} states{bel_c(j)}]; 
+                    map_v = reshape(map_v,M,M);
+                    map_v(states{bel_r(i)},states{bel_c(j)}) = 0;
+                    map_v(states{bel_c(j)},states{bel_r(i)}) = 0;
+                    map_v = map_v(:);
                 end
             end
         end
@@ -139,19 +145,15 @@ while map_v(ind)>=gamma,
             states = [states_n states];
             
             bel = cell(M,1);
-            for i=1:M,
-                for j=1:length(states),
-                    if ismember(i,states{j}),
-                        bel{i} = [bel{i} j];
-                    end
+            for j=1:length(states),
+                for i=1:length(states{j}),
+                    bel{states{j}(i)} = [bel{states{j}(i)} j];
                 end
             end
         end
         
-        int = intersect(bel{r},bel{c});
-        
-        bel_r = setdiff(bel{r},int);
-        bel_c = setdiff(bel{c},int);
+        bel_r = setdiff(bel{r},bel{c});
+        bel_c = setdiff(bel{c},bel{r});
         
         for i=1:length(bel_r), % Should c be added to an state of r?
             state_rec = states{bel_r(i)};
@@ -187,19 +189,19 @@ while map_v(ind)>=gamma,
             if j > length(state_rec),
                 for k = 1:length(state_rec),
                     if state_rec(k)<r
-                        map_v(state_rec(k) + M*r) = 0;
+                        map_v(state_rec(k) + M*(r-1)) = 0;
                     else
-                        map_v(r + M*state_rec(k)) = 0;
+                        map_v(r + M*(state_rec(k)-1)) = 0;
                     end
                 end
                 
                 states{bel_c(i)} = [state_rec r];
                 bel{r} = [bel{r} bel_c(i)];
-                mod2 = 1;
+                mod2 = 1;   
             end
         end
         
-        if ~sum(sum(mod)) && ~mod2 && isempty(int),    % non additions: new state
+        if ~sum(sum(mod)) && ~mod2 && isempty(intersect(bel{r},bel{c})),    % non additions: new state
             states{end+1} = [r,c];
             bel{r} = [bel{r} length(states)];
             bel{c} = [bel{c} length(states)];
@@ -215,8 +217,8 @@ om = ceil(log10(M));
 j=1;
 for i=1:length(states),
     if length(states{i})>=siz,
-        stateso{j} = sort(states{i});
-        vs(j) = sum(states{i}.*(10.^(-1*(1:om:om*length(states{i})))));  
+        stateso{j} = sort(indm(states{i}));
+        vs(j) = sum(stateso{j}.*(10.^(-1*(1:om:om*length(states{i})))));  
         j = j+1;
     end
 end    
@@ -228,12 +230,10 @@ else
     states = stateso(ind);
 end
 
-bel = cell(M,1);
-for i=1:M,
-    for j=1:length(states),
-        if ismember(i,states{j}),
-            bel{i} = [bel{i} j];
-        end
+bel = cell(M2,1);
+for j=1:length(states),
+    for i=1:length(states{j}),
+        bel{states{j}(i)} = [bel{states{j}(i)} j];
     end
 end
 
