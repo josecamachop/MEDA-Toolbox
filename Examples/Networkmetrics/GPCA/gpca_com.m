@@ -7,7 +7,7 @@
 % Component Analysis for Exploratory Data Analysis. Submitted to JCGS.
 
 % coded by: José Camacho Páez.
-% last modification: 06/Apr/16.
+% last modification: 19/Apr/16.
 
 %% Inicialization, remember to set the path of the toolbox
 
@@ -23,7 +23,7 @@ var_pca(x,0:30,2); % 15 PCs could be a choice
 
 %% Visualize MEDA
 
-[meda_map,meda_dis,ord] = meda_pca(x,1:15,2,0.1,011); % several groups of variables are found
+[meda_map,meda_dis,ord] = meda_pca(x,1:15,2,0.1,11); % several groups of variables are found
 
 
 %% Compute states with GIA

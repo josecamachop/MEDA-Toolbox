@@ -35,19 +35,19 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% opt: (str or num) options for data plotting: binary code of the form 'cba' for:
+% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
-%           1: plot oMEDA vector (default)
+%           1: plot oMEDA vector
 %       b:
-%           0: no control limits (default)
+%           0: no control limits
 %           1: plot control limits 
 %       c:
-%           0: no normalization (default)
+%           0: no normalization
 %           1: normalize by control limits
-%   If less than 3 digits are specified, most significant digits are set to 
-%   0, i.e. opt = 1 means a=1, b=0 and c=0. If a=0, then b and c are ignored.
-%
+%   By deafult, opt = '100'. If less than 3 digits are specified, least 
+%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
+%   If a=0, then b and c are ignored.
 %
 % label: [Mx1] name of the variables (numbers are used by default)
 %
@@ -80,7 +80,7 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 07/Apr/16.
+% last modification: 19/Apr/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -127,7 +127,11 @@ lvs(find(lvs==0)) = [];
 A = length(lvs);
 
 % Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt,'%.3d'); end
+if isnumeric(opt), opt=num2str(opt); end
+
+% Complete opt
+if length(opt)<2, opt = strcat(opt,'00'); end
+if length(opt)<3, opt = strcat(opt,'0'); end
 
 % Validate dimensions of input data
 assert (A>0, 'Dimension Error: 3rd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
@@ -162,7 +166,7 @@ lim = prctile(omeda_x,95)';
 
 %% Show results
 
-if opt(3) == '1',
+if opt(1) == '1',
     
     vec = omeda_vec;
  
@@ -172,7 +176,7 @@ if opt(3) == '1',
         limp = [];
     end
     
-    if opt(1) == '1',
+    if opt(3) == '1',
         ind = find(lim>1e-10);
         vec(ind) = vec(ind)./lim(ind);
     	if ~isempty(limp),

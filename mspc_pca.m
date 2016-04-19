@@ -22,7 +22,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,pcs,test,prep,opt,label,clas
 %       1: mean centering
 %       2: autoscaling (default) 
 %
-% opt: (str or num) options for data plotting: binary code of the form 'cba' for:
+% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
 %           1: plot MSPC charts (default)
@@ -30,15 +30,17 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,pcs,test,prep,opt,label,clas
 %           0: bar plot of each single statistic
 %           1: scatter plot (default)
 %       c:
-%           0: plot only test data 
-%           1: plot calibration and test data (default)
-%   If less than 3 digits are specified, most significant digits are set to 
-%   0, i.e. opt = 1 means a=1, b=0 and c=0. If a=0, then b and c are ignored
+%           0: plot calibration and test data (default)
+%           1: plot only test data 
+%   By deafult, opt = '110'. If less than 3 digits are specified, least 
+%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
+%   If a=0, then b and c are ignored.
 %
-% label: [Kx1] K=N+L, name of the observations (numbers are used by default)
+% label: [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
+%   are used by default)
 %
-% classes: [Kx1] K=N+L, groups for different visualization (a single group 
-%   by default per calibration and test)
+% classes: [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
+%   visualization (a single group by default per calibration and test)
 %
 % p_valueD: [Ldx1] p-values for control limits in the D-st, in (0,1]. 
 %   Values equal to 0.01 and 0.05 are used by default in bar plots, and
@@ -92,7 +94,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,pcs,test,prep,opt,label,clas
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 14/Apr/2016
+% last modification: 19/Apr/2016
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -121,32 +123,32 @@ if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
 if nargin < 3, test = []; end;
 L = size(test, 1);
 if nargin < 4 || isempty(prep), prep = 2; end;
-if nargin < 5 || isempty(opt), opt = '111'; end; 
+if nargin < 5 || isempty(opt), opt = '110'; end; 
 
 % Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt,'%.3d'); end
+if isnumeric(opt), opt=num2str(opt); end
 
 % Complete opt
-if length(opt)<2, opt = strcat('00',opt); end
-if length(opt)<3, opt = strcat('0',opt); end
-if opt(1) == 1 || opt(1) == '1',
-    K = N+L;
-else
+if length(opt)<2, opt = strcat(opt,'00'); end
+if length(opt)<3, opt = strcat(opt,'0'); end
+if opt(3) == 1 || opt(3) == '1',
     K = L;
+else
+    K = N+L;
 end
 
 if nargin < 6 || isempty(label), 
-    if opt(1) == 1 || opt(1) == '1',
-        label = [1:N 1:L]; 
+    if opt(3) == 1 || opt(3) == '1',
+        label = 1:L;
     else
-        label = 1:L; 
+        label = [1:N 1:L]; 
     end
 end
 if nargin < 7 || isempty(classes),
-    if opt(1) == 1 || opt(1) == '1', 
-        classes = [ones(N,1);2*ones(L,1)]; 
+    if opt(3) == 1 || opt(3) == '1', 
+        classes = ones(L,1); 
     else
-        classes = ones(L,1);  
+        classes = [ones(N,1);2*ones(L,1)];  
     end
 end
 if nargin < 8 || isempty(p_valueD), 
@@ -244,9 +246,9 @@ end
 
 %% Show results
 
-if opt(3) == '1',
+if opt(1) == '1',
     
-    if opt(1) == '1'
+    if opt(3) == '0'
         Dsttt = [Dst;Dstt];
         Qsttt = [Qst;Qstt];
     else

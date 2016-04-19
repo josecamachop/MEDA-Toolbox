@@ -21,20 +21,21 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% thres: [1x1] threshold (0,1] for discretization and discarding (0.1 by default)
+% thres: [1x1] threshold (0,1] for discretization and discarding (0.1 by default) 
 %
-% opt: (str or num) options for data plotting: binary code of the form 'cba' for:
+% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
-%           1: plot MEDA matrix (default)
+%           1: plot MEDA matrix
 %       b:
 %           0: no seriated
-%           1: seriated (default)
+%           1: seriated
 %       c:
-%           0: no discard (default)
+%           0: no discard
 %           1: discard 0 variance variables 
-%   If less than 3 digits are specified, most significant digits are set to 
-%   0, i.e. opt = 1 means a=1, b=0 and c=0. If a=0, then b and c are ignored.  
+%   By deafult, opt = '110'. If less than 3 digits are specified, least 
+%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
+%   If a=0, then b and c are ignored.
 %
 % label: [Mx1] name of the variables (numbers are used by default)
 %
@@ -58,7 +59,7 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 6/Apr/16
+% last modification: 19/Apr/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -86,7 +87,7 @@ M = size(x, 2);
 if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
 if nargin < 3 || isempty(prep), prep = 2; end;
 if nargin < 4 || isempty(thres), thres = 0.1; end; 
-if nargin < 5 || isempty(opt), opt = '011'; end; 
+if nargin < 5 || isempty(opt), opt = '110'; end; 
 if nargin < 6 || isempty(label), label = 1:M; end
 if nargin < 7 || isempty(vars), vars = 1:M; end;
 
@@ -106,11 +107,11 @@ if isstruct(opt) % opt backward compatibility
 end
 
 % Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt,'%.3d'); end
+if isnumeric(opt), opt=num2str(opt); end
 
 % Complete opt
-if length(opt)<2, opt = strcat('00',opt); end
-if length(opt)<3, opt = strcat('0',opt); end
+if length(opt)<2, opt = strcat(opt,'00'); end
+if length(opt)<3, opt = strcat(opt,'0'); end
 
 % Validate dimensions of input data
 assert (A>0, 'Dimension Error: 2nd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
@@ -152,7 +153,7 @@ end
     
 %% Show results
 
-if opt(3) == '1',
+if opt(1) == '1',
     
     map = meda_map;
  
@@ -165,7 +166,7 @@ if opt(3) == '1',
     map = map(ord2,ord2);
     label = label(ord2);
     
-    if opt(1) == '1',
+    if opt(3) == '1',
         Dmap = diag(map);
         ind = find(Dmap > thres);
     else
