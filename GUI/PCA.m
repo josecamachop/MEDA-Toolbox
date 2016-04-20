@@ -554,9 +554,9 @@ end
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
     case 'Var X'
-        x_var = var_pca(handles.data.data_matrix,1:pcs,handles.data.prep,1);
+        x_var = var_pca(handles.data.data_matrix,1:pcs,handles.data.prep,'11');
     case 'Var X + ckf'
-        x_var = var_pca(handles.data.data_matrix,1:pcs,handles.data.prep,2);
+        x_var = var_pca(handles.data.data_matrix,1:pcs,handles.data.prep,'10');
     case 'ekf crossval '
         [blocks_r blocks_c] = size(handles.data.data_matrix);
         x_var = crossval_pca(handles.data.data_matrix,0:pcs,'ekf',blocks_r,blocks_c,handles.data.prep);
@@ -1686,7 +1686,13 @@ else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP),
 end
 
 fig=gcf;
-matrixPCs_MEDA_LP=[P(:,handles.data.PC1_LP),P(:,handles.data.PC2_LP)];
+%matrixPCs_MEDA_LP=[P(:,handles.data.PC1_LP),P(:,handles.data.PC2_LP)];
+P_size = size(P);
+if P_size(2) > 1,
+    matrixPCs_MEDA_LP=[P(:,1),P(:,2)];
+else
+    matrixPCs_MEDA_LP=P(:,1);
+end
 handles.data.lp_ID_figures=[handles.data.lp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.lp_matrix={handles.data.lp_matrix{:} matrixPCs_MEDA_LP};
 
@@ -1800,12 +1806,12 @@ function medaButton_Callback(hObject, eventdata, handles)
 handles.data.PCs_MEDA=getCurrentPopupString(handles.medaPopup);
 PCs_MEDA_cell = strread(handles.data.PCs_MEDA,'%s','delimiter',':');
 pcs = [str2num(PCs_MEDA_cell{1}):str2num(PCs_MEDA_cell{2})];
-if get(handles.discardRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
+if get(handles.serRadio,'Value')==0 && get(handles.discardRadio,'Value')==1,
     handles.data.opt='101';
-else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
-        handles.data.opt='011';
-    else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0,
-            handles.data.opt='001';
+else if get(handles.serRadio,'Value')==1 && get(handles.discardRadio,'Value')==0,
+        handles.data.opt='110';
+    else if get(handles.serRadio,'Value')==0 && get(handles.discardRadio,'Value')==0,
+            handles.data.opt='100';
         else handles.data.opt='111';
         end
     end

@@ -630,9 +630,9 @@ end
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
     case 'Var Y'
-        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,1:lvs,handles.data.prepX,handles.data.prepY,1);
+        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,1:lvs,handles.data.prepX,handles.data.prepY,'11');
     case 'Var Y + scores'
-        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,1:lvs,handles.data.prepX,handles.data.prepY,2);
+        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,1:lvs,handles.data.prepX,handles.data.prepY,'10');
     case 'Y-SVI plot'
         chosenVar = str2num(getCurrentPopupString(handles.selectPopup));
         SVIplot([handles.data.data_matrixY handles.data.data_matrixX],1:lvs,1,7,handles.data.prepX);
@@ -1933,12 +1933,12 @@ lvs = [str2num(LVs_MEDA_cell{1}):str2num(LVs_MEDA_cell{2})];
 %    return;
 %end
 
-if get(handles.discardRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
+if get(handles.serRadio,'Value')==0 && get(handles.discardRadio,'Value')==1,
     handles.data.opt='101';
-else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
-        handles.data.opt='011';
-    else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0,
-            handles.data.opt='001';
+else if get(handles.serRadio,'Value')==1 && get(handles.discardRadio,'Value')==0,
+        handles.data.opt='110';
+    else if get(handles.serRadio,'Value')==0 && get(handles.discardRadio,'Value')==0,
+            handles.data.opt='100';
         else handles.data.opt='111';
         end
     end
