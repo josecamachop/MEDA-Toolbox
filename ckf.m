@@ -106,7 +106,7 @@ end
 %% Show results
 
 if opt == '1',    
-    fig_h = plot_vec(cumpress/cumpress(1),0:A,[],{'ckf','#PCs'},[],0); 
+    fig_h = plot_vec(cumpress/cumpress(1),0:A,[],{'#PCs','ckf'},[],0); 
 end
 
         

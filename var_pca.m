@@ -132,9 +132,9 @@ end
 
 if opt(1) == '1',
     if opt(2) == '1',
-        plot_vec(x_var,pcs,[],{'% Residual Variance','PCs'},[],0);
+        plot_vec(x_var,pcs,[],{'#PCs','% Residual Variance'},[],0);
     else
-        plot_vec([x_var cumpress/cumpress(1)],pcs,[],{'% Residual Variance','PCs'},[],0,{'X','ckf'});
+        plot_vec([x_var cumpress/cumpress(1)],pcs,[],{'#PCs','% Residual Variance'},[],0,{'X','ckf'});
         legend('show');
     end
 end

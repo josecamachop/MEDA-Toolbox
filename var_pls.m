@@ -136,9 +136,9 @@ end
            
 if opt(1) == '1',
     if opt(2) == '1',
-        plot_vec(y_var,lvs,[],{'% Residual Variance in Y','PCs'},[],0);
+        plot_vec(y_var,lvs,[],{'#PCs','% Residual Variance in Y'},[],0);
     else
-        plot_vec([y_var t_var],lvs,[],{'% Residual Variance','PCs'},[],0,{'Y','Scores'});
+        plot_vec([y_var t_var],lvs,[],{'#PCs','% Residual Variance'},[],0,{'Y','Scores'});
         legend('show');
     end
 end
