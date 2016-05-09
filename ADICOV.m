@@ -50,7 +50,7 @@ function App = ADICOV(XX,L,Neig,R,Q,multn)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16.
+% last modification: 05/May/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -82,6 +82,10 @@ if nargin < 6 || isempty(multn),  multn = ones(size(L,1),1); end;
 
 % Convert row arrays to column arrays
 if size(multn,1) == 1,     multn = multn'; end;
+
+if Neig>rank(XX)
+    Neig = rank(XX);
+end
 
 % Validate dimensions of input data
 assert (isequal(size(XX), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
