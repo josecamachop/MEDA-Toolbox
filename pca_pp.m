@@ -30,7 +30,7 @@ function [p,t] = pca_pp(xcs,pcs)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 07/Apr/16.
+% last modification: 09/May/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -55,7 +55,7 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(xcs, 1);
 M = size(xcs, 2);
-if nargin < 2 || isempty(pcs), pcs = 0:min(size(xcs)); end;
+if nargin < 2 || isempty(pcs), pcs = 0:size(xcs,2); end;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -63,7 +63,7 @@ if size(pcs,2) == 1, pcs = pcs'; end;
 % Preprocessing
 pcs = unique(pcs);
 pcs(find(pcs==0)) = [];
-pcs(find(pcs>min(size(xcs)))) = [];
+pcs(find(pcs>size(xcs,2))) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
