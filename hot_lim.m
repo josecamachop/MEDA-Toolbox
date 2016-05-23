@@ -32,7 +32,7 @@ function lim = hot_lim(npc,nob,p_value,phase)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16
+% last modification: 23/May/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -82,9 +82,17 @@ assert (phase==1 || phase==2, 'Value Error: 4th argument must be 1 or 2. Type ''
 %% Main code
 
 if phase ==2,
-    lim = (npc*(nob*nob-1)/(nob*(nob-npc)))*finv(1-p_value,npc,nob-npc);
+    b=nob-npc;
+    if b < 0.1, %  b must be positive, and does not make a difference below 0.1
+        b = 0.1;
+    end
+    lim = (npc*(nob*nob-1)/(nob*(b)))*finv(1-p_value,npc,b);
 else
-    lim = (nob-1)^2/nob*betainv(1-p_value,npc/2,(nob-npc-1)/2);
+    b=(nob-npc-1)/2;
+    if b < 0.1, %  b must be positive, and does not make a difference below 0.1
+        b = 0.1;
+    end
+    lim = (nob-1)^2/nob*betainv(1-p_value,npc/2,b);
 end
 
 
