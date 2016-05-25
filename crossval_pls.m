@@ -42,8 +42,8 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 % EXAMPLE OF USE: Random data with structural relationship
 %
-% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
-% Y = randn(100,2) + X(:,1:2);
+% X = real(ADICOV(randn(10,10).^9,randn(20,10),10));
+% Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
 % cumpress = crossval_pls(X,Y,lvs);
 %
