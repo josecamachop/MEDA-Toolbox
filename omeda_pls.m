@@ -80,7 +80,7 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/16.
+% last modification: 21/May/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -109,7 +109,7 @@ O = size(y, 2);
 if isempty(lvs), lvs = 1:rank(x); end;
 if isempty(test), test = x; end;
 L = size(test, 1);
-if isempty(dummy), dummyones(L,1); end;
+if isempty(dummy), dummy = ones(L,1); end;
 if nargin < 6 || isempty(prepx), prepx = 2; end;
 if nargin < 7 || isempty(prepy), prepy = 2; end;
 if nargin < 8 || isempty(opt), opt = '100'; end; 
