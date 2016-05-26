@@ -68,7 +68,7 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 if nargin < 3 || isempty(corr), corr = nan(vars); end;
 ind = find(~isnan(corr));
-if nargin < 4 || isempty(lcorr), lcorr = 20; end;
+if nargin < 4 || isempty(lcorr), lcorr = 10; end;
 
 % Validate dimensions of input data
 assert (isequal(size(obs), [1 1]), 'Dimension Error: 1st argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
