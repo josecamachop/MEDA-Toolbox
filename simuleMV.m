@@ -80,10 +80,6 @@ assert (obs>0, 'Value Error: 1st argument must be above 0. Type ''help %s'' for 
 assert (isequal(fix(obs), obs), 'Value Error: 1st argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (vars>0, 'Value Error: 2nd argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(vars), vars), 'Value Error: 2nd argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(ind), 
-    assert (isempty(find(cor(ind)<-1)), 'Value Error: 3rd argument elements must be equal or above -1. Type ''help %s'' for more info.', routine(1).name);
-    assert (isempty(find(cor(ind)>1)), 'Value Error: 3rd argument elements must be equal or below 1. Type ''help %s'' for more info.', routine(1).name);
-end
 assert (lcorr >= 0, 'Value Error: 4th argument must be above or equal to 0. Type ''help %s'' for more info.', routine(1).name);
 assert (lcorr<=10, 'Value Error: 4th argument must be equal to or below 10. Type ''help %s'' for more info.', routine(1).name);
 
