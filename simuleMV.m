@@ -34,12 +34,12 @@ function X = simuleMV(obs,vars,lcorr)
 %
 % cor = nan(10);
 % cor(1:5,1:5) = 1;
-% X = simuleMV(100,10,cor);
+% X = simuleMV(100,10);
 % meda_pca(X); % visualization (auto-scaled data)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 27/May/16.
+% last modification: 28/Jun/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -80,11 +80,40 @@ assert (lcorr<=10, 'Value Error: 3rd argument must be equal to or below 10. Type
 
 %% Main code
 
-COV1 = 2*rand(vars)-1;
-X = real(ADICOV(COV1,randn(12-lcorr,vars),vars));
-COV = corr(X);
-COV = lcorr*(log10(vars)*2-1)*10*COV + COV1;
-COV = COV./max(max(abs(COV)));
-X = real(ADICOV(COV,randn(obs,vars),vars));
+if lcorr>0,
+    x = [0.2837   17.9998   19.3749    2.0605    0.3234 0.4552   12.0737   16.6831    5.2423    0.5610 0.3000   14.7440 4.4637e+04 7.1838    0.8429];
+    obs2 = round(Floc(x,[lcorr,vars]).^2);
+    obs2 = max(2,obs2);
+    if obs < obs2,
+        %disp('Warning: correlation level too low. Resulting matrix may show a higher correlation due to structural constraints.')
+    end
+    X = real(ADICOV(eye(vars),randn(obs2,vars),vars));
+    COV = corr(X);
+    COV = COV + 0.01*eye(vars);
+    X = real(ADICOV(COV,randn(obs,vars),vars));
+else
+    if obs < vars,
+        %disp('Warning: correlation level too low. Resulting matrix may show a higher correlation due to structural constraints.')
+    end
+    X = real(ADICOV(eye(vars),randn(obs,vars),vars));
+end
+    
 
+function y = Floc(x,xdata)
 
+y = zeros(size(xdata,1),1);
+
+for i=1:size(xdata,1),
+    
+    switch xdata(i,1),
+    
+        case {1, 2, 3},
+            y(i) = (x(1)*(x(2)-xdata(i,1)).*((log(xdata(i,2))/log(x(3))).^(x(4)*exp(-x(5)*xdata(i,1)))));
+        case {4, 5, 6, 7},
+            y(i) = (x(6)*(x(7)-xdata(i,1)).*((log(xdata(i,2))/log(x(8))).^(x(9)*exp(-x(10)*xdata(i,1)))));
+        case {8, 9, 10},
+            y(i) = (x(11)*(x(12)-xdata(i,1)).*((log(xdata(i,2))/log(x(13))).^(x(14)*exp(-x(15)*xdata(i,1)))));
+            
+    end
+
+end;
