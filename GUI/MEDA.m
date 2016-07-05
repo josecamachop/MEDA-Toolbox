@@ -46,7 +46,7 @@ function varargout = MEDA(varargin)
 
 % Edit the above text to modify the response to help MEDA
 
-% Last Modified by GUIDE v2.5 25-Jan-2015 13:26:42
+% Last Modified by GUIDE v2.5 05-Jul-2016 11:58:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -77,7 +77,7 @@ function MEDA_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for MEDA
 handles.output = hObject;
-
+handles.data.version='1.1';
 %Change icon
 %warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
 %javaFrame = get(hObject,'JavaFrame');
@@ -110,7 +110,7 @@ function varargout = MEDA_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
+
 
 % --- Executes on button press in pcaButton.
 function pcaButton_Callback(hObject, eventdata, handles)
@@ -125,3 +125,19 @@ function plsButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 PLS;
+
+
+% --------------------------------------------------------------------
+function help_Callback(hObject, eventdata, handles)
+% hObject    handle to help (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function about_menu_Callback(hObject, eventdata, handles)
+% hObject    handle to about_menu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+myicon = imread('icon.png');
+h = msgbox({strcat('Version number: ',handles.data.version),'','Authors:','José Camacho','Rafael A. Rodríguez-Gómez'},'About','custom',myicon);
