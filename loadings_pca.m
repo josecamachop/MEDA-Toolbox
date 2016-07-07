@@ -42,7 +42,7 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes)
 %
 % EXAMPLE OF USE: Scatter plot of random scores
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% X = simuleMV(20,10,8);
 % P = loadings_pca(X,1:3);
 %
 %

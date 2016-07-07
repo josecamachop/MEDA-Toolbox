@@ -74,8 +74,8 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,lvs,test,prepx,prepy,opt,l
 %
 % EXAMPLE OF USE: Random scores
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
-% Y = randn(100,2) + X(:,1:2);
+% X = simuleMV(100,10);
+% Y = 0.1*randn(100,2) + X(:,1:2);
 % [Dst,Qst] = mspc_pls(X,Y,1:3);
 %
 %
@@ -84,15 +84,14 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,lvs,test,prepx,prepy,opt,l
 % n_obs = 100;
 % n_vars = 10;
 % n_PCs = 1;
-% XX = randn(n_vars,n_vars).^19; 
-% X = real(ADICOV(n_obs*XX,randn(n_obs,n_vars),n_vars));
-% Y = randn(n_obs,2) + X(:,1:2);
+% X = simuleMV(n_obs,n_vars,6);
+% Y = 0.1*randn(100,2) + X(:,1:2);
 % 
 % lvs = 1:n_PCs;
 % 
 % n_obst = 10;
-% test = real(ADICOV(n_obst*XX,randn(n_obst,n_vars),n_vars));
-% test(6:10,:) = (1 + 1)*test(6:10,:);
+% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% test(6:10,:) = 3*test(6:10,:);
 % 
 % [Dst,Qst,Dstt,Qstt] = mspc_pls(X,Y,lvs,test,2,2,100,[],[ones(100,1);2*ones(5,1);3*ones(5,1)]);
 %

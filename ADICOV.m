@@ -42,11 +42,10 @@ function App = ADICOV(XX,L,Neig,R,Q,multn)
 % EXAMPLE OF USE: To obtain a matrix 100x10 with random covariance matrix, 
 % use the following call:
 %
-% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
+% X = real(ADICOV(randn(10,10),randn(100,10),10));
 %
 % The call to real is necessary to avoid imaginary part in the results
-% since we did not constrain XX to be positive definite. Also, the first
-% argument is raised to the 9 to induce correlation between variables.
+% since we did not constrain XX to be positive definite. 
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)

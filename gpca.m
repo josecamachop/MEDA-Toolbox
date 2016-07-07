@@ -26,7 +26,7 @@ function [p,t,bel] = gpca(xcs,states,pcs)
 %
 % EXAMPLE OF USE: Random data:
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% X = simuleMV(20,10,8);;
 % pcs = 1:rank(X);
 % map = meda_pca(X,pcs);
 % [bel,states] = gia(map,0.3);
@@ -36,8 +36,7 @@ function [p,t,bel] = gpca(xcs,states,pcs)
 % 
 % f = figure;
 % for i=pcs,
-%   subplot(max(pcs),1,i); 
-%   plot_vec(p(:,i),[],[],sprintf('PC %d',i),[],[],f);
+%   plot_vec(p(:,i),[],[],{'',sprintf('PC %d',i)});
 % end
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)

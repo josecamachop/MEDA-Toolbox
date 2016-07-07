@@ -25,7 +25,7 @@ function [bel,states] = gia(map,gamma,siz)
 %
 % EXAMPLE OF USE: Random data. Check the value in states:
 %
-% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
+% X = simuleMV(20,10,8);
 % pcs = 1:3;
 % map = meda_pca(X,pcs);
 % [bel,states] = gia(map,0.3);

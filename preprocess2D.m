@@ -29,7 +29,7 @@ function [xcs,average,scale] = preprocess2D(x,prep,weights)
 %
 % EXAMPLE OF USE: Random data:
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% X = simuleMV(10,10,8);
 % [Xcs,av,sc] = preprocess2D(X,2);
 % plot_vec([av' sc'],[],[],{'Avergae & Std Dev'},[], 1);
 %

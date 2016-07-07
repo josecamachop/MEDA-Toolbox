@@ -72,7 +72,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,pcs,test,prep,opt,label,clas
 %
 % EXAMPLE OF USE: Random scores
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% X = simuleMV(100,10);
 % [Dst,Qst] = mspc_pca(X,1:3);
 %
 %
@@ -81,14 +81,13 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,pcs,test,prep,opt,label,clas
 % n_obs = 100;
 % n_vars = 10;
 % n_PCs = 1;
-% XX = randn(n_vars,n_vars).^19; 
-% X = real(ADICOV(n_obs*XX,randn(n_obs,n_vars),n_vars));
+% X = simuleMV(n_obs,n_vars,6);
 % 
 % pcs = 1:n_PCs;
 % 
 % n_obst = 10;
-% test = real(ADICOV(n_obst*XX,randn(n_obst,n_vars),n_vars));
-% test(6:10,:) = (1 + 1)*test(6:10,:);
+% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% test(6:10,:) = 3*test(6:10,:);
 % 
 % [Dst,Qst,Dstt,Qstt] = mspc_pca(X,pcs,test,2,100,[],[ones(100,1);2*ones(5,1);3*ones(5,1)]);
 %

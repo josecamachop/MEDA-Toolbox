@@ -51,7 +51,7 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes)
 %
 % EXAMPLE OF USE: Random scores
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% X = simuleMV(20,10,8);
 % T = scores_pca(X,1:3);
 %
 %
@@ -59,11 +59,10 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes)
 %
 % n_obs = 100;
 % n_vars = 10;
-% XX = randn(n_vars,n_vars).^19; 
-% X = real(ADICOV(n_obs*XX,randn(n_obs,n_vars),n_vars));
+% X = simuleMV(n_obs,n_vars,8);
 %
 % n_obst = 10;
-% test = real(ADICOV(n_obst*XX,randn(n_obst,n_vars),n_vars));
+% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
 %
 % scores_pca(X,1,test);
 % scores_pca(X,1:2,test);

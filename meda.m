@@ -33,7 +33,7 @@ function meda_map = meda(XX,R,Q)
 %
 % EXAMPLE OF USE: MEDA on PCA
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% X = simuleMV(20,10,8);
 % Xcs = preprocess2D(X,2);
 % pcs = 1:3;
 % p = pca_pp(Xcs,pcs);
@@ -46,8 +46,8 @@ function meda_map = meda(XX,R,Q)
 %
 % EXAMPLE OF USE: MEDA on PLS
 %
-% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
-% Y = randn(100,2) + X(:,1:2);
+% X = simuleMV(20,10,8);
+% Y = 0.1*randn(20,2) + X(:,1:2);
 % Xcs = preprocess2D(X,2);
 % Ycs = preprocess2D(Y,2);
 % lvs = 1:10;

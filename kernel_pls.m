@@ -35,8 +35,8 @@ function [beta,W,P,Q,R] = kernel_pls(XX,XY,lvs)
 %
 % EXAMPLE OF USE: Random data with structural relationship
 %
-% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
-% Y = randn(100,2) + X(:,1:2);
+% X = simuleMV(20,10,8);
+% Y = 0.1*randn(20,2) + X(:,1:2);
 % Xcs = preprocess2D(X,2);
 % Ycs = preprocess2D(Y,2);
 % lvs = 1:10;

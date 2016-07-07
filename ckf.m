@@ -26,9 +26,8 @@ function cumpress = ckf(xcs,T,P,opt)
 %
 % EXAMPLE OF USE: Random curve
 %
-% X = randn(100,10);
-% T = randn(100,3);
-% P = randn(10,3);
+% X = simuleMV(20,10,8);
+% [P,T] = pca_pp(X);
 % cumpress = ckf(X,T,P);
 %
 %

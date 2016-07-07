@@ -42,7 +42,7 @@ Items in the folder:
 
 	- auxiliary routines: preprocess2D.m, preprocess2Dapp.m, seriation.m, spe_lim.m, hot_lim.m   
 
-	- data simulation tools: ADICOV.m  
+	- data simulation tools: ADICOV.m, simuleMV.m  
 
 - BigData: Big Data routines.
 

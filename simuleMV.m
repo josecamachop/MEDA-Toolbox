@@ -1,11 +1,9 @@
-function X = simuleMV(obs,vars,lcorr)
+function X = simuleMV(obs,vars,lcorr,corM)
 
-% Simulation of MV data with ADICOV (Approximation of a DIstribution for a 
-% given COVariance, Chemometrics and Intelligent Laboratory Systems 105(2), 
-% 2011, pp. 171-180.
+% Simulation of MV data with ADICOV, submitted to Chemolab
 %
 % X = simuleMV(obs,vars) % minimum call
-% X = simuleMV(obs,vars,lcorr)% complete call
+% X = simuleMV(obs,vars,lcorr,corM)% complete call
 %
 %
 % INPUTS:
@@ -16,30 +14,23 @@ function X = simuleMV(obs,vars,lcorr)
 %
 % lcorr: [1x1] level of correlation among variables in [0,10] (5 by default) 
 %
+% corM: [vars x vars] covariance for simulation (empty by default) 
+%
 %
 % OUTPUTS:
 %
-% X: [obsxvars] data matrix generated.
+% X: [obs x vars] data matrix generated.
 %
 %
 % EXAMPLE OF USE: To obtain a matrix 100x10 with random covariance matrix, 
 % use the following call:
 %
-% X = simuleMV(100,10);
-% meda_pca(X); % visualization (auto-scaled data)
-%
-%
-% EXAMPLE OF USE: Matrix 100x10 with the first five variables with 
-% correlation 1:
-%
-% cor = nan(10);
-% cor(1:5,1:5) = 1;
-% X = simuleMV(100,10);
-% meda_pca(X); % visualization (auto-scaled data)
+% X = simuleMV(100,10,6);
+% plot_map(corr(X)); % visualization 
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 28/Jun/16.
+% last modification: 07/Jul/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -63,11 +54,13 @@ function X = simuleMV(obs,vars,lcorr)
 routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 if nargin < 3 || isempty(lcorr), lcorr = 5; end;
-
+if nargin < 4 || isempty(corM), corM = eye(vars); end;
+    
 % Validate dimensions of input data
 assert (isequal(size(obs), [1 1]), 'Dimension Error: 1st argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(vars), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lcorr), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(corM), [vars vars]), 'Dimension Error: 4th argument must be vars-by-vars. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (obs>0, 'Value Error: 1st argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
@@ -80,24 +73,26 @@ assert (lcorr<=10, 'Value Error: 3rd argument must be equal to or below 10. Type
 
 %% Main code
 
-if lcorr>0,
-    x = [0.2837   17.9998   19.3749    2.0605    0.3234 0.4552   12.0737   16.6831    5.2423    0.5610 0.3000   14.7440 4.4637e+04 7.1838    0.8429];
-    obs2 = round(Floc(x,[lcorr,vars]).^2);
-    obs2 = max(2,obs2);
-    if obs < obs2,
-        %disp('Warning: correlation level too low. Resulting matrix may show a higher correlation due to structural constraints.')
+if nargin < 4,
+    if lcorr>0,
+        x = [0.2837   17.9998   19.3749    2.0605    0.3234 0.4552   12.0737   16.6831    5.2423    0.5610 0.3000   14.7440 4.4637e+04 7.1838    0.8429];
+        obs2 = round(Floc(x,[lcorr,vars]).^2);
+        obs2 = max(2,obs2);
+        if obs < obs2,
+            disp('Warning: correlation level too low. Resulting matrix may show a higher correlation due to structural constraints.')
+        end
+        X = real(ADICOV(eye(vars),randn(obs2,vars),vars));
+        COV = corr(X);
+        corM = COV + 0.01*eye(vars);
+    else
+        if obs < vars,
+            disp('Warning: correlation level too low. Resulting matrix may show a higher correlation due to structural constraints.')
+        end
     end
-    X = real(ADICOV(eye(vars),randn(obs2,vars),vars));
-    COV = corr(X);
-    COV = COV + 0.01*eye(vars);
-    X = real(ADICOV(COV,randn(obs,vars),vars));
-else
-    if obs < vars,
-        %disp('Warning: correlation level too low. Resulting matrix may show a higher correlation due to structural constraints.')
-    end
-    X = real(ADICOV(eye(vars),randn(obs,vars),vars));
 end
-    
+
+X = real(ADICOV(corM,randn(obs,vars),vars));
+
 
 function y = Floc(x,xdata)
 

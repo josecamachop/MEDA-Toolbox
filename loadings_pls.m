@@ -56,16 +56,16 @@ function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 %
 % EXAMPLE OF USE: Random loadings: bar and scatter plot of weights
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
-% Y = randn(100,2) + X(:,1:2);
+% X = simuleMV(20,10,8);
+% Y = 0.1*randn(20,2) + X(:,1:2);
 % loadings_pls(X,Y,1);
 % [W,P,Q] = loadings_pls(X,Y,1:3);
 %
 %
 % EXAMPLE OF USE: Random loadings, plotting x-block loadings
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
-% Y = randn(100,2) + X(:,1:2);
+% X = simuleMV(20,10,8);
+% Y = 0.1*randn(20,2) + X(:,1:2);
 % [W,P,Q] = loadings_pls(X,Y,1:2,[],[],111);
 %
 %

@@ -22,6 +22,12 @@ function fig_h = plot_map(map,label,int,ind)
 % fig_h: (1x1) figure handle.
 %
 %
+% EXAMPLE OF USE: Random data
+%
+% X = simuleMV(20,10,8);
+% plot_map(corr(X));
+%
+%
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
 % last modification: 06/Apr/16.

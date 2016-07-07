@@ -48,8 +48,8 @@ function [y_var,t_var] = var_pls(x,y,lvs,prepx,prepy,opt)
 %
 % EXAMPLE OF USE: Random data
 %
-% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
-% Y = randn(100,2) + X(:,1:2);
+% X = simuleMV(20,10,8);
+% Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
 % x_var = var_pls(X,Y,lvs);
 %

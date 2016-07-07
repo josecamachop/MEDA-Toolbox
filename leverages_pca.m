@@ -35,7 +35,7 @@ function L = leverages_pca(x,pcs,prep,opt,label,classes)
 %
 % EXAMPLE OF USE: Random scores
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% X = simuleMV(20,10,8);
 % L = leverages_pca(X,1:3);
 %
 %

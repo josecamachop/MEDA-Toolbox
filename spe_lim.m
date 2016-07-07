@@ -21,7 +21,7 @@ function lim = spe_lim(res,p_value)
 % EXAMPLE OF USE: Compute the 99% confidence limit for 2 PCs and 100 
 %   observations:
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% X = simuleMV(100,10,8);
 % Xcs = preprocess2D(X,2);
 % pcs = 1:2;
 % [p,t] = pca_pp(Xcs,pcs);

@@ -50,7 +50,7 @@ function [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(x,pcs,var,groups,prep,opt
 %
 % EXAMPLE OF USE: Random data
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% X = simuleMV(20,10,8);
 % var = 1;
 % [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(X,1:3,var);
 %

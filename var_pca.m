@@ -42,7 +42,7 @@ function [x_var,cumpress] = var_pca(x,pcs,prep,opt)
 %
 % EXAMPLE OF USE: Random data
 %
-% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
+% X = simuleMV(20,10,8);
 % pcs = 0:10;
 % x_var = var_pca(X,pcs);
 %

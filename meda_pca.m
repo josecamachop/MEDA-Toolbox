@@ -53,7 +53,7 @@ function [meda_map,meda_dis,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 % EXAMPLE OF USE: Seriation and discarding uninformative variables
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% X = simuleMV(20,10,8);
 % pcs = 1:3;
 % map = meda_pca(X,pcs,2,0.3,'111');
 %

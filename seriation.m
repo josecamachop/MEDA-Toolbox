@@ -20,9 +20,9 @@ function [mapo,ord] = seriation(mapi)
 %
 % EXAMPLE OF USE: Random data
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
+% X = simuleMV(20,10,8);
 % Xcs = preprocess2D(X,2);
-% mapo = seriation(Xcs'*Xcs/99);
+% mapo = seriation(cov(Xcs));
 % plot_map(mapo);
 %
 %

@@ -60,8 +60,8 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 %
 % EXAMPLE OF USE: Seriation and discarding uninformative variables
 %
-% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
-% Y = randn(100,2) + X(:,1:2);
+% X = simuleMV(20,10,8);
+% Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 1:3;
 % map = meda_pls(X,Y,lvs,2,2,0.3,'111');
 %

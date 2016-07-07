@@ -40,8 +40,7 @@ function [Dst,Qst] = mspc(testcs,invCT,R,Q)
 % n_obs = 100;
 % n_vars = 10;
 % n_PCs = 1;
-% XX = randn(n_vars,n_vars).^19; 
-% X = real(ADICOV(n_obs*XX,randn(n_obs,n_vars),n_vars));
+% X = simuleMV(n_obs,n_vars,6);
 % [Xcs, m, sc] = preprocess2D(X,2);
 % 
 % pcs = 1:n_PCs;
@@ -51,8 +50,8 @@ function [Dst,Qst] = mspc(testcs,invCT,R,Q)
 % UCLq = spe_lim(e,0.01);
 % 
 % n_obst = 10;
-% test = real(ADICOV(n_obst*XX,randn(n_obst,n_vars),n_vars));
-% test(6:10,:) = (1 + 1)*test(6:10,:);
+% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% test(6:10,:) = 3*test(6:10,:);
 % testcs = preprocess2Dapp(test,m,sc);
 % 
 % [Dst,Qst] = mspc(testcs,inv(cov(t)),p);

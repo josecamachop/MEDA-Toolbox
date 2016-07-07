@@ -44,7 +44,7 @@ function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,op
 %
 % EXAMPLE OF USE: Random data
 %
-% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
+% X = simuleMV(20,10,8);
 % pcs = 0:10;
 % cumpress = crossval_pca(X,pcs,'ekf');
 %

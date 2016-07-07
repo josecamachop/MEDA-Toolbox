@@ -57,11 +57,10 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label)
 % n_obs = 100;
 % n_vars = 10;
 % n_PCs = 10;
-% XX = randn(n_vars,n_vars).^19; 
-% X = real(ADICOV(n_obs*XX,randn(n_obs,n_vars),n_vars));
+% X = simuleMV(n_obs,n_vars,6);
 %
 % n_obst = 10;
-% test = real(ADICOV(n_obst*XX,randn(n_obst,n_vars),n_vars));
+% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
 % test(1,1:2) = 10*max(abs(X(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;
