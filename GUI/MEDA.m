@@ -140,4 +140,4 @@ function about_menu_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 myicon = imread('icon.png');
-h = msgbox({strcat('Version number: ',handles.data.version),'','Authors:','José Camacho','Rafael A. Rodríguez-Gómez'},'About','custom',myicon);
+h = msgbox({strcat('Version number: ',handles.data.version),'','Main Authors:','Code: José Camacho (jcamacho@ugr.es)','GUI: Rafael A. Rodríguez-Gómez (rodgom@ugr.es)'},'About','custom',myicon);
