@@ -1,8 +1,8 @@
 ﻿MEDA Toolbox for its use in MATLAB. Guidelines of use.
 
-Coded by: José Camacho Páez, Alejandro Pérez-Villegas
-GUI by: Elena Jiménez Mañas, Rafael Rodríguez Gómez
-Last modification of this document: 05/Apr/16
+Contact person for Code: José Camacho Páez (josecamacho@ugr.es)
+Contact person for GUI: Rafael Rodríguez Gómez (rodgom@ugr.es)
+Last modification of this document: 08/Jul/16
 
 The Multivariate Exploratory Data Analysis (MEDA) Toolbox in Matlab is a set of multivariate analysis tools for the exploration of data sets. 
 There are several alternative tools in the market for that purpose, both commercial and free. The PLS_Toolbox from Eigenvector Inc. 
@@ -38,6 +38,8 @@ An introduction to the exploratory tools in the MEDA toolbox can be found in:
 
 - GPCA ==> Journal of Computational and Graphical Statistics, under review.
 
+- simuleMV ==> Chemometrics and Intelligent Laboratory Systems, under review.
+
 
 
 Loading and Score plots in the toolbox are 2D scatter plots in the sub-space of the PCA or PLS model. Residual plots are line/bar plots
@@ -59,6 +61,8 @@ EKF and CKF are differen versions of cross-validation in PCA, useful in some app
 CSP are compressed versions of score plots, where millions of observations can be visualized thanks to clustering techniques.
 
 GPCA is a PCA modification where loadings are constrain to one group of variables.
+
+simuleMV is a simulation engine for multivariate data.
 
 
 2) Working with the MEDA Toolbox

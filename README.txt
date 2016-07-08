@@ -1,8 +1,8 @@
 ﻿MEDA Toolbox for its use in MATLAB. 
 
-Coded by: José Camacho Páez, Alejandro Pérez-Villegas
-GUI by: Elena Jiménez Mañas, Rafael Rodríguez Gómez
-Last modification of this document: 05/Apr/16
+Contact person for Code: José Camacho Páez (josecamacho@ugr.es)
+Contact person for GUI: Rafael Rodríguez Gómez (rodgom@ugr.es)
+Last modification of this document: 08/Jul/16
 
 Installation
 
@@ -36,7 +36,7 @@ Items in the folder:
 		
 	- exploratory tools without visualization: meda.m, omeda.m, mspc.m
 
-	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca, ckf & crossval_pls (Cross-validation rutines)
+	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca, ckf, crossval_pls, dcrossval_pls (Cross-validation rutines)
 
 	- graphical tools: plot_scatter.m, plot_vec.m, plot_map.m 
 
