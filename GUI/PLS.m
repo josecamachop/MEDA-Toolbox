@@ -6,10 +6,34 @@ function varargout = PLS(varargin)
 %loading_pls.m, meda_pls.m, omeda_pls.m, scores_pls.m,
 %sqresiduals_pls.m and var_pls.m
 %
-% coded by: Elena JimÃ©nez MaÃ±as (elenajm@correo.ugr.es).
+% PCA % minimum call
+% PCA(x,y,lvs,prepX,prepY) % complete call
+%
+%
+% INPUTS:
+%
+% x: [NxM] billinear data set for model fitting
+%
+% y: [NxO] billinear data set of predicted variables
+%
+% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+%   first two LVs). 
+%
+% prepX: [1x1] preprocesing
+%       0: no preprocessing 
+%       1: mean-centering 
+%       2: auto-scaling 
+%
+% prepY: [1x1] preprocesing
+%       0: no preprocessing 
+%       1: mean-centering 
+%       2: auto-scaling 
+%
+%
+% coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
-% version: 2.0
-% last modification: 31/Jan/15.
+%           José Camacho (josecamacho@ugr.es)
+% last modification: 12/Sep/15.
 %
 % Copyright (C) 2014  Elena JimÃ©nez MaÃ±as
 % 
@@ -160,6 +184,140 @@ handles.data.CORTES={};
 handles.data.matrix_2LVs={};
 handles.data.LVs_MEDA='';
 handles.data.auxLVs=0;
+
+% %When calling with input data
+if length(varargin) > 1 & ~isempty(varargin{1}) & ~isempty(varargin{2})  
+    
+    routine=dbstack;
+    
+    handles.data.data_matrixX = varargin{1};
+    handles.data.data_matrixY = varargin{2};
+    
+    M = size(handles.data.data_matrixX, 2);
+    N = size(handles.data.data_matrixX, 1);
+    O = size(handles.data.data_matrixY, 2);
+    
+    assert (N>1, 'Dimension Error: Number of rows in X should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
+    assert (M>1, 'Dimension Error: Number of columns in X should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
+    assert (isequal(size(handles.data.data_matrixY), [N O]), 'Dimension Error: 2nd argument must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
+
+    set(handles.xdataPopup, 'String', 'X block');
+    set(handles.xdataPopup,'Enable','off');
+    set(handles.ydataPopup, 'String', 'Y block');
+    set(handles.ydataPopup,'Enable','off');
+    set(handles.pushbutton1,'Enable','off');
+    
+    if length(varargin) > 2    
+    
+        handles.data.LVs = varargin{3};
+         
+        if ~isempty(handles.data.LVs),
+            
+            A = length(handles.data.LVs);
+            if size(handles.data.LVs,2) == 1, handles.data.LVs = handles.data.LVs'; end;
+            
+            assert (isequal(size(handles.data.LVs), [1 A]), 'Dimension Error: 3th argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+            assert (isempty(find(handles.data.LVs<0)), 'Value Error: 3th argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+            assert (isequal(fix(handles.data.LVs), handles.data.LVs), 'Value Error: 3th argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
+            
+            set(handles.lvsEdit,'Enable','off');
+            set(handles.plsButton,'Enable','off');
+            
+            set(handles.xlvscorePopup, 'String',handles.data.LVs);
+            set(handles.ylvscorePopup, 'String',handles.data.LVs);
+            set(handles.xlvloadingPopup, 'String',handles.data.LVs);
+            set(handles.ylvloadingPopup, 'String',handles.data.LVs);
+            
+            %Imprimir en popupmenu de submenu MEDA todas las combinaciones posibles
+            %para hacer MEDA
+            k=min(handles.data.LVs);
+            options=[];
+            for i=min(handles.data.LVs):max(handles.data.LVs),
+                for j=k:max(handles.data.LVs),
+                    options=[options,i,j];
+                end
+                k=k+1;
+            end
+            
+            set(handles.medaPopup,'String','');
+            for i=1:2:(length(options)-1),
+                contents=get(handles.medaPopup,'String');
+                set(handles.medaPopup,'String',strvcat(contents,sprintf('%d:%d',options(i),options(i+1))));
+            end
+        
+            if handles.data.auxLVs==0,
+                handles.data.LV1=min(handles.data.LVs);
+                handles.data.LV2=min(handles.data.LVs);
+                handles.data.LV1_LP=min(handles.data.LVs);
+                handles.data.LV2_LP=min(handles.data.LVs);
+                handles.data.LVs_MEDA=sprintf('%d:%d',min(handles.data.LVs),min(handles.data.LVs));
+                handles.data.auxLVs=1;
+            end
+            
+            %DefiniciÃ³n del estado de la interfaz tras pulsar PLS:
+            %Score plot
+            set(handles.xlvscorePopup,'Enable','on');
+            set(handles.ylvscorePopup,'Enable','on');
+            set(handles.scoreButton,'Enable','on');
+            set(handles.text7,'Enable','on');
+            set(handles.text8,'Enable','on');
+            set(handles.text15,'Enable','on');
+            set(handles.text16,'Enable','on');
+            set(handles.labscorePopup,'Enable','on');
+            set(handles.classcorePopup,'Enable','on');
+            
+            %MEDA
+            set(handles.discardRadio,'Enable','on');
+            set(handles.serRadio,'Enable','on');
+            set(handles.medaButton,'Enable','on');
+            set(handles.medaPopup,'Enable','on');
+            
+            %Loading plot
+            set(handles.text9,'Enable','on');
+            set(handles.text10,'Enable','on');
+            set(handles.xlvloadingPopup,'Enable','on');
+            set(handles.ylvloadingPopup,'Enable','on');
+            set(handles.text17,'Enable','on');
+            set(handles.text18,'Enable','on');
+            set(handles.clasloadingPopup,'Enable','on');
+            set(handles.labloadingPopup,'Enable','on');
+            set(handles.loadingButton,'Enable','on');
+            
+            %Residue
+            set(handles.resomedaButton,'Enable','on');
+            set(handles.resmedaButton,'Enable','on');
+            
+            %Model
+            set(handles.modelomedaButton,'Enable','on');
+            set(handles.modelmedaButton,'Enable','on');
+            
+            %Information panel:
+            text=sprintf('Model generated successully!');
+            handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
+        end
+        
+        if length(varargin) > 3 & ~isempty(varargin{4}),
+            
+            handles.data.prepX = varargin{4};
+            
+            assert (isequal(size(handles.data.prepX), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+            
+            set(handles.xprepPopup,'Value',handles.data.prepX+1);
+            set(handles.xprepPopup,'Enable','off');
+            
+                    
+            if length(varargin) > 4 & ~isempty(varargin{5}),
+                
+                handles.data.prepY = varargin{5};
+                
+                assert (isequal(size(handles.data.prepY), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+                
+                set(handles.yprepPopup,'Value',handles.data.prepY+1);
+                set(handles.yprepPopup,'Enable','off');
+            end
+        end
+    end
+end
 
 %Change icon
 %warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
