@@ -7,12 +7,29 @@ function varargout = PCA(varargin)
 %loading_pca.m, meda_pca.m, omeda_pca.m, pca_pp.m, scores_pca.m,
 %sqresiduals_pca.m and var_pca.m
 %
-% coded by: Elena JimÃ©nez MaÃ±as (elenajm@correo.ugr.es).
-%           Rafael Rodriguez Gomez (rodgom@ugr.es)
-% version: 2.0
-% last modification: 31/Jan/15.
+% PCA % minimum call
+% PCA(x,pcs,prep) % complete call
 %
-% Copyright (C) 2014  Elena JimÃ©nez MaÃ±as
+%
+% INPUTS:
+%
+% x: [NxM] billinear data set for model fitting
+%
+% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+%   first two PCs). 
+%
+% prep: [1x1] preprocesing
+%       0: no preprocessing 
+%       1: mean-centering 
+%       2: auto-scaling 
+%
+%
+% coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
+%           Rafael Rodriguez Gomez (rodgom@ugr.es)
+%           José Camacho (josecamacho@ugr.es)
+% last modification: 09/Sep/15.
+%
+% Copyright (C) 2014  Elena Jiménez Mañas, Rafael Rodriguez Gomez, José Camacho
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -160,6 +177,123 @@ handles.data.CORTES={};
 handles.data.matrix_2PCs={};
 handles.data.PCs_MEDA='';
 handles.data.auxPCs=0;
+
+%When calling with input data
+if length(varargin) > 0    
+    
+    routine=dbstack;
+    
+    handles.data.data_matrix = varargin{1};
+    
+    M = size(handles.data.data_matrix, 2);
+    N = size(handles.data.data_matrix, 1);
+    
+    assert (N>1, 'Dimension Error: Number of rows should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
+    assert (M>1, 'Dimension Error: Number of columns should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
+
+    set(handles.dataPopup,'Enable','off');
+    
+    if length(varargin) > 1    
+    
+        handles.data.PCs = varargin{2};
+        
+        A = length(handles.data.PCs);
+        if size(handles.data.PCs,2) == 1, handles.data.PCs = handles.data.PCs'; end;
+
+        assert (isequal(size(handles.data.PCs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+        assert (isempty(find(handles.data.PCs<0)), 'Value Error: 2nd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+        assert (isequal(fix(handles.data.PCs), handles.data.PCs), 'Value Error: 2nd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
+
+        set(handles.pcEdit,'Enable','off');
+        
+        if ~isempty(handles.data.PCs),
+            set(handles.xpcscorePopup, 'String',handles.data.PCs);
+            set(handles.ypcscorePopup, 'String',handles.data.PCs);
+            set(handles.xpcvarPopup, 'String',handles.data.PCs);
+            set(handles.ypcvarPopup, 'String',handles.data.PCs);
+            
+            %Imprimir en popupmenu de submenu MEDA todas las combinaciones posibles
+            %para hacer MEDA
+            k=min(handles.data.PCs);
+            options=[];
+            for i=min(handles.data.PCs):max(handles.data.PCs),
+                for j=k:max(handles.data.PCs),
+                    options=[options,i,j];
+                end
+                k=k+1;
+            end
+            
+            set(handles.medaPopup,'String','');
+            for i=1:2:(length(options)-1),
+                contents=get(handles.medaPopup,'String');
+                set(handles.medaPopup,'String',strvcat(contents,sprintf('%d:%d',options(i),options(i+1))));
+            end
+        end
+        
+        if handles.data.auxPCs==0,
+            handles.data.PC1=min(handles.data.PCs);
+            handles.data.PC2=min(handles.data.PCs);
+            handles.data.PC1_LP=min(handles.data.PCs);
+            handles.data.PC2_LP=min(handles.data.PCs);
+            handles.data.PCs_MEDA=sprintf('%d:%d',min(handles.data.PCs),min(handles.data.PCs));
+            handles.data.auxPCs=1;
+        end
+        
+        [handles.data.matrixLoadings,handles.data.matrixScores]=pca_pp(handles.data.data_matrix,max(handles.data.PCs));
+        
+        %DefiniciÃ³n del estado de la interfaz tras pulsar PCA:
+        %Score plot
+        set(handles.xpcscorePopup,'Enable','on');
+        set(handles.ypcscorePopup,'Enable','on');
+        set(handles.scoreButton,'Enable','on');
+        set(handles.text7,'Enable','on');
+        set(handles.text8,'Enable','on');
+        set(handles.text13,'Enable','on');
+        set(handles.text14,'Enable','on');
+        set(handles.classcorePopup,'Enable','on');
+        set(handles.labscorePopup,'Enable','on');
+        
+        %MEDA
+        set(handles.discardRadio,'Enable','on');
+        set(handles.serRadio,'Enable','on');
+        set(handles.medaButton,'Enable','on');
+        set(handles.medaPopup,'Enable','on');
+        
+        %Loading plot
+        set(handles.text9,'Enable','on');
+        set(handles.text10,'Enable','on');
+        set(handles.xpcvarPopup,'Enable','on');
+        set(handles.ypcvarPopup,'Enable','on');
+        set(handles.medaButton,'Enable','on');
+        set(handles.text17,'Enable','on');
+        set(handles.text18,'Enable','on');
+        set(handles.clasvarPopup,'Enable','on');
+        set(handles.labvarPopup,'Enable','on');
+        set(handles.loadingButton,'Enable','on');
+        
+        %Residue
+        set(handles.resomedaButton,'Enable','on');
+        set(handles.resmedaButton,'Enable','on');
+        
+        %Model
+        set(handles.modelomedaButton,'Enable','on');
+        set(handles.modelmedaButton,'Enable','on');
+        
+        %Information panel:
+        text=sprintf('Model generated successully!');
+        handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
+        
+        if length(varargin) > 2
+            
+            handles.data.prep = varargin{3};
+            
+            assert (isequal(size(handles.data.prep), [1 1]), 'Dimension Error: 3th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+            
+            set(handles.prepPopup,'Value',handles.data.prep+1);
+            set(handles.prepPopup,'Enable','off');
+        end
+    end
+end;
 
 %Change icon
 %warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
