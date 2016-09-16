@@ -1,9 +1,9 @@
-function cumpress = ckf(xcs,T,P,opt)
+function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,opt)
 
 % CKF Algorithm: Journal of Chemometrics, 29(8): 467-478, 2015
 %
 % cumpress = ckf(xcs,T,P) % minimum call
-% cumpress = ckf(xcs,T,P,opt) % complete call
+% [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,opt) % complete call
 %
 %
 % INPUTS:
@@ -22,6 +22,14 @@ function cumpress = ckf(xcs,T,P,opt)
 % OUTPUTS:
 %
 % cumpress: [Ax1] ckf curve.
+%
+% press: [AxM] PRESS per variable.
+%
+% term1: [NxM] first error term, according to referred paper.
+%
+% term2: [NxM] second error term, according to referred paper.
+%
+% term3: [NxM] third error term, according to referred paper.
 %
 %
 % EXAMPLE OF USE: Random curve
@@ -64,9 +72,9 @@ if nargin < 4 || isempty(opt), opt=1; end;
 if isnumeric(opt), opt=num2str(opt); end
 
 % Validate dimensions of input data
-assert (isequal(size(T), [N A]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(P), [M A]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(T), [N A]), 'Dimension Error: 2nd argument must be N-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(P), [M A]), 'Dimension Error: 3rd argument must be M-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
@@ -92,11 +100,11 @@ for i=0:A,
         term3_p = xcs;
     end
     
-    term1 = sum(term1_p.^2,1);
-    term2 = sum(2*term1_p.*term3_p,1);
-    term3 = sum(term3_p.^2,1);
+    term1 = term1_p.^2;
+    term2 = 2*term1_p.*term3_p;
+    term3 = term3_p.^2;
     
-    press(i+1,:) = sum([term1;term2;term3]);
+    press(i+1,:) = sum([sum(term1,1);sum(term2,1);sum(term3,1)]);
     
     cumpress(i+1) = sum(press(i+1,:));
 end
