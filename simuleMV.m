@@ -30,7 +30,7 @@ function X = simuleMV(obs,vars,lcorr,corM)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 07/Jul/16.
+% last modification: 21/Sep/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -54,7 +54,12 @@ function X = simuleMV(obs,vars,lcorr,corM)
 routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 if nargin < 3 || isempty(lcorr), lcorr = 5; end;
-if nargin < 4 || isempty(corM), corM = eye(vars); end;
+if nargin < 4 || isempty(corM), 
+    uselevel = true; 
+    corM = eye(vars); 
+else
+    uselevel = false;
+end;
     
 % Validate dimensions of input data
 assert (isequal(size(obs), [1 1]), 'Dimension Error: 1st argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -73,7 +78,7 @@ assert (lcorr<=10, 'Value Error: 3rd argument must be equal to or below 10. Type
 
 %% Main code
 
-if nargin < 4,
+if uselevel,
     if lcorr>0,
         x = [0.2837   17.9998   19.3749    2.0605    0.3234 0.4552   12.0737   16.6831    5.2423    0.5610 0.3000   14.7440 4.4637e+04 7.1838    0.8429];
         obs2 = round(Floc(x,[lcorr,vars]).^2);
