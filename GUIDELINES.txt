@@ -2,14 +2,14 @@
 
 Contact person for Code: José Camacho Páez (josecamacho@ugr.es)
 Contact person for GUI: Rafael Rodríguez Gómez (rodgom@ugr.es)
-Last modification of this document: 08/Jul/16
+Last modification of this document: 06/Oct/16
 
 The Multivariate Exploratory Data Analysis (MEDA) Toolbox in Matlab is a set of multivariate analysis tools for the exploration of data sets. 
 There are several alternative tools in the market for that purpose, both commercial and free. The PLS_Toolbox from Eigenvector Inc. 
 is a very nice example. The MEDA Toolbox is not intended to replace or being a competitor of any of these toolkits. Rather, the MEDA
 Toolbox is a complementary tool which includes several of our recent contributions to the field. Thus, traditional exploratory plots 
 based on Principal Component Analysis (PCA) or Partial Least Squares (PLS), such as score, loading and residual plots, are combined 
-with new methods: MEDA, oMEDA, SVI plots, ADICOV, EKF & CKF crossvalidation, CSP, GPCA, .... 
+with new methods: MEDA, oMEDA, SVI plots, ADICOV, EKF & CKF crossvalidation, CSP, GPCA, SPLS crossvalidation, .... 
 
 The MEDA Toolbox can be used to analyze normal size data sets (several hundreds of observations times several hundreds of variables)
 There is also an extension of the toolbox for large data sets, with millions of items, under folder BigData. 
@@ -40,6 +40,8 @@ An introduction to the exploratory tools in the MEDA toolbox can be found in:
 
 - simuleMV ==> Chemometrics and Intelligent Laboratory Systems, under review.
 
+- SPLS crossvalidation ==> Journal of Chemometrics, under review
+
 
 
 Loading and Score plots in the toolbox are 2D scatter plots in the sub-space of the PCA or PLS model. Residual plots are line/bar plots
@@ -64,6 +66,8 @@ GPCA is a PCA modification where loadings are constrain to one group of variable
 
 simuleMV is a simulation engine for multivariate data.
 
+SPLS crossvalidation and double CV helps identify a parsimonious SPLS model.
+
 
 2) Working with the MEDA Toolbox
  
@@ -87,7 +91,8 @@ Please, note that the software is provided "as is" and we do not accept any resp
 suggestions, please contact josecamacho@ugr.es
 
 
-Copyright (C) 2014  José Camacho Páez
+Copyright (C) 2016  Universidad de Granada
+Copyright (C) 2016  José Camacho Páez
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

@@ -2,7 +2,7 @@
 
 Contact person for Code: José Camacho Páez (josecamacho@ugr.es)
 Contact person for GUI: Rafael Rodríguez Gómez (rodgom@ugr.es)
-Last modification of this document: 08/Jul/16
+Last modification of this document: 06/Oct/16
 
 Installation
 
@@ -16,7 +16,7 @@ Installation
 
 Please, acknowledge the use of this software by refercing it: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate 
 Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at 
-https://github.com/josecamachop/MEDA-Toolbox" 
+https://github.com/josecamachop/MEDA-Toolbox" Also, please check the documentation of the routines used for more related references. 
 
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have 
@@ -29,7 +29,7 @@ Items in the folder:
 
 - toolbox routines:
 
-	- projection models: pca_pp.m (PCA), kernel_pls.m (PLS), gia & gpca (GPCA) 
+	- projection models: pca_pp.m (PCA), kernel_pls.m (PLS), gia & gpca (GPCA), sparsepls2 (SPLS) 
 
 	- exploratory & visualization tools: SVIplot.m (SVI plots), scores_pca.m & scores_pls.m (Socre plots), loadings_pca.m & loadings_pls.m (Loading plots), 
 		meda_pca.m & meda_pls.m (MEDA), omeda_pca.m & omeda_pls.m (oMEDA), mspc_pca.m & mspc_pls.m (MSPC), leverages_pca.m & leverages_pls.m (leverages of variables)
@@ -37,6 +37,8 @@ Items in the folder:
 	- exploratory tools without visualization: meda.m, omeda.m, mspc.m
 
 	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca, ckf, crossval_pls, dcrossval_pls (Cross-validation rutines)
+
+	- tools to select the number of LVs & sparsity in SPLS: crossval_spls, dcrossval_spls, crossval_spls_da, dcrossval_spls_da
 
 	- graphical tools: plot_scatter.m, plot_vec.m, plot_map.m 
 
@@ -50,8 +52,8 @@ Items in the folder:
 
 - Examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox.
 
-
-Copyright (C) 2014  José Camacho Páez
+Copyright (C) 2016  Universidad de Granada
+Copyright (C) 2016  José Camacho Páez
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

@@ -2,7 +2,7 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 
 % Row-wise k-fold (rkf) cross-validation for square-prediction-errors computing in PLS.
 %
-% [cumpress,press] = crossval_pls(x,y,lvs) % minimum call
+% [cumpress,press] = crossval_pls(x,y) % minimum call
 % [cumpress,press] =
 % crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt) % complete call
 %

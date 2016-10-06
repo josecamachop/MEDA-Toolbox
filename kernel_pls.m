@@ -1,6 +1,6 @@
 function [beta,W,P,Q,R] = kernel_pls(XX,XY,lvs)
 
-% Kernel algorithm for Partial Least Squares. Referenciase:
+% Kernel algorithm for Partial Least Squares. References:
 % F. Lindgren, P. Geladi and S. Wold, J. Chemometrics, 7, 45 (1993).
 % S. De Jong and C.J.F. Ter Braak, J. Chemometrics, 8, 169 (1994).
 % B.S. Dayal and J.F. MacGregor. J. Chemometrics, 11, 73–85 (1997). Main
