@@ -8,7 +8,7 @@ function [xp,average,scale,N] = preprocess2Di(x,prep,ndim,lambda,average,scale,N
 %
 % INPUTS:
 %
-% x: (NxM) Two-way batch data matrix, N(observations) x M(variables)
+% x: (NxM) Two-way data matrix, N(observations) x M(variables)
 %
 % prep: (1x1) preprocesing of the data
 %       0: no preprocessing.
@@ -46,8 +46,8 @@ function [xp,average,scale,N] = preprocess2Di(x,prep,ndim,lambda,average,scale,N
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 03/Jun/15.
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

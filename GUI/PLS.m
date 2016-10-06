@@ -35,7 +35,8 @@ function varargout = PLS(varargin)
 %           José Camacho (josecamacho@ugr.es)
 % last modification: 12/Sep/15.
 %
-% Copyright (C) 2014  Elena JimÃ©nez MaÃ±as
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016 Elena Jiménez Mañas, Rafael Rodriguez Gomez, José Camacho
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

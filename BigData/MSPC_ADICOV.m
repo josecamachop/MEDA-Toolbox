@@ -40,8 +40,8 @@ function [T2,Q,Rt,Rq] = MSPC_ADICOV(Lmodel,pc,list,index,opt)
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 04/Nov/15.
 %
-% Copyright (C) 2015  University of Granada, Granada
-% Copyright (C) 2015  Jose Camacho Paez
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

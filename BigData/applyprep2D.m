@@ -1,11 +1,32 @@
 function xp = applyprep2D(x,average,scale,weight)
 
+% Apply preprocessing.
+%
+% xp = applyprep2D(x,average) % minumim call
+% xp = applyprep2D(x,average,scale,weight) % complete call
+%
+%
+% INPUTS:
+%
+% x: (NxM) Two-way data matrix, N(observations) x M(variables)
+%
+% average: (1xM) average to subtract.
+%
+% scale: (1xM) scale to divide.
+%
+% weight: (1xM) weight to multiply. Vector of ones by default.
+%
+%
+% OUTPUTS:
+%
+% xp: (NxM) preprocessed data.
+%
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 19/Mar/15.
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

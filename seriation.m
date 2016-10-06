@@ -29,8 +29,8 @@ function [mapo,ord] = seriation(mapi)
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 23/Mar/16.
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

@@ -72,8 +72,8 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
 % last modification: 19/Apr/2016
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez, Alejandro Perez Villegas
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

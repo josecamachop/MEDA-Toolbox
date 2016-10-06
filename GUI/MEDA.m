@@ -7,7 +7,8 @@ function varargout = MEDA(varargin)
 % version: 2.0
 % last modification: 31/Jan/15.
 %
-% Copyright (C) 2014  Elena JimÃ©nez MaÃ±as
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016 Elena Jiménez Mañas, Rafael Rodriguez Gomez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
