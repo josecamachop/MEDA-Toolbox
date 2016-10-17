@@ -26,7 +26,7 @@ function x_var = var_Lpca(Lmodel,maxpcs,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 08/May/13.
+% last modification: 17/Oct/16.
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -64,5 +64,5 @@ end
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(x_var,num2str((0:maxpcs)')','% Residual Variance',[],1);
+    plot_vec(x_var,0:maxpcs,[],{'#PCs','% Residual Variance'},[],0);
 end
