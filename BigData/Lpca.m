@@ -44,6 +44,6 @@ function [P,sdT] = Lpca(Lmodel)
 [P,d2] = eig(Lmodel.XX);
 dd = diag(d2);
 [dd,inddd]=sort(dd,'descend');
-P = P(:,inddd(1:Lmodel.lv));
+P = P(:,inddd(1:max(Lmodel.lvs)));
 
-sdT = real(sqrt(dd(1:Lmodel.lv)/(Lmodel.N-1)));
+sdT = real(sqrt(dd(1:max(Lmodel.lvs))/(Lmodel.N-1)));

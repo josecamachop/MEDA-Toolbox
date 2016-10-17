@@ -7,19 +7,19 @@ function Lmodel = Lmodel_ini
 %
 % OUTPUTS:
 %
-% Lmodel.type: (1x1) PCA (1) o PLS (2)
+% Lmodel.type: (1x1) PCA (1, default) o PLS (2)
 %
-% Lmodel.update: (1x1) EWMA (1) or ITERATIVE (2)
+% Lmodel.update: (1x1) EWMA (1) or ITERATIVE (2, default)
 %
-% Lmodel.lv: (1x1) number of latent variables.
+% Lmodel.lvs: (1x1) number of latent variables (e.g. lvs = 1:2 selects the
+%   first two LVs). By default, Lmodel.lvs = 1:rank(xcs)
 %
 % Lmodel.N: (1x1) number of effective observations in the model.
 %
 % Lmodel.prep: (1x1) preprocesing of the data
 %       0: no preprocessing.
-%       1: mean centering (default) 
-%       2: auto-scaling (centers and scales data so that each variable 
-%           has variance 1)
+%       1: mean centering 
+%       2: auto-scaling (default)
 %
 % Lmodel.av: (1xM) sample average according to the preprocessing method.
 %
@@ -32,8 +32,7 @@ function Lmodel = Lmodel_ini
 % Lmodel.prepy: (1x1) preprocesing of the data
 %       0: no preprocessing.
 %       1: mean centering (default) 
-%       2: auto-scaling (centers and scales data so that each variable 
-%           has variance 1)
+%       2: auto-scaling (default) 
 %
 % Lmodel.avy: (1xM) sample average according to the preprocessing method.
 %
@@ -85,16 +84,16 @@ function Lmodel = Lmodel_ini
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Lmodel.type = 0;
-Lmodel.update = 0;
-Lmodel.lv = 0;
+Lmodel.type = 1;
+Lmodel.update = 2;
+Lmodel.lvs = 0;
 Lmodel.N = 0;
-Lmodel.prep = -1;
+Lmodel.prep = 2;
 Lmodel.av = 0;
 Lmodel.sc = 0;
 Lmodel.weight = 0;
 Lmodel.XX = 0;
-Lmodel.prepy =-1;
+Lmodel.prepy =2;
 Lmodel.avy = 0;
 Lmodel.scy = 0;
 Lmodel.weighty = 0;
