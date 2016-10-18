@@ -67,8 +67,8 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 % X = simuleMV(100,10);
 % Lmodel = Lmodel_ini;
 % Lmodel.XX = X'*X;
-% Lmodel.lvs = 0:10;
-% [Dst,Qst] = mspc_pca(X,1:3);
+% Lmodel.lvs = 1:3;
+% [Dst,Qst] = mspc_Lpca(Lmodel);
 %
 %
 % EXAMPLE OF USE: PCA-based MSPC on NOC test data and anomalies.
@@ -79,15 +79,13 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 % X = simuleMV(n_obs,n_vars,6);
 % Lmodel = Lmodel_ini;
 % Lmodel.XX = X'*X;
-% Lmodel.lvs = 0:10;
-% 
-% pcs = 1:n_PCs;
+% Lmodel.lvs = 1:n_PCs;
 % 
 % n_obst = 10;
 % test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
-% [Dst,Qst,Dstt,Qstt] = mspc_Lpca(X,test,100,[],[ones(100,1);2*ones(5,1);3*ones(5,1)]);
+% [Dst,Qst,Dstt,Qstt] = mspc_Lpca(Lmodel,test,100,[],[ones(100,1);2*ones(5,1);3*ones(5,1)]);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -113,14 +111,16 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 
 % Set default values
 routine=dbstack;
-routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 check_Lmodel(Lmodel);
 
-M = size(x, 2);
+N = Lmodel.nc;
+M = size(Lmodel.XX, 2);
+
 if nargin < 2, test = []; end;
 L = size(test, 1);
+
 if nargin < 3 || isempty(opt), opt = '100'; end; 
 
 % Convert int arrays to str
@@ -132,7 +132,7 @@ if length(opt)<3, opt = strcat(opt,'0'); end
 if opt(3) == 1 || opt(3) == '1',
     K = L;
 else
-    K = Lmodel.N+L;
+    K = N+L;
 end
 
 if nargin < 6 || isempty(label), 
@@ -173,19 +173,10 @@ if ~isempty(p_valueQ) && size(p_valueQ,1) == 1, p_valueQ = p_valueQ'; end;
 Ld = size(p_valueD,1);
 Lq = size(p_valueQ,1);
 
-% Convert column arrays to row arrays
-if size(pcs,2) == 1, pcs = pcs'; end;
-
-% Preprocessing
-pcs = unique(pcs);
-pcs(find(pcs==0)) = [];
-A = length(pcs);
+A = length(Lmodel.lvs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: 2nd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 3rd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (ischar(opt) && length(opt)==3, 'Dimension Error: 5th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: 6th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: 7th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
@@ -194,7 +185,6 @@ if ~isempty(p_valueQ), assert (isequal(size(p_valueQ), [Lq 1]), 'Dimension Error
 assert (isequal(size(limtype), [1 1]), 'Dimension Error: 10th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(p_valueD), assert (isempty(find(p_valueD<0 | p_valueD>1)), 'Value Error: 8th argument must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<0 | p_valueQ>1)), 'Value Error: 9th argument must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
@@ -202,14 +192,14 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must cont
 
 %% Main code
 
-[xcs,m,sc] = preprocess2D(x,prep);
-[P,T] = pca_pp(xcs,pcs);
+[P,sdT] = Lpca(Lmodel);
+iTT = diag(1./(sdT.^2));
 
-[Dst,Qst] = mspc(xcs,inv(cov(T)),P);
+[Dst,Qst] = mspc(Lmodel.centr,iTT,P);
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,m,sc);
-    [Dstt,Qstt] = mspc(testcs,inv(cov(T)),P);
+    testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc);
+    [Dstt,Qstt] = mspc(testcs,iTT,P);
 else
     Dstt = [];
     Qstt = [];
@@ -225,7 +215,7 @@ if limtype==0,
         end
     end
     
-    E = xcs - T*P'; 
+    E = Lmodel.centr - Lmodel.centr*P*P'; 
     UCLq = [];   
     for i=1:Lq,
         UCLq(i) = spe_lim(E,p_valueQ(i));

@@ -7,10 +7,7 @@ function [P,sdT] = Lpca(Lmodel)
 %
 % INPUTS:
 %
-% Lmodel: (struct Lmodel) model with the information to compute the PCA
-%   model:
-%       Lmodel.XX: (MxM) X-block cross-product matrix.
-%       Lmodel.lv: (1x1) number of PCs A.
+% Lmodel: (struct Lmodel) model with the information to compute the PCA..
 %
 %
 % OUTPUTS:
@@ -20,8 +17,17 @@ function [P,sdT] = Lpca(Lmodel)
 % sdT: (1xA) standard deviations of the scores.
 %
 %
+% EXAMPLE OF USE: Random data
+%
+% X = simuleMV(20,10,8);
+% Lmodel = Lmodel_ini;
+% Lmodel.XX = X'*X;
+% Lmodel.lvs = 0:10;
+% [P,sdT] = Lpca(Lmodel);
+%
+%
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Apr/16.
+% last modification: 17/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -39,7 +45,16 @@ function [P,sdT] = Lpca(Lmodel)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-%
+%% Arguments checking
+
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
+check_Lmodel(Lmodel);
+
+
+%% Main code
 
 [P,d2] = eig(Lmodel.XX);
 dd = diag(d2);
