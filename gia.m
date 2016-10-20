@@ -32,7 +32,7 @@ function [bel,states] = gia(map,gamma,siz)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/16.
+% last modification: 20/Oct/16.
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -225,7 +225,7 @@ end
 
 [kk,ind] = sort(vs);
 if isempty(ind)
-    states = [];
+    states = {};
 else
     states = stateso(ind);
 end
