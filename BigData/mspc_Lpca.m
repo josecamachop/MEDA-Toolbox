@@ -55,7 +55,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 %
 % Dstt: [Nx1] D-statistic or Hotelling T2 of test
 %
-% Qst: [Nx1] Q-statistic of test
+% Qstt: [Nx1] Q-statistic of test
 %
 % UCLd: [Ldx1] Control limits in D-statistic
 %
@@ -185,8 +185,8 @@ if ~isempty(p_valueQ), assert (isequal(size(p_valueQ), [Lq 1]), 'Dimension Error
 assert (isequal(size(limtype), [1 1]), 'Dimension Error: 10th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-if ~isempty(p_valueD), assert (isempty(find(p_valueD<0 | p_valueD>1)), 'Value Error: 8th argument must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<0 | p_valueQ>1)), 'Value Error: 9th argument must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(p_valueD), assert (isempty(find(p_valueD<=0 | p_valueD>1)), 'Value Error: 8th argument must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<=0 | p_valueQ>1)), 'Value Error: 9th argument must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 

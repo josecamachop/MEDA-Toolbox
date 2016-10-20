@@ -30,7 +30,7 @@ function [x_var] = var_Lpca(Lmodel,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 17/Oct/2016
+% last modification: 18/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -57,16 +57,19 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 
 check_Lmodel(Lmodel);
 
+% Preprocessing
+Lmodel.lvs = unique([0 Lmodel.lvs]);
+
 if nargin < 2 || isempty(opt), opt = '1'; end;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
 
 % Validate dimensions of input data
-assert (ischar(opt) && length(opt)==1, 'Dimension Error: 3rd argument must be a string or num of 1 bit. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==1, 'Dimension Error: 2nd argument must be a string or num of 1 bit. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

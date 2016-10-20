@@ -1,10 +1,10 @@
-function Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debug)
+function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 
 % Big data analysis based on bilinear proyection models (PCA and PLS),
 % iterative approach.
 %
 % Lmodel = update_iterative(list)          % minimum call
-% Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debug) % complete call
+% Lmodel = update_iterative(list,path,Lmodel,step,files,debug) % complete call
 %
 % INPUTS:
 %
@@ -17,17 +17,11 @@ function Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debu
 % Lmodel: (struct Lmodel) model to update (initialized to PCA model with 1
 %   PC and auto-scaling by default)
 %
-% maxlvs: (1x1) maximum number of LVs considered (e.g. maxlvs = 2 selects the
-%   first two LVs)
-%
 % step: (1x1) percentage of the data in the file to be used in each
 %   iteration. For time-course data 1 is suggested (1 by default)
 %
-% files: (1x1) create the file system with the original data (1, by
-%   default) or not (0)
-%
-% path2: (str) path to the directory where the output data files are
-%   located ('' by default)
+% files: (1x1) create the file system with the original data (1) or not (0, by
+%   default)
 %
 % debug: (1x1) disply debug messages
 %       0: no messages are displayed.
@@ -54,7 +48,7 @@ function Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debu
 % can be chaged in line 365 of this routine.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Sep/15
+% last modification: 18/Oct/16
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -71,30 +65,43 @@ function Lmodel = update_iterative(list,path,Lmodel,maxlvs,step,files,path2,debu
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
-%% Parameters checking
+      
+%% Arguments checking
 
-if nargin < 1, error('Error in the number of arguments.'); end;
-if nargin < 2, path = ''; end;
-if nargin < 3, 
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
+if nargin < 2 || isempty(path), path = ''; end;
+if nargin < 3 || isempty(Lmodel), 
     Lmodel = Lmodel_ini; 
     Lmodel.type = 1;
-    Lmodel.lv = 0;
+    Lmodel.lvs = 0;
     Lmodel.prep = 2;
 end;
-if nargin < 4, maxlvs = 10; end;
-if nargin < 5, step = 1; end;
-if nargin < 6, files = 1; end;
-if nargin < 7, path2 = ''; end;
-if nargin < 8, debug = 1; end;
-    
-    
-% Computation
+
+check_Lmodel(Lmodel);
+
+if nargin < 4 || isempty(step), step = 1; end;
+if nargin < 5 || isempty(files), files = 0; end;
+if nargin < 6 || isempty(debug), debug = 1; end;
+
+% Validate dimensions of input data
+assert (isequal(size(step), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(files), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(debug), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+
+% Validate values of input data
+assert (isempty(find(step<=0 | step>1)), 'Value Error: 4th argument must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); 
+assert (isempty(find(files~=0 & files~=1)), 'Value Error: 5th argument must contain 0 or 1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(debug~=0 & debug~=1 & debug~=2)), 'Value Error: 6th argument must contain 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+
+
+%% Main code
 
 Lmodel.update = 2; 
 
 if files,
-	[status,result] = system(['del ' path2 'MEDA*.txt']); % delete previous files
+	[status,result] = system(['del ' Lmodel.path 'MEDA*.txt']); % delete previous files
 end
 
 % preprocess
@@ -246,12 +253,14 @@ if Lmodel.type==1,
     
     if debug, disp('computing PCA model..............................................'), end;
     
-    if ~Lmodel.lv,
-        var_Lpca(Lmodel,maxlvs);
-        Lmodel.lv = input('Select the PCs to include in the model: ');
+    if ~Lmodel.lvs,
+        Lmodel.lvs = 1:50;
+        var_Lpca(Lmodel);
+        Lmodel.lvs = input('Select the PCs to include in the model: ');
+        Lmodel.lvs = 1:Lmodel.lvs;
     end
     
-    [P,sdT] = Lpca(Lmodel);
+    P = Lpca(Lmodel);
     Lmodel.mat = P;
     
 elseif Lmodel.type==2,
@@ -319,7 +328,7 @@ Lmodel.mini = mini;
 
 % clustering
 
-index_fich={};
+Lmodel.index_fich={};
 for t=1:length(list),
     
     if debug, disp(sprintf('clustering: packet %d...........................................', t)), end;
@@ -387,7 +396,7 @@ for t=1:length(list),
         
         if files,
             for k=i:endv,
-                index_fich{1,indorig+k}=['MEDA_' num2str(t) '_o_' num2str(k) '_c_' num2str(class(k))]; %index of names of fich
+                Lmodel.index_fich{1,indorig+k}=['MEDA_' num2str(t) '_o_' num2str(k) '_c_' num2str(class(k))]; %index of names of fich
             end
         end
                    
@@ -395,12 +404,8 @@ for t=1:length(list),
     end
     
     if files,
-        index_fich = cfilesys(obslist,red,multr,classr,index_fich,100,path2,debug); % update of the clustering file system
+        Lmodel.index_fich = cfilesys(obslist,red,multr,classr,Lmodel.index_fich,100,Lmodel.path,debug); % update of the clustering file system
     end
       
 end
 
-if files,
-    Lmodel.index_fich = index_fich;
-    Lmodel.path = path2;
-end
