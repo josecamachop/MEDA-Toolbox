@@ -235,17 +235,20 @@ end
 %% Show results
 
 if opt(1) == '1',
-    
+     
     if opt(3) == '0'
         Dsttt = [Dst;Dstt];
         Qsttt = [Qst;Qstt];
+        mult = [Lmodel.multr;ones(size(Dstt))];
     else
         Dsttt = Dstt;
         Qsttt = Qstt;
+        mult = ones(size(Dstt));
     end
     
     if opt(2) == '0',
         plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq});
+        %plot_Lscatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, 3,mult);
     else
         plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd);
         plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq);

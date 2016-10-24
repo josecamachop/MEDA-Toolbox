@@ -225,7 +225,7 @@ end
 
 [kk,ind] = sort(vs);
 if isempty(ind)
-    states = [];
+    states = {};
 else
     states = stateso(ind);
 end
