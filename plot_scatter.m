@@ -42,7 +42,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 19/Apr/2016
+% last modification: 25/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez, Alejandro Perez Villegas
@@ -89,6 +89,7 @@ if ischar(classes), classes = cellstr(classes); end;
 if ischar(xylabel),  xylabel = cellstr(xylabel); end;
 
 % Validate dimensions of input data
+assert(size(bdata,2) == 2, 'Dimension Error: 1st argument must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
@@ -129,8 +130,6 @@ else
     plot(bdata(:,1), bdata(:,2), 'o');
 end
     
-
-
 % Plot labels
 ax = axis;
 f = 5;

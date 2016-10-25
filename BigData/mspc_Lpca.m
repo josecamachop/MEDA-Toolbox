@@ -28,7 +28,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
 %   If a=0, then b and c are ignored.
 %
-% label: [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
+% label: [Lx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
 %   are used by default)
 %
 % classes: [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
@@ -89,7 +89,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 17/Oct/2016
+% last modification: 25/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -129,25 +129,29 @@ if isnumeric(opt), opt=num2str(opt); end
 % Complete opt
 if length(opt)<2, opt = strcat(opt,'00'); end
 if length(opt)<3, opt = strcat(opt,'0'); end
-if opt(3) == 1 || opt(3) == '1',
+if opt(3) == '1',
     K = L;
 else
     K = N+L;
 end
 
 if nargin < 6 || isempty(label), 
-    if opt(3) == 1 || opt(3) == '1',
+    if  opt(3) == '1',
         label = 1:L;
     else
         label = [1:N 1:L]; 
     end
+elseif opt(3) == '0' && length(label)==L,
+        label = {Lmodel.obs_l label};
 end
 if nargin < 7 || isempty(classes),
-    if opt(3) == 1 || opt(3) == '1', 
+    if opt(3) == '1', 
         classes = ones(L,1); 
     else
         classes = [ones(N,1);2*ones(L,1)];  
     end
+elseif opt(3) == '0' && length(classes)==L,
+        classes = {Lmodel.class classes};
 end
 if nargin < 8 || isempty(p_valueD), 
     if opt(2) == 0 || opt(2) == '0',
@@ -247,8 +251,7 @@ if opt(1) == '1',
     end
     
     if opt(2) == '0',
-        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq});
-        %plot_Lscatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, 3,mult);
+        plot_Lscatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 3, mult);
     else
         plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd);
         plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq);
