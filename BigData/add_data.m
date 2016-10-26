@@ -1,9 +1,9 @@
-function add_data(name,path,data,class,type,thres,preci,debug)
+function add_data(name,path,data,label,class,type,thres,preci,debug)
 
 % Add data to a file in the clustering file system. 
 %
-% add_data(name,path,data,class,type,thres) % minimum call
-% add_data(name,path,data,class,type,thres,preci,debug) % complete call
+% add_data(name,path,data,label,class,type,thres) % minimum call
+% add_data(name,path,data,label,class,type,thres,preci,debug) % complete call
 %
 %
 % INPUTS:
@@ -14,6 +14,8 @@ function add_data(name,path,data,class,type,thres,preci,debug)
 %   located.
 %
 % data: (LxM) observations to include in the file.
+%
+% label: [Lx1] name of the observations (filenames are used by default)
 %
 % class: (1x1) class associated to the observations.
 %
@@ -36,7 +38,7 @@ function add_data(name,path,data,class,type,thres,preci,debug)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 24/Jan/14.
+% last modification: 25/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -58,10 +60,10 @@ function add_data(name,path,data,class,type,thres,preci,debug)
 
 % Parameters checking 
 
-if nargin < 6, error('Error in the number of arguments.'); end;
-if nargin < 7, preci=8; end;
+if nargin < 7, error('Error in the number of arguments.'); end;
+if nargin < 8, preci=8; end;
 if isempty(preci), preci=8; end;
-if nargin < 8, debug = 1; end;
+if nargin < 9, debug = 1; end;
 
 % Computation
 
@@ -81,9 +83,10 @@ if isequal('a',type),
         fclose(fid);
         stot = s(1) + s2;
         if stot > thres,
-            data2 = read_data(name,path,s(2),debug);
+            [data2, label2] = read_data(name,path,s(2),debug);
             data = [data2;data];
-            add_data1(name,path,data,class,'w',thres,1,preci);
+            label = {label{:} label2{:}};
+            add_data1(name,path,data,label,class,'w',thres,1,preci);
         else
             fid=fopen(file,'r+');
             str=sprintf('%d %d %d',0,stot,class); 
@@ -94,7 +97,7 @@ if isequal('a',type),
                 a=num2str(data(u,:),preci_str);
                 i=find(~isspace(a));
                 a=a(i);
-                fprintf(fid,'%s\n',a);
+                fprintf(fid,'%s: %s\n',label{u},a);
             end
             fclose(fid);
         end
@@ -103,13 +106,14 @@ if isequal('a',type),
             name2 = fscanf(fid,'%s',1);
         end  
         fclose(fid);
-        data2 = read_data(name2,path,s(2),debug);
+        [data2, label2] = read_data(name2,path,s(2),debug);
         data = [data2;data];
-        add_data1(name,path,data,class,'a',thres,s2,preci);
+        label = {label{:} label2{:}};
+        add_data1(name,path,data,label,class,'a',thres,s2,preci);
     end
 else
     if s(1) > thres,
-        add_data1(name,path,data,class,'w',thres,1,preci);
+        add_data1(name,path,data,label,class,'w',thres,1,preci);
     else
         fid=fopen(file,'w');
         str=sprintf('%d %d %d',0,s(1),class); 
@@ -119,17 +123,17 @@ else
             a=num2str(data(u,:),preci_str);
             i=find(~isspace(a));
             a=a(i);
-            fprintf(fid,'%s\n',a);
+            fprintf(fid,'%s: %s\n',label{u},a);
         end
         fclose(fid);
     end
 end
 
 
-function add_data1(name,path,data,class,type,thres,s2,preci)
+function add_data1(name,path,data,label,class,type,thres,s2,preci)
 
-if nargin < 7, error('Error in the number of arguments.'); end;
-if nargin < 8, preci=8; end;
+if nargin < 8, error('Error in the number of arguments.'); end;
+if nargin < 9, preci=8; end;
 
 preci_str = sprintf('%%.%df,',preci);
 
@@ -159,7 +163,7 @@ for i=s2:nfich+s2-1,
         a=num2str(data(u,:),preci_str);
         i=find(~isspace(a));
         a=a(i);
-        fprintf(fid2,'%s\n',a);
+        fprintf(fid2,'%s: %s\n',label{u},a);
     end
     fclose(fid2);
 end

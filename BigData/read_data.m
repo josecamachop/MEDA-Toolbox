@@ -1,9 +1,9 @@
-function [data,class,lev,s]=read_data(name,path,nvars,debug)
+function [data,label,class,lev,s]=read_data(name,path,nvars,debug)
 
 % Read the data from a file in the clustering file system.  
 %
-% [data,class,lev,s]=read_data(name,path,nvars) % minimum call
-% [data,class,lev,s]=read_data(name,path,nvars,debug) % complete call
+% [data,label,class,lev,s]=read_data(name,path,nvars) % minimum call
+% [data,label,class,lev,s]=read_data(name,path,nvars,debug) % complete call
 %
 %
 % INPUTS:
@@ -26,6 +26,8 @@ function [data,class,lev,s]=read_data(name,path,nvars,debug)
 %
 % data: (sxM) observations in the file.
 %
+% label: [sx1] name of the observations.
+%
 % class: (1x1) class associated to the observations.
 %
 % lev: (1x1) hierarchy level of the file, 0 for data and 1 for indices.
@@ -34,7 +36,7 @@ function [data,class,lev,s]=read_data(name,path,nvars,debug)
 % 
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 24/Jan/14.
+% last modification: 25/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -71,6 +73,7 @@ class=a(3);
 if lev==0,
     data = zeros(s,nvars);
     for i=1:s,
+        label{i}=fscanf(fid,'%s:',1);
         a=fscanf(fid,'%s',1);
         data(i,:) = strread(a,'%f,',nvars);
     end

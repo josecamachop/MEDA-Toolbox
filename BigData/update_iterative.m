@@ -37,18 +37,18 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 % NOTE: On the MEDA FileSystem for input argument files set to 1. It is 
 % based on CSV files (to change in the future) with two hierarchies. The 
 % top layer contains pointers to data files, and it is only set for those 
-% clusters with more than 100 observations (this is hardcoded in line 369
-% of the present routine, in the call to cfilesys) The bottom layer 
-% contains the actual data of the observations. CSV format is to change in
-% the future. The name of the files follows this structure: For top layer
-% files we use MEDA_#t_o_#o_c_#c, where #t is the index of the original
-% file in the imput list, starting from 1, #o is the order of the
-% observation in that file and #c the class. For bottom layer
+% clusters with more than 100 observations (this is hardcoded in the present 
+% routine, in the call to cfilesys) The bottom layer contains the actual 
+% data of the observations. CSV format is to change in the future. The name
+% of the files follows this structure: For top layer files we use 
+% MEDA#to#oc#c, where #t is the index of the original file in the imput 
+% list for the first observation introduced, starting from 1, #o is the 
+% order of the  observation in that file and #c the class. For bottom layer
 % we add _#n for the n-th file depending on the same top file. Name format 
-% can be chaged in line 365 of this routine.
+% can be chaged in this routine (line app. 399).
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 18/Oct/16
+% last modification: 25/Oct/16
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -366,6 +366,7 @@ for t=1:length(list),
     if files, % The updated field is not included in the FS yet
         indorig = length(Lmodel.class);
         red = [Lmodel.centr;xcs];
+        lred = {Lmodel.obs_l{:} obs_l{:}};
         multr = [Lmodel.multr;ones(length(class),1)];
         classr = [Lmodel.class;class];
         aux_v = (1:length(classr))';
@@ -396,7 +397,7 @@ for t=1:length(list),
         
         if files,
             for k=i:endv,
-                Lmodel.index_fich{1,indorig+k}=['MEDA_' num2str(t) '_o_' num2str(k) '_c_' num2str(class(k))]; %index of names of fich
+                Lmodel.index_fich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
             end
         end
                    
@@ -404,8 +405,11 @@ for t=1:length(list),
     end
     
     if files,
-        Lmodel.index_fich = cfilesys(obslist,red,multr,classr,Lmodel.index_fich,100,Lmodel.path,debug); % update of the clustering file system
+        Lmodel.index_fich = cfilesys(obslist,red,lred,multr,classr,Lmodel.index_fich,100,Lmodel.path,debug); % update of the clustering file system
     end
       
 end
+
+ind = find(strcmp(Lmodel.obs_l, 'mixed'));
+Lmodel.obs_l(ind) = Lmodel.index_fich(ind);
 

@@ -138,11 +138,14 @@ end
 if nargin < 6 || isempty(label), 
     if  opt(3) == '1',
         label = 1:L;
+    elseif L==0,
+        label = Lmodel.obs_l;
     else
         label = [1:N 1:L]; 
     end
-elseif opt(3) == '0' && length(label)==L,
-        label = {Lmodel.obs_l label};
+end
+if opt(3) == '0' && length(label)==L,
+        label = {Lmodel.obs_l{:} label{:}};
 end
 if nargin < 7 || isempty(classes),
     if opt(3) == '1', 

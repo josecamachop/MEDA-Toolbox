@@ -1,9 +1,9 @@
-function index_fich2 = cfilesys(obslist,centr,mult,class,index_fich,thres,path,debug)
+function index_fich2 = cfilesys(obslist,centr,label,mult,class,index_fich,thres,path,debug)
 
 % Update of the clustering file system. 
 %
-% index_fich2 = cfilesys(obslist,centr,mult,class,index_fich,thres,path) % minimum call
-% index_fich2 = cfilesys(obslist,centr,mult,class,index_fich,thres,path,debug) % complete call
+% index_fich2 = cfilesys(obslist,centr,label,mult,class,index_fich,thres,path) % minimum call
+% index_fich2 = cfilesys(obslist,centr,label,mult,class,index_fich,thres,path,debug) % complete call
 %
 %
 % INPUTS:
@@ -15,6 +15,8 @@ function index_fich2 = cfilesys(obslist,centr,mult,class,index_fich,thres,path,d
 %
 % centr: (LxM) centroids of the clusters of observations prior to the
 %   update.
+%
+% label: [Lx1] name of the observations (filenames are used by default)
 %
 % mult: (Lx1) multiplicity of each cluster prior to the update.
 %
@@ -42,7 +44,7 @@ function index_fich2 = cfilesys(obslist,centr,mult,class,index_fich,thres,path,d
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 24/Jan/14.
+% last modification: 25/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -62,8 +64,9 @@ function index_fich2 = cfilesys(obslist,centr,mult,class,index_fich,thres,path,d
     
 %% Parameters checking
 
-if nargin < 7, error('Error in the number of arguments.'); end;
-if nargin < 8, debug = 1; end;
+if isempty(label), label = index_fich; end;
+if nargin < 8, error('Error in the number of arguments.'); end;
+if nargin < 9, debug = 1; end;
     
 % Computation
 
@@ -79,12 +82,13 @@ for i=1:s,
         
         indj = find(mult(obslist{i}(2:end))==1);       
         recovered_column = centr(obslist{i}(indj+1),:);
+        recovered_label = label(obslist{i}(indj+1));
   
         if ~isempty(recovered_column),
             if mult(indi)>1,
-                add_data(index_fich2{i},path,recovered_column,class(indi),'a',thres,[],debug);
+                add_data(index_fich2{i},path,recovered_column,recovered_label,class(indi),'a',thres,[],debug);
             else
-                add_data(index_fich2{i},path,[centr(indi,:);recovered_column],class(indi),'w',thres,[],debug);
+                add_data(index_fich2{i},path,[centr(indi,:);recovered_column],{label{indi} recovered_label{:}},class(indi),'w',thres,[],debug);
             end
         end
                
@@ -98,10 +102,10 @@ for i=1:s,
                 if debug>1, disp(['delete file: ' path index_fich{indj2} ' ...']), end;
                 add_indices(index_fich2{i},path,indices,debug);
             else
-                recovered_column = read_data(index_fich{indj2},path,sc,debug);
+                [recovered_column,recovered_label] = read_data(index_fich{indj2},path,sc,debug);
                 system(['del ' path index_fich{indj2} '.txt']);
                 if debug>1, disp(['delete file: ' path index_fich{indj2} ' ...']), end;
-                add_data(index_fich2{i},path,recovered_column,class(indi),'a',thres,[],debug);
+                add_data(index_fich2{i},path,recovered_column,recovered_label,class(indi),'a',thres,[],debug);
             end
         end
 
