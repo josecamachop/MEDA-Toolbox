@@ -22,15 +22,13 @@ function [x_var] = var_Lpca(Lmodel,opt)
 %
 % EXAMPLE OF USE: Random data
 %
-% X = simuleMV(20,10,8);
-% Lmodel = Lmodel_ini;
-% Lmodel.XX = X'*X;
+% Lmodel = Lmodel_ini(simuleMV(20,10,8));
 % Lmodel.lvs = 0:10;
 % x_var = var_Lpca(Lmodel);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 18/Oct/2016
+% last modification: 30/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez

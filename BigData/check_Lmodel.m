@@ -1,4 +1,4 @@
-function ok = check_Lmodel(Lmodel)
+function [ok,Lmodel] = check_Lmodel(Lmodel)
 
 % Check Lmodel integrity
 %
@@ -7,14 +7,25 @@ function ok = check_Lmodel(Lmodel)
 %
 % INPUT:
 %
+% Lmodel.centr: (NxM) centroids of the clusters of observations
+%
+% Lmodel.nc: (1x1) number of clusters in the model.
+%
+% Lmodel.multr: (ncx1) multiplicity of each cluster.
+%
+% Lmodel.class: (ncx1) class associated to each cluster.
+%
+% Lmodel.N: (1x1) number of effective observations in the model.
+%
 % Lmodel.type: (1x1) PCA (1) o PLS (2)
 %
 % Lmodel.update: (1x1) EWMA (1) or ITERATIVE (2)
 %
+% Lmodel.XX: (MxM) sample cross-product matrix of X.
+%
 % Lmodel.lvs: (1x1) number of latent variables (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, Lmodel.lvs = 1:rank(xcs)
 %
-% Lmodel.N: (1x1) number of effective observations in the model.
 %
 % Lmodel.prep: (1x1) preprocesing of the data
 %       0: no preprocessing.
@@ -28,7 +39,13 @@ function ok = check_Lmodel(Lmodel)
 %
 % Lmodel.weight: (1xM) weight applied after the preprocessing method.
 %
-% Lmodel.XX: (MxM) sample cross-product matrix of X.
+% Lmodel.updated: (ncx1) specifies whether a data point is new.
+%
+% Lmodel.obs_l: {ncx1} label of each cluster.
+%
+% Lmodel.var_l: {ncx1} label of each variable.
+%
+% Lmodel.mat: (MxA) projection matrix for distance computation.
 %
 % Lmodel.prepy: (1x1) preprocesing of the data
 %       0: no preprocessing.
@@ -46,30 +63,14 @@ function ok = check_Lmodel(Lmodel)
 %
 % Lmodel.YY: (OxO) sample cross-product matrix of Y.
 %
-% Lmodel.nc: (1x1) number of clusters in the model.
-%
-% Lmodel.centr: (NxM) centroids of the clusters of observations
-%
-% Lmodel.multr: (Nx1) multiplicity of each cluster.
-%
-% Lmodel.class: (Nx1) class associated to each cluster.
-%
-% Lmodel.updated: (Nx1) specifies whether a data point is new.
-%
-% Lmodel.obs_l: {Nx1} label of each cluster.
-%
-% Lmodel.var_l: {Nx1} label of each variable.
-%
-% Lmodel.mat: (MxA) projection matrix for distance computation.
-%
-% Lmodel.index_fich: {Nx1} file system with the original observations in
+% Lmodel.index_fich: {ncx1} file system with the original observations in
 %   each cluster for ITERATIVE models.
 %
 % Lmodel.path: (str) path to the file system for ITERATIVE models.
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 17/Oct/16.
+% last modification: 29/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -88,10 +89,48 @@ function ok = check_Lmodel(Lmodel)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %% Arguments checking
 
-% Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-M = size(Lmodel.XX, 2);
+assert (isfield(Lmodel,'centr'), 'Content Error: Lmodel without centroids. Type ''help %s'' for more info.', routine(1).name);
+M = size(Lmodel.centr, 2);
+
+% Set default values
+if ~isfield(Lmodel,'type') || isempty(Lmodel.type), Lmodel.type = 1; end
+if ~isfield(Lmodel,'update') || isempty(Lmodel.update), Lmodel.update = 2; end
+if ~isfield(Lmodel,'nc') || isempty(Lmodel.nc), Lmodel.nc = size(Lmodel.centr,1); end
+if ~isfield(Lmodel,'N') || isempty(Lmodel.N), Lmodel.N = size(Lmodel.centr,1); end
+if ~isfield(Lmodel,'XX') || isempty(Lmodel.XX), 
+    if isempty(Lmodel.centr)
+        Lmodel.XX = [];
+    else
+        X = (Lmodel.multr * ones(1,M)) .* Lmodel.centr;
+        Lmodel.XX = X'*X;
+    end
+end
+if ~isfield(Lmodel,'lvs') || isempty(Lmodel.lvs), Lmodel.lvs = 1:rank(Lmodel.XX); end
+if ~isfield(Lmodel,'prep') || isempty(Lmodel.prep), Lmodel.prep = 0; end
+if Lmodel.nc>0,
+    if ~isfield(Lmodel,'multr') || isempty(Lmodel.multr), Lmodel.multr = ones(Lmodel.nc,1); end
+    if ~isfield(Lmodel,'class') || isempty(Lmodel.class), Lmodel.class = ones(Lmodel.nc,1); end
+    if ~isfield(Lmodel,'updated') || isempty(Lmodel.updated), Lmodel.updated = ones(Lmodel.nc,1); end
+    if ~isfield(Lmodel,'obs_l') || isempty(Lmodel.obs_l), Lmodel.obs_l = cellstr(num2str((1:Lmodel.nc)')); end
+else
+    if ~isfield(Lmodel,'multr'), Lmodel.multr = []; end
+    if ~isfield(Lmodel,'class'), Lmodel.class = []; end
+    if ~isfield(Lmodel,'updated'), Lmodel.updated = []; end
+    if ~isfield(Lmodel,'obs_l'), Lmodel.obs_l = {}; end
+end
+if M>0,
+    if ~isfield(Lmodel,'av') || isempty(Lmodel.av), Lmodel.av = zeros(1,M); end
+    if ~isfield(Lmodel,'sc') || isempty(Lmodel.sc), Lmodel.sc = ones(1,M); end
+    if ~isfield(Lmodel,'weight') || isempty(Lmodel.weight), Lmodel.weight = ones(1,M); end
+    if ~isfield(Lmodel,'var_l') || isempty(Lmodel.var_l), Lmodel.var_l = cellstr(num2str((1:M)')); end
+else
+    if ~isfield(Lmodel,'av'), Lmodel.av = []; end
+    if ~isfield(Lmodel,'sc'), Lmodel.sc = []; end
+    if ~isfield(Lmodel,'weight'), Lmodel.weight = []; end
+    if ~isfield(Lmodel,'var_l'), Lmodel.var_l = {}; end
+end
 
 % Convert column arrays to row arrays
 if size(Lmodel.lvs,2) == 1, Lmodel.lvs = Lmodel.lvs'; end;
@@ -107,12 +146,8 @@ Lmodel.lvs = unique(Lmodel.lvs);
 A = length(Lmodel.lvs);
 
 % Validate dimensions of input data
-assert (M>0, 'Dimension Error: Lmodel.XX with non valid content. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(Lmodel.XX), [M M]), 'Dimension Error: Lmodel.XX must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (A>0, 'Dimension Error: Lmodel.lvs with non valid content. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(Lmodel.lvs), [1 A]), 'Dimension Error: Lmodel.lvs must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Lmodel.prep), [1 1]), 'Dimension Error: Lmodel.prep must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Lmodel.prepy), [1 1]), 'Dimension Error: Lmodel.prep must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (isempty(find(Lmodel.type~=1 & Lmodel.type~=2)), 'Value Error: Lmodel.type must contain 1 or 2. Type ''help %s'' for more info.', routine(1).name);

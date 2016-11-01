@@ -62,34 +62,24 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 % UCLq: [Lqx1] Control limits in Q-statistic
 %
 %
-% EXAMPLE OF USE: Random scores
-%
-% X = simuleMV(100,10);
-% Lmodel = Lmodel_ini;
-% Lmodel.XX = X'*X;
-% Lmodel.lvs = 1:3;
-% [Dst,Qst] = mspc_Lpca(Lmodel);
-%
-%
 % EXAMPLE OF USE: PCA-based MSPC on NOC test data and anomalies.
 %
 % n_obs = 100;
 % n_vars = 10;
 % n_PCs = 1;
-% X = simuleMV(n_obs,n_vars,6);
-% Lmodel = Lmodel_ini;
-% Lmodel.XX = X'*X;
+% Lmodel = Lmodel_ini(simuleMV(n_obs,n_vars,6));
+% Lmodel.multr = 100*rand(n_obs,1); 
 % Lmodel.lvs = 1:n_PCs;
 % 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% test = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
 % [Dst,Qst,Dstt,Qstt] = mspc_Lpca(Lmodel,test,100,[],[ones(100,1);2*ones(5,1);3*ones(5,1)]);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 25/Oct/2016
+% last modification: 30/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -137,16 +127,28 @@ end
 
 if nargin < 6 || isempty(label), 
     if  opt(3) == '1',
-        label = 1:L;
-    elseif L==0,
-        label = Lmodel.obs_l;
+        label = cellstr(num2str((1:L)'));
+    elseif isempty(Lmodel.obs_l),
+        label = cellstr(num2str([1:N 1:L]'));
     else
-        label = [1:N 1:L]; 
+        if L
+            lb1 = cellstr(num2str((1:L)'));
+            label = {Lmodel.obs_l{:} lb1{:}};
+        else
+            label = Lmodel.obs_l;
+        end
+    end
+else
+    if  opt(3) == '0',
+        if isempty(Lmodel.obs_l),
+            lb1 = cellstr(num2str((1:N)'));
+            label = {lb1{:} label{:}};
+        else
+            label = {Lmodel.obs_l{:} label{:}};
+        end
     end
 end
-if opt(3) == '0' && length(label)==L,
-        label = {Lmodel.obs_l{:} label{:}};
-end
+
 if nargin < 7 || isempty(classes),
     if opt(3) == '1', 
         classes = ones(L,1); 
@@ -156,7 +158,8 @@ if nargin < 7 || isempty(classes),
 elseif opt(3) == '0' && length(classes)==L,
         classes = {Lmodel.class classes};
 end
-if nargin < 8 || isempty(p_valueD), 
+
+if nargin < 8 || isempty(p_valueD),
     if opt(2) == 0 || opt(2) == '0',
         p_valueD = 0.01; 
     else
@@ -254,10 +257,10 @@ if opt(1) == '1',
     end
     
     if opt(2) == '0',
-        plot_Lscatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 3, mult);
+        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 3, mult);
     else
-        plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd);
-        plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq);
+        plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd, 0, mult);
+        plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq, 0, mult);
     end
 end
         

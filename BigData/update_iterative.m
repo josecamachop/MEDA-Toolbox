@@ -48,7 +48,7 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 % can be chaged in this routine (line app. 399).
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 25/Oct/16
+% last modification: 30/Oct/16
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -77,9 +77,9 @@ if nargin < 3 || isempty(Lmodel),
     Lmodel.type = 1;
     Lmodel.lvs = 0;
     Lmodel.prep = 2;
+else
+    check_Lmodel(Lmodel);
 end;
-
-check_Lmodel(Lmodel);
 
 if nargin < 4 || isempty(step), step = 1; end;
 if nargin < 5 || isempty(files), files = 0; end;
@@ -122,7 +122,7 @@ if Lmodel.prep==0,
         
     end
         
-elseif (Lmodel.type==1 & Lmodel.prep > 0) | (Lmodel.type==2 & Lmodel.prep > 0 & Lmodel.prepy == 0), 
+elseif (Lmodel.type==1 && Lmodel.prep > 0) || (Lmodel.type==2 && Lmodel.prep > 0 && Lmodel.prepy == 0), 
     
     if debug, disp('mean centering X block...........................................'), end;
     
@@ -138,7 +138,7 @@ elseif (Lmodel.type==1 & Lmodel.prep > 0) | (Lmodel.type==2 & Lmodel.prep > 0 & 
         
     end
     
-elseif Lmodel.type==2 & Lmodel.prep > 0 & Lmodel.prepy > 0,
+elseif Lmodel.type==2 && Lmodel.prep > 0 && Lmodel.prepy > 0,
     
     if debug, disp('mean centering X and Y blocks...........................................'), end;
     
@@ -162,7 +162,7 @@ end
 
 N = 0;
     
-if (Lmodel.type==1 & Lmodel.prep == 2) | (Lmodel.type==2 & Lmodel.prep == 2 & Lmodel.prepy < 2), 
+if (Lmodel.type==1 && Lmodel.prep == 2) || (Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy < 2), 
     
     if debug, disp('scaling X block..................................................'), end;
         
@@ -179,7 +179,7 @@ if (Lmodel.type==1 & Lmodel.prep == 2) | (Lmodel.type==2 & Lmodel.prep == 2 & Lm
         
     end
     
-elseif Lmodel.type==2 & Lmodel.prep == 2 & Lmodel.prepy == 2,
+elseif Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy == 2,
     
     if debug, disp('scaling X and Y blocks..................................................'), end;
     
@@ -216,7 +216,7 @@ if Lmodel.type==1,
             load([path list{t}],'x')
         end
         
-        xcs = (x -  ones(size(x,1),1)*Lmodel.av)./(ones(size(x,1),1)*Lmodel.sc);
+        xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
         Lmodel.XX = Lmodel.XX + xcs'*xcs;
         
     end
@@ -237,9 +237,9 @@ elseif Lmodel.type==2,
             load([path list{t}],'x','y')
         end
         
-        xcs = (x -  ones(size(x,1),1)*Lmodel.av)./(ones(size(x,1),1)*Lmodel.sc);
+        xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
         Lmodel.XX = Lmodel.XX + xcs'*xcs;        
-        ycs = (y -  ones(size(x,1),1)*Lmodel.avy)./(ones(size(x,1),1)*Lmodel.scy);
+        ycs = preprocess2Dapp(y,Lmodel.avy,Lmodel.scy,Lmodel.weighty);
         Lmodel.XY = Lmodel.XY + xcs'*ycs;
         Lmodel.YY = Lmodel.YY + ycs'*ycs;
         
@@ -248,13 +248,13 @@ elseif Lmodel.type==2,
 end
 
 % compute model
-
+Lmodel.centr = ones(size(Lmodel.centr,1),size(Lmodel.XX,1));
 if Lmodel.type==1, 
     
     if debug, disp('computing PCA model..............................................'), end;
     
     if ~Lmodel.lvs,
-        Lmodel.lvs = 1:50;
+        Lmodel.lvs = 1:rank(Lmodel.XX);
         var_Lpca(Lmodel);
         Lmodel.lvs = input('Select the PCs to include in the model: ');
         Lmodel.lvs = 1:Lmodel.lvs;
@@ -270,7 +270,8 @@ elseif Lmodel.type==2,
         if debug, disp('computing PLS model.....................................................'), end;
             
         if ~Lmodel.lv,
-            var_Lpls(Lmodel,maxlvs);
+            Lmodel.lvs = 1:rank(Lmodel.XX);
+            var_Lpls(Lmodel);
             Lmodel.lv = input('Select the LVs to include in the model: ');
         end
         
@@ -284,7 +285,8 @@ elseif Lmodel.type==2,
         if debug, disp('computing PCA model..............................................'), end;
         
         if ~Lmodel.lv,
-            var_Lpca(Lmodel,maxlvs);
+            Lmodel.lvs = 1:rank(Lmodel.XX);
+            var_Lpca(Lmodel);
             Lmodel.lv = input('Select the PCs to include in the model: ');
         end
         
@@ -309,7 +311,7 @@ for t=1:length(list),
         load([path list{t}],'x')
     end
     
-    xcs = (x -  ones(size(x,1),1)*Lmodel.av)./(ones(size(x,1),1)*Lmodel.sc);
+    xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
     T = xcs * Lmodel.mat;
     M = max(T);
     m = min(T);
@@ -361,8 +363,8 @@ for t=1:length(list),
         end
     end
     
-    xcs = (x -  ones(size(x,1),1)*Lmodel.av)./(ones(size(x,1),1)*Lmodel.sc);
-   
+    xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
+    
     if files, % The updated field is not included in the FS yet
         indorig = length(Lmodel.class);
         red = [Lmodel.centr;xcs];

@@ -7,7 +7,7 @@ function [P,sdT] = Lpca(Lmodel)
 %
 % INPUTS:
 %
-% Lmodel: (struct Lmodel) model with the information to compute the PCA..
+% Lmodel: (struct Lmodel) model with the information to compute the PCA.
 %
 %
 % OUTPUTS:
@@ -19,15 +19,14 @@ function [P,sdT] = Lpca(Lmodel)
 %
 % EXAMPLE OF USE: Random data
 %
-% X = simuleMV(20,10,8);
 % Lmodel = Lmodel_ini;
-% Lmodel.XX = X'*X;
+% Lmodel.centr = simuleMV(20,10,8);
 % Lmodel.lvs = 0:10;
 % [P,sdT] = Lpca(Lmodel);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 17/Oct/2016
+% last modification: 30/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez

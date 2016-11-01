@@ -68,14 +68,14 @@ if nargin < 1, error('Error in the number of arguments.'); end;
 if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end;
 s = size(x);
 if find(s<1), error('Incorrect content of x.'); end;
-if nargin < 2, prep = 1; end;
+if nargin < 2 || isempty(prep), prep = 1; end;
 if (prep<0||prep>3), error('Incorrect value of prep.'); end;
-if nargin < 3, ndim = 0; end;
-if nargin < 4, lambda = 0; end;
-if nargin < 5, average = 0; end;
-if nargin < 6, scale = 0; end;
-if nargin < 7, N = 0; end;
-if nargin < 8 | weight==0, 
+if nargin < 3 || isempty(ndim), ndim = 0; end;
+if nargin < 4 || isempty(lambda), lambda = 0; end;
+if nargin < 5 || isempty(average), average = 0; end;
+if nargin < 6 || isempty(scale), scale = 0; end;
+if nargin < 7 || isempty(N), N = 0; end;
+if nargin < 8 || isempty(weight), 
     if ndim,
         weight = ones(1,s(1));
     else
