@@ -362,7 +362,9 @@ function score_closereq(hObject, eventdata)
 % handles    structure with handles and user data (see GUIDATA)
 selomedaButton = guidata(hObject);
 if isscalar(findobj('Tag','ScorePlot'))
-    set(selomedaButton,'Enable','off');
+    if isvalid(selomedaButton)
+        set(selomedaButton,'Enable','off');
+    end
 end
 shh=get(0,'ShowHiddenHandles');
 set(0,'ShowHiddenHandles','on');
