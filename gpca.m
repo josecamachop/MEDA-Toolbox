@@ -1,6 +1,9 @@
 function [p,t,bel] = gpca(xcs,states,pcs)
 
-% Group-wise Principal Component Analysis.
+% Group-wise Principal Component Analysis. The otiginal paper is Camacho, J., 
+% Rodríguez-Gómez, R., Saccenti, E. Group-wise Principal Component Analysis 
+% for Exploratory Data Analysis. Accepted in Journal of Computational and 
+% Graphical Statistics, 2016.
 %
 % p = gpca(xcs,states)     % minimum call
 % [p,t,bel] = gpca(xcs,states,pcs)     % complete call
@@ -26,21 +29,22 @@ function [p,t,bel] = gpca(xcs,states,pcs)
 %
 % EXAMPLE OF USE: Random data:
 %
-% X = simuleMV(20,10,8);;
-% pcs = 1:rank(X);
-% map = meda_pca(X,pcs);
+% x = simuleMV(20,10,8);;
+% pcs = 1:3;
+% map = meda_pca(x,pcs);
+% [map,ord] = seriation(map);
+% x = x(:,ord);
 % [bel,states] = gia(map,0.3);
-% Xcs = preprocess2D(X,2);
-% pcs = 1:length(states);
+% Xcs = preprocess2D(x,2);
 % [p,t,bel] = gpca(Xcs,states,pcs);
 % 
-% f = figure;
 % for i=pcs,
-%   plot_vec(p(:,i),[],[],{'',sprintf('PC %d',i)});
+%   plot_vec(p(:,i),[],[],{'',sprintf('Loadings PC %d',i)});
+%   plot_vec(t(:,i),[],[],{'',sprintf('Scores PC %d',i)});
 % end
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Apr/16.
+% last modification: 09/Nov/16.
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
