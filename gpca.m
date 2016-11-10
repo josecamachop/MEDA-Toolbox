@@ -30,9 +30,10 @@ function [p,t,bel] = gpca(xcs,states,pcs)
 % EXAMPLE OF USE: Random data:
 %
 % x = simuleMV(20,10,8);;
-% pcs = 1:3;
-% map = meda_pca(x,pcs);
+% pcs = 1;
+% map = meda_pca(x,pcs,[],[],0);
 % [map,ord] = seriation(map);
+% plot_map(map);
 % x = x(:,ord);
 % [bel,states] = gia(map,0.3);
 % Xcs = preprocess2D(x,2);
