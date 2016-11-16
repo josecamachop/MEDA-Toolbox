@@ -99,14 +99,6 @@ if ~isfield(Lmodel,'type') || isempty(Lmodel.type), Lmodel.type = 1; end
 if ~isfield(Lmodel,'update') || isempty(Lmodel.update), Lmodel.update = 2; end
 if ~isfield(Lmodel,'nc') || isempty(Lmodel.nc), Lmodel.nc = size(Lmodel.centr,1); end
 if ~isfield(Lmodel,'N') || isempty(Lmodel.N), Lmodel.N = size(Lmodel.centr,1); end
-if ~isfield(Lmodel,'XX') || isempty(Lmodel.XX), 
-    if isempty(Lmodel.centr)
-        Lmodel.XX = [];
-    else
-        X = (Lmodel.multr * ones(1,M)) .* Lmodel.centr;
-        Lmodel.XX = X'*X;
-    end
-end
 if ~isfield(Lmodel,'lvs') || isempty(Lmodel.lvs), Lmodel.lvs = 1:rank(Lmodel.XX); end
 if ~isfield(Lmodel,'prep') || isempty(Lmodel.prep), Lmodel.prep = 0; end
 if Lmodel.nc>0,
@@ -119,6 +111,14 @@ else
     if ~isfield(Lmodel,'class'), Lmodel.class = []; end
     if ~isfield(Lmodel,'updated'), Lmodel.updated = []; end
     if ~isfield(Lmodel,'obs_l'), Lmodel.obs_l = {}; end
+end
+if ~isfield(Lmodel,'XX') || isempty(Lmodel.XX), 
+    if isempty(Lmodel.centr)
+        Lmodel.XX = [];
+    else
+        X = (Lmodel.multr * ones(1,M)) .* Lmodel.centr;
+        Lmodel.XX = X'*X;
+    end
 end
 if M>0,
     if ~isfield(Lmodel,'av') || isempty(Lmodel.av), Lmodel.av = zeros(1,M); end
