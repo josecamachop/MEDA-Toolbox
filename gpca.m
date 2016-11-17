@@ -1,6 +1,6 @@
 function [p,t,bel] = gpca(xcs,states,pcs)
 
-% Group-wise Principal Component Analysis. The otiginal paper is Camacho, J., 
+% Group-wise Principal Component Analysis. The original paper is Camacho, J., 
 % Rodríguez-Gómez, R., Saccenti, E. Group-wise Principal Component Analysis 
 % for Exploratory Data Analysis. Accepted in Journal of Computational and 
 % Graphical Statistics, 2016.
@@ -29,8 +29,8 @@ function [p,t,bel] = gpca(xcs,states,pcs)
 %
 % EXAMPLE OF USE: Random data:
 %
-% x = simuleMV(20,10,8);;
-% pcs = 1;
+% x = simuleMV(20,10,8);
+% pcs = 1:2;
 % map = meda_pca(x,pcs,[],[],0);
 % [map,ord] = seriation(map);
 % plot_map(map);
