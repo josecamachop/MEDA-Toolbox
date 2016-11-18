@@ -20,9 +20,9 @@ function [beta,W,P,Q,R,bel] = gpls2(xcs,ycs,lvs,mtype)
 %   first two LVs). By default, lvs = 0:rank(xcs)
 %
 % mtype: [1x1] type of correlation map used (3 by default)
-%   1: Common correlation matrix, filtered out by oMEDA.
-%   2: XYYX normalized, filtered out by oMEDA.
-%   3: MEDA map, filtered out by oMEDA.
+%   1: Common correlation matrix.
+%   2: XYYX normalized.
+%   3: MEDA map.
 %   4: oMEDA map.
 %
 %

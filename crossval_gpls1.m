@@ -1,12 +1,11 @@
 function [cumpress,press,nze] = crossval_gpls1(x,y,lvs,gammas,blocks_r,prepx,prepy,opt,mtype)
 
 % Row-wise k-fold (rkf) cross-validation for square-prediction-errors
-% computing in GPLS. Only gamma is corss-validated, asumming the number of
-% LVs in the input.
+% computing in GPLS1. 
 %
 % [cumpress,press] = crossval_pls(x,y) % minimum call
 % [cumpress,press,nze] =
-% crossval_pls(x,y,lvs,gammas,blocks_r,prepx,prepy,opt) % complete call
+% crossval_pls(x,y,lvs,gammas,blocks_r,prepx,prepy,opt,mtype) % complete call
 %
 %
 % INPUTS:
@@ -36,6 +35,12 @@ function [cumpress,press,nze] = crossval_gpls1(x,y,lvs,gammas,blocks_r,prepx,pre
 %       0: no plots
 %       1: bar plot (default)
 %
+% mtype: [1x1] type of correlation map used (3 by default)
+%   1: Common correlation matrix, filtered out by oMEDA.
+%   2: XYYX normalized, filtered out by oMEDA.
+%   3: MEDA map, filtered out by oMEDA.
+%   4: oMEDA map.
+%
 %
 % OUTPUTS:
 %
@@ -48,15 +53,16 @@ function [cumpress,press,nze] = crossval_gpls1(x,y,lvs,gammas,blocks_r,prepx,pre
 %
 % EXAMPLE OF USE: Random data with structural relationship
 %
-% X = simuleMV(20,10,8);
-% Y = 0.1*randn(20,2) + X(:,1:2);
+% Y = randn(100,2);
+% X(:,1:2) = Y + 0.1*randn(100,2);
+% X(:,3:10) = simuleMV(100,8,6);
 % lvs = 0:10;
 % gammas = 0:0.1:1;
-% [cumpress,press,nze] = crossval_gpls(X,Y,lvs,gammas);
+% [cumpress,press,nze] = crossval_gpls1(X,Y,lvs,gammas);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 14/Jul/16.
+% last modification: 18/Nov/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -105,6 +111,7 @@ assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 5th argument must be 1
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(mtype), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
@@ -117,6 +124,7 @@ assert (isempty(find(gammas<0 | gammas>1)), 'Value Error: 4th argument must not 
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 5th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r>2, 'Value Error: 5th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r<=N, 'Value Error: 5th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(mtype~=1 & mtype~=2 & mtype~=3 & mtype~=4)), 'Value Error: 9th argument must contain an integer from 1 to 4. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

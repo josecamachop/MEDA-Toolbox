@@ -1,9 +1,9 @@
-function [Q,lvso,press] = dcrossval_gpls(x,y,lvs,alpha,blocks_r,prepx,prepy,opt,mtype)
+function [Q,lvso,press] = dcrossval_gpls2(x,y,lvs,alpha,blocks_r,prepx,prepy,opt,mtype)
 
-% Row-wise k-fold (rkf) double cross-validation for square-prediction-errors computing in GPLS.
+% Row-wise k-fold (rkf) double cross-validation for square-prediction-errors computing in GPLS2.
 %
-% Q = dcrossval_pls(x,y) % minimum call
-% [Q,lvso,press] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt) % complete call
+% Q = dcrossval_pls2(x,y) % minimum call
+% [Q,lvso,press] = dcrossval_gpls2(x,y,lvs,alpha,blocks_r,prepx,prepy,opt,mtype) % complete call
 %
 %
 % INPUTS:
@@ -31,6 +31,12 @@ function [Q,lvso,press] = dcrossval_gpls(x,y,lvs,alpha,blocks_r,prepx,prepy,opt,
 %       0: no plots
 %       1: bar plot (default)
 %
+% mtype: [1x1] type of correlation map used (3 by default)
+%   1: Common correlation matrix.
+%   2: XYYX normalized.
+%   3: MEDA map.
+%   4: oMEDA map.
+%
 %
 % OUTPUTS:
 %
@@ -43,14 +49,16 @@ function [Q,lvso,press] = dcrossval_gpls(x,y,lvs,alpha,blocks_r,prepx,prepy,opt,
 %
 % EXAMPLE OF USE: Random data with structural relationship
 %
-% X = real(ADICOV(randn(10,10).^9,randn(100,10),10));
-% Y = randn(100,2) + X(:,1:2);
+% Y = randn(100,2);
+% X(:,1:2) = Y + 0.1*randn(100,2);
+% X(:,3:10) = simuleMV(100,8,6);
 % lvs = 0:10;
-% Q = dcrossval_pls(X,Y,lvs);
+% [Q,lvso] = dcrossval_gpls2(X,Y,lvs,1,7);
+% [Qb,lvsob] = dcrossval_gpls2(X,Y,lvs,0.5,7);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 15/Apr/16.
+% last modification: 16/Nov/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -96,6 +104,7 @@ assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 5th argument must be 1
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(mtype), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
@@ -107,6 +116,7 @@ assert (alpha>=0 & alpha<=1, 'Value Error: 4th argument must not be out of [0,1]
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 5th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r>2, 'Value Error: 5th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r<=N, 'Value Error: 5th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(mtype~=1 & mtype~=2 & mtype~=3 & mtype~=4)), 'Value Error: 9th argument must contain an integer from 1 to 4. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

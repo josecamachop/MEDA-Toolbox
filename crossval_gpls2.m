@@ -1,10 +1,9 @@
 function [cumpress,press,nze] = crossval_gpls2(x,y,lvs,blocks_r,prepx,prepy,opt,mtype)
 
-% Row-wise k-fold (rkf) cross-validation for square-prediction-errors computing in PLS.
+% Row-wise k-fold (rkf) cross-validation for square-prediction-errors computing in GPLS2.
 %
-% [cumpress,press] = crossval_pls(x,y,lvs) % minimum call
-% [cumpress,press] =
-% crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt) % complete call
+% [cumpress,press] = crossval_gpls2(x,y) % minimum call
+% [cumpress,press,nze] = crossval_gpls2(x,y,lvs,blocks_r,prepx,prepy,opt,mtype) % complete call
 %
 %
 % INPUTS:
@@ -32,24 +31,33 @@ function [cumpress,press,nze] = crossval_gpls2(x,y,lvs,blocks_r,prepx,prepy,opt,
 %       0: no plots.
 %       1: plot (default)
 %
+% mtype: [1x1] type of correlation map used (3 by default)
+%   1: Common correlation matrix.
+%   2: XYYX normalized.
+%   3: MEDA map.
+%   4: oMEDA map.
+%
 %
 % OUTPUTS:
 %
-% cumpress: [Ax1] Cumulative PRESS
+% cumpress: [A x gammas x 1] Cumulative PRESS
 %
-% press: [AxO] PRESS per variable.
+% press: [A x gammas x O] PRESS per variable.
+%
+% nze: [A x gammas x 1] Average number of non-zero elements
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
 %
-% X = simuleMV(20,10,8);
-% Y = 0.1*randn(20,2) + X(:,1:2);
+% Y = randn(100,2);
+% X(:,1:2) = Y + 0.1*randn(100,2);
+% X(:,3:10) = simuleMV(100,8,6);
 % lvs = 0:10;
-% cumpress = crossval_pls(X,Y,lvs);
+% [cumpress,press,nze] = crossval_gpls2(X,Y,lvs);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 18/Nov/16.
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -97,6 +105,7 @@ assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 4th argument must be 1
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(mtype), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
@@ -108,6 +117,7 @@ assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 4th argument must be an 
 assert (blocks_r>2, 'Value Error: 4th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r<=N, 'Value Error: 4th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(mtype~=1 & mtype~=2 & mtype~=3 & mtype~=4)), 'Value Error: 8th argument must contain an integer from 1 to 4. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
