@@ -99,7 +99,7 @@ lvs = unique(lvs);
 % Validate values of input data
 vals = unique(y);
 
-%assert (isempty(find(y~=1 & y~=-1)), 'Value Error: 2rd argument must not contain values different to 1 or -1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(y~=1 & y~=-1)), 'Value Error: 2rd argument must not contain values different to 1 or -1. Type ''help %s'' for more info.', routine(1).name);
 
 rep = sort(histc(y,vals),'descend');
 N2 = rep(2);
@@ -155,9 +155,9 @@ for i=1:blocks_r,
     vcs = preprocess2Dapp(val,av,st);
     vcs_y = preprocess2Dapp(val_y,av_y,st_y);
     
-    AUC =  crossval_pls_da(rest,rest_y,lvs,blocks_r-1,prepx,prepy,0);
+    AUCt =  crossval_pls_da(rest,rest_y,lvs,blocks_r-1,prepx,prepy,0);
     
-    idx=find(AUC==max(AUC),1);
+    idx=find(AUCt==max(AUCt),1);
     lvso(i) = lvs(idx);
     
     if lvso(i)~=0,
