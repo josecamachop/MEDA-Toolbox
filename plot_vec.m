@@ -202,7 +202,7 @@ end
 % Plot multiplicity
 for j=1:length(bins)-1,
     ind = mult>bins(j) & mult<=bins(j+1);
-    plot(find(ind), 0*find(ind), 'kO', 'MarkerSize', sizes(j));
+    plot(find(ind), 0*find(ind), 'kO', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
 end
 
 % Plot control limits
