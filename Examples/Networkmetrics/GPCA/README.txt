@@ -1,17 +1,20 @@
 ﻿EDA example with GPCA using the MEDA Toolbox. 
 
 Coded by: José Camacho Páez
-Last modification of this document: 05/Apr/16
+Last modification of this document: 25/Jan/17
 
 References:
 
  Data set and Analisys: 
 
    J. Camacho, R.A. Rodríguez-Gómez, E. Saccenti, Group-wise Principal Component Analysis 
-	for Exploratory Data Analysis. Submitted to JCGS.
+	for Exploratory Data Analysis. Accepted in Journal of Computational and Graphical 
+	Statistics, 2017.
 
 
-The VAST 2012 2nd mini challenge is a benchmark for visualization in cybersecurity.
+The VAST 2012 2nd mini challenge is a benchmark for visualization in cybersecurity 
+(http://www.vacommunity.org/VAST+Challenge+2012)
+
 The goal is to identify cybersecurity issues in the data collected during two days from a
 computer network. During those days, a number of non-legitimate programs were found
 to be running on several computers, slowing them down. A cyber-forensics operation is
@@ -131,12 +134,16 @@ The variables in the data are:
 Items in the folder:
 
 - gpca.mat: data for the example
-	- var_l: labels of the variables
-	- weight: degree of relevance of the variables
+	- var_l: labels for the variables
+	- obs_l: labels for the observations (timestamp when the interval ends)
+	- weight: degree of relevance of the variables (published in journal)
+	- weight_alt: degree of relevance of the variables (revised according to description in folder Data, more sensible)
 	- x: data with 2350 observations on 95 variables
 
 - gpca_com.m: Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
 	current directory should be the one where the script is stored.
 
 - fortreemap.mat: file to upload to http://nesg.ugr.es/meda-visualization/ to issue the treemap visualization
+
+- Data: folder with information about original data (112 variables)
  

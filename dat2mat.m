@@ -31,10 +31,10 @@ function [list,var_l] = dat2mat(path,files,output_dir,opt,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 10/Mar/15.
+% last modification: 23/Jan/17
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -58,7 +58,10 @@ if nargin < 4, opt = 0; end;
 %% Main code
 
 d = dir(strcat(path,'/',files));
-mkdir(output_dir);
+
+if exist(output_dir) ~= 7 && exist(output_dir) ~= 5,
+    mkdir(output_dir);
+end
 list = {};
 for i=1:length(d),
     data = importdata(strcat(path,'/',d(i).name));
@@ -68,7 +71,11 @@ for i=1:length(d),
         obs_l = num2cell(x(:,1));
         x = x(:,2:end);
     else
-        obs_l = data.textdata(2:end);
+        obs_l = data.textdata(2:end,1);
+    end
+    
+    for j=1:length(obs_l)
+        obs_l{j} = strtrim(strrep(obs_l{j}, '''', ''));  % remove character '
     end
     
     if i==1,
@@ -79,14 +86,10 @@ for i=1:length(d),
     list{end+1} = strcat(output_dir,'/',d(i).name(1:end-4),'.mat');
         
     class = ones(size(x,1),1);
-    var_li = data.textdata{1};
+    var_l = data.textdata(1,2:end);
     
-    var_l = {};
-    while true
-        [str, var_li] = strtok(var_li, ',');
-        if isempty(str),  break;  end
-        str = regexprep(str,'^#(\w+)','$1');  % remove initial comment character '#', if exists
-        var_l{end+1} = strtrim(str);
+    for j=1:length(var_l)
+        var_l{j} = strtrim(strrep(var_l{j}, '''', ''));  % remove character ' 
     end
         
     x = x(:,vars);
@@ -95,6 +98,4 @@ for i=1:length(d),
     disp(strcat('Saving file: ',list{end}))
     save(list{end},'x','class','obs_l','var_l');
 end
-
-%var_l = strtrim(var_l);
 
