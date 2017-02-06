@@ -34,7 +34,7 @@
 % Security and Privacy in Big Data, Toronto (Canada), 2014.
 
 % coded by: José Camacho Páez.
-% last modification: 25/Jan/17.
+% last modification: 6/Feb/17.
 
 %% Inicialization, remember to set the path of the toolbox
 
@@ -95,13 +95,15 @@ save fortreemap names weights states
 for i=1:2,
     figure
     t = T(:,i); % score
-    lim = tinv(1-0.99,size(t,1)-1)*std(t)*sqrt(1+1/size(t,1));
+    lim = tinv(0.99,size(t,1)-1)*std(t)*sqrt(1+1/size(t,1));
+    timestamps{i} = obs_l(find(t>lim | t<-lim));
     subplot(2,1,1), plot(t,'.-'), hold on, plot(-lim*ones(size(t)),'r--'),plot(lim*ones(size(t)),'r--')
     ylabel('Scores'), axis tight,
     xlabel('Time')
     
     tit = {}; % title
     vars = find(P(ord,i));
+    variables{i} = var_l(ord(vars));
     for j=1:6:length(vars),
         tit{end+1} =  strjoin(var_l(ord(vars(j:min(j+5,length(vars))))));
     end
