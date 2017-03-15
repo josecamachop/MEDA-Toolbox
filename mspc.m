@@ -3,7 +3,8 @@ function [Dst,Qst] = mspc(testcs,invCT,R,Q)
 
 % Multivariate Statistical Process Control statistics
 %
-% Dst = mspc(testcs,invCT,R) % minimum call
+% Dst = mspc(testcs) % minimum call (only Q-st)
+% Dst = mspc(testcs,invCT,R) % minimum call for D-st and Q-st
 % [Dst,Qst] = mspc(testcs,invCT,R,Q) % complete call
 %
 %
@@ -60,10 +61,10 @@ function [Dst,Qst] = mspc(testcs,invCT,R,Q)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 31/Mar/16.
+% last modification: 22/Jan/17.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -82,9 +83,11 @@ function [Dst,Qst] = mspc(testcs,invCT,R,Q)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(testcs, 2);
+if nargin < 2, invCT = []; end;
 A = size(invCT, 1);
+if nargin < 3 || isempty(R), R = zeros(M,A); end;
 if nargin < 4 || isempty(Q), Q = R; end;
 
 % Validate dimensions of input data

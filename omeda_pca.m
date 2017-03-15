@@ -21,7 +21,8 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label)
 %   are preprocessed in the same way than calibration data
 %
 % dummy: [Lx1] dummy variable containing weights for the observations to 
-%   compare, and 0 for the rest of observations
+%   compare, and 0 for the rest of observations. By default all test
+%   observations are set to 1.
 %
 % prep: [1x1] preprocesing of the data
 %       0: no preprocessing
@@ -71,10 +72,10 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/16.
+% last modification: 22/Jan/17.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -93,13 +94,13 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 4, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
 if isempty(pcs), pcs = 1:rank(x); end;
 if isempty(test), test = x; end;
 L = size(test, 1);
-if isempty(dummy), dummyones(L,1); end;
+if nargin < 4 || isempty(dummy), dummy = ones(L,1); end;
 if nargin < 5 || isempty(prep), prep = 2; end;
 if nargin < 6 || isempty(opt), opt = '100'; end; 
 if nargin < 7 || isempty(label), label = 1:M; end

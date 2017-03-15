@@ -27,6 +27,15 @@ function X = simuleMV(obs,vars,lcorr,corM)
 %
 % X = simuleMV(100,10,6);
 % plot_map(corr(X)); % visualization 
+% var_pca(X)
+%
+%
+% EXAMPLE OF USE: To obtain a matrix 100x10 with random covariance matrix 
+%   of complete rank:
+%
+% X = simuleMV(100,10,8) + 0.1*randn(100,10);
+% plot_map(corr(X)); % visualization 
+% var_pca(X)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
