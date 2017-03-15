@@ -119,13 +119,13 @@ bel = zeros(1,max(lvs));
 R = zeros(M,max(lvs));
 ind = 1;
     
-for j = 1:max(lvs),  
+Rt = zeros(M,length(states));
+Tt = zeros(N,length(states));
+Wt = zeros(M,length(states));
+Pt = zeros(M,length(states));
+Qt = zeros(O,length(states));
     
-    Rt = zeros(M,length(states));
-    Tt = zeros(N,length(states));
-    Wt = zeros(M,length(states));
-    Pt = zeros(M,length(states));
-    Qt = zeros(O,length(states));
+for j = 1:max(lvs),  
 
     for i=1:length(states), % construct eigenvectors according to states
         if j==1 || ~isempty(intersect(states{i},states{ind}))
