@@ -133,15 +133,15 @@ for j = 1:max(lvs),
             map_aux(states{i},states{i})= map(states{i},states{i});
             mapy_aux = zeros(size(mapy));
             mapy_aux(states{i},:)= mapy(states{i},:);
-             if ~isnan(map_aux) & ~isinf(map_aux) % & rank(map_aux) & rank(mapy_aux),
-                 [betai,Wi,Pi,Qi] = kernel_pls(map_aux,mapy_aux,1);
-
-                 Rt(:,i) = B*Wi; % Dayal & MacGregor eq. (22)
-                 Tt(:,i) = xcs*Rt(:,i);
-                 Wt(:,i) = Wi;
-                 Pt(:,i) = Pi;
-                 Qt(:,i) = Qi;
-             end
+            if ~isnan(map_aux) & ~isinf(map_aux) % & rank(map_aux) & rank(mapy_aux),
+                [betai,Wi,Pi,Qi] = kernel_pls(map_aux,mapy_aux,1);
+                
+                Rt(:,i) = B*Wi; % Dayal & MacGregor eq. (22)
+                Tt(:,i) = xcs*Rt(:,i);
+                Wt(:,i) = Wi;
+                Pt(:,i) = Pi;
+                Qt(:,i) = Qi;
+            end
         end
     end
 
