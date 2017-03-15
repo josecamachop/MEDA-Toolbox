@@ -117,6 +117,7 @@ Q = zeros(O,max(lvs));
 T = zeros(N,max(lvs));
 bel = zeros(1,max(lvs));
 R = zeros(M,max(lvs));
+ind = 1;
     
 for j = 1:max(lvs),  
     
@@ -127,23 +128,25 @@ for j = 1:max(lvs),
     Qt = zeros(O,length(states));
 
     for i=1:length(states), % construct eigenvectors according to states
-        map_aux = zeros(size(map));
-        map_aux(states{i},states{i})= map(states{i},states{i});
-        mapy_aux = zeros(size(mapy));
-        mapy_aux(states{i},:)= mapy(states{i},:);
-         if ~isnan(map_aux) & ~isinf(map_aux) & rank(map_aux) & rank(mapy_aux),
-             [betai,Wi,Pi,Qi] = kernel_pls(map_aux,mapy_aux,1);
-             
-             Rt(:,i) = B*Wi; % Dayal & MacGregor eq. (22)
-             Tt(:,i) = xcs*Rt(:,i);
-             Wt(:,i) = Wi;
-             Pt(:,i) = Pi;
-             Qt(:,i) = Qi;
+        if j==1 || ~isempty(intersect(states{i},states{ind}))
+            map_aux = zeros(size(map));
+            map_aux(states{i},states{i})= map(states{i},states{i});
+            mapy_aux = zeros(size(mapy));
+            mapy_aux(states{i},:)= mapy(states{i},:);
+             if ~isnan(map_aux) & ~isinf(map_aux) % & rank(map_aux) & rank(mapy_aux),
+                 [betai,Wi,Pi,Qi] = kernel_pls(map_aux,mapy_aux,1);
+
+                 Rt(:,i) = B*Wi; % Dayal & MacGregor eq. (22)
+                 Tt(:,i) = xcs*Rt(:,i);
+                 Wt(:,i) = Wi;
+                 Pt(:,i) = Pi;
+                 Qt(:,i) = Qi;
+             end
         end
     end
 
     sS = sum((preprocess2D(Tt,2)'*ycs).^2,2); % select pseudo-eigenvector with the highest covariance
-    if max(sS),
+    if ~isnan(sS) & max(sS),
         ind = find(sS==max(sS),1);
     else
         break;
