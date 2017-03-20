@@ -119,34 +119,35 @@ bel = zeros(1,max(lvs));
 R = zeros(M,max(lvs));
 ind = 1;
     
-Rt = zeros(M,length(states));
-Tt = zeros(N,length(states));
-Wt = zeros(M,length(states));
-Pt = zeros(M,length(states));
-Qt = zeros(O,length(states));
-    
 for j = 1:max(lvs),  
 
+    Rt = zeros(M,length(states));
+    Tt = zeros(N,length(states));
+    Wt = zeros(M,length(states));
+    Pt = zeros(M,length(states));
+    Qt = zeros(O,length(states));
+
     for i=1:length(states), % construct eigenvectors according to states
-        if j==1 || ~isempty(intersect(states{i},states{ind}))
-            map_aux = zeros(size(map));
-            map_aux(states{i},states{i})= map(states{i},states{i});
-            mapy_aux = zeros(size(mapy));
-            mapy_aux(states{i},:)= mapy(states{i},:);
-            if ~isnan(map_aux) & ~isinf(map_aux) % & rank(map_aux) & rank(mapy_aux),
-                [betai,Wi,Pi,Qi] = kernel_pls(map_aux,mapy_aux,1);
-                
-                Rt(:,i) = B*Wi; % Dayal & MacGregor eq. (22)
-                Tt(:,i) = xcs*Rt(:,i);
-                Wt(:,i) = Wi;
-                Pt(:,i) = Pi;
-                Qt(:,i) = Qi;
+        mapy_aux = zeros(size(mapy));
+        mapy_aux(states{i},:)= mapy(states{i},:);
+        Wi = zeros(M,1);
+        if O == 1,
+            Wi = mapy_aux;
+        else
+            [C,D] = eig(mapy_aux'*mapy_aux);
+            dd = diag(D);
+            if find(dd)
+                Wi = (mapy_aux*C(:,find(dd==max(dd))));
             end
         end
+        
+        Rt(:,i) = B*Wi; % Dayal & MacGregor eq. (22)
+        Tt(:,i) = xcs*Rt(:,i);
+        Wt(:,i) = Wi;
     end
 
     sS = sum((preprocess2D(Tt,2)'*ycs).^2,2); % select pseudo-eigenvector with the highest covariance
-    if ~isnan(sS) & max(sS),
+    if max(sS),
         ind = find(sS==max(sS),1);
     else
         break;
@@ -154,16 +155,13 @@ for j = 1:max(lvs),
     R(:,j) = Rt(:,ind);
     T(:,j) = Tt(:,ind);
     W(:,j) = Wt(:,ind);
-    Q(:,j) = Qt(:,ind);
-    P(:,j) = Pt(:,ind);
+    Q(:,j) = Rt(:,ind)'*mapy/(Tt(:,ind)'*Tt(:,ind));
+    P(:,j) = Tt(:,ind)'*xcs/(Tt(:,ind)'*Tt(:,ind));
     bel(j) = ind;
     
-    %xcs = xcs - Tt(:,ind)*Pt(:,ind)'; % deflate (spls)
-	d = ycs'*Tt(:,ind)/(Tt(:,ind)'*Tt(:,ind));
-    ycs = ycs - Tt(:,ind)*d';
-	%map = xcs'*xcs;
-	mapy = xcs'*ycs;    
-    q = B*Wt(:,ind)*Pt(:,ind)';
+	mapyb = mapy - P(:,j)*Q(:,j)'*(T(:,j)'*T(:,j));
+
+    q = W(:,j)*P(:,j)';
     B = B*(I-q); 
     
 end
