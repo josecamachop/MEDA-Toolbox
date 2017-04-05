@@ -48,13 +48,13 @@ function [beta,W,P,Q,R,bel] = gpls(xcs,ycs,states,lvs)
 %
 % Xcs = preprocess2D(X,2);
 % Ycs = preprocess2D(Y,2);
-% [bel,states] = gia(map,0.3,1);
+% [bel,states] = gia(map,0.4,1);
 % [beta,W,P,Q,R,bel] = gpls(Xcs,Ycs,states,lvs);
 % 
 % plot_vec(beta,[],[],{'','Regression coefficients'});
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 04/Apr/17.
+% last modification: 4/Apr/17.
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez

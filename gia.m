@@ -1,10 +1,10 @@
-function [bel,states] = gia(map,gamma,siz)
+function [bel,states,stree] = gia(map,gamma,siz,stree)
 
 % Group identification algorithm (gia) to generate groups of variables from 
 % a correlation map of variables x variables.
 %
 % bel = gia(map)   % minimum call
-% [bel,states] = gia(map,gamma,siz)   % complete call
+% [bel,states] = gia(map,gamma,siz,stree)   % complete call
 %
 %
 % INPUTS:
@@ -15,12 +15,24 @@ function [bel,states] = gia(map,gamma,siz)
 %
 % siz: [1x1] Integer with the minimum size of groups (2 by default)
 %
+% stree: [struct] tree with GIA division, if previously executed. This
+%   structure makes reiterative GIA computations faster (empty by default)
+%   - tree: cell with division tree 
+%   - indm: number of variables above a given threshold
+%   - index: value for each tree division
+%
 %
 % OUTPUTS:
 %
 % bel: {Mx1} Cell with the list of groups each variable belongs to.
 %
 % states: {Sx1} Cell with the groups of variables.
+%
+% stree: [struct] tree with GIA division, if previously executed. This
+%   structure makes reiterative GIA computations faster.
+%   - tree: cell with division tree 
+%   - indm: number of variables above a given threshold
+%   - index: value for each tree division
 %
 %
 % EXAMPLE OF USE: Random data. Check the value in states:
@@ -32,7 +44,7 @@ function [bel,states] = gia(map,gamma,siz)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 20/Oct/16.
+% last modification: 5/Apr/17.
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -58,9 +70,10 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 M = size(map, 1);
 if nargin < 2 || isempty(gamma), gamma=0.7; end;
 if nargin < 3 || isempty(siz), siz=2; end;
+if nargin < 4 || isempty(stree), stree={}; end;
 
 % Avoid gamma with just 1
-if gamma==1, gamma = 1 -1e-10; end;
+%if gamma==1, gamma = 1 -1e-10; end;
 
 % Validate dimensions of input data
 assert (isequal(size(map), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
@@ -84,132 +97,143 @@ if gamma == 0,
     return
 end
 
-map = abs(map);
-indm = find(max(map)>gamma); % reduce map
-map = map(indm,indm);
-map_v = map - tril(map) + diag(diag(map)); % triangular inferior part is set to zero
-map_v = map_v(:);
+if gamma == 1,
+    states = {};
+    bel = cell(M,1);
+    return
+end
+
+if isempty(stree),
+    indm = find(max(map)>gamma); % reduce map
+else
+    indm = stree.indm;
+end
 M2 = M;
-M = size(map, 1);
+M = length(indm);
 
-columns = ones(M,1)*(1:M);
-rows = columns';
-columns_v = columns(:);
-rows_v = rows(:);
-
-states = {};
-bel = cell(M,1);
-
-
-ind = find(map_v==max(map_v),1);
-while map_v(ind)>=gamma,
+if isempty(stree),
     
-    r = rows_v(ind); % r is always minor than c
-    c = columns_v(ind);
+    map = abs(map);
+    map = map(indm,indm);
+    map_v = map - tril(map) + diag(diag(map)); % triangular inferior part is set to zero
+    map_v = map_v(:);
+
+    columns = ones(M,1)*(1:M);
+    rows = columns';
+    columns_v = columns(:);
+    rows_v = rows(:);
+
+    states = {};
+    bel = cell(M,1);
     
-    if c==r,
-        if isempty(bel{r})
-            states{end+1} = r;
-            bel{r} = [bel{r} length(states)];
-        end
-    else
-        bel_r = setdiff(bel{r},bel{c});
-        bel_c = setdiff(bel{c},bel{r});
-        
-        mod = 0;%zeros(length(bel_r),length(bel_c));
-        mod2 = 0;
-        states_n = {};
-        
-        for i = 1:length(bel_r), % Should two states be combined?
-            for j = 1:length(bel_c),
-                que = (map(states{bel_r(i)},states{bel_c(j)}) > gamma);
-                if isempty(find(~que)),
-                    mod(i,j) = 1;
-                    states_n{end+1} = [states{bel_r(i)} states{bel_c(j)}]; 
-                    map_v = reshape(map_v,M,M);
-                    map_v(states{bel_r(i)},states{bel_c(j)}) = 0;
-                    map_v(states{bel_c(j)},states{bel_r(i)}) = 0;
-                    map_v = map_v(:);
-                end
-            end
-        end
-        
-        if sum(sum(mod))
-            ind_r = find(sum(mod,2));
-            ind_c = find(sum(mod,1));
-            
-            delet = unique([bel_r(ind_r) bel_c(ind_c)]);
-            
-            states(delet) = [];
-            
-            states = [states_n states];
-            
-            bel = cell(M,1);
-            for j=1:length(states),
-                for i=1:length(states{j}),
-                    bel{states{j}(i)} = [bel{states{j}(i)} j];
-                end
-            end
-        end
-        
-        bel_r = setdiff(bel{r},bel{c});
-        bel_c = setdiff(bel{c},bel{r});
-        
-        for i=1:length(bel_r), % Should c be added to an state of r?
-            state_rec = states{bel_r(i)};
-            
-            j = 1;
-            while j<=length(state_rec) && map(state_rec(j),c)>gamma,
-                j = j+1;
-            end
-            
-            if j > length(state_rec),
-                for k = 1:length(state_rec),
-                    if state_rec(k)<c
-                        map_v(state_rec(k) + M*(c-1)) = 0;
-                    else
-                        map_v(c + M*(state_rec(k)-1)) = 0;
-                    end
-                end
-                
-                states{bel_r(i)} = [state_rec c];
-                bel{c} = [bel{c} bel_r(i)];
-                mod2 = 1;
-            end
-        end
-        
-        for i=1:length(bel_c), % Should r be added to an state of c?
-            state_rec = states{bel_c(i)};
-            
-            j = 1;
-            while j<=length(state_rec) && map(state_rec(j),r)>gamma,
-                j = j+1;
-            end
-            
-            if j > length(state_rec),
-                for k = 1:length(state_rec),
-                    if state_rec(k)<r
-                        map_v(state_rec(k) + M*(r-1)) = 0;
-                    else
-                        map_v(r + M*(state_rec(k)-1)) = 0;
-                    end
-                end
-                
-                states{bel_c(i)} = [state_rec r];
-                bel{r} = [bel{r} bel_c(i)];
-                mod2 = 1;   
-            end
-        end
-        
-        if ~sum(sum(mod)) && ~mod2 && isempty(intersect(bel{r},bel{c})),    % non additions: new state
-            states{end+1} = [r,c];
-            bel{r} = [bel{r} length(states)];
-            bel{c} = [bel{c} length(states)];
-        end
-    end
-    
-    map_v(ind) = 0;
     ind = find(map_v==max(map_v),1);
+    tree = {};
+    index = [];
+    while map_v(ind)>=gamma,
+        
+        val = map_v(ind);
+        
+        r = rows_v(ind); % r is always minor than c
+        c = columns_v(ind);
+        
+        if c==r,
+            if isempty(bel{r})
+                states{end+1} = r;
+                bel{r} = [bel{r} length(states)];
+            end
+        else
+            bel_r = setdiff(bel{r},bel{c});
+            bel_c = setdiff(bel{c},bel{r});
+            
+            mod = 0;
+            mod2 = 0;
+            states_n = {};
+            
+            for i = 1:length(bel_r), % Should two states be combined?
+                for j = 1:length(bel_c),
+                    if isempty(find(map(states{bel_r(i)},states{bel_c(j)}) < val-1e-10,1)),
+                        mod(i,j) = 1;
+                        states_n{end+1} = unique([states{bel_r(i)} states{bel_c(j)}]);
+                        %map_v = reshape(map_v,M,M);
+                        %map_v = map_v(:);
+                    end
+                end
+            end
+            
+            if sum(sum(mod))
+                ind_r = find(sum(mod,2));
+                ind_c = find(sum(mod,1));
+                
+                delet = unique([bel_r(ind_r) bel_c(ind_c)]);
+                
+                states(delet) = [];
+                
+                states = [states_n states];
+                
+                bel = cell(M,1);
+                for j=1:length(states),
+                    for i=1:length(states{j}),
+                        bel{states{j}(i)} = [bel{states{j}(i)} j];
+                    end
+                end
+            end
+            
+            bel_r = setdiff(bel{r},bel{c});
+            bel_c = setdiff(bel{c},bel{r});
+            
+            for i=1:length(bel_r), % Should c be added to an state of r?
+                state_rec = states{bel_r(i)};
+                
+                j = 1;
+                while j<=length(state_rec) && map(state_rec(j),c)> val-1e-10,
+                    j = j+1;
+                end
+                
+                if j > length(state_rec),
+                    states{bel_r(i)} = [state_rec c];
+                    bel{c} = [bel{c} bel_r(i)];
+                    mod2 = 1;
+                end
+            end
+            
+            for i=1:length(bel_c), % Should r be added to an state of c?
+                state_rec = states{bel_c(i)};
+                
+                j = 1;
+                while j<=length(state_rec) && map(state_rec(j),r)> val-1e-10,
+                    j = j+1;
+                end
+                
+                if j > length(state_rec),
+                    states{bel_c(i)} = [state_rec r];
+                    bel{r} = [bel{r} bel_c(i)];
+                    mod2 = 1;
+                end
+            end
+            
+            if ~sum(sum(mod)) && ~mod2 && isempty(intersect(bel{r},bel{c})),    % non additions: new state
+                states{end+1} = [r,c];
+                bel{r} = [bel{r} length(states)];
+                bel{c} = [bel{c} length(states)];
+            end
+        end
+        
+        map_v(ind) = 0;
+        ind = find(map_v==max(map_v),1);
+        
+        index(end+1) = val;
+        tree{end+1} = {states bel};
+    end
+else
+    j = find(stree.index>=gamma);
+    if isempty(j),
+        states = {};
+        bel = cell(M,1);
+        return
+    else
+        states = stree.tree{j(end)}{1};
+        bel = stree.tree{j(end)}{2};
+    end
 end
 
 vs = [];
@@ -237,3 +261,8 @@ for j=1:length(states),
     end
 end
 
+if isempty(stree),
+    stree.tree = tree;
+    stree.indm = indm;
+    stree.index = index;
+end
