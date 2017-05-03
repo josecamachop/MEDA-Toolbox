@@ -1304,7 +1304,7 @@ handles.data.sp_ID_figures=[handles.data.sp_ID_figures fig];%Identificadores de 
 handles.data.sp_matrix={handles.data.sp_matrix{:} matrixLVs_oMEDA};
 
 %oMEDA (Select)
-if ~(LV1 == 1 && LV2 == 1)
+if ~(LV1 == 1 && LV2 == 1)  && license('test', 'image_toolbox'),
     set(handles.selomedaButton,'Enable','on');
     %Set new close funtion to new figure
     set(gcf,'CloseRequestFcn',@score_closereq)
@@ -1470,7 +1470,12 @@ for l=1:M,
     end
 end
 
-handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
+if exist('handles.data.dummyGREEN')
+    handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
+else
+    handles.data.dummy{1,ID}=handles.data.dummyRED;
+end
+
 set(handles.omedaButton,'Enable','on');
 set(handles.trendButton,'Enable','on');
 guidata(hObject,handles);
@@ -1516,7 +1521,12 @@ for l=1:M,
     end
 end
 
-handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
+if exist('handles.data.dummyRED')
+    handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
+else
+    handles.data.dummy{1,ID}=handles.data.dummyGREEN;
+end
+
 set(handles.omedaButton,'Enable','on');
 set(handles.trendButton,'Enable','on');
 guidata(hObject,handles);
@@ -1981,7 +1991,7 @@ end
 handles.data.lp_ID_figures=[handles.data.lp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.lp_matrix={handles.data.lp_matrix{:} matrixLVs_MEDA_LP};
 
-if ~(LV1_LP == 1 && LV2_LP == 1)
+if ~(LV1_LP == 1 && LV2_LP == 1)  && license('test', 'image_toolbox'),
     set(handles.selmedaButton,'Enable','on');
     %Set new close funtion to new figure
     set(fig,'CloseRequestFcn',@loading_closereq)

@@ -1162,7 +1162,7 @@ handles.data.sp_ID_figures=[handles.data.sp_ID_figures fig];%Vector con los iden
 handles.data.sp_matrix={handles.data.sp_matrix{:} matrixPCs_oMEDA};
 
 %oMEDA (Select)
-if ~(handles.data.PC1 == 1 && handles.data.PC2 == 1)
+if ~(handles.data.PC1 == 1 && handles.data.PC2 == 1) && license('test', 'image_toolbox'),
     set(handles.selomedaButton,'Enable','on');
     %Set new close funtion to new figure
     set(gcf,'CloseRequestFcn',@score_closereq)
@@ -1851,7 +1851,7 @@ end
 handles.data.lp_ID_figures=[handles.data.lp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.lp_matrix={handles.data.lp_matrix{:} matrixPCs_MEDA_LP};
 
-if ~(handles.data.PC1_LP == 1 && handles.data.PC2_LP == 1)
+if ~(handles.data.PC1_LP == 1 && handles.data.PC2_LP == 1)  && license('test', 'image_toolbox'),
     set(handles.selmedaButton,'Enable','on');
     %Set new close funtion to new figure
     set(fig,'CloseRequestFcn',@loading_closereq)
