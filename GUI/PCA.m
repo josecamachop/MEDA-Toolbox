@@ -1333,6 +1333,13 @@ for l=1:M,
 end
 
 handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
+
+if exist('handles.data.dummyGREEN')
+    handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
+else
+    handles.data.dummy{1,ID}=handles.data.dummyRED;
+end
+
 set(handles.omedaButton,'Enable','on');
 set(handles.trendButton,'Enable','on');
 guidata(hObject,handles);
@@ -1379,7 +1386,12 @@ for l=1:M,
     end
 end
 
-handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
+if exist('handles.data.dummyRED')
+    handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
+else
+    handles.data.dummy{1,ID}=handles.data.dummyGREEN;
+end
+
 set(handles.omedaButton,'Enable','on');
 set(handles.trendButton,'Enable','on');
 guidata(hObject,handles);
