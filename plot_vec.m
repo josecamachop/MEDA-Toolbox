@@ -44,7 +44,7 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 19/Apr/2016
+% last modification: 03/May/2017
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -88,28 +88,28 @@ if size(lcont,1) == 1, lcont = lcont'; end;
 if size(vlabel,1)  == 1, vlabel = vlabel'; end;
 
 % Convert int arrays to str
-if ~isempty(elabel) && isnumeric(elabel), 
-    vecn = elabel; 
-    veci = 1:length(vecn);
-    if length(elabel)>2,  
-        max_lab = 30; % limit the number of labels displayed
-        ini = 2;
-        stepN = [];
-        while isempty(stepN),
-            lenv = length(vecn(ini:end));
-            div = 1:(lenv-1);
-            div = div(rem(lenv,div)==0);
-            stepN = div(find(div>lenv/max_lab,1));
-            ini = ini+1;
-        end
-        veci = 1:(lenv+ini-2);
-        veci = veci(round([1 (ini-2+stepN):stepN:end]));
-    end
-    for i=veci,
-        labele{i} = num2str(vecn(i));
-    end
-    elabel=labele'; 
-end
+% if ~isempty(elabel) && isnumeric(elabel), 
+%     vecn = elabel; 
+%     veci = 1:length(vecn);
+%     if length(elabel)>2,  
+%         max_lab = 30; % limit the number of labels displayed
+%         ini = 2;
+%         stepN = [];
+%         while isempty(stepN),
+%             lenv = length(vecn(ini:end));
+%             div = 1:(lenv-1);
+%             div = div(rem(lenv,div)==0);
+%             stepN = div(find(div>lenv/max_lab,1));
+%             ini = ini+1;
+%         end
+%         veci = 1:(lenv+ini-2);
+%         veci = veci(round([1 (ini-2+stepN):stepN:end]));
+%     end
+%     for i=veci,
+%         labele{i} = num2str(vecn(i));
+%     end
+%     elabel=labele'; 
+% end
 if ~isempty(vlabel) && isnumeric(vlabel), vlabel=num2str(vlabel); end
 
 % Convert char arrays to cell
@@ -159,7 +159,11 @@ if ~isempty(classes)
     unique_classes = unique(classes);
     color_list = hsv(length(unique_classes));
     if opt == '0',
-        plot(vec,'k','HandleVisibility', 'off');
+        if isnumeric(elabel)
+            plot(elabel,vec,'k','HandleVisibility', 'off');
+        else
+            plot(vec,'k','HandleVisibility', 'off');
+        end
     end  
     for i=1:length(unique_classes)
         ind = classes == unique_classes(i);
@@ -173,9 +177,17 @@ else
     color_list = hsv(M);
     for i=1:M,
         if opt == '0',
-            plot(vec(:,i), 'LineWidth', 2, 'Color', color_list(i,:), 'DisplayName', vlabel{i});
+            if isnumeric(elabel)
+                plot(elabel, vec(:,i), 'LineWidth', 2, 'Color', color_list(i,:), 'DisplayName', vlabel{i});
+            else
+                plot(vec(:,i), 'LineWidth', 2, 'Color', color_list(i,:), 'DisplayName', vlabel{i});
+            end
         else
-            bar(vec(:,i), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
+            if isnumeric(elabel)
+                bar(elabel, vec(:,i), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
+            else
+                bar(vec(:,i), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
+            end
         end
     end
 end
@@ -193,12 +205,13 @@ end
 % Get axes handler
 axes_h = get(fig_h,'Children');
 if length(axes_h)>1, axes_h = axes_h(1); end;
+set(axes_h, 'FontSize', 14);
 
 % Set ticks and labels
-label_length = max(cellfun('length', elabel));
-label_size = 300/(length(find(~cellfun('isempty', elabel)))*label_length);
-set(axes_h, 'FontSize', max(min(14,round(label_size)), 10));
-if ~isempty(elabel)
+if ~isempty(elabel) & ~isnumeric(elabel),
+    label_length = max(cellfun('length', elabel));
+    label_size = 300/(length(find(~cellfun('isempty', elabel)))*label_length);
+    set(axes_h, 'FontSize', max(min(14,round(label_size)), 10));
     stepN = ceil(0.2*N/label_size);
     if stepN==1,
         vals = 1:N;
