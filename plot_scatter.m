@@ -115,7 +115,14 @@ end
 
 % Plot points
 a=license('inuse');
-if strcmp(a(1).feature,'matlab'),
+lmatlab = false;
+for i=1:length(a),
+    if strcmp(a(i).feature,'matlab'),
+        lmatlab = true;
+    end
+end
+    
+if lmatlab    
     a = gscatter(bdata(:,1), bdata(:,2), classes, [], 'o');
     
     % Fill marks
