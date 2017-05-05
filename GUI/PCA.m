@@ -323,15 +323,19 @@ function dataPopup_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns dataPopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from dataPopup
 
-incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.WorkSpace{incoming_data};%Name of the incoming data position
-data_matrix=evalin('base',string_evaluation);%Data content in that name
-handles.data.data_matrix=data_matrix;
+if isequal(get(hObject,'Enable'),'on'),
+    incoming_data=get(hObject,'Value');%Incoming data position
+    string_evaluation=handles.data.WorkSpace{incoming_data};%Name of the incoming data position
+    data_matrix=evalin('base',string_evaluation);%Data content in that name
+    handles.data.data_matrix=data_matrix;
 
-%Summary Panel
-[M N]=size(data_matrix);
-sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
-handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    %Summary Panel
+    [M N]=size(handles.data.data_matrix);
+    sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(handles.data.data_matrix)),max(max(handles.data.data_matrix)));
+    handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+else
+    [M N]=size(handles.data.data_matrix);
+end
 
 %Change the selectPopup
 cellPopup = cell(1,N);
@@ -339,12 +343,6 @@ for i=1:N
     cellPopup{i} = num2str(i);
 end
 set(handles.selectPopup,'String',cellPopup);
-
-%Initialize dummy variable:
-N=size(data_matrix,1);%Number of observations
-dummy=zeros(1,N);
-handles.data.dummyRED=dummy;
-handles.data.dummyGREEN=dummy;
 
 set(handles.labscorePopup,'Value',1);
 handles.data.label={};
@@ -355,7 +353,6 @@ handles.data.label_LP={};
 set(handles.clasvarPopup,'Value',1);
 handles.data.classes_LP=[];
 
-handles.data.namePopupmenu6=string_evaluation;
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
