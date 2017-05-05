@@ -222,79 +222,12 @@ if length(varargin) > 1 & ~isempty(varargin{1}) & ~isempty(varargin{2})
             assert (isequal(fix(handles.data.LVs), handles.data.LVs), 'Value Error: 3th argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
             
             set(handles.lvsEdit,'Enable','off');
+            set(handles.lvsEdit,'Enable','off');
+            
+            plsButton_Callback(handles.plsButton, eventdata, handles);
+            
             set(handles.plsButton,'Enable','off');
-            
-            set(handles.xlvscorePopup, 'String',handles.data.LVs);
-            set(handles.ylvscorePopup, 'String',handles.data.LVs);
-            set(handles.xlvloadingPopup, 'String',handles.data.LVs);
-            set(handles.ylvloadingPopup, 'String',handles.data.LVs);
-            
-            %Imprimir en popupmenu de submenu MEDA todas las combinaciones posibles
-            %para hacer MEDA
-            k=min(handles.data.LVs);
-            options=[];
-            for i=min(handles.data.LVs):max(handles.data.LVs),
-                for j=k:max(handles.data.LVs),
-                    options=[options,i,j];
-                end
-                k=k+1;
-            end
-            
-            set(handles.medaPopup,'String','');
-            for i=1:2:(length(options)-1),
-                contents=get(handles.medaPopup,'String');
-                set(handles.medaPopup,'String',strvcat(contents,sprintf('%d:%d',options(i),options(i+1))));
-            end
-        
-            if handles.data.auxLVs==0,
-                handles.data.LV1=min(handles.data.LVs);
-                handles.data.LV2=min(handles.data.LVs);
-                handles.data.LV1_LP=min(handles.data.LVs);
-                handles.data.LV2_LP=min(handles.data.LVs);
-                handles.data.LVs_MEDA=sprintf('%d:%d',min(handles.data.LVs),min(handles.data.LVs));
-                handles.data.auxLVs=1;
-            end
-            
-            %Definición del estado de la interfaz tras pulsar PLS:
-            %Score plot
-            set(handles.xlvscorePopup,'Enable','on');
-            set(handles.ylvscorePopup,'Enable','on');
-            set(handles.scoreButton,'Enable','on');
-            set(handles.text7,'Enable','on');
-            set(handles.text8,'Enable','on');
-            set(handles.text15,'Enable','on');
-            set(handles.text16,'Enable','on');
-            set(handles.labscorePopup,'Enable','on');
-            set(handles.classcorePopup,'Enable','on');
-            
-            %MEDA
-            set(handles.discardRadio,'Enable','on');
-            set(handles.serRadio,'Enable','on');
-            set(handles.medaButton,'Enable','on');
-            set(handles.medaPopup,'Enable','on');
-            
-            %Loading plot
-            set(handles.text9,'Enable','on');
-            set(handles.text10,'Enable','on');
-            set(handles.xlvloadingPopup,'Enable','on');
-            set(handles.ylvloadingPopup,'Enable','on');
-            set(handles.text17,'Enable','on');
-            set(handles.text18,'Enable','on');
-            set(handles.clasloadingPopup,'Enable','on');
-            set(handles.labloadingPopup,'Enable','on');
-            set(handles.loadingButton,'Enable','on');
-            
-            %Residue
-            set(handles.resomedaButton,'Enable','on');
-            set(handles.resmedaButton,'Enable','on');
-            
-            %Model
-            set(handles.modelomedaButton,'Enable','on');
-            set(handles.modelmedaButton,'Enable','on');
-            
-            %Information panel:
-            text=sprintf('Model generated successully!');
-            handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
+      
         end
         
         if length(varargin) > 3 & ~isempty(varargin{4}),
@@ -304,6 +237,9 @@ if length(varargin) > 1 & ~isempty(varargin{1}) & ~isempty(varargin{2})
             assert (isequal(size(handles.data.prepX), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
             
             set(handles.xprepPopup,'Value',handles.data.prepX+1);
+            
+            xprepPopup_Callback(handles.xprepPopup, eventdata, handles);
+            
             set(handles.xprepPopup,'Enable','off');
             
                     
@@ -314,6 +250,9 @@ if length(varargin) > 1 & ~isempty(varargin{1}) & ~isempty(varargin{2})
                 assert (isequal(size(handles.data.prepY), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
                 
                 set(handles.yprepPopup,'Value',handles.data.prepY+1);
+            
+                yprepPopup_Callback(handles.yprepPopup, eventdata, handles);
+            
                 set(handles.yprepPopup,'Enable','off');
             end
         end

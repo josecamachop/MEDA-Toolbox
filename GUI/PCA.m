@@ -27,7 +27,7 @@ function varargout = PCA(varargin)
 % coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 12/Sep/15.
+% last modification: 03/May/17.
 %
 %
 % Copyright (C) 2016  University of Granada, Granada
@@ -69,7 +69,7 @@ function varargout = PCA(varargin)
 
 % Edit the above text to modify the response to help PCA
 
-% Last Modified by GUIDE v2.5 07-Apr-2016 09:28:22
+% Last Modified by GUIDE v2.5 05-May-2017 09:33:17
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -187,14 +187,17 @@ if length(varargin) > 0 & ~isempty(varargin{1})
     
     handles.data.data_matrix = varargin{1};
     
+    set(handles.dataPopup, 'String', 'X block');
+    set(handles.dataPopup,'Enable','off');
+    set(handles.dataPopup, 'Value', 1); 
+    dataPopup_Callback(handles.dataPopup, eventdata, handles);
+    
     M = size(handles.data.data_matrix, 2);
     N = size(handles.data.data_matrix, 1);
     
     assert (N>1, 'Dimension Error: Number of rows should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
     assert (M>1, 'Dimension Error: Number of columns should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
 
-    set(handles.dataPopup, 'String', 'X block');
-    set(handles.dataPopup,'Enable','off');
     set(handles.pushbutton1,'Enable','off');
     
     if length(varargin) > 1    
@@ -210,84 +213,13 @@ if length(varargin) > 0 & ~isempty(varargin{1})
             assert (isempty(find(handles.data.PCs<0)), 'Value Error: 2nd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
             assert (isequal(fix(handles.data.PCs), handles.data.PCs), 'Value Error: 2nd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
             
+            set(handles.pcEdit,'String',num2str(max(handles.data.PCs)));
             set(handles.pcEdit,'Enable','off');
+            
+            pcaButton_Callback(handles.pcaButton, eventdata, handles);
+            
             set(handles.pcaButton,'Enable','off');
             
-            set(handles.xpcscorePopup, 'String',handles.data.PCs);
-            set(handles.ypcscorePopup, 'String',handles.data.PCs);
-            set(handles.xpcvarPopup, 'String',handles.data.PCs);
-            set(handles.ypcvarPopup, 'String',handles.data.PCs);
-            
-            %Imprimir en popupmenu de submenu MEDA todas las combinaciones posibles
-            %para hacer MEDA
-            k=min(handles.data.PCs);
-            options=[];
-            for i=min(handles.data.PCs):max(handles.data.PCs),
-                for j=k:max(handles.data.PCs),
-                    options=[options,i,j];
-                end
-                k=k+1;
-            end
-            
-            set(handles.medaPopup,'String','');
-            for i=1:2:(length(options)-1),
-                contents=get(handles.medaPopup,'String');
-                set(handles.medaPopup,'String',strvcat(contents,sprintf('%d:%d',options(i),options(i+1))));
-            end
-            
-            if handles.data.auxPCs==0,
-                handles.data.PC1=min(handles.data.PCs);
-                handles.data.PC2=min(handles.data.PCs);
-                handles.data.PC1_LP=min(handles.data.PCs);
-                handles.data.PC2_LP=min(handles.data.PCs);
-                handles.data.PCs_MEDA=sprintf('%d:%d',min(handles.data.PCs),min(handles.data.PCs));
-                handles.data.auxPCs=1;
-            end
-            
-            [handles.data.matrixLoadings,handles.data.matrixScores]=pca_pp(handles.data.data_matrix,max(handles.data.PCs));
-            
-            %DefiniciÃ³n del estado de la interfaz tras pulsar PCA:
-            %Score plot
-            set(handles.xpcscorePopup,'Enable','on');
-            set(handles.ypcscorePopup,'Enable','on');
-            set(handles.scoreButton,'Enable','on');
-            set(handles.text7,'Enable','on');
-            set(handles.text8,'Enable','on');
-            set(handles.text13,'Enable','on');
-            set(handles.text14,'Enable','on');
-            set(handles.classcorePopup,'Enable','on');
-            set(handles.labscorePopup,'Enable','on');
-            
-            %MEDA
-            set(handles.discardRadio,'Enable','on');
-            set(handles.serRadio,'Enable','on');
-            set(handles.medaButton,'Enable','on');
-            set(handles.medaPopup,'Enable','on');
-            
-            %Loading plot
-            set(handles.text9,'Enable','on');
-            set(handles.text10,'Enable','on');
-            set(handles.xpcvarPopup,'Enable','on');
-            set(handles.ypcvarPopup,'Enable','on');
-            set(handles.medaButton,'Enable','on');
-            set(handles.text17,'Enable','on');
-            set(handles.text18,'Enable','on');
-            set(handles.clasvarPopup,'Enable','on');
-            set(handles.labvarPopup,'Enable','on');
-            set(handles.loadingButton,'Enable','on');
-            
-            %Residue
-            set(handles.resomedaButton,'Enable','on');
-            set(handles.resmedaButton,'Enable','on');
-            
-            %Model
-            set(handles.modelomedaButton,'Enable','on');
-            set(handles.modelmedaButton,'Enable','on');
-            
-            %Information panel:
-            text=sprintf('Model generated successully!');
-            handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
-        
         end
         
         if length(varargin) > 2 & ~isempty(varargin{3}),
@@ -297,10 +229,17 @@ if length(varargin) > 0 & ~isempty(varargin{1})
             assert (isequal(size(handles.data.prep), [1 1]), 'Dimension Error: 3th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
             
             set(handles.prepPopup,'Value',handles.data.prep+1);
+            
+            prepPopup_Callback(handles.prepPopup, eventdata, handles);
+            
             set(handles.prepPopup,'Enable','off');
         end
     end
+else
+    dataPopup_Callback(handles.dataPopup, eventdata, handles);
 end;
+
+    
 
 %Change icon
 %warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
@@ -402,8 +341,8 @@ end
 set(handles.selectPopup,'String',cellPopup);
 
 %Initialize dummy variable:
-M=size(data_matrix,1);%Number of observations
-dummy=zeros(1,M);
+N=size(data_matrix,1);%Number of observations
+dummy=zeros(1,N);
 handles.data.dummyRED=dummy;
 handles.data.dummyGREEN=dummy;
 
@@ -428,20 +367,12 @@ function dataPopup_CreateFcn(hObject, eventdata, handles)
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 handles.data.namePopupmenu6='';
-handles.data.data_matrix=[];
 handles.data.WorkSpace=evalin('base','who');%name of the variables in the workspace
 
 if ~isempty(handles.data.WorkSpace),
     set(hObject,'String',handles.data.WorkSpace);
     string_evaluation=handles.data.WorkSpace{1};%Name of the incoming data position
-    data_matrix=evalin('base',string_evaluation);%Data content in that name
-    handles.data.data_matrix=data_matrix;
     handles.data.namePopupmenu6=string_evaluation;
-    %Initialize dummy variable:
-    M=size(data_matrix,1);%Number of observations
-    dummy=zeros(1,M);
-    handles.data.dummyRED=dummy;
-    handles.data.dummyGREEN=dummy;
 else
     set(hObject,'String',' ');
 end
@@ -658,19 +589,6 @@ function information_message(handles)
     end
     handles.data.text=cprint(handles.infoText,text,handles.data.text,0);
 
-
-% --- Executes during object creation, after setting all properties.
-function pcEdit_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to pcEdit (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 % --- Executes on button press in generalButton.
 %pushbutton==VAR
 function generalButton_Callback(hObject, eventdata, handles)
@@ -832,8 +750,6 @@ handles.data.PCs_MEDA=sprintf('%d:%d',min(handles.data.PCs),min(handles.data.PCs
 handles.data.auxPCs=1;
 end
 
-[handles.data.matrixLoadings,handles.data.matrixScores]=pca_pp(handles.data.data_matrix,max(handles.data.PCs));
-
 %DefiniciÃ³n del estado de la interfaz tras pulsar PCA:
 %Score plot
 set(handles.xpcscorePopup,'Enable','on');
@@ -878,11 +794,6 @@ handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
 
 guidata(hObject,handles);
 
-% --- Executes during object creation, after setting all properties.
-function uipanel3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to uipanel3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%Score Plot Submenu%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -901,19 +812,6 @@ handles.data.PC1=incoming_data_PC1;
 
 guidata(hObject,handles);
 
-
-% --- Executes during object creation, after setting all properties.
-function xpcscorePopup_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to xpcscorePopup (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 % --- Executes on selection change in ypcscorePopup.
 %ypcscorePopup==PC Y-axes
 function ypcscorePopup_Callback(hObject, eventdata, handles)
@@ -927,18 +825,6 @@ incoming_data_PC2=get(hObject,'Value');%Incoming data position
 handles.data.PC2=incoming_data_PC2;
 
 guidata(hObject,handles);
-
-% --- Executes during object creation, after setting all properties.
-function ypcscorePopup_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to ypcscorePopup (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 
 % --- Executes on selection change in labscorePopup.
 %labscorePopup==Label
@@ -1612,18 +1498,6 @@ handles.data.PC1_LP=incoming_data_PC1_LP;
 
 guidata(hObject,handles);
 
-% --- Executes during object creation, after setting all properties.
-function xpcvarPopup_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to xpcvarPopup (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 
 % --- Executes on selection change in ypcvarPopup.
 %ypcvarPopup==PCs Y-axes
@@ -1640,17 +1514,6 @@ handles.data.PC2_LP=incoming_data_PC2_LP;
 guidata(hObject,handles);
 
 
-% --- Executes during object creation, after setting all properties.
-function ypcvarPopup_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to ypcvarPopup (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 
 
 % --- Executes on selection change in labvarPopup.
@@ -1912,15 +1775,6 @@ end
 guidata(hObject,handles);
 
 
-% --- Executes on button press in serRadio.
-%discardRadio==seriation
-function serRadio_Callback(hObject, eventdata, handles)
-% hObject    handle to serRadio (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of serRadio
-
 
 % --- Executes on selection change in medaPopup.
 %medaPopup==MEDA popupmenu
@@ -1940,17 +1794,7 @@ handles.data.PCs_MEDA=PCs_MEDA;
 
 guidata(hObject,handles);
 
-% --- Executes during object creation, after setting all properties.
-function medaPopup_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to medaPopup (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
 
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 
 % --- Executes on button press in medaButton.
 %medaButton==Plot (MEDA)
@@ -2127,16 +1971,6 @@ size_x = size(handles.data.data_matrix);
 num_var = size_x(2);
 E=leverages_pca(handles.data.data_matrix,max(handles.data.PCs)+1:num_var,handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%Information panel%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%infoText==Static text-Information panel
-% --- Executes during object creation, after setting all properties.
-function infoText_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to infoText (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
 
 % --- Executes on button press in modelomedaButton.
 function modelomedaButton_Callback(hObject, eventdata, handles)
@@ -2177,41 +2011,6 @@ if handles.data.messageNum > 0
 end
 guidata(hObject,handles);
 
-% --- Executes on button press in crossButton.
-function crossButton_Callback(hObject, eventdata, handles)
-% hObject    handle to crossButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in sviButton.
-function sviButton_Callback(hObject, eventdata, handles)
-% hObject    handle to sviButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-
-function generalEdit_Callback(hObject, eventdata, handles)
-% hObject    handle to generalEdit (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of generalEdit as text
-%        str2double(get(hObject,'String')) returns contents of generalEdit as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function generalEdit_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to generalEdit (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
 
 
 % --- Executes on selection change in generalPopup.
@@ -2235,37 +2034,3 @@ switch generalSelection
 end
 guidata(hObject,handles);
 
-% --- Executes during object creation, after setting all properties.
-function generalPopup_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to generalPopup (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in selectPopup.
-function selectPopup_Callback(hObject, eventdata, handles)
-% hObject    handle to selectPopup (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns selectPopup contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from selectPopup
-
-
-% --- Executes during object creation, after setting all properties.
-function selectPopup_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to selectPopup (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
