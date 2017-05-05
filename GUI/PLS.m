@@ -1354,11 +1354,12 @@ else
     return;
 end
 
-M=size(handles.data.data_matrixX,1);
+N=size(handles.data.data_matrixX,1);
 CortesVector=handles.data.CORTES{1,ID};
 matrix_2LVs=handles.data.matrix_2LVs{1,ID};
 
-for l=1:M,
+handles.data.dummyRED = zeros(1,N);
+for l=1:N,
     if mod(CortesVector(l),2)==1,
         Xdata=matrix_2LVs(l,1);
         Ydata=matrix_2LVs(l,2);
@@ -1407,11 +1408,12 @@ else
     return;
 end
 
-M=size(handles.data.data_matrixX,1);
+N=size(handles.data.data_matrixX,1);
 CortesVector=handles.data.CORTES{1,ID};
 matrix_2LVs=handles.data.matrix_2LVs{1,ID};
 
-for l=1:M,
+handles.data.dummyGREEN = zeros(1,N);
+for l=1:N,
     if mod(CortesVector(l),2)==1,
         Xdata=matrix_2LVs(l,1);
         Ydata=matrix_2LVs(l,2);
