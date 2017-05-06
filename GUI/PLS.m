@@ -1982,7 +1982,8 @@ end
 
 check_tag=get(ID,'Tag');
 if strcmp(check_tag,'LoadingPlot'),
-    figure(ID);%Ya tengo el score plot pinchado(al que le quiero hacer oMEDA) en primera plana.
+    figure(ID);%Ya tengo el score plot pinchado(al que le quiero hacer oMEDA) en primera plana.   
+    hold on;
 else
     errordlg('To perform MEDA over a Loading Plot you must select one loading plot.');
 end
@@ -2080,9 +2081,9 @@ for l=1:M,
         
         coord=plot(Xdata,Ydata);
         set(coord,'marker','o');
-        set(coord,'markersize',6);
-        set(coord,'markerfacecolor','b');
-        set(coord,'markeredgecolor','b');
+        %set(coord,'markersize',6);
+        set(coord,'markerfacecolor', [0 0 0]+0.9);
+        set(coord,'markeredgecolor', 'k');
         
         vector_vars=[vector_vars l];
     end
@@ -2091,9 +2092,9 @@ end
 if get(handles.discardRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
     handles.data.opt='101';
 else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
-        handles.data.opt='011';
+        handles.data.opt='110';
     else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0,
-            handles.data.opt='001';
+            handles.data.opt='100';
         else handles.data.opt='111';
         end
     end
