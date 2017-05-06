@@ -96,7 +96,6 @@ else
 end
 % End initialization code - DO NOT EDIT
 
-
 % --- Executes just before PLS is made visible.
 function PLS_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
@@ -107,56 +106,6 @@ function PLS_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for PLS
 handles.output = hObject;
-
-%Definición del estado inicial de la interfaz gráfica PLS:
-
-%Score plot
-set(handles.text7,'Enable','off');
-set(handles.text8,'Enable','off');
-set(handles.xlvscorePopup,'Enable','off');
-set(handles.ylvscorePopup,'Enable','off');
-set(handles.text15,'Enable','off');
-set(handles.text16,'Enable','off');
-set(handles.labscorePopup,'Enable','off');
-set(handles.classcorePopup,'Enable','off');
-set(handles.scoreButton,'Enable','off');
-
-%MEDA
-set(handles.medaPopup,'Enable','off');
-set(handles.medaPopup,'String',' ');
-set(handles.text5,'Enable','off');
-set(handles.thresEdit,'Enable','off');
-set(handles.discardRadio,'Enable','off');
-set(handles.serRadio,'Enable','off');
-set(handles.medaButton,'Enable','off');
-set(handles.selmedaButton,'Enable','off');
-
-%oMEDA
-set(handles.omedaButton,'Enable','off');
-set(handles.selomedaButton,'Enable','off');
-set(handles.minusButton,'Enable','off');
-set(handles.plusButton,'Enable','off');
-set(handles.cleanButton,'Enable','off');
-set(handles.trendButton,'Enable','off');
-
-%Loading plot
-set(handles.text9,'Enable','off');
-set(handles.text10,'Enable','off');
-set(handles.xlvloadingPopup,'Enable','off');
-set(handles.ylvloadingPopup,'Enable','off');
-set(handles.text17,'Enable','off');
-set(handles.text18,'Enable','off');
-set(handles.clasloadingPopup,'Enable','off');
-set(handles.labloadingPopup,'Enable','off');
-set(handles.loadingButton,'Enable','off');
-
-%Residue
-set(handles.resomedaButton,'Enable','off');
-set(handles.resmedaButton,'Enable','off');
-
-%Model
-set(handles.modelomedaButton,'Enable','off');
-set(handles.modelmedaButton,'Enable','off');
 
 %Summary Pannel:
 handles.data.sumtext = [];
@@ -282,9 +231,6 @@ end;
 % Update handles structure
 guidata(hObject, handles);
 
-% UIWAIT makes PLS wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
-
 % --- Outputs from this function are returned to the command line.
 function varargout = PLS_OutputFcn(hObject, eventdata, handles)
 % varargout  cell array for returning output args (see VARARGOUT);
@@ -295,21 +241,23 @@ function varargout = PLS_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-%Function to be executed on closing a Loading Plot
+% --- Function to be executed on closing a Loading Plot
 function loading_closereq(hObject, eventdata)
 % hObject    handle to YourGuiName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 selmedaButton = guidata(hObject);
 if isscalar(findobj('Tag','LoadingPlot'))
-    set(selmedaButton,'Enable','off');
+    if isvalid(selmedaButton)
+        set(selmedaButton,'Enable','off');
+    end
 end
 shh=get(0,'ShowHiddenHandles');
 set(0,'ShowHiddenHandles','on');
 delete(get(0,'CurrentFigure'));
 set(0,'ShowHiddenHandles',shh);
 
-%Function to be executed on closing a Score plot
+% --- Function to be executed on closing a Score plot
 function score_closereq(hObject, eventdata)
 % hObject    handle to YourGuiName (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -325,10 +273,7 @@ set(0,'ShowHiddenHandles','on');
 delete(get(0,'CurrentFigure'));
 set(0,'ShowHiddenHandles',shh);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%PLS Analysis%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Function to get the current string in a popupmenu
+% --- Function to get the current string in a popupmenu
 function str = getCurrentPopupString(hh)
 %# getCurrentPopupString returns the currently selected string in the popupmenu with handle hh
 
@@ -346,7 +291,7 @@ else
    str = list(val,:);
 end
 
-% Fuction to show the corresponding message in the information panel
+% --- Fuction to show the corresponding message in the information panel
 function information_message(handles)
     switch handles.data.messageNum
         case 0
@@ -376,9 +321,7 @@ function information_message(handles)
     end
     handles.data.text=cprint(handles.inforText,text,handles.data.text,0);
 
-
 % --- Executes on selection change in xdataPopup.
-%xdataPopup==X Data
 function xdataPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to xdataPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -389,6 +332,15 @@ function xdataPopup_Callback(hObject, eventdata, handles)
 
 
 if isequal(get(hObject,'Enable'),'on'),
+    
+    if ~isempty(handles.data.WorkSpace),
+        handles = state_change(handles,1);
+    else
+        handles = state_change(handles,0);
+        guidata(hObject, handles);
+        return
+    end
+    
     incoming_data=get(hObject,'Value');%Incoming data position
     string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posición
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
@@ -420,7 +372,6 @@ function xdataPopup_CreateFcn(hObject, eventdata, handles)
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 handles.data.nameData='';
-handles.data.data_matrixX=[];
 handles.data.WorkSpace=evalin('base','who');%nombres de las variables
 
 if ~isempty(handles.data.WorkSpace),
@@ -428,14 +379,6 @@ if ~isempty(handles.data.WorkSpace),
     string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posición
     handles.data.nameData=string_evaluation;
 else
-    child=get(handles.uipanelGen,'Children');
-    for i=1:length(child),
-        set(child(i),'Enable','off');
-    end
-    child=get(handles.uipanelPCA,'Children');
-    for i=1:length(child),
-        set(child(i),'Enable','off');
-    end
     set(hObject,'String',' ');
 end
 
@@ -446,7 +389,6 @@ end
 guidata(hObject, handles);
 
 % --- Executes on selection change in ydataPopup.
-%ydataPopup==Y Data
 function ydataPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to ydataPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -456,6 +398,15 @@ function ydataPopup_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from ydataPopup
 
 if isequal(get(hObject,'Enable'),'on'),
+    
+    if ~isempty(handles.data.WorkSpace),
+        handles = state_change(handles,1);
+    else
+        handles = state_change(handles,0);
+        guidata(hObject, handles);
+        return
+    end
+    
     incoming_data=get(hObject,'Value');%Incoming data position
     string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posición
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
@@ -486,23 +437,14 @@ function ydataPopup_CreateFcn(hObject, eventdata, handles)
 
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-handles.data.namePopupmenu14='';
-handles.data.data_matrixY=[];
+handles.data.nameDatay='';
 handles.data.WorkSpace=evalin('base','who');%nombres de las variables
 
 if ~isempty(handles.data.WorkSpace),
     set(hObject,'String',handles.data.WorkSpace);
     string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posición
-    data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si) 
+    handles.data.nameDatay=string_evaluation; 
 else
-    child=get(handles.uipanelGen,'Children');
-    for i=1:length(child),
-        set(child(i),'Enable','off');
-    end
-    child=get(handles.uipanelPCA,'Children');
-    for i=1:length(child),
-        set(child(i),'Enable','off');
-    end
     set(hObject,'String',' ');
 end
 
@@ -513,7 +455,6 @@ end
 guidata(hObject, handles);
 
 % --- Executes on button press in refreshbutton.
-%refreshbutton==Refresh
 function refreshbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to refreshbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -522,14 +463,11 @@ handles.data.WorkSpace=evalin('base','who');
 
 if ~isempty(handles.data.WorkSpace),
     
-    child=get(handles.uipanelGen,'Children');
-    for i=1:length(child),
-        set(child(i),'Enable','on');
-    end
-    child=get(handles.uipanelPCA,'Children');
-    for i=1:length(child),
-        set(child(i),'Enable','on');
-    end
+    xdataPopup_Callback(handles.xdataPopup, eventdata, handles);
+    handles = guidata(handles.xdataPopup);
+    ydataPopup_Callback(handles.ydataPopup, eventdata, handles);
+    handles = guidata(handles.ydataPopup);
+    
     generalPopup_Callback(handles.generalPopup, eventdata, handles);
     handles = guidata(handles.generalPopup);
     
@@ -547,9 +485,9 @@ if ~isempty(handles.data.WorkSpace),
     
     set(handles.ydataPopup, 'String', handles.data.WorkSpace);
     nombres=cellstr(get(handles.ydataPopup,'String'));
-    if ~isempty(handles.data.namePopupmenu14),
+    if ~isempty(handles.data.nameDatay),
         for i=1:length(nombres),
-            if strcmp(nombres(i),handles.data.namePopupmenu14),
+            if strcmp(nombres(i),handles.data.nameDatay),
                 val=i;
             end
         end
@@ -563,10 +501,10 @@ if ~isempty(handles.data.WorkSpace),
         handles.data.data_matrixX=data_matrix;
         handles.data.nameData=string_evaluation;
         
-        string_evaluation=handles.data.WorkSpace{2};%Nombre correspondiente a la posición
+        string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posición
         data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
         handles.data.data_matrixY=data_matrix;
-        handles.data.namePopupmenu14=string_evaluation;
+        handles.data.nameDatay=string_evaluation;
     end
     
     %Refresh de los popupmenus Label y Classes:
@@ -672,14 +610,7 @@ else
     set(handles.ydataPopup, 'String',' ');
     handles.data.data_matrixY=[];
     
-    child=get(handles.uipanelGen,'Children');
-    for i=1:length(child),
-        set(child(i),'Enable','off');
-    end
-    child=get(handles.uipanelPCA,'Children');
-    for i=1:length(child),
-        set(child(i),'Enable','off');
-    end
+    handles = state_change(handles,0);
     
     contents=get(handles.classcorePopup,'String');
     aux=[];
@@ -722,9 +653,7 @@ handles.data.LVs = LVs;
 
 guidata(hObject,handles);
 
-
 % --- Executes on button press in generalButton.
-%pushbutton==VAR
 function generalButton_Callback(hObject, eventdata, handles)
 % hObject    handle to generalButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -762,7 +691,6 @@ switch generalPlot
 end
 
 % --- Executes on selection change in xprepPopup.
-%xprepPopup==X Prep
 function xprepPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to xprepPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -817,7 +745,6 @@ set(hObject, 'Value', 2);%Default value for the preprocessing method: mean-cente
 xprepPopup_Callback(hObject, eventdata, handles)%Para llamar al valor por defecto
 
 % --- Executes on selection change in yprepPopup.
-%yprepPopup==Y Prep
 function yprepPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to yprepPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -872,7 +799,6 @@ set(hObject, 'Value', 2);%Default value for the preprocessing method: mean-cente
 yprepPopup_Callback(hObject, eventdata, handles)%Para llamar al valor por defecto
 
 % --- Executes on button press in plsButton.
-%plsButton==PLS
 function plsButton_Callback(hObject, eventdata, handles)
 % hObject    handle to plsButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -937,55 +863,14 @@ handles.data.LVs_MEDA=sprintf('%d:%d',min(handles.data.LVs),min(handles.data.LVs
 handles.data.auxLVs=1;
 end
 
-%Definición del estado de la interfaz tras pulsar PLS:
-%Score plot
-set(handles.xlvscorePopup,'Enable','on');
-set(handles.ylvscorePopup,'Enable','on');
-set(handles.scoreButton,'Enable','on');
-set(handles.text7,'Enable','on');
-set(handles.text8,'Enable','on');
-set(handles.text15,'Enable','on');
-set(handles.text16,'Enable','on');
-set(handles.labscorePopup,'Enable','on');
-set(handles.classcorePopup,'Enable','on');
-
-%MEDA
-set(handles.discardRadio,'Enable','on');
-set(handles.serRadio,'Enable','on');
-set(handles.medaButton,'Enable','on');
-set(handles.medaPopup,'Enable','on');
-
-%Loading plot
-set(handles.text9,'Enable','on');
-set(handles.text10,'Enable','on');
-set(handles.xlvloadingPopup,'Enable','on');
-set(handles.ylvloadingPopup,'Enable','on');
-set(handles.text17,'Enable','on');
-set(handles.text18,'Enable','on');
-set(handles.clasloadingPopup,'Enable','on');
-set(handles.labloadingPopup,'Enable','on');
-set(handles.loadingButton,'Enable','on');
-
-%Residue
-set(handles.resomedaButton,'Enable','on');
-set(handles.resmedaButton,'Enable','on');
-
-%Model
-set(handles.modelomedaButton,'Enable','on');
-set(handles.modelmedaButton,'Enable','on');
+handles = state_change(handles, 2);
 
 %Information panel:
 text=sprintf('Model generated successully!');
 handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
 guidata(hObject,handles);
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%Score Plot Submenu%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % --- Executes on selection change in xlvscorePopup.
-%xlvscorePopup==LV X-axes
 function xlvscorePopup_Callback(hObject, eventdata, handles)
 % hObject    handle to xlvscorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -998,9 +883,7 @@ handles.data.LV1=incoming_data_LV1;
 
 guidata(hObject,handles);
 
-
 % --- Executes on selection change in ylvscorePopup.
-%ylvscorePopup==LV Y-axes
 function ylvscorePopup_Callback(hObject, eventdata, handles)
 % hObject    handle to ylvscorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1014,7 +897,6 @@ handles.data.LV2=incoming_data_LV2;
 guidata(hObject,handles);
 
 % --- Executes on selection change in labscorePopup.
-%labscorePopup==Label
 function labscorePopup_Callback(hObject, eventdata, handles)
 % hObject    handle to labscorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1088,7 +970,6 @@ handles.data.nameLabscore='emptylabel';
 guidata(hObject, handles);
 
 % --- Executes on selection change in classcorePopup.
-%classcorePopup==Classes
 function classcorePopup_Callback(hObject, eventdata, handles)
 % hObject    handle to classcorePopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1162,7 +1043,6 @@ handles.data.classcore=classcore;
 guidata(hObject, handles);
 
 % --- Executes on button press in scoreButton.
-%Pushbutton==Plot
 function scoreButton_Callback(hObject, eventdata, handles)
 % hObject    handle to scoreButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1238,11 +1118,7 @@ end
 
 guidata(hObject,handles);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%oMEDA Submenu%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % --- Executes on button press in selomedaButton.
-%selomedaButton==SELECT
 function selomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to selomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1354,7 +1230,6 @@ handles.data.clean_control(ID)=handles.data.clean_control(ID)+1;
 guidata(hObject,handles);
 
 % --- Executes on button press in minusButton.
-%minusButton==- -> RED
 function minusButton_Callback(hObject, eventdata, handles)
 % hObject    handle to minusButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1407,7 +1282,6 @@ set(handles.trendButton,'Enable','on');
 guidata(hObject,handles);
 
 % --- Executes on button press in plusButton.
-%plusButton==+ -> GREEN
 function plusButton_Callback(hObject, eventdata, handles)
 % hObject    handle to plusButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1458,9 +1332,7 @@ set(handles.omedaButton,'Enable','on');
 set(handles.trendButton,'Enable','on');
 guidata(hObject,handles);
 
-
 % --- Executes on button press in trendButton.
-%trendButton==TREND LINE
 function trendButton_Callback(hObject, eventdata, handles)
 % hObject    handle to trendButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1572,7 +1444,6 @@ handles.data.clean_control(ID)=handles.data.clean_control(ID)+1;
 guidata(hObject,handles);
 
 % --- Executes on button press in cleanButton.
-%cleanButton==CLEAN
 function cleanButton_Callback(hObject, eventdata, handles)
 % hObject    handle to cleanButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1611,7 +1482,6 @@ handles.data.dummyGREEN=dummy;
 guidata(hObject,handles);
 
 % --- Executes on button press in omedaButton.
-%omedaButton==Plot (oMEDA)
 function omedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to omedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1647,22 +1517,15 @@ end
 
 guidata(hObject,handles);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Residue%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % --- Executes on button press in resomedaButton.
-%resomedaButton==Plot(residue)
 function resomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,0,handles.data.label,handles.data.classes);
 plot_vec(Qst, handles.data.label,handles.data.classes, {[],'Q-st'},UCLq);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Loading Plot%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % --- Executes on selection change in xlvloadingPopup.
-%xlvloadingPopup==LVs X-axes
 function xlvloadingPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to xlvloadingPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1675,9 +1538,7 @@ handles.data.LV1_LP=incoming_data_LV1_LP;
 
 guidata(hObject,handles);
 
-
 % --- Executes on selection change in ylvloadingPopup.
-%ylvloadingPopup==LVs Y-axes
 function ylvloadingPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to ylvloadingPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1690,10 +1551,7 @@ handles.data.LV2_LP=incoming_data_LV2_LP;
 
 guidata(hObject,handles);
 
-
-
 % --- Executes on selection change in labloadingPopup.
-%labloadingPopup==Label
 function labloadingPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to labloadingPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1765,9 +1623,7 @@ set(hObject,'Value',val);
 handles.data.labvar=labvar;
 guidata(hObject, handles);
 
-
 % --- Executes on selection change in clasloadingPopup.
-%clasloadingPopup==Classes
 function clasloadingPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to clasloadingPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1840,7 +1696,6 @@ handles.data.clasvar=clasvar;
 guidata(hObject, handles);
 
 % --- Executes on button press in loadingButton.
-%loadingButton==Plot (loading plot)
 function loadingButton_Callback(hObject, eventdata, handles)
 % hObject    handle to loadingButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1898,9 +1753,6 @@ end
 
 guidata(hObject,handles);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%MEDA Submenu%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %thresEdit==thresold
 function thresEdit_Callback(hObject, eventdata, handles)
 % hObject    handle to thresEdit (see GCBO)
@@ -1929,7 +1781,6 @@ set(hObject, 'String', 0.1);
 thresEdit_Callback(hObject, eventdata, handles);
 
 % --- Executes on button press in discardRadio.
-%discardRadio==thresold
 function discardRadio_Callback(hObject, eventdata, handles)
 % hObject    handle to discardRadio (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1946,9 +1797,7 @@ end
 
 guidata(hObject,handles);
 
-
 % --- Executes on selection change in medaPopup.
-%medaPopup==MEDA popupmenu
 function medaPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to medaPopup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1965,10 +1814,7 @@ handles.data.LVs_MEDA=LVs_MEDA;
 
 guidata(hObject,handles);
 
-
-
 % --- Executes on button press in medaButton.
-%medaButton==Plot (MEDA)
 function medaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to medaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1997,7 +1843,6 @@ end
 guidata(hObject,handles);
 
 % --- Executes on button press in selmedaButton.
-%selmedaButton==Select (MEDA)
 function selmedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to selmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -2131,11 +1976,7 @@ end
 [meda_map,meda_dis]=meda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(handles.data.LV1_LP,handles.data.LV2_LP) max(handles.data.LV1_LP,handles.data.LV2_LP)],handles.data.prepX,handles.data.prepY,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
 guidata(hObject,handles);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Residue%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % --- Executes on button press in resmedaButton.
-%resmedaButton==Plot (residue)
 function resmedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -2143,7 +1984,6 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 size_x = size(handles.data.data_matrixX);
 num_var = size_x(2);
 E=leverages_pls(handles.data.data_matrixX,handles.data.data_matrixY,max(handles.data.LVs)+1:num_var,handles.data.prepX,handles.data.prepY,1,handles.data.label_LP,handles.data.classes_LP);
-
 
 % --- Executes on button press in modelmedaButton.
 function modelmedaButton_Callback(hObject, eventdata, handles)
@@ -2159,6 +1999,7 @@ function modelomedaButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,0,handles.data.label,handles.data.classes);
 plot_vec(Dst, handles.data.label,handles.data.classes, {[],'D-st'},UCLd);
+
 % --- Executes on selection change in generalPopup.
 function generalPopup_Callback(hObject, eventdata, handles)
 % hObject    handle to generalPopup (see GCBO)
@@ -2178,8 +2019,6 @@ switch generalSelection
         set(handles.selectPopup,'Enable','off');
 end
 guidata(hObject,handles);
-
-
 
 % --- Executes on button press in prevButton.
 function prevButton_Callback(hObject, eventdata, handles)
@@ -2202,4 +2041,86 @@ if handles.data.messageNum < handles.data.messageNum_max
     information_message(handles);
 end
 guidata(hObject,handles);
+
+% --- Change state of enabled elements in GUI, only main changes are
+function handles = state_change(handles, state)
+
+switch state,
+    
+    case 0,
+        state_gen = 'off';
+        state_bas = 'off';
+        state_omeda = 'off';
+        
+    case 1,
+        state_gen = 'on';
+        state_bas = 'off';
+        state_omeda = 'off';
+        
+    case 2,
+        state_gen = 'on';
+        state_bas = 'on';
+        state_omeda = 'off';
+        
+end
+        
+%Score plot
+set(handles.text7,'Enable',state_bas);
+set(handles.text8,'Enable',state_bas);
+set(handles.xlvscorePopup,'Enable',state_bas);
+set(handles.ylvscorePopup,'Enable',state_bas);
+set(handles.text15,'Enable',state_bas);
+set(handles.text16,'Enable',state_bas);
+set(handles.classcorePopup,'Enable',state_bas);
+set(handles.labscorePopup,'Enable',state_bas);
+set(handles.scoreButton,'Enable',state_bas);
+
+%MEDA
+set(handles.medaPopup,'Enable',state_bas);
+set(handles.text5,'Enable',state_bas);
+set(handles.thresEdit,'Enable',state_bas);
+set(handles.discardRadio,'Enable',state_bas);
+set(handles.serRadio,'Enable',state_bas);
+set(handles.medaButton,'Enable',state_bas);
+set(handles.selmedaButton,'Enable',state_bas);
+
+%Loading plot
+set(handles.text9,'Enable',state_bas);
+set(handles.text10,'Enable',state_bas);
+set(handles.xlvloadingPopup,'Enable',state_bas);
+set(handles.ylvloadingPopup,'Enable',state_bas);
+set(handles.text17,'Enable',state_bas);
+set(handles.text18,'Enable',state_bas);
+set(handles.clasloadingPopup,'Enable',state_bas);
+set(handles.labloadingPopup,'Enable',state_bas);
+set(handles.medaButton,'Enable',state_bas);
+set(handles.loadingButton,'Enable',state_bas);
+
+%Residue
+set(handles.resomedaButton,'Enable',state_bas);
+set(handles.resmedaButton,'Enable',state_bas);
+
+%Model
+set(handles.modelomedaButton,'Enable',state_bas);
+set(handles.modelmedaButton,'Enable',state_bas);
+
+%oMEDA
+set(handles.omedaButton,'Enable',state_omeda);
+set(handles.selomedaButton,'Enable',state_omeda);
+set(handles.minusButton,'Enable',state_omeda);
+set(handles.plusButton,'Enable',state_omeda);
+set(handles.cleanButton,'Enable',state_omeda);
+set(handles.trendButton,'Enable',state_omeda);
+
+%Preprocessing
+child=get(handles.uipanelGen,'Children');
+for i=1:length(child),
+    set(child(i),'Enable',state_gen);
+end
+
+%General plots
+child=get(handles.uipanelPLS,'Children');
+for i=1:length(child),
+    set(child(i),'Enable',state_gen);
+end
 
