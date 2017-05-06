@@ -562,7 +562,7 @@ function information_message(handles)
         case 0
             text=sprintf('To begin the analysis:\nChoose a data matrix and select the preprocessing of the data from the corresponding popupmenus. If no data appears, please charge it from WorkSpace by clicking on REFRESH button.');
         case 1
-            text=sprintf('Enter the number of principal components in the general plots section and select between Var X, Var X + ckf, SVI plot, ekf crossval and cekf crossval. If SVI plot is selected a PC should be additionally chosen.\nThen press the plot button.');
+            text=sprintf('Enter the number of principal components in the general plots section and select between Var X, Var X + ckf, SVI plot and ekf crossvalidation. If SVI plot is selected a variable should be additionally chosen.\nThen press the plot button.');
         case 2
             text=sprintf('Enter the number of principal components to work with and press on the PCA button to perform the initial analysis and activate the Score Plot, Loading Plot and MEDA menus.');
         case 3
@@ -618,9 +618,6 @@ switch generalPlot
     case 'ekf crossval '
         [blocks_r blocks_c] = size(handles.data.data_matrix);
         x_var = crossval_pca(handles.data.data_matrix,0:pcs,'ekf',blocks_r,blocks_c,handles.data.prep);
-    case 'cekf crossval'
-        [blocks_r blocks_c] = size(handles.data.data_matrix);
-        x_var = crossval_pca(handles.data.data_matrix,0:pcs,'cekf',blocks_r,blocks_c,handles.data.prep);
     case 'SVI plot'
         chosenVar = str2num(getCurrentPopupString(handles.selectPopup));
         SVIplot(handles.data.data_matrix,1:pcs,chosenVar,7,handles.data.prep);
