@@ -565,9 +565,9 @@ if ~isempty(handles.data.WorkSpace),
     aux=[b1,aux];
     set(handles.classcorePopup,'String',strvcat(aux));
     nombres=cellstr(get(handles.classcorePopup,'String'));
-    if ~strcmp(handles.data.namePopupmenu16,'emptyclasses'),
+    if ~strcmp(handles.data.nameClasscore,'emptyclasses'),
         for i=1:length(nombres),
-            if strcmp(nombres(i),handles.data.namePopupmenu16),
+            if strcmp(nombres(i),handles.data.nameClasscore),
                 val=i;
             end
         end
@@ -589,9 +589,9 @@ if ~isempty(handles.data.WorkSpace),
     aux2=[b2,aux2];
     set(handles.labscorePopup,'String',strvcat(aux2));
     nombres=cellstr(get(handles.labscorePopup,'String'));
-    if ~strcmp(handles.data.namePopupmenu17,'emptylabel'),
+    if ~strcmp(handles.data.nameLabscore,'emptylabel'),
         for i=1:length(nombres),
-            if strcmp(nombres(i),handles.data.namePopupmenu17),
+            if strcmp(nombres(i),handles.data.nameLabscore),
                 val=i;
             end
         end
@@ -613,9 +613,9 @@ if ~isempty(handles.data.WorkSpace),
     aux3=[b3,aux3];
     set(handles.clasloadingPopup,'String',strvcat(aux3));
     nombres=cellstr(get(handles.clasloadingPopup,'String'));
-    if ~strcmp(handles.data.namePopupmenu18,'emptyclasses'),
+    if ~strcmp(handles.data.nameClasvar,'emptyclasses'),
         for i=1:length(nombres),
-            if strcmp(nombres(i),handles.data.namePopupmenu18),
+            if strcmp(nombres(i),handles.data.nameClasvar),
                 val=i;
             end
         end
@@ -637,9 +637,9 @@ if ~isempty(handles.data.WorkSpace),
     aux4=[b4,aux4];
     set(handles.labloadingPopup,'String',strvcat(aux4));
     nombres=cellstr(get(handles.labloadingPopup,'String'));
-    if ~strcmp(handles.data.namePopupmenu19,'emptylabel'),
+    if ~strcmp(handles.data.nameLabvar,'emptylabel'),
         for i=1:length(nombres),
-            if strcmp(nombres(i),handles.data.namePopupmenu19),
+            if strcmp(nombres(i),handles.data.nameLabvar),
                 val=i;
             end
         end
@@ -674,10 +674,10 @@ else
     handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
 end
 
-handles.data.new1=aux2;%popupmenu17
-handles.data.new2=aux;%popupmenu16
-handles.data.new3=aux4;%popupmenu19
-handles.data.new4=aux3;%popupmenu18
+handles.data.labscore=aux2;%popupmenu17
+handles.data.classcore=aux;%popupmenu16
+handles.data.labvar=aux4;%popupmenu19
+handles.data.clasvar=aux3;%popupmenu18
 guidata(hObject,handles);
 
 %edit text==LVs
@@ -996,8 +996,8 @@ function labscorePopup_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from labscorePopup
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.new1{incoming_data};%Nombre correspondiente a la posición
-handles.data.namePopupmenu17=string_evaluation;
+string_evaluation=handles.data.labscore{incoming_data};%Nombre correspondiente a la posición
+handles.data.nameLabscore=string_evaluation;
 if strcmp(string_evaluation,'emptylabel'),
     label={};
     handles.data.label={};
@@ -1009,7 +1009,7 @@ end
 if ~isempty(handles.data.label),
     if max(size(label))~=size(handles.data.data_matrixX,1) || min(size(label))~=1,
         errordlg('Label must have as many tags as number of observations in the data matrix.');
-        handles.data.namePopupmenu17='emptylabel';
+        handles.data.nameLabscore='emptylabel';
         handles.data.label={};
         nombres=cellstr(get(hObject,'String'));
         for i=1:length(nombres),
@@ -1031,19 +1031,16 @@ function labscorePopup_CreateFcn(hObject, eventdata, handles)
 
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-new1=[];
 handles.data.label={};
-set(hObject,'String',{'emptylabel'});
+labscore={'emptylabel'};
+set(hObject,'String',labscore);
 
-handles.data.WorkSpace=evalin('base','who');%nombres de las variables
+handles.data.WorkSpace=evalin('base','who');
 if ~isempty(handles.data.WorkSpace),
-    contents=get(hObject,'String');
-    new1=[];
     for i=1:length(handles.data.WorkSpace),
-        new1=[new1 handles.data.WorkSpace(i,:)];
+        labscore=[labscore handles.data.WorkSpace(i,:)];
     end
-    new1=[contents,new1];
-    set(hObject,'String',strvcat(new1));
+    set(hObject,'String',strvcat(labscore));
 end
 
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -1056,9 +1053,10 @@ for i=1:length(nombres),
         val=i;
     end
 end
-handles.data.namePopupmenu17='emptylabel';
+
 set(hObject,'Value',val);
-handles.data.new1=new1;
+handles.data.labscore=labscore;
+handles.data.nameLabscore='emptylabel';
 guidata(hObject, handles);
 
 % --- Executes on selection change in classcorePopup.
@@ -1072,8 +1070,8 @@ function classcorePopup_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from classcorePopup
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.new2{incoming_data};%Nombre correspondiente a la posición
-handles.data.namePopupmenu16=string_evaluation;
+string_evaluation=handles.data.classcore{incoming_data};%Nombre correspondiente a la posición
+handles.data.nameClasscore=string_evaluation;
 if strcmp(string_evaluation,'emptyclasses'),
     classes=[];
     handles.data.classes=[];
@@ -1085,7 +1083,7 @@ end
 if ~isempty(handles.data.classes),
     if max(size(classes))~=size(handles.data.data_matrixX,1) || min(size(classes))~=1,
         errordlg('Classes must have as many tags as number of observations in the data matrix.');
-        handles.data.namePopupmenu16='emptyclasses';
+        handles.data.nameClasscore='emptyclasses';
         handles.data.classes=[];
         nombres=cellstr(get(hObject,'String'));
         for i=1:length(nombres),
@@ -1107,20 +1105,18 @@ function classcorePopup_CreateFcn(hObject, eventdata, handles)
 
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-new2=[];
 handles.data.classes=[];
-set(hObject,'String',{'emptyclasses'});
+classcore={'emptyclasses'};
+set(hObject,'String',classcore);
 
-handles.data.WorkSpace=evalin('base','who');%nombres de las variables
+handles.data.WorkSpace=evalin('base','who');
 if ~isempty(handles.data.WorkSpace),
-    contents=get(hObject,'String');
-    new2=[];
     for i=1:length(handles.data.WorkSpace),
-        new2=[new2 handles.data.WorkSpace(i,:)];
+        classcore=[classcore handles.data.WorkSpace(i,:)];
     end
-    new2=[contents,new2];
-    set(hObject,'String',strvcat(new2));
+    set(hObject,'String',strvcat(classcore));
 end
+
 
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
@@ -1132,9 +1128,9 @@ for i=1:length(nombres),
         val=i;
     end
 end
-handles.data.namePopupmenu16='emptyclasses';
+handles.data.nameClasscore='emptyclasses';
 set(hObject,'Value',val);
-handles.data.new2=new2;
+handles.data.classcore=classcore;
 guidata(hObject, handles);
 
 % --- Executes on button press in scoreButton.
@@ -1679,8 +1675,8 @@ function labloadingPopup_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from labloadingPopup
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.new3{incoming_data};%Nombre correspondiente a la posición
-handles.data.namePopupmenu19=string_evaluation;
+string_evaluation=handles.data.labvar{incoming_data};%Nombre correspondiente a la posición
+handles.data.nameLabvar=string_evaluation;
 if strcmp(string_evaluation,'emptylabel'),
     label_LP={};
     handles.data.label_LP={};
@@ -1692,7 +1688,7 @@ end
 if ~isempty(handles.data.label_LP),
     if max(size(label_LP))~=size(handles.data.data_matrixX,2) || min(size(label_LP))~=1,
         errordlg('Label must have as many tags as number of variables in the data matrix.');
-        handles.data.namePopupmenu19='emptylabel';
+        handles.data.nameLabvar='emptylabel';
         handles.data.label_LP={};
         nombres=cellstr(get(hObject,'String'));
         for i=1:length(nombres),
@@ -1714,19 +1710,16 @@ function labloadingPopup_CreateFcn(hObject, eventdata, handles)
 
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-new3=[];
 handles.data.label_LP={};
-set(hObject,'String',{'emptylabel'});
+labvar={'emptylabel'};
+set(hObject,'String',labvar);
 
 handles.data.WorkSpace=evalin('base','who');%nombres de las variables
 if ~isempty(handles.data.WorkSpace),
-    contents=get(hObject,'String');
-    new3=[];
     for i=1:length(handles.data.WorkSpace),
-        new3=[new3 handles.data.WorkSpace(i,:)];
+        labvar=[labvar handles.data.WorkSpace(i,:)];
     end
-    new3=[contents,new3];
-    set(hObject,'String',strvcat(new3));
+    set(hObject,'String',strvcat(labvar));
 end
 
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -1739,9 +1732,9 @@ for i=1:length(nombres),
         val=i;
     end
 end
-handles.data.namePopupmenu19='emptylabel';
+handles.data.nameLabvar='emptylabel';
 set(hObject,'Value',val);
-handles.data.new3=new3;
+handles.data.labvar=labvar;
 guidata(hObject, handles);
 
 
@@ -1756,8 +1749,8 @@ function clasloadingPopup_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from clasloadingPopup
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.new4{incoming_data};%Nombre correspondiente a la posición
-handles.data.namePopupmenu18=string_evaluation;
+string_evaluation=handles.data.clasvar{incoming_data};%Nombre correspondiente a la posición
+handles.data.nameClasvar=string_evaluation;
 if strcmp(string_evaluation,'emptyclasses'),
     classes_LP={};
     handles.data.classes_LP={};
@@ -1769,7 +1762,7 @@ end
 if ~isempty(handles.data.classes_LP),
     if max(size(classes_LP))~=size(handles.data.data_matrixX,2) || min(size(classes_LP))~=1,
         errordlg('Classes must have as many entries as number of variables in the data matrix.');
-        handles.data.namePopupmenu18='emptyclasses';
+        handles.data.nameClasvar='emptyclasses';
         handles.data.classes_LP=[];
         nombres=cellstr(get(hObject,'String'));
         for i=1:length(nombres),
@@ -1791,19 +1784,16 @@ function clasloadingPopup_CreateFcn(hObject, eventdata, handles)
 
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-new4=[];
 handles.data.classes_LP=[];
-set(hObject,'String',{'emptyclasses'});
+clasvar={'emptyclasses'};
+set(hObject,'String',clasvar);
 
 handles.data.WorkSpace=evalin('base','who');%nombres de las variables
 if ~isempty(handles.data.WorkSpace),
-    contents=get(hObject,'String');
-    new4=[];
     for i=1:length(handles.data.WorkSpace),
-        new4=[new4 handles.data.WorkSpace(i,:)];
+        clasvar=[clasvar handles.data.WorkSpace(i,:)];
     end
-    new4=[contents,new4];
-    set(hObject,'String',strvcat(new4));
+    set(hObject,'String',strvcat(clasvar));
 end
 
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
@@ -1816,9 +1806,9 @@ for i=1:length(nombres),
         val=i;
     end
 end
-handles.data.namePopupmenu18='emptyclasses';
+handles.data.nameClasvar='emptyclasses';
 set(hObject,'Value',val);
-handles.data.new4=new4;
+handles.data.clasvar=clasvar;
 guidata(hObject, handles);
 
 % --- Executes on button press in loadingButton.
