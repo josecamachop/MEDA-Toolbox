@@ -191,6 +191,7 @@ if length(varargin) > 0 & ~isempty(varargin{1})
     set(handles.dataPopup,'Enable','off');
     set(handles.dataPopup, 'Value', 1); 
     dataPopup_Callback(handles.dataPopup, eventdata, handles);
+    handles = guidata(handles.dataPopup);
     
     M = size(handles.data.data_matrix, 2);
     N = size(handles.data.data_matrix, 1);
@@ -198,7 +199,7 @@ if length(varargin) > 0 & ~isempty(varargin{1})
     assert (N>1, 'Dimension Error: Number of rows should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
     assert (M>1, 'Dimension Error: Number of columns should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
 
-    set(handles.pushbutton1,'Enable','off');
+    set(handles.refreshbutton,'Enable','off');
     
     if length(varargin) > 1    
     
@@ -217,6 +218,7 @@ if length(varargin) > 0 & ~isempty(varargin{1})
             set(handles.pcEdit,'Enable','off');
             
             pcaButton_Callback(handles.pcaButton, eventdata, handles);
+            handles = guidata(handles.pcaButton);
             
             set(handles.pcaButton,'Enable','off');
             
@@ -231,12 +233,14 @@ if length(varargin) > 0 & ~isempty(varargin{1})
             set(handles.prepPopup,'Value',handles.data.prep+1);
             
             prepPopup_Callback(handles.prepPopup, eventdata, handles);
+            handles = guidata(handles.prepPopup);
             
             set(handles.prepPopup,'Enable','off');
         end
     end
 else
     dataPopup_Callback(handles.dataPopup, eventdata, handles);
+    handles = guidata(handles.dataPopup);
 end;
 
     
@@ -363,14 +367,22 @@ function dataPopup_CreateFcn(hObject, eventdata, handles)
 
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
-handles.data.namePopupmenu6='';
+handles.data.nameData='';
 handles.data.WorkSpace=evalin('base','who');%name of the variables in the workspace
 
 if ~isempty(handles.data.WorkSpace),
     set(hObject,'String',handles.data.WorkSpace);
     string_evaluation=handles.data.WorkSpace{1};%Name of the incoming data position
-    handles.data.namePopupmenu6=string_evaluation;
+    handles.data.nameData=string_evaluation;
 else
+    child=get(handles.uipanelGen,'Children');
+    for i=1:length(child),
+        set(child(i),'Enable','off');
+    end
+    child=get(handles.uipanelPCA,'Children');
+    for i=1:length(child),
+        set(child(i),'Enable','off');
+    end
     set(hObject,'String',' ');
 end
 
@@ -381,21 +393,32 @@ end
 guidata(hObject, handles);
 
 
-% --- Executes on button press in pushbutton1.
-%pushbutton1==Refresh
-function pushbutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton1 (see GCBO)
+% --- Executes on button press in refreshbutton.
+%refreshbutton==Refresh
+function refreshbutton_Callback(hObject, eventdata, handles)
+% hObject    handle to refreshbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 handles.data.WorkSpace=evalin('base','who');
 
 if ~isempty(handles.data.WorkSpace),
     
+    child=get(handles.uipanelGen,'Children');
+    for i=1:length(child),
+        set(child(i),'Enable','on');
+    end
+    child=get(handles.uipanelPCA,'Children');
+    for i=1:length(child),
+        set(child(i),'Enable','on');
+    end
+    generalPopup_Callback(handles.generalPopup, eventdata, handles);
+    handles = guidata(handles.generalPopup);
+    
     set(handles.dataPopup, 'String', handles.data.WorkSpace);
     nombres=cellstr(get(handles.dataPopup,'String'));
-    if ~isempty(handles.data.namePopupmenu6),
+    if ~isempty(handles.data.nameData),
         for i=1:length(nombres),
-            if strcmp(nombres(i),handles.data.namePopupmenu6),
+            if strcmp(nombres(i),handles.data.nameData),
                 val=i;
             end
         end
@@ -408,7 +431,7 @@ if ~isempty(handles.data.WorkSpace),
         string_evaluation=handles.data.WorkSpace{1};
         data_matrix=evalin('base',string_evaluation);
         handles.data.data_matrix=data_matrix;
-        handles.data.namePopupmenu6=string_evaluation;
+        handles.data.nameData=string_evaluation;
     end
     
     %Refresh the Label and Classes popupmenus:
@@ -514,6 +537,15 @@ else
     set(handles.dataPopup, 'String', ' ');
     handles.data.data_matrix=[];
     
+    child=get(handles.uipanelGen,'Children');
+    for i=1:length(child),
+        set(child(i),'Enable','off');
+    end
+    child=get(handles.uipanelPCA,'Children');
+    for i=1:length(child),
+        set(child(i),'Enable','off');
+    end
+    
     contents=get(handles.classcorePopup,'String');
     aux=[];
     aux=[contents(1,:),aux];
@@ -560,27 +592,27 @@ guidata(hObject,handles);
 function information_message(handles)
     switch handles.data.messageNum
         case 0
-            text=sprintf('To begin the analysis:\nChoose a data matrix and select the preprocessing of the data from the corresponding popupmenus. If no data appears, please charge it from WorkSpace by clicking on REFRESH button.');
+            text=sprintf('Preprocessing section (top-left): To begin the analysis choose a data matrix and select the preprocessing of the data from the corresponding popupmenus. If no data appears, please reload the WorkSpace clicking the REFRESH button.');
         case 1
-            text=sprintf('Enter the number of principal components in the general plots section and select between Var X, Var X + ckf, SVI plot and ekf crossvalidation. If SVI plot is selected a variable should be additionally chosen.\nThen press the plot button.');
+            text=sprintf('For aid in the selection of the number of PCs go to General Plots section (left), enter the maximum number of PCs and select between Var X, Var X + ckf (suggested), SVI plot and ekf crossvalidation. If SVI plot is selected a variable should be additionally chosen.\nThen press the plot button.');
         case 2
-            text=sprintf('Enter the number of principal components to work with and press on the PCA button to perform the initial analysis and activate the Score Plot, Loading Plot and MEDA menus.');
+            text=sprintf('Select the number of principal components for the model and press the PCA button to perform the initial analysis and activate the Score Plot, Loading Plot and MEDA menus.');
         case 3
-            text=sprintf('Plot a Score plot, a Loading plot, a MEDA plot or Residual/Model plot, by clicking on  the proper menu.');
+            text=sprintf('Plot a Score plot, a Loading plot, a MEDA plot or Residual/Model plot, by acting on the proper menu.');
         case 4
-            text=sprintf('Label is a cell having this format:\n{`x`,`x`,`y`,`y`,...,`z`,`z`}, containing as many tags as the number of observations.');
+            text=sprintf('Label is a cell containing as many tags as the number of observations.');
         case 5
-            text=sprintf('Classes is an array having this format:\n[1,1,2,2,...,3,3], containing as many entries as the number of observations.');
+            text=sprintf('Classes is a numerical array with as many entries as the number of observations.');
         case 6
-            text=sprintf('To use label or classes, define the tags or class cell arrays and charge it from the workspace by clicking on the REFRESH button.');
+            text=sprintf('To use labels or classes, load them from the Workspace by clicking the REFRESH button.');
         case 7
-            text=sprintf('To perform an oMEDA plot push on the SELECT button in the oMEDA menu (upon selection of a Score Plot).');
+            text=sprintf('To perform oMEDA upon selection of observations on the score plot, push the SELECT button in the oMEDA menu.');
         case 8
             text=sprintf('Over the selected Score Plot draw a polinomial enclosing the required points and push on the (+) button to assign them +1 or on the (-) button to assign them -1.');
         case 9
-            text=sprintf('Optionally push on the Trend button and draw a line over the Score Plot to include weigths in the analysis.\nFinally push on the Plot button to obtain the oMEDA plot.');
+            text=sprintf('Optionally push the Trend button and draw a line over the Score Plot to include weigths in the analysis.\nFinally push the Plot button to obtain the oMEDA plot.');
         case 10
-            text=sprintf('To perform a MEDA plot, push on the SELECT button in the MEDA menu (upon selection of a Loading Plot).\nOver the selected Loading Plot draw a polinomial enclosing the required points.');
+            text=sprintf('To perform MEDA upon selection of variables on the loading plot, push the SELECT button in the MEDA menu.\nOver the selected Loading Plot draw a polinomial enclosing the required points.');
         otherwise
             disp('No case detected')
     end
