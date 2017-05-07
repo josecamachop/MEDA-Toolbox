@@ -135,6 +135,8 @@ handles.data.matrix_2LVs={};
 handles.data.LVs_MEDA='';
 handles.data.auxLVs=0;
 
+handles = state_change(handles,1);
+
 % %When calling with input data
 if length(varargin) > 1 & ~isempty(varargin{1}) & ~isempty(varargin{2})  
     
@@ -197,6 +199,9 @@ if length(varargin) > 1 & ~isempty(varargin{1}) & ~isempty(varargin{2})
             
             xprepPopup_Callback(handles.xprepPopup, eventdata, handles);
             handles = guidata(handles.xprepPopup);
+        
+            generalPopup_Callback(handles.generalPopup, eventdata, handles)
+            handles = guidata(handles.generalPopup);
             
             set(handles.xprepPopup,'Enable','off');
             
@@ -2047,6 +2052,17 @@ guidata(hObject,handles);
 
 % --- Change state of enabled elements in GUI, only main changes are
 function handles = state_change(handles, state)
+
+generalSelection = getCurrentPopupString(handles.generalPopup);
+
+switch generalSelection
+    case 'Y-SVI plot'
+        set(handles.selectText,'Enable','on');
+        set(handles.selectPopup,'Enable','on');
+    otherwise
+        set(handles.selectText,'Enable','off');
+        set(handles.selectPopup,'Enable','off');
+end
 
 switch state,
     
