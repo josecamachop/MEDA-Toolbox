@@ -27,7 +27,7 @@ function varargout = PCA(varargin)
 % coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 06/May/17.
+% last modification: 07/May/17.
 %
 %
 % Copyright (C) 2017 University of Granada, Granada
@@ -280,6 +280,9 @@ if isequal(get(handles.dataPopup,'Enable'),'on'),
         guidata(hObject, handles);
         return
     end
+    
+    generalPopup_Callback(handles.generalPopup, eventdata, handles);
+    handles = guidata(handles.generalPopup);
 
     incoming_data=get(hObject,'Value');%Incoming data position
     string_evaluation=handles.data.WorkSpace{incoming_data};%Name of the incoming data position
@@ -348,9 +351,6 @@ if ~isempty(handles.data.WorkSpace),
     
     dataPopup_Callback(handles.dataPopup, eventdata, handles);
     handles = guidata(handles.dataPopup);
-    
-    generalPopup_Callback(handles.generalPopup, eventdata, handles);
-    handles = guidata(handles.generalPopup);
     
     set(handles.dataPopup, 'String', handles.data.WorkSpace);
     nombres=cellstr(get(handles.dataPopup,'String'));

@@ -33,10 +33,10 @@ function varargout = PLS(varargin)
 % coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 12/Sep/15.
+% last modification: 07/Nay/15.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016 Elena Jiménez Mañas, Rafael Rodriguez Gomez, José Camacho
+% Copyright (C) 2017 University of Granada, Granada
+% Copyright (C) 2017 Elena Jiménez Mañas, Rafael Rodriguez Gomez, José Camacho
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -341,6 +341,9 @@ if isequal(get(hObject,'Enable'),'on'),
         return
     end
     
+    generalPopup_Callback(handles.generalPopup, eventdata, handles);
+    handles = guidata(handles.generalPopup);
+    
     incoming_data=get(hObject,'Value');%Incoming data position
     string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posiciÃ³n
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
@@ -399,13 +402,16 @@ function ydataPopup_Callback(hObject, eventdata, handles)
 
 if isequal(get(hObject,'Enable'),'on'),
     
-    if ~isempty(handles.data.WorkSpace),
-        handles = state_change(handles,1);
-    else
-        handles = state_change(handles,0);
-        guidata(hObject, handles);
-        return
-    end
+%     if ~isempty(handles.data.WorkSpace),
+%         handles = state_change(handles,1);
+%     else
+%         handles = state_change(handles,0);
+%         guidata(hObject, handles);
+%         return
+%     end
+%     
+%     generalPopup_Callback(handles.generalPopup, eventdata, handles);
+%     handles = guidata(handles.generalPopup);
     
     incoming_data=get(hObject,'Value');%Incoming data position
     string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posiciÃ³n
@@ -467,9 +473,6 @@ if ~isempty(handles.data.WorkSpace),
     handles = guidata(handles.xdataPopup);
     ydataPopup_Callback(handles.ydataPopup, eventdata, handles);
     handles = guidata(handles.ydataPopup);
-    
-    generalPopup_Callback(handles.generalPopup, eventdata, handles);
-    handles = guidata(handles.generalPopup);
     
     set(handles.xdataPopup, 'String', handles.data.WorkSpace);
     nombres=cellstr(get(handles.xdataPopup,'String'));
