@@ -63,7 +63,7 @@ j=1;
 if opt,
     finish = false;
 else
-    finish = (j > Lmodel.lv);
+    finish = (j > max(Lmodel.lvs));
 end
 while ~finish, 
     
@@ -94,7 +94,7 @@ while ~finish,
             finish = true;
         end
     else
-         finish = (j > Lmodel.lv);
+         finish = (j > max(Lmodel.lvs));
     end
     
 end
