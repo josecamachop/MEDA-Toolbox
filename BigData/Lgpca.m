@@ -1,4 +1,4 @@
-function [p,t,bel] = Lgpca(Lmodel,states,opt)
+function [p,t,bel,E] = Lgpca(Lmodel,states,opt)
 
 % Group-wise Principal Component Analysis for large data.
 %
@@ -98,3 +98,5 @@ while ~finish,
     end
     
 end
+
+E = x;
