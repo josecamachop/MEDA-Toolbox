@@ -1,47 +1,63 @@
 
-function [T2,Q,Rt,Rq] = MSPC_ADICOV(Lmodel,pc,list,index,opt)
+function [Dstt,Qstt,Rt,Rq] = mspc_ADICOV(Lmodel,test,index)
 
-% Compute and plot T2 (D-statistic) and the Q statistic using ADICOV.
+% Compute D-st and Q-st in Covariance MSPC using ADICOV. Unlike e.g. mspc_Lpca, 
+% here we do not compute the statistics of calibration data or control limits,
+% since a set of Lmodels would be needed for that.
 %
-% MSPC_ADICOV(Lmodel,pc,list) % minimum call
-% MSPC_ADICOV(Lmodel,pc,list,index,opt) % complete call
+% MSPC_ADICOV(Lmodel,test) % minimum call
+% [Dstt,Qstt,Rt,Rq] = mspc_ADICOV(Lmodel,test,index,opt,label,classes,p_valueD,p_valueQ,limtype) % complete call
 %
 %
 % INPUTS:
 %
-% Lmodels: (Fx1) list of struct Lmodels for monitoring.
+% Lmodel: (struct Lmodel) model with the information to compute the PCA
+%   model:
+%       Lmodel.XX: [MxM] X-block cross-product matrix.
+%       Lmodel.lvs: [1x1] number of PCs. 
 %
-% pcs: (1x1) number of components.
+% test: [LxM] data set with the observations to be compared. These data 
+%   are preprocessed in the same way than calibration data
 %
-% list: {Fx1} list of strings with the names of the files with x (and
-%       optionally y) matrices for testing.
-%
-% index: (1x1) MSPC index defrinition
-%       1: ADICOV similarity index according to Chemometrics and Intelligent 
-%           Laboratory Systems 105, 2011, pp. 171-180
-%       otherwise: Modified index (default)
-%
-% opt: (1x1) options for data plotting.
-%       0: no plots
-%       1: Statistics (default)
+% index: (1x1) MSPC index definition
+%       0: ADICOV similarity index according to Chemometrics and Intelligent 
+%           Laboratory Systems 105, 2011, pp. 171-180 (default)
+%       1: Modified index 
 %
 %
 % OUTPUTS:
 %
-% T2: T2 statistics (Fx1) 
+% Dstt: [1x1] D-statistic or Hotelling T2 of test
 %
-% Q: Q statistics (Fx1) 
+% Qstt: [1x1] Q-statistic of test
 %
-% Rt: Differential matrices in the projection subspace for the T2 statistics {Fx1} 
+% Rt: [LxM] Differential matrix for diagnosing the D statistics 
 %
-% Rq: Differential matrices in the projection subspace for the Q statistics {Fx1}  
+% Rq: [LxM] Differential matrix for diagnosing the Q statistics  
+%
+%
+% EXAMPLE OF USE: ADICOV-based MSPC on NOC test data and anomalies.
+%
+% n_obs = 100;
+% n_vars = 10;
+% n_PCs = 1;
+% Lmodel = Lmodel_ini(simuleMV(n_obs,n_vars,6));
+% Lmodel.multr = 100*rand(n_obs,1); 
+% Lmodel.lvs = 1:n_PCs;
+% 
+% n_obst = 10;
+% test = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
+% test(6:10,:) = 3*test(6:10,:);
+% 
+% [Dstt,Qstt] = mspc_ADICOV(Lmodel,test(1:5,:),0)
+% [Dstta,Qstta] = mspc_ADICOV(Lmodel,test(6:10,:),0)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 04/Nov/15.
+% last modification: 21/May/17.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -58,73 +74,91 @@ function [T2,Q,Rt,Rq] = MSPC_ADICOV(Lmodel,pc,list,index,opt)
 
 %% Parameters checking
 
-if nargin < 3, error('Error in the number of arguments.'); end;
-if nargin < 4, index = 0; end;
-if nargin < 5, opt = 1; end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
+[ok, Lmodel] = check_Lmodel(Lmodel);
+
+N = Lmodel.nc;
+M = size(Lmodel.XX, 2);
+
+if nargin < 2, test = []; end;
+L = size(test, 1);
+
+if nargin < 3 || isempty(index), index = 1; end;
+
+A = length(Lmodel.lvs);
+
+% Validate dimensions of input data
+if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 2nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
+assert (isequal(size(index), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); 
+
+% Validate values of input data
+assert (index==0 || index==1, 'Value Error: 3rd argument must be 0 or 1. Type ''help %s'' for more info.', routine(1).name);
+
 
 %% Main code
-
-Lc =length(Lmodel);
-Rt = {};
-Rq = {};
-for j=1:Lc,
     
-    load(list{j},'x');
-    
-    if Lmodel{j}.N,
-        Lm = Lmodel{j};
-        %Lm.lv = rank(Lm.XX);
-        Lm.lv = size(Lm.XX,1); % relevant change for Q-statistic
-        
-        if Lm.lv > 0
-            if Lm.type==2,
-                [beta,W,P,Q,mat,d] = Lpls(Lm);
-            else
-                [mat,d] = Lpca(Lm);
-            end
-        
-            onesV = ones(size(x,1),1);
-
-            if Lm.weight~=0,
-                xs = applyprep2D(x,Lm.av,Lm.sc,Lm.weight);
-            else
-                xs = applyprep2D(x,Lm.av,Lm.sc);
-            end
-        
-            ti = ADICOV(Lm.XX,xs,pc,mat(:,1:pc),mat(:,1:pc),onesV);
-            ri = ADICOV(Lm.XX,xs,size(mat,2)-pc,mat(:,pc+1:end),mat(:,pc+1:end),onesV);
-        
-            if index==1,
-                iti = ADindex(xs,ti,mat(:,1:pc)*diag(1./sqrt(d(1:pc))));
-                if isempty(mat(:,pc+1:end)),
-                    iri = 0;
-                else
-                    iri = ADindex(xs,ri,mat(:,pc+1:end));   
-                end
-            else
-                iti = ADindex2(xs,ti,mat(:,1:pc)*diag(1./sqrt(d(1:pc))));
-                if isempty(mat(:,pc+1:end)),
-                    iri = 0;
-                else
-                    iri = ADindex2(xs,ri,mat(:,pc+1:end));
-                end
-            end
-            T2(j) = iti;
-            Q(j) = iri;
-            Rt{j} = xs - ti;
-            Rq{j} = xs - ri;    
+if Lmodel.N,        
+    Lm = Lmodel;
+    Lm.lvs = size(Lm.XX,1); 
+    if Lm.lvs > 0
+        if Lmodel.type==2,
+            [beta,W,P,Q,R,d] = Lpls(Lm);
         else
-            T2(j) = 0;
-            Q(j) = 0;
+            [P,d] = Lpca(Lm);
+            R=P;
         end
+        
+        onesV = ones(size(test,1),1);
+        
+        if Lmodel.weight~=0,
+            tests = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
+        else
+            tests = preprocess2Dapp(test,Lmodel.av,Lmodel.sc);
+        end
+        
+        if max(Lmodel.lvs)>0
+            ti = ADICOV(Lmodel.XX*((L-1)/(Lmodel.N-1)),tests,Lmodel.lvs,R(:,1:Lmodel.lvs),P(:,1:Lmodel.lvs),onesV);
+        else
+            ti = tests;
+        end
+        ri = ADICOV(Lmodel.XX*((L-1)/(Lmodel.N-1)),tests,size(R,2)-Lmodel.lvs,R(:,Lmodel.lvs+1:end),P(:,Lmodel.lvs+1:end),onesV);
+        
+        if index==0,
+            if isempty(R(:,1:Lmodel.lvs)),
+                iti = 0;
+            else
+                iti = ADindex(tests,ti,R(:,1:Lmodel.lvs)*diag(1./sqrt(d(1:Lmodel.lvs))));
+            end
+            if isempty(R(:,Lmodel.lvs+1:end)),
+                iri = 0;
+            else
+                iri = ADindex(tests,ri,R(:,Lmodel.lvs+1:end));
+            end
+        else
+            if isempty(R(:,1:Lmodel.lvs)),
+                iti = 0;
+            else
+                iti = ADindex2(tests,ti,R(:,1:Lmodel.lvs)*diag(1./sqrt(d(1:Lmodel.lvs))));
+            end
+            if isempty(R(:,Lmodel.lvs+1:end)),
+                iri = 0;
+            else
+                iri = ADindex2(tests,ri,R(:,Lmodel.lvs+1:end));
+            end
+        end
+        Dstt = iti;
+        Qstt = iri;
+        Rt = tests - ti;
+        Rq = tests - ri;
     else
-        T2(j) = 0;
-        Q(j) = 0;
+        Dstt = 0;
+        Qstt = 0;
     end
-    
+else
+    Dstt = 0;
+    Qstt = 0;
 end
-
-if opt, 
-    plot_vec(T2,[],'D-statistic');
-    plot_vec(Q,[],'Q-statistic');
-end
+ 

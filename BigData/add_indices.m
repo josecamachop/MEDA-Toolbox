@@ -13,9 +13,9 @@ function add_indices(name,path,data,debug)
 % path: (str) path to the directory where the clustering data files are
 %   located.
 %
-% data: (LxM) observations to include in the file.
+% data: [NxM] observations to include in the file.
 %
-% debug: (1x1) disply debug messages
+% debug: [1x1] disply debug messages
 %       0: no messages are displayed.
 %       1: display only main messages (default) In the present routine, no 
 %           messages are displayed.
@@ -26,10 +26,10 @@ function add_indices(name,path,data,debug)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 24/Jan/14.
+% last modification: 21/May/2017
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -44,12 +44,23 @@ function add_indices(name,path,data,debug)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-%% Parameters checking 
+%% Arguments checking
 
-if nargin < 3, error('Error in the number of arguments.'); end;
-if nargin < 4, debug = false; end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+N = size(data, 1);
+M = size(data, 2);
+if nargin < 4 || isempty(debug), debug = 1; end;
 
-% Computation
+% Validate dimensions of input data
+assert (isequal(size(debug), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+
+% Validate values of input data
+assert (debug==0 || debug==1 || debig==2, 'Value Error: 4th argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+
+
+%% Main code
 
 s=size(data);   
 s=max(s);

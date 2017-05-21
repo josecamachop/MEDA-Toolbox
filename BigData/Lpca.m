@@ -1,35 +1,40 @@
-function [P,sdT] = Lpca(Lmodel)
+function [P,sdT,Lmodel] = Lpca(Lmodel)
   
 % PCA for large data. 
 %
-% [P,S] = Lpca(Lmodel) % complete call
+% [P,SdT,Lmodel] = Lpca(Lmodel) % complete call
 %
 %
 % INPUTS:
 %
-% Lmodel: (struct Lmodel) model with the information to compute the PCA.
+% Lmodel: (struct Lmodel) model with the information to compute the PCA
+%   model:
+%       Lmodel.XX: [MxM] X-block cross-product matrix.
+%       Lmodel.lvs: [1x1] number of PCs A.
 %
 %
 % OUTPUTS:
 %
-% P: (MxA) matrix of loadings in the PCA model.
+% P: [MxA] matrix of loadings in the PCA model.
 %
-% sdT: (1xA) standard deviations of the scores.
+% sdT: [1xA] standard deviations of the scores.
+%
+% Lmodel: (struct Lmodel) model after integrity checking.
 %
 %
 % EXAMPLE OF USE: Random data
 %
-% Lmodel = Lmodel_ini;
-% Lmodel.centr = simuleMV(20,10,8);
+% X = simuleMV(20,10,8);
+% Lmodel = Lmodel_ini(X);
 % Lmodel.lvs = 0:10;
 % [P,sdT] = Lpca(Lmodel);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 30/Oct/2016
+% last modification: 21/May/2017
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 20176  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -50,7 +55,8 @@ function [P,sdT] = Lpca(Lmodel)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-check_Lmodel(Lmodel);
+% Validate values of input data
+[ok,Lmodel] = check_Lmodel(Lmodel);
 
 
 %% Main code

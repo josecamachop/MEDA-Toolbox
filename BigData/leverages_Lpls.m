@@ -1,9 +1,10 @@
-function [beta,W,P,Q,R,sdT,Lmodel] = Lpls(Lmodel)
-    
-% PLS for large data. 
+
+function L = leverages_Lpls(Lmodel,opt)
+
+% Compute and plot the leverages of variables in PLS for large data.
 %
-% [beta,W,P,Q,R,sdT,Lmodel] = Lpls(Lmodel) % complete call
-%
+% L = leverages_Lpls(Lmodel) % minimum call
+% L = leverages_Lpls(Lmodel,opt) % complete call
 %
 % INPUTS:
 %
@@ -12,33 +13,24 @@ function [beta,W,P,Q,R,sdT,Lmodel] = Lpls(Lmodel)
 %       Lmodel.XX: [MxM] X-block cross-product matrix.
 %       Lmodel.XY: [MxO] cross-product matrix between the x-block and the
 %           y-block.
-%       Lmodel.lv: [1x1] number of LVs A.
+%       Lmodel.lvs: [1x1] number of Latent Variables.
+%
+% opt: (str or num) options for data plotting
+%       0: no plots.
+%       1: plot bar plot of leverages (default) 
 %
 %
 % OUTPUTS:
 %
-% beta: [Mx1] matrix with regression coefficients.
-%
-% W: [MxA] matrix of weights in the PLS model.
-%
-% P: [MxA] matrix of loadings of the x-block in the PLS model.
-%
-% Q: [OxA] matrix of loadings of the y-block in the PLS model.
-%
-% R: [OxA] equals to W·inv(P'·W).
-%
-% sdT: [1xA] standard deviations of the scores.
-%
-% Lmodel: (struct Lmodel) model after integrity checking.
+% L: [Mx1] leverages of the variables
 %
 %
-% EXAMPLE OF USE: Random data
+% EXAMPLE OF USE: Random leverages
 %
 % X = simuleMV(20,10,8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % Lmodel = Lmodel_ini(X,Y);
-% Lmodel.lvs = 0:10;
-% [beta,W,P,Q,R,sdT] = Lpls(Lmodel)
+% L = leverages_pls(X,Y,1:3);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -60,28 +52,34 @@ function [beta,W,P,Q,R,sdT,Lmodel] = Lpls(Lmodel)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-   
 %% Arguments checking
 
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+[ok, Lmodel] = check_Lmodel(Lmodel);
+if nargin < 2 || isempty(opt), opt = 1; end; 
 
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
+% Validate dimensions of input data
+assert (~isempty(Lmodel.XY), 'Dimension Error: Empty XY. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 2nd argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+  
 % Validate values of input data
-[ok,Lmodel] = check_Lmodel(Lmodel);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
-[beta,W,P,Q,R] = kernel_pls(Lmodel.XX,Lmodel.XY,1:max(Lmodel.lvs));
-W = W(:,Lmodel.lvs);
-P = P(:,Lmodel.lvs);
-Q = Q(:,Lmodel.lvs);
-R = R(:,Lmodel.lvs);
-beta=R*Q';
-        
-[V2,d2] = eig(R'*Lmodel.XX*R);
-dd = diag(d2);
-[dd,inddd]=sort(dd,'descend');
-        
-sdT = real(sqrt(dd/(Lmodel.N-1)));
+[beta,W,P,Q,R] = Lpls(Lmodel);
+
+L = diag(W*W');
+
+
+%% Show results
+
+if opt == '1', 
+    plot_vec(L, label, classes, {'Variables','Leverages'});
+end        

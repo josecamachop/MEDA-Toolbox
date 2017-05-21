@@ -1,18 +1,21 @@
 
-function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes,p_valueD,p_valueQ,limtype)
+function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpls(Lmodel,test,opt,label,classes,p_valueD,p_valueQ,limtype)
 
-% Compute D-st and Q-st in PCA-based Multivariate Statistical Process 
+% Compute D-st and Q-st in PLS-based Multivariate Statistical Process 
 % Control
 %
-% [Dst,Qst] = mspc_Lpca(Lmodel) % minimum call
-% [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes,p_valueD,p_valueQ,limtype) % complete call
+% [Dst,Qst] = mspc_Lpls(Lmodel) % minimum call
+% [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpls(Lmodel,test,opt,label,classes,p_valueD,p_valueQ,limtype) % complete call
+%
 %
 % INPUTS:
 %
-% Lmodel: (struct Lmodel) model with the information to compute the PCA
+% Lmodel: (struct Lmodel) model with the information to compute the PLS 
 %   model:
 %       Lmodel.XX: [MxM] X-block cross-product matrix.
-%       Lmodel.lvs: [1x1] number of PCs. 
+%       Lmodel.XY: [MxO] cross-product matrix between the x-block and the
+%           y-block.
+%       Lmodel.lvs: [1x1] number of Latent Variables.
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -68,16 +71,18 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 %
 % n_obs = 100;
 % n_vars = 10;
-% n_PCs = 1;
-% Lmodel = Lmodel_ini(simuleMV(n_obs,n_vars,6));
+% n_LVs = 1;
+% X = simuleMV(n_obs,n_vars,6);
+% Y = 0.1*randn(n_obs,2) + X(:,1:2);
+% Lmodel = Lmodel_ini(X,Y);
 % Lmodel.multr = 100*rand(n_obs,1); 
-% Lmodel.lvs = 1:n_PCs;
+% Lmodel.lvs = 1:n_LVs;
 % 
 % n_obst = 10;
 % test = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
-% [Dst,Qst,Dstt,Qstt] = mspc_Lpca(Lmodel,test,100,[],[1*ones(5,1);2*ones(5,1)]);
+% [Dst,Qst,Dstt,Qstt] = mspc_Lpls(Lmodel,test,100,[],[1*ones(5,1);2*ones(5,1)]);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -204,14 +209,14 @@ if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<=0 | p_valueQ>1)), 'Value E
 
 %% Main code
 
-[P,sdT] = Lpca(Lmodel);
+[beta,W,P,Q,R,sdT] = Lpls(Lmodel);
 iTT = diag(1./(sdT.^2));
 
-[Dst,Qst] = mspc(Lmodel.centr,iTT,P);
+[Dst,Qst] = mspc(Lmodel.centr,iTT,R,P);
 
 if ~isempty(test)
     testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc);
-    [Dstt,Qstt] = mspc(testcs,iTT,P);
+    [Dstt,Qstt] = mspc(testcs,iTT,R,P);
 else
     Dstt = [];
     Qstt = [];
@@ -227,7 +232,7 @@ if limtype==0,
         end
     end
     
-    E = Lmodel.centr - Lmodel.centr*P*P'; 
+    E = Lmodel.centr - Lmodel.centr*R*P'; 
     UCLq = [];   
     for i=1:Lq,
         UCLq(i) = spe_lim(E,p_valueQ(i));

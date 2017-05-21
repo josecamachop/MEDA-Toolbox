@@ -1,7 +1,7 @@
 
 function L = leverages_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 
-% Compute and plot loadings in PLS
+% Compute and plot the leverages of variables in PLS
 %
 % L = leverages_pls(x,y) % minimum call
 % L = leverages_pls(x,y,lvs,prepx,prepy,opt,label,classes) % complete call

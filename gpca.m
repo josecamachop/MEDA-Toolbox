@@ -1,9 +1,9 @@
-function [p,t,bel] = gpca(xcs,states,pcs)
+function [p,t,bel,e] = gpca(xcs,states,pcs)
 
 % Group-wise Principal Component Analysis.
 %
 % p = gpca(xcs,states)     % minimum call
-% [p,t,bel] = gpca(xcs,states,pcs)     % complete call
+% [p,t,bel,e] = gpca(xcs,states,pcs)     % complete call
 %
 % INPUTS:
 %
@@ -23,6 +23,8 @@ function [p,t,bel] = gpca(xcs,states,pcs)
 %
 % bel: [Ax1] correspondence between PCs and States.
 %
+% e: [NxM] matrix of residuals.
+%
 %
 % EXAMPLE OF USE: Random data:
 %
@@ -34,16 +36,15 @@ function [p,t,bel] = gpca(xcs,states,pcs)
 % pcs = 1:length(states);
 % [p,t,bel] = gpca(Xcs,states,pcs);
 % 
-% f = figure;
 % for i=pcs,
 %   plot_vec(p(:,i),[],[],{'',sprintf('PC %d',i)});
 % end
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Apr/16.
+% last modification: 21/May/2017
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -133,3 +134,5 @@ end
 p = p(:,pcs);
 t = t(:,pcs);
 bel = bel(pcs);
+
+e = xcs;

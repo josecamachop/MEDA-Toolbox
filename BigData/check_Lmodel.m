@@ -7,61 +7,65 @@ function [ok,Lmodel] = check_Lmodel(Lmodel)
 %
 % INPUT:
 %
-% Lmodel.centr: (NxM) centroids of the clusters of observations
+% Lmodel.centr: [NxM] centroids of the clusters of observations.
 %
-% Lmodel.nc: (1x1) number of clusters in the model.
+% Lmodel.centrY: [NxL] responses of centroids of the clusters of
+% observations.
 %
-% Lmodel.multr: (ncx1) multiplicity of each cluster.
+% Lmodel.nc: [1x1] number of clusters in the model.
 %
-% Lmodel.class: (ncx1) class associated to each cluster.
+% Lmodel.multr: [ncx1] multiplicity of each cluster.
 %
-% Lmodel.N: (1x1) number of effective observations in the model.
+% Lmodel.class: [ncx1] class associated to each cluster.
 %
-% Lmodel.type: (1x1) PCA (1) o PLS (2)
+% Lmodel.vclass: [Mx1] class associated to each variable.
 %
-% Lmodel.update: (1x1) EWMA (1) or ITERATIVE (2)
+% Lmodel.N: [1x1] number of effective observations in the model.
 %
-% Lmodel.XX: (MxM) sample cross-product matrix of X.
+% Lmodel.type: [1x1] PCA (1) o PLS (2)
 %
-% Lmodel.lvs: (1x1) number of latent variables (e.g. lvs = 1:2 selects the
+% Lmodel.update: [1x1] EWMA (1) or ITERATIVE (2)
+%
+% Lmodel.XX: [MxM] sample cross-product matrix of X.
+%
+% Lmodel.lvs: [1x1] number of latent variables (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, Lmodel.lvs = 1:rank(xcs)
 %
-%
-% Lmodel.prep: (1x1) preprocesing of the data
+% Lmodel.prep: [1x1] preprocesing of the data
 %       0: no preprocessing.
 %       1: mean centering (default) 
 %       2: auto-scaling (centers and scales data so that each variable 
 %           has variance 1)
 %
-% Lmodel.av: (1xM) sample average according to the preprocessing method.
+% Lmodel.av: [1xM] sample average according to the preprocessing method.
 %
-% Lmodel.sc: (1xM) sample scale according to the preprocessing method.
+% Lmodel.sc: [1xM] sample scale according to the preprocessing method.
 %
-% Lmodel.weight: (1xM) weight applied after the preprocessing method.
+% Lmodel.weight: [1xM] weight applied after the preprocessing method.
 %
-% Lmodel.updated: (ncx1) specifies whether a data point is new.
+% Lmodel.updated: [ncx1] specifies whether a data point is new.
 %
 % Lmodel.obs_l: {ncx1} label of each cluster.
 %
 % Lmodel.var_l: {ncx1} label of each variable.
 %
-% Lmodel.mat: (MxA) projection matrix for distance computation.
+% Lmodel.mat: [MxA] projection matrix for distance computation.
 %
-% Lmodel.prepy: (1x1) preprocesing of the data
+% Lmodel.prepy: [1x1] preprocesing of the data
 %       0: no preprocessing.
 %       1: mean centering (default) 
 %       2: auto-scaling (centers and scales data so that each variable 
 %           has variance 1)
 %
-% Lmodel.avy: (1xM) sample average according to the preprocessing method.
+% Lmodel.avy: [1xM] sample average according to the preprocessing method.
 %
-% Lmodel.scy: (1xM) sample scale according to the preprocessing method.
+% Lmodel.scy: [1xM] sample scale according to the preprocessing method.
 %
-% Lmodel.weighty: (1xM) weight applied after the preprocessing method.
+% Lmodel.weighty: [1xM] weight applied after the preprocessing method.
 %
-% Lmodel.XY: (MxO) sample cross-product matrix of X and Y.
+% Lmodel.XY: [MxO] sample cross-product matrix of X and Y.
 %
-% Lmodel.YY: (OxO) sample cross-product matrix of Y.
+% Lmodel.YY: [OxO] sample cross-product matrix of Y.
 %
 % Lmodel.index_fich: {ncx1} file system with the original observations in
 %   each cluster for ITERATIVE models.
@@ -70,10 +74,10 @@ function [ok,Lmodel] = check_Lmodel(Lmodel)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 29/Oct/2016
+% last modification: 21/May/2017
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -95,10 +99,12 @@ assert (isfield(Lmodel,'centr'), 'Content Error: Lmodel without centroids. Type 
 M = size(Lmodel.centr, 2);
 
 % Set default values
+if ~isfield(Lmodel,'centrY') || isempty(Lmodel.centrY), Lmodel.centrY = []; end
+L = size(Lmodel.centrY, 2);
 if ~isfield(Lmodel,'type') || isempty(Lmodel.type), Lmodel.type = 1; end
 if ~isfield(Lmodel,'update') || isempty(Lmodel.update), Lmodel.update = 2; end
-if ~isfield(Lmodel,'nc') || isempty(Lmodel.nc), Lmodel.nc = size(Lmodel.centr,1); end
-if ~isfield(Lmodel,'N') || isempty(Lmodel.N), Lmodel.N = size(Lmodel.centr,1); end
+if ~isfield(Lmodel,'nc') || isempty(Lmodel.nc) || Lmodel.nc==0, Lmodel.nc = size(Lmodel.centr,1); end
+if ~isfield(Lmodel,'N') || isempty(Lmodel.N) || Lmodel.N==0, Lmodel.N = size(Lmodel.centr,1); end
 if ~isfield(Lmodel,'lvs') || isempty(Lmodel.lvs), Lmodel.lvs = 1:rank(Lmodel.XX); end
 if ~isfield(Lmodel,'prep') || isempty(Lmodel.prep), Lmodel.prep = 0; end
 if Lmodel.nc>0,
@@ -123,13 +129,30 @@ end
 if M>0,
     if ~isfield(Lmodel,'av') || isempty(Lmodel.av), Lmodel.av = zeros(1,M); end
     if ~isfield(Lmodel,'sc') || isempty(Lmodel.sc), Lmodel.sc = ones(1,M); end
+    if ~isfield(Lmodel,'vclass') || isempty(Lmodel.weight), Lmodel.vclass = ones(1,M); end
     if ~isfield(Lmodel,'weight') || isempty(Lmodel.weight), Lmodel.weight = ones(1,M); end
     if ~isfield(Lmodel,'var_l') || isempty(Lmodel.var_l), Lmodel.var_l = cellstr(num2str((1:M)')); end
 else
     if ~isfield(Lmodel,'av'), Lmodel.av = []; end
     if ~isfield(Lmodel,'sc'), Lmodel.sc = []; end
+    if ~isfield(Lmodel,'vclass'), Lmodel.vclass = []; end
     if ~isfield(Lmodel,'weight'), Lmodel.weight = []; end
     if ~isfield(Lmodel,'var_l'), Lmodel.var_l = {}; end
+end
+if ~isfield(Lmodel,'YY') || isempty(Lmodel.YY), 
+    if isempty(Lmodel.centrY) 
+        Lmodel.YY = [];
+    else
+        Y = (Lmodel.multr * ones(1,L)) .* Lmodel.centrY;
+        Lmodel.YY = Y'*Y;
+    end
+end
+if ~isfield(Lmodel,'XY') || isempty(Lmodel.XY),
+    if isempty(Lmodel.centr) || isempty(Lmodel.centrY) 
+        Lmodel.XY = [];
+    else
+        Lmodel.XY = X'*Y;
+    end
 end
 
 % Convert column arrays to row arrays
