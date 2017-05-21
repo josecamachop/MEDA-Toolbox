@@ -1,9 +1,9 @@
 function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,olab,updated,mat,obslist)
 
-% Projection sequential clustering. 
+% Projected Sequential Clustering. 
 %
 % [centr,multn,classn] = psc(x,n_min)          % minimum call
-% [centr,multn,classn] = psc(x,n_min,mult,class,olab,mat,obslist) % complete call
+% [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,olab,updated,mat,obslist) % complete call
 %
 %
 % INPUTS:
@@ -45,11 +45,17 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 %   system.
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Sep/15.
+% EXAMPLE OF USE: Random leverages from 2000 to 20 clusters
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% X = simuleMV(1000,2,8);
+% [centr,multn] = psc(X,20);
+% plot_scatter(centr,[],[],{'Var 1', 'Var 2'},[],[],multn);
+%
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 21/May/2017
+%
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -64,26 +70,39 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-%% Parameters checking
+%% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end;
-s = size(x);
-if find(s<1), error('Incorrect content of x.'); end;
-if nargin < 3, mult = ones(s(1),1); end;
-if nargin < 4, class = ones(s(1),1); end;
+routine=dbstack;
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+N = size(x, 1);
+M = size(x, 2);
+
+if nargin < 3 || isempty(mult), mult = ones(N,1); end;
+if nargin < 4 || isempty(class), class = ones(N,1); end;
 if nargin < 5, olab = {}; end;
-if nargin < 6, updated = ones(s(1),1); end;
-if nargin < 7, mat = eye(s(2)); end;
+if nargin < 6 || isempty(updated), updated = ones(N,1); end;
+if nargin < 7 || isempty(mat), mat = eye(M); end;
 if nargin < 8, obslist = {}; end;
 
+% Validate dimensions of input data
+assert (isequal(size(n_min), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(mult), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(class), [N 1]), 'Dimension Error: 4th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(updated), [N 1]), 'Dimension Error: 6th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(mat), [M M]), 'Dimension Error: 7th argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
 
-% Main code
+
+% Validate values of input data
+assert (n_min>0, 'Value Error: 2nd argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(mult<=0)), 'Value Error: 3rd argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
+
+
+%% Main code
 
 u = x*mat;
-D = Inf*ones(s(1)); % initialization of the (upper triangular) matrix of Mahalanobis distances 
-for i=1:s(1),
-    for j=i+1:s(1),
+D = Inf*ones(N); % initialization of the (upper triangular) matrix of Mahalanobis distances 
+for i=1:N,
+    for j=i+1:N,
         if class(i)==class(j), % if belong to the same class, compute the distance between observations i and j
             r = (u(i,:)-u(j,:))';
             D(i,j) = r'*r; 
@@ -99,7 +118,7 @@ multn = mult;
 classn = class;
 olabn = olab;
 updatedn = updated;
-for i=s(1)-1:-1:n_min, % reduction to n_min clusters
+for i=N-1:-1:n_min, % reduction to n_min clusters
     
     % Computation of the minimum distance between observations or clusters
     min_dist = find(min(min(D))==D,1);

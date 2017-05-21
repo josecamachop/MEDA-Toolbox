@@ -11,7 +11,10 @@ function omeda_vec = omeda_Lpca(Lmodel,test,dummy,opt)
 %
 % INPUTS:
 %
-% Lmodel: (struct Lmodel) model with the information to compute the PCA. 
+% Lmodel: (struct Lmodel) model with the information to compute the PCA
+%   model:
+%       Lmodel.XX: [MxM] X-block cross-product matrix.
+%       Lmodel.lvs: [1x1] number of PCs. 
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -62,8 +65,8 @@ function omeda_vec = omeda_Lpca(Lmodel,test,dummy,opt)
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 30/Oct/2016
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
