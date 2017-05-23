@@ -88,6 +88,8 @@ L = size(test, 1);
 
 if nargin < 3 || isempty(index), index = 1; end;
 
+Lmodel.lvs = unique(Lmodel.lvs);
+Lmodel.lvs(find(Lmodel.lvs==0))=[];
 A = length(Lmodel.lvs);
 
 % Validate dimensions of input data
@@ -102,14 +104,21 @@ assert (index==0 || index==1, 'Value Error: 3rd argument must be 0 or 1. Type ''
     
 if Lmodel.N,        
     Lm = Lmodel;
-    Lm.lvs = size(Lm.XX,1); 
-    if Lm.lvs > 0
+    Lm.lvs = 1:size(Lm.XX,1); 
+    if max(Lm.lvs) > 0
         if Lmodel.type==2,
             [beta,W,P,Q,R,d] = Lpls(Lm);
         else
             [P,d] = Lpca(Lm);
             R=P;
         end
+        
+        res = 1:size(R,2);
+        indr=[];
+        for i=1:length(Lmodel.lvs)
+            indr = [indr find(res==Lmodel.lvs(i))];
+        end
+        res(indr) = [];
         
         onesV = ones(size(test,1),1);
         
@@ -119,35 +128,26 @@ if Lmodel.N,
             tests = preprocess2Dapp(test,Lmodel.av,Lmodel.sc);
         end
         
-        if max(Lmodel.lvs)>0
-            ti = ADICOV(Lmodel.XX*((L-1)/(Lmodel.N-1)),tests,Lmodel.lvs,R(:,1:Lmodel.lvs),P(:,1:Lmodel.lvs),onesV);
+        if ~isempty(Lmodel.lvs),
+            ti = ADICOV(Lmodel.XX,tests,length(Lmodel.lvs),R(:,Lmodel.lvs),P(:,Lmodel.lvs));
         else
             ti = tests;
         end
-        ri = ADICOV(Lmodel.XX*((L-1)/(Lmodel.N-1)),tests,size(R,2)-Lmodel.lvs,R(:,Lmodel.lvs+1:end),P(:,Lmodel.lvs+1:end),onesV);
-        
-        if index==0,
-            if isempty(R(:,1:Lmodel.lvs)),
-                iti = 0;
-            else
-                iti = ADindex(tests,ti,R(:,1:Lmodel.lvs)*diag(1./sqrt(d(1:Lmodel.lvs))));
-            end
-            if isempty(R(:,Lmodel.lvs+1:end)),
-                iri = 0;
-            else
-                iri = ADindex(tests,ri,R(:,Lmodel.lvs+1:end));
-            end
+        if ~isempty(res),
+            ri = ADICOV(Lmodel.XX,tests,length(res),R(:,res),P(:,res));
         else
-            if isempty(R(:,1:Lmodel.lvs)),
-                iti = 0;
-            else
-                iti = ADindex2(tests,ti,R(:,1:Lmodel.lvs)*diag(1./sqrt(d(1:Lmodel.lvs))));
-            end
-            if isempty(R(:,Lmodel.lvs+1:end)),
-                iri = 0;
-            else
-                iri = ADindex2(tests,ri,R(:,Lmodel.lvs+1:end));
-            end
+            ri = tests;
+        end
+            
+        if isempty(R(:,Lmodel.lvs)),
+            iti = 0;
+        else
+            iti = ADindex(tests,ti,R(:,Lmodel.lvs)*diag(1./d(Lmodel.lvs)),index);
+        end
+        if isempty(R(:,res)),
+            iri = 0;
+        else
+            iri = ADindex(tests,ri,R(:,res),index);
         end
         Dstt = iti;
         Qstt = iri;
