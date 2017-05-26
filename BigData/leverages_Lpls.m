@@ -30,11 +30,12 @@ function L = leverages_Lpls(Lmodel,opt)
 % X = simuleMV(20,10,8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % Lmodel = Lmodel_ini(X,Y);
-% L = leverages_pls(X,Y,1:3);
+% Lmodel.lvs = 1:3;
+% L = leverages_Lpls(Lmodel);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/17.
+% last modification: 26/May/17.
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -81,5 +82,5 @@ L = diag(W*W');
 %% Show results
 
 if opt == '1', 
-    plot_vec(L, label, classes, {'Variables','Leverages'});
+    plot_vec(L, Lmodel.var_l, Lmodel.vclass, {'Variables','Leverages'});
 end        

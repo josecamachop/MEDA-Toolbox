@@ -120,7 +120,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must cont
 
 P = Lpca(Lmodel);
     
-testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc);
+testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
 omeda_vec = omeda(testcs,dummy,P);
 
 % heuristic: 95% limit for one-observation-dummy

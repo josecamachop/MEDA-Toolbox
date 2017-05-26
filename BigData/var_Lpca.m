@@ -1,14 +1,17 @@
-function [x_var] = var_Lpca(Lmodel,opt)
+function x_var = var_Lpca(Lmodel,opt)
 
 % Variability captured in terms of the number of PCs.
 %
 % var_Lpca(Lmodel) % minimum call
-% var_Lpca(Lmodel,opt) %complete call
+% x_var = var_Lpca(Lmodel,opt) %complete call
 %
 %
 % INPUTS:
 %
-% Lmodel: (struct Lmodel) model with the information to compute the PCA. 
+% Lmodel: (struct Lmodel) model with the information to compute the PCA
+%   model:
+%       Lmodel.XX: (MxM) X-block cross-product matrix.
+%       Lmodel.lvs: (1x1) number of PCs.
 %
 % opt: (str or num) options for data plotting.
 %       0: no plots.

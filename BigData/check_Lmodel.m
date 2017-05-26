@@ -74,7 +74,7 @@ function [ok,Lmodel] = check_Lmodel(Lmodel)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/2017
+% last modification: 26/May/2017
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -166,6 +166,7 @@ if size(Lmodel.weighty,2) == 1, Lmodel.weighty = Lmodel.weighty'; end;
 
 % Preprocessing
 Lmodel.lvs = unique(Lmodel.lvs);
+Lmodel.lvs(find(Lmodel.lvs==0)) = [];
 A = length(Lmodel.lvs);
 
 % Validate dimensions of input data

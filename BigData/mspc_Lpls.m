@@ -215,7 +215,7 @@ iTT = diag(1./(sdT.^2));
 [Dst,Qst] = mspc(Lmodel.centr,iTT,R,P);
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc);
+    testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
     [Dstt,Qstt] = mspc(testcs,iTT,R,P);
 else
     Dstt = [];

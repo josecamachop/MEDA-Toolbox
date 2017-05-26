@@ -8,32 +8,32 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 %
 % INPUTS:
 %
-% x: (NxM) original matrix with centroids.
+% x: [NxM] original matrix with centroids.
 %
-% n_min: (1x1) number of output clusters.
+% n_min: [1x1] number of output clusters.
 %
-% mult: (Nx1) multiplicity of each cluster.
+% mult: [Nx1] multiplicity of each cluster.
 %
-% class: (Nx1) class associated to each cluster.
+% class: [Nx1] class associated to each cluster.
 %
 % olab: {Nx1} label of each cluster.
 %
-% updated: (Nx1) specifies if the data is a new point
+% updated: [Nx1] specifies if the data is a new point
 %   0: old point
 %   1: new point
 %
-% mat: (MxA) projection matrix for distance computation.
+% mat: [MxA] projection matrix for distance computation.
 %
-% obslist: (Nx1) list of observations for the clustering file system.
+% obslist: [Nx1] list of observations for the clustering file system.
 %
 %
 % OUTPUTS:
 %
-% centr: (n_minxM) output centroids.
+% centr: [n_minxM] output centroids.
 %
-% multn: (n_minx1) output multiplicity.
+% multn: [n_minx1] output multiplicity.
 %
-% classn: (n_minx1) output classes.
+% classn: [n_minx1] output classes.
 %
 % olabn: {n_minx1} output labels.
 %
@@ -41,7 +41,7 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 %   0: old point
 %   1: new point or combination with a new point
 %
-% obslist: (n_minx1) output list of observations for the clustering file
+% obslist: [n_minx1] output list of observations for the clustering file
 %   system.
 %
 %
@@ -50,6 +50,7 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 % X = simuleMV(1000,2,8);
 % [centr,multn] = psc(X,20);
 % plot_scatter(centr,[],[],{'Var 1', 'Var 2'},[],[],multn);
+%
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 21/May/2017

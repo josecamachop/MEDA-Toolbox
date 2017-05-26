@@ -1,9 +1,10 @@
-function [T,TT] = scores_Lpls(Lmodel,lvs,Ltest,opt,label)
+function [T,TT] = scores_Lpls(Lmodel,test,opt,label,classes)
 
 % Compute and plot scores in PLS for large data.
 %
-% scores_Lpca(Lmodel,lvs) % minimum call
-% scores_Lpca(Lmodel,lvs,Ltest,opt,label,classes) % complete call
+% scores_Lpca(Lmodel) % minimum call
+% [T,TT] = scores_Lpca(Lmodel,test,opt,label,classes) % complete call
+%
 %
 % INPUTS:
 %
@@ -12,50 +13,80 @@ function [T,TT] = scores_Lpls(Lmodel,lvs,Ltest,opt,label)
 %       Lmodel.XX: (MxM) X-block cross-product matrix.
 %       Lmodel.XY: (MxL) cross-product matrix between the x-block and the
 %           y-block.
+%       Lmodel.lvs: [1x1] number of LVs. 
 %       Lmodel.centr: (LxM) centroids of the clusters of observations
 %       Lmodel.multr: (Lx1) multiplicity of each cluster.
 %       Lmodel.class: (Lx1) class associated to each cluster.
 %
-% lvs: (1xA) Latent Variables considered (e.g. lvs = 1:2 selects the
-%   first two lvs)
+% test: [LxM] data set with the observations to be compared. These data 
+%   are preprocessed in the same way than calibration data
 %
-% Ltest: (struct Lmodel) model with test data:
-%       Ltest.XX: (MxM) X-block cross-product matrix.
-%       Ltest.XY: (MxL) cross-product matrix between the x-block and the
-%           y-block.
-%       Ltest.centr: (NxM) centroids of the clusters of observations
-%       Ltest.multr: (Nx1) multiplicity of each cluster.
-%       Ltest.class: (Nx1) class associated to each cluster.
+% opt: (str or num) options for data plotting: binary code of the form 'abcd' for:
+%       a:
+%           0: no plots
+%           1: plot scores
+%       b:
+%           0: scatter plot of pairs of PCs 
+%           1: bar plot of each single PC
+%       c:
+%           0: plot calibration and test data
+%           1: plot only test data 
+%       d:
+%           00: plot multiplicity info in the size of the markers.
+%           01: plot multiplicity info in the form of the markers.
+%           10: plot multiplicity information in the Z axis.
+%           11: plot multiplicity info in the size of the markers and 
+%               classes in Z-axis
+%           
+%   By deafult, opt = '10000'. If less than 5 digits are specified, least 
+%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0, d=00. 
+%   If a=0, then b, c and d are ignored. If b=1, then d is ignored.
 %
-% opt: (1x1) options for data plotting.
-%       0: no plots.
-%       1: score plot 
-%       2: score plot with empty marks
-%       3: 2D compressed score plot, with the multiplicity info in the
-%           markers
-%       4: 2D compressed score plot (by default), with the multiplicity
-%           info in the size of the markers
-%       5: 3D compressed score plot, with the multiplicity information in
-%           the Z axis
+% label: [Lx1] name of the test observations (numbers are used by default)
 %
-% label: ((L+N)x1) labels of the observations. Some possible inputs are:
-%   - num2str((1:L+N))')' or [] for observation numbers (by default)
-%   - num2str(Lmodel_it.class) for observation classes
-%   - ' ' to avoid labels.
+% classes: [Lx1] groups in test for different visualization (a single group 
+%   by default)
 %
 %
 % OUTPUTS:
 %
-% T: (LxA) calibration scores.
+% T: [LxA] calibration scores.
 %
-% TT: (NxA) test scores.
+% TT: [NxA] test scores.
+%
+%
+% EXAMPLE OF USE: Random scores
+%
+% X = simuleMV(20,10,8);
+% Y = 0.1*randn(20,2) + X(:,1:2);
+% Lmodel = Lmodel_ini(X,Y);
+% Lmodel.lvs = 1:3;
+% T = scores_Lpca(Lmodel);
+%
+%
+% EXAMPLE OF USE: Calibration and Test, both line and scatter plots
+%
+% n_obs = 100;
+% n_vars = 10;
+% X = simuleMV(n_obs,n_vars,8);
+% Y = 0.1*randn(n_obs,2) + X(:,1:2);
+% Lmodel = Lmodel_ini(X,Y);
+%
+% n_obst = 10;
+% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+%
+% Lmodel.lvs = 1;
+% scores_Lpca(Lmodel,test);
+% Lmodel.lvs = 1:2;
+% [T,TT] = scores_Lpca(Lmodel,test);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Jan/14.
+% last modification: 26/May/17.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
+% 
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -70,44 +101,119 @@ function [T,TT] = scores_Lpls(Lmodel,lvs,Ltest,opt,label)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Parameters checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-if nargin < 3 || isempty(Ltest), x = Lmodel.centr; test = []; else x = [Lmodel.centr;Ltest.centr]; end;
-s = size(x);
-if s(1) < 1 || s(2) < 1 || ndims(x)~=2, error('Error in the dimension of the arguments.'); end;
-sp = length(lvs);
-if sp < 2, error('Error in the dimension of the arguments.'); end;
-if nargin < 4, opt = 4; end;
-if nargin < 5 || isempty(label)
-    label=num2str((1:s(1))'); 
-elseif ~isequal(label,' '),
-    if ndims(label)==2 & find(size(label)==max(size(label)))==2, label = label'; end
-    if size(label,1)~=s(1), error('Error in the dimension of the arguments.'); end;
+%% Arguments checking
+
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
+check_Lmodel(Lmodel);
+
+N = Lmodel.nc;
+M = size(Lmodel.XX, 2);
+
+if nargin < 2, test = []; end;
+L = size(test, 1);
+
+if nargin < 3 || isempty(opt), opt = '100'; end; 
+
+A = length(Lmodel.lvs);
+
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
+% Complete opt
+while length(opt)<5, opt = strcat(opt,'0'); end
+if opt(3) == '1',
+    K = L;
+else
+    K = N+L;
 end
+
+if nargin < 4 || isempty(label), 
+    if  opt(3) == '1',
+        label = cellstr(num2str((1:L)'));
+    elseif isempty(Lmodel.obs_l),
+        label = cellstr(num2str([1:N 1:L]'));
+    else
+        if L
+            lb1 = cellstr(num2str((1:L)'));
+            label = {Lmodel.obs_l{:} lb1{:}};
+        else
+            label = Lmodel.obs_l;
+        end
+    end
+else
+    if  opt(3) == '0',
+        if isempty(Lmodel.obs_l),
+            lb1 = cellstr(num2str((1:N)'));
+            label = {lb1{:} label{:}};
+        else
+            label = {Lmodel.obs_l{:} label{:}};
+        end
+    end
+end
+
+if nargin < 5 || isempty(classes),
+    if opt(3) == '1', 
+        classes = ones(L,1); 
+    else
+        classes = [ones(N,1);2*ones(L,1)];  
+    end
+elseif opt(3) == '0' && length(classes)==L,
+        classes = [Lmodel.class;2*classes];
+end
+
+% Convert row arrays to column arrays
+if size(label,1) == 1,     label = label'; end;
+if size(classes,1) == 1, classes = classes'; end;
+
+% Validate dimensions of input data
+assert (A>0, 'Dimension Error: 1sr argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
+if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 2nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
+assert (ischar(opt) && length(opt)==5, 'Dimension Error: 3rd argument must be a string or num of maximum 5 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [K 1]), 'Dimension Error: 4th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [K 1]), 'Dimension Error: 5th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name); 
+
+% Validate values of input data
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+
 
 %% Main code
 
-Lmodel.lv = max(lvs);
 [beta,W,P,Q,R] = Lpls(Lmodel);
 T = Lmodel.centr*R;
 
-if exist('Ltest')&~isempty(Ltest)&~isempty(Ltest.centr),
-    TT = Ltest.centr*R;
-    classes = [Lmodel.class;Ltest.class];
-    mult = [Lmodel.multr;Ltest.multr];
+if ~isempty(test)
+    testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
+    TT = testcs*R;
 else
     TT = [];
-    classes = Lmodel.class;
-    mult = [Lmodel.multr];
 end
 
-if opt,
-    T = [T;TT];
-    for i=1:length(lvs)-1,
-        for j=i+1:length(lvs),
-            plot_Lscatter([T(:,lvs(i)),T(:,lvs(j))],label,classes,{sprintf('PC %d',lvs(i)),sprintf('PC %d',lvs(j))},opt-1,mult,10.^(floor(log10(max(mult)))/3:floor(log10(max(mult)))/3:floor(log10(max(mult)))));
-        end      
+%% Show results
+
+if opt(1) == '1',
+     
+    if opt(3) == '0'
+        ttt = [T;TT];
+        mult = [Lmodel.multr;ones(size(TT,1),1)];
+    else
+        ttt = TT;
+        mult = ones(size(TT,1));
+    end
+    
+    if length(Lmodel.lvs) == 1 || opt(2) == '1',
+        for i=1:length(Lmodel.lvs)
+            plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d',Lmodel.lvs(i))}, [], [], [], mult);
+        end
+    else
+        for i=1:length(Lmodel.lvs)-1,
+            for j=i+1:length(Lmodel.lvs),
+                plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d',Lmodel.lvs(i)),sprintf('Scores PC %d',Lmodel.lvs(j))}, [], strcat('1',opt(4:5)), mult);
+            end
+        end
     end
 end
 
