@@ -1,12 +1,12 @@
 
-function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars)
+function [meda_map,ind,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars)
 
 % Missing data methods for exploratory data analysis in PCA. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
 % 8-18. 
 %
 % meda_map = meda_pls(x,y) % minimum call
-% [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars) %complete call
+% [meda_map,ind,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars) %complete call
 %
 %
 % INPUTS:
@@ -53,9 +53,10 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 %
 % meda_map: [MxM] non-seriated MEDA matrix.
 %
-% meda_dis: [MxM] discretized MEDA matrix.
+% ind: [M2x1] indices of seriated variables over the input threshold (M2 < M).
 %
-% ord: [Mx1] order of seriated variables.
+% ord: [M2x1] order of seriated variables.
+%
 %
 %
 % EXAMPLE OF USE: Seriation and discarding uninformative variables
@@ -67,10 +68,10 @@ function [meda_map,meda_dis,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/16
+% last modification: 26/May/17
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -152,14 +153,13 @@ y2 = preprocess2D(y,prepy);
 
 meda_map = meda(x2'*x2,R,P);
 
-if nargout > 1
-    meda_dis = meda_map; % discretize
-    ind = find(meda_dis(:)<thres);
-    meda_dis(ind) = 0;
+if nargout > 1 || opt(3) == '1'
+    Dmap = diag(meda_map);
+    ind = find(Dmap > thres);
 end
 
-if nargout > 2 || opt(2)=='1',
-    [map1, ord] = seriation(meda_map);
+if nargout > 2 || opt(2) == '1',
+    [map, ord] = seriation(meda_map(ind,ind));
 end
     
 
@@ -179,14 +179,13 @@ if opt(1) == '1',
     label = label(ord2);
     
     if opt(3) == '1',
-        Dmap = diag(map);
-        ind = find(Dmap > thres);
+        ind2 = ind;
     else
-        ind = 1:length(vars);
+        ind2 = 1:length(vars);
     end
     
-    map = map(ind,ind);
-    label = label(ind);
+    map = map(ind2,ind2);
+    label = label(ind2);
     
     plot_map(map,label);
     

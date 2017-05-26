@@ -1,12 +1,12 @@
-function [meda_map,meda_dis,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars)
+function [meda_map,ind,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars)
 
 % Missing data methods for exploratory data analysis in PLS. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
 % 8-18. This algorithm follows the suggested computation by Arteaga, which
 % makes use of the covariance matrices.
 %
-% [meda_map,meda_dis,ord,Lmodel] = meda_Lpls(Lmodel) % minimum call
-% [meda_map,meda_dis,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars) %complete call
+% [meda_map,ind,ord,Lmodel] = meda_Lpls(Lmodel) % minimum call
+% [meda_map,ind,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars) %complete call
 %
 %
 % INPUTS:
@@ -41,9 +41,9 @@ function [meda_map,meda_dis,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars)
 %
 % meda_map: [MxM] non-seriated MEDA matrix.
 %
-% meda_dis: [MxM] discretized MEDA matrix.
+% ind: [M2x1] indices of seriated variables over the input threshold (M2 < M).
 %
-% ord: [Mx1] order of seriated variables
+% ord: [M2x1] order of seriated variables.
 %
 % Lmodel: (struct Lmodel) model after integrity checking.
 %
@@ -58,7 +58,7 @@ function [meda_map,meda_dis,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/17.
+% last modification: 26/May/17.
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -122,19 +122,15 @@ s = size(Lmodel.XX);
 [beta,W,P,Q,R] = Lpls(Lmodel);
 
 meda_map = meda(Lmodel.XX,R,P);
-
-if nargout > 1
-    meda_dis = meda_map; % discretize
-    ind = find(meda_dis(:)<thres);
-    meda_dis(ind) = 0;
+if nargout > 1 || opt(3) == '1'
+    Dmap = diag(meda_map);
+    ind = find(Dmap > thres);
 end
 
 if nargout > 2 || opt(2) == '1',
-    [map1, ord] = seriation(meda_map);
+    [map, ord] = seriation(meda_map(ind,ind));
 end
-
-
-
+    
 %% Show results
 
 if opt(1) == '1',
@@ -151,14 +147,13 @@ if opt(1) == '1',
     label = Lmodel.var_l(ord2);
     
     if opt(3) == '1',
-        Dmap = diag(map);
-        ind = find(Dmap > thres);
+        ind2 = ind;
     else
-        ind = 1:length(vars);
+        ind2 = 1:length(vars);
     end
     
-    map = map(ind,ind);
-    label = Lmodel.var_l(ind);
+    map = map(ind2,ind2);
+    label = Lmodel.var_l(ind2);
     
     plot_map(map,label);
     
