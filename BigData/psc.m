@@ -53,7 +53,7 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/2017
+% last modification: 26/May/2017
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -90,7 +90,8 @@ assert (isequal(size(n_min), [1 1]), 'Dimension Error: 2nd argument must be 1-by
 assert (isequal(size(mult), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(class), [N 1]), 'Dimension Error: 4th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(updated), [N 1]), 'Dimension Error: 6th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(mat), [M M]), 'Dimension Error: 7th argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(mat,1), M), 'Dimension Error: 7th argument must be M-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (size(mat,2)<=M, 'Dimension Error: 7th argument must be M-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 
 % Validate values of input data

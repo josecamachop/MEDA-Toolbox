@@ -6,6 +6,7 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 % Lmodel = update_iterative(list)          % minimum call
 % Lmodel = update_iterative(list,path,Lmodel,step,files,debug) % complete call
 %
+%
 % INPUTS:
 %
 % list: {Fx1} list of strings with the names of the files for the update or
@@ -17,13 +18,13 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 % Lmodel: (struct Lmodel) model to update (initialized to PCA model with 1
 %   PC and auto-scaling by default)
 %
-% step: (1x1) percentage of the data in the file to be used in each
+% step: [1x1] percentage of the data in the file to be used in each
 %   iteration. For time-course data 1 is suggested (1 by default)
 %
-% files: (1x1) create the file system with the original data (1) or not (0, by
+% files: [1x1] create the file system with the original data (1) or not (0, by
 %   default)
 %
-% debug: (1x1) disply debug messages
+% debug: [1x1] disply debug messages
 %       0: no messages are displayed.
 %       1: display only main messages (default)
 %       2: display all messages.
@@ -37,21 +38,40 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 % NOTE: On the MEDA FileSystem for input argument files set to 1. It is 
 % based on CSV files (to change in the future) with two hierarchies. The 
 % top layer contains pointers to data files, and it is only set for those 
-% clusters with more than 100 observations (this is hardcoded in the present 
-% routine, in the call to cfilesys) The bottom layer contains the actual 
-% data of the observations. CSV format is to change in the future. The name
-% of the files follows this structure: For top layer files we use 
+% clusters with more than 100 observations (this number is hardcoded in the 
+% present routine, in the call to cfilesys) The bottom layer contains the 
+% actual data of the observations. CSV format is to change in the future. 
+% The name of the files follows this structure: For top layer files we use 
 % MEDA#to#oc#c, where #t is the index of the original file in the imput 
 % list for the first observation introduced, starting from 1, #o is the 
 % order of the  observation in that file and #c the class. For bottom layer
 % we add _#n for the n-th file depending on the same top file. Name format 
 % can be chaged in this routine (line app. 399).
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 30/Oct/16
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% EXAMPLE OF USE: model a large number of observations.
+%
+% n_obs = 100;
+% n_vars = 10;
+% Lmodel = Lmodel_ini;
+% Lmodel.type = 1; 
+% Lmodel.prep = 2;  
+% Lmodel.lvs = 1;
+% Lmodel.nc = 100; % Number of clusters
+% 
+% for i=1:10,
+%   list(i).x = simuleMV(n_obs,n_vars,6);
+% end
+%
+% Lmodel = update_iterative(list,[],Lmodel);
+% mspc_Lpca(Lmodel);
+%
+%
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 26/May/17
+%
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -77,10 +97,8 @@ if nargin < 3 || isempty(Lmodel),
     Lmodel.type = 1;
     Lmodel.lvs = 0;
     Lmodel.prep = 2;
-else
-    check_Lmodel(Lmodel);
 end;
-
+[ok, Lmodel] = check_Lmodel(Lmodel);
 if nargin < 4 || isempty(step), step = 1; end;
 if nargin < 5 || isempty(files), files = 0; end;
 if nargin < 6 || isempty(debug), debug = 1; end;
@@ -346,7 +364,7 @@ for t=1:length(list),
         if ismember('obs_l', vars)
             obs_l = list(t).obs_l;
         else
-            obs_l = {};
+            obs_l = cellstr(num2str((1:size(x,1))'));{};
         end
     else
         load([path list{t}],'x')
@@ -359,7 +377,7 @@ for t=1:length(list),
         if ismember('obs_l', {vars.name})
             load([path list{t}],'obs_l')
         else
-            obs_l = {};
+            obs_l = cellstr(num2str((1:size(x,1))'));
         end
     end
     
@@ -412,6 +430,8 @@ for t=1:length(list),
       
 end
 
-ind = find(strcmp(Lmodel.obs_l, 'mixed'));
-Lmodel.obs_l(ind) = Lmodel.index_fich(ind);
+if files,
+    ind = find(strcmp(Lmodel.obs_l, 'mixed'));
+    Lmodel.obs_l(ind) = Lmodel.index_fich(ind);
+end
 

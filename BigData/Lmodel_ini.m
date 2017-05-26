@@ -2,8 +2,19 @@ function Lmodel = Lmodel_ini(X,Y,obs_l,var_l)
 
 % Large model inicialization
 %
-% Lmodel = Lmodel_ini(X) % complete call
+% Lmodel_ini % minimum call
+% Lmodel = Lmodel_ini(X,Y,obs_l,var_l) % complete call
 %
+%
+% INOUTS:
+%
+% X: [NxM] billinear data set for model fitting
+%
+% Y: [NxO] billinear data set of predicted variables
+%
+% obs_l: {Nx1} label of each observation.
+%
+% var_l: {Mx1} label of each variable.
 %
 % OUTPUTS:
 %
@@ -80,7 +91,7 @@ function Lmodel = Lmodel_ini(X,Y,obs_l,var_l)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/2017
+% last modification: 26/May/2017
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -104,7 +115,13 @@ if nargin < 1, X = []; end;
 N = size(X, 1);
 M = size(X, 2);
 if nargin < 2, Y = []; end;
-if nargin < 3 || isempty(obs_l), obs_l = cellstr(num2str((1:N)')); end;
+if nargin < 3 || isempty(obs_l), 
+    if N>0, 
+        obs_l = cellstr(num2str((1:N)')); 
+    else
+        obs_l={}; 
+    end;
+end
 if nargin < 4 || isempty(var_l), var_l = cellstr(num2str((1:M)')); end;
 
 Lmodel.centr = X;

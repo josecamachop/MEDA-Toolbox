@@ -74,7 +74,7 @@ function [ok,Lmodel] = check_Lmodel(Lmodel)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 26/May/2017
+% last modification: 27/May/2017
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -103,15 +103,21 @@ if ~isfield(Lmodel,'centrY') || isempty(Lmodel.centrY), Lmodel.centrY = []; end
 L = size(Lmodel.centrY, 2);
 if ~isfield(Lmodel,'type') || isempty(Lmodel.type), Lmodel.type = 1; end
 if ~isfield(Lmodel,'update') || isempty(Lmodel.update), Lmodel.update = 2; end
-if ~isfield(Lmodel,'nc') || isempty(Lmodel.nc) || Lmodel.nc==0, Lmodel.nc = size(Lmodel.centr,1); end
+if ~isfield(Lmodel,'nc') || isempty(Lmodel.nc) || Lmodel.nc==0, Lmodel.nc = max(100,size(Lmodel.centr,1)); end
 if ~isfield(Lmodel,'N') || isempty(Lmodel.N) || Lmodel.N==0, Lmodel.N = size(Lmodel.centr,1); end
 if ~isfield(Lmodel,'lvs') || isempty(Lmodel.lvs), Lmodel.lvs = 1:rank(Lmodel.XX); end
 if ~isfield(Lmodel,'prep') || isempty(Lmodel.prep), Lmodel.prep = 0; end
 if Lmodel.nc>0,
-    if ~isfield(Lmodel,'multr') || isempty(Lmodel.multr), Lmodel.multr = ones(Lmodel.nc,1); end
-    if ~isfield(Lmodel,'class') || isempty(Lmodel.class), Lmodel.class = ones(Lmodel.nc,1); end
-    if ~isfield(Lmodel,'updated') || isempty(Lmodel.updated), Lmodel.updated = ones(Lmodel.nc,1); end
-    if ~isfield(Lmodel,'obs_l') || isempty(Lmodel.obs_l), Lmodel.obs_l = cellstr(num2str((1:Lmodel.nc)')); end
+    if ~isfield(Lmodel,'multr') || isempty(Lmodel.multr), Lmodel.multr = ones(size(Lmodel.centr,1),1); end
+    if ~isfield(Lmodel,'class') || isempty(Lmodel.class), Lmodel.class = ones(size(Lmodel.centr,1),1); end
+    if ~isfield(Lmodel,'updated') || isempty(Lmodel.updated), Lmodel.updated = ones(size(Lmodel.centr,1),1); end
+    if ~isfield(Lmodel,'obs_l') || isempty(Lmodel.obs_l), 
+        if size(Lmodel.centr,1)>1,
+            Lmodel.obs_l = cellstr(num2str((1:size(Lmodel.centr,1))')); 
+        else
+            Lmodel.obs_l = {};
+        end
+    end
 else
     if ~isfield(Lmodel,'multr'), Lmodel.multr = []; end
     if ~isfield(Lmodel,'class'), Lmodel.class = []; end

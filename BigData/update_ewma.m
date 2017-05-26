@@ -1,10 +1,11 @@
 function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug)
 
-% Big data analysis based on bilinear proyection models (PCA and PLS), EWMA
-% approach.
+% Big data analysis based on bilinear proyection models (PCA and PLS) with
+% the exponentially weighted moving average approach.
 %
 % Lmodel = update_ewma(list)          % minimum call
 % Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug) % complete call
+%
 %
 % INPUTS:
 %
@@ -17,13 +18,13 @@ function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug)
 % Lmodel: (struct Lmodel) model to update (initialized to PCA model with 1
 %   PC and auto-scaling by default)
 %
-% lambda: (1x1) forgetting factor between 0 (fast adaptation) and 1 (long
+% lambda: [1x1] forgetting factor between 0 (fast adaptation) and 1 (long
 %   history) (1 by default)
 %
-% step: (1x1) percentage of the data in the file to be used in each
+% step: [1x1] percentage of the data in the file to be used in each
 %   iteration. For time-course data 1 is suggested (1 by default)
 %
-% debug: (1x1) disply debug messages
+% debug: [1x1] disply debug messages
 %       0: no messages are displayed.
 %       1: display only main messages (default)
 %       2: display all messages.  
@@ -34,11 +35,29 @@ function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug)
 % Lmodel: (struct Lmodel) model updated.
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 03/Sep/15
+% EXAMPLE OF USE: update a random model with new random observations.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% n_obs = 100;
+% n_vars = 10;
+% Lmodel = Lmodel_ini(simuleMV(n_obs,n_vars,6));
+% Lmodel.type = 1; 
+% Lmodel.prep = 2;  
+% Lmodel.lvs = 1;
+% Lmodel.nc = 100; % Number of clusters
+% Lmodel.mat = loadings_Lpca(Lmodel,0);
+% mspc_Lpca(Lmodel);
+%
+% n_obst = 10;
+% list(1).x = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
+% Lmodel = update_ewma(list,[],Lmodel);
+% mspc_Lpca(Lmodel);
+%
+%
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 26/May/17
+%
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -53,22 +72,36 @@ function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
-%% Parameters checking
+%% Arguments checking
 
-if nargin < 1, error('Error in the number of arguments.'); end;
-if nargin < 2, path = ''; end;
-if nargin < 3, 
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
+if nargin < 2 || isempty(path), path = ''; end;
+if nargin < 3 || isempty(Lmodel), 
     Lmodel = Lmodel_ini; 
     Lmodel.type = 1;
-    Lmodel.lv = 1;
+    Lmodel.lvs = 0;
     Lmodel.prep = 2;
 end;
-if nargin < 4, lambda = 1; end;
-if nargin < 5, step = 1; end;
-if nargin < 6, debug = 1; end;
+[ok, Lmodel] = check_Lmodel(Lmodel);
+if nargin < 4 || isempty(lambda), lambda = 1; end;
+if nargin < 5 || isempty(step), step = 1; end;
+if nargin < 6 || isempty(debug), debug = 1; end;
+
+% Validate dimensions of input data
+assert (isequal(size(lambda), [1 1]), 'Dimension Error: 4th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(step), [1 1]), 'Dimension Error: 5th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(debug), [1 1]), 'Dimension Error: 6th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
+  
+% Validate values of input data
+assert (lambda>=0 && lambda<=1, 'Value Error: 4th argument must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
+assert (step>0 && step<=1, 'Value Error: 5th argument must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
+assert (debug==0 || debug==1 || debig==2, 'Value Error: 6th argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
     
     
-% Computation
+%% Main code
 
 Lmodel.update = 1; 
     
@@ -103,7 +136,7 @@ for t=1:length(list),
         if ismember('obs_l', vars)
             obs_l = list(t).obs_l;
         else
-            obs_l = {};
+            obs_l = cellstr(num2str((1:size(x,1))'));
         end
     else
         vars = whos('-file',[path list{t}]);
@@ -115,7 +148,7 @@ for t=1:length(list),
         if ismember('obs_l', {vars.name})
             load([path list{t}],'obs_l')
         else
-            obs_l = {};
+            obs_l = cellstr(num2str((1:size(x,1))'));
         end
     end
     
@@ -148,7 +181,7 @@ for t=1:length(list),
             y(indMV) = av(indMV);
         end
     
-        [ycs,Lmodel.avy,Lmodel.scy] = preprocess2Di(y,Lmodel.prepy,0,lambda,Lmodel.avy,Lmodel.scy,N,Lmodel.weight);
+        [ycs,Lmodel.avy,Lmodel.scy] = preprocess2Di(y,Lmodel.prepy,0,lambda,Lmodel.avy,Lmodel.scy,N,Lmodel.weighty);
         
         Lmodel.XY = lambda*Lmodel.XY + xcs'*ycs;
         Lmodel.YY = lambda*Lmodel.YY + ycs'*ycs;
@@ -170,7 +203,7 @@ for t=1:length(list),
     end
     
     Lmodel.multr = lambda*Lmodel.multr;
-    ind_lab = find(Lmodel.multr>1);
+    ind_lab = find(Lmodel.multr>=1);
     Lmodel.centr =  Lmodel.centr(ind_lab,:);
     Lmodel.multr = Lmodel.multr(ind_lab);
     Lmodel.class = Lmodel.class(ind_lab);

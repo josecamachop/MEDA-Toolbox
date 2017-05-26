@@ -81,7 +81,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/17.
+% last modification: 26/May/17.
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -259,7 +259,7 @@ if opt(1) == '1',
     end
     
     if opt(2) == '0',
-        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 3, mult);
+        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 1, mult);
     else
         plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd, 0, mult);
         plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq, 0, mult);

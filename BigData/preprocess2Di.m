@@ -12,10 +12,10 @@ function [xp,average,scale,N] = preprocess2Di(x,prep,ndim,lambda,average,scale,N
 %
 % prep: [1x1] preprocesing of the data
 %       0: no preprocessing.
-%       1: mean centering (default) 
-%       2: auto-scaling (centers and scales data so that each variable 
+%       1: mean centering
+%       2: auto-scaling (default, it centers and scales data so that each variable 
 %           has variance 1)  
-%       3: scaling (scales previously centered data so that each variable 
+%       3: scaling (it scales previously centered data so that each variable 
 %           has variance 1)  
 %
 % ndim: [1x1] 0 observations (by default), otherwise variables.
@@ -56,7 +56,7 @@ function [xp,average,scale,N] = preprocess2Di(x,prep,ndim,lambda,average,scale,N
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/2017
+% last modification: 27/May/2017
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -82,11 +82,15 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 n = size(x, 1);
 M = size(x, 2);
 
-if nargin < 2 || isempty(prep), prep = 1; end;
+if nargin < 2 || isempty(prep), prep = 2; end;
+prep2=prep;
+if prep2 == 3, prep2=2; end;
+[xcs,av,sc] = preprocess2D(x,prep2);
+
 if nargin < 3 || isempty(ndim), ndim = 0; end;
 if nargin < 4 || isempty(lambda), lambda = 0; end;
-if nargin < 5 || isempty(average), average = 0; end;
-if nargin < 6 || isempty(scale), scale = 0; end;
+if nargin < 5 || isempty(average), average = av; end;
+if nargin < 6 || isempty(scale), scale = sc; end;
 if nargin < 7 || isempty(N), N = 0; end;
 if nargin < 8 || isempty(weight), 
     if ndim,
@@ -107,7 +111,7 @@ assert (isequal(size(N), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. 
 assert (isequal(size(weight), [1 M]), 'Dimension Error: 8th argument must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (prep>=0 && prep<=2 && isequal(fix(prep), prep), 'Value Error: 2nd argument must contain integers between 0 and 2. Type ''help %s'' for more info.', routine(1).name);
+assert (prep>=0 && prep<=3 && isequal(fix(prep), prep), 'Value Error: 2nd argument must contain integers between 0 and 3. Type ''help %s'' for more info.', routine(1).name);
 assert (ndim==0 || ndim == 1, 'Value Error: 3rd argument must be 0 or 1. Type ''help %s'' for more info.', routine(1).name);
 assert (lambda>=0 && lambda<=1, 'Value Error: 4th argument must be between 0 and 1. Type ''help %s'' for more info.', routine(1).name);
 assert (N>=0, 'Value Error: 7th argument must be positive. Type ''help %s'' for more info.', routine(1).name);
