@@ -131,21 +131,13 @@ if nargout > 2 || opt(2) == '1',
     [map, ord] = seriation(meda_map(ind,ind));
 end
     
+
 %% Show results
 
 if opt(1) == '1',
     
     map = meda_map;
- 
-    if opt(2) == '1',
-        ord2 = ord;
-    else
-        ord2 = 1:length(vars);
-    end
-    
-    map = map(ord2,ord2);
-    label = Lmodel.var_l(ord2);
-    
+
     if opt(3) == '1',
         ind2 = ind;
     else
@@ -155,10 +147,18 @@ if opt(1) == '1',
     map = map(ind2,ind2);
     label = Lmodel.var_l(ind2);
     
+    if opt(2) == '1',
+        ord2 = ord;
+    else
+        ord2 = 1:length(vars);
+    end
+    
+    map = map(ord2,ord2);
+    label = label(ord2);
+    
     plot_map(map,label);
     
-end
-    
+end  
 
 
         
