@@ -7,6 +7,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,lvs,test,prepx,prepy,opt,l
 % [Dst,Qst] = mspc_pls(x,y) % minimum call
 % [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,p_valueD,p_valueQ,limtype) % complete call
 %
+%
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting

@@ -47,26 +47,19 @@ function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 %
 % OUTPUTS:
 %
-% W: [MxA] X-block weights
-%
 % P: [MxA] X-block loadings
+%
+% W: [MxA] X-block weights
 %
 % Q: [OxA] Y-block loadings
 %
 %
-% EXAMPLE OF USE: Random loadings: bar and scatter plot of weights
+% EXAMPLE OF USE: Random loadings: bar and scatter plot of loadings
 %
 % X = simuleMV(20,10,8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % loadings_pls(X,Y,1);
-% [W,P,Q] = loadings_pls(X,Y,1:3);
-%
-%
-% EXAMPLE OF USE: Random loadings, plotting x-block loadings
-%
-% X = simuleMV(20,10,8);
-% Y = 0.1*randn(20,2) + X(:,1:2);
-% [W,P,Q] = loadings_pls(X,Y,1:2,[],[],111);
+% [P,W,Q] = loadings_pls(X,Y,1:3);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)

@@ -1,10 +1,9 @@
-
-function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel)
+function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 
 % Bar or line plot.
 %
-% fig_h = plot_vec(vec) % minimum call
-% fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel) % complete call
+% plot_vec(vec) % minimum call
+% plot_vecplot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv) % complete call
 %
 %
 % INPUTS:
@@ -26,20 +25,29 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel)
 %
 % vlabel: [Mx1] name of the vectors (numbers are used by default)
 %
+% mult: [NxM] multiplicity of each row (1s by default)
+%
+% maxv: [1x3] thresholds for the different marker size (20, 50 and 100 by default)
+%
 %
 % OUTPUTS:
 %
-% fig_h: [1x1] figure handle
+% fig_h: (1x1) figure handle.
 %
 %
 % EXAMPLE OF USE: To plot three lines with constant control limits:
 %
-% fig_h = plot_vec(randn(100,3),[],[],{'Functions','Time'},[1, -1, 3], 0);
+% fig_h = plot_vec(randn(100,3),[],[],{'Functions','Time'},[1, -1, 3]);
 %
 %
 % EXAMPLE OF USE: with labels and classes in observations and variable limit:
 %
-% fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{[],'Functions'},randn(5,1));
+% fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{[],'Functions'},randn(5,1),1);
+%
+%
+% EXAMPLE OF USE: with labels, multiplicity and classes in observations and variable limit:
+%
+% fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{[],'Functions'},randn(5,1),1,[1 20 50 100 1000]);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -47,7 +55,7 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel)
 % last modification: 03/May/2017
 %
 % Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2016  Jose Camacho Paez, Alejandro Perez Villegas
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -61,8 +69,7 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel)
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
+    
 %% Parameters checking
 
 % Set default values
@@ -77,6 +84,8 @@ if nargin < 4 || isempty(xylabel), xylabel = {'',''}; end;
 if nargin < 5 || isempty(lcont),  lcont = []; end;
 if nargin < 6 || isempty(opt),  opt = '1'; end;
 if nargin < 7 || isempty(vlabel),  vlabel = 1:M; end;
+if nargin < 8 || isempty(mult),    mult    = ones(N,1);         end;
+if nargin < 9 || isempty(maxv),    maxv    = [20 50 100];       end;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -86,30 +95,11 @@ if size(elabel,1)  == 1, elabel = elabel'; end;
 if size(classes,1) == 1, classes = classes'; end;
 if size(lcont,1) == 1, lcont = lcont'; end;
 if size(vlabel,1)  == 1, vlabel = vlabel'; end;
+if size(mult,1) == 1, mult = mult'; end;
+if size(maxv,2) == 1, maxv = maxv'; end;
 
 % Convert int arrays to str
-% if ~isempty(elabel) && isnumeric(elabel), 
-%     vecn = elabel; 
-%     veci = 1:length(vecn);
-%     if length(elabel)>2,  
-%         max_lab = 30; % limit the number of labels displayed
-%         ini = 2;
-%         stepN = [];
-%         while isempty(stepN),
-%             lenv = length(vecn(ini:end));
-%             div = 1:(lenv-1);
-%             div = div(rem(lenv,div)==0);
-%             stepN = div(find(div>lenv/max_lab,1));
-%             ini = ini+1;
-%         end
-%         veci = 1:(lenv+ini-2);
-%         veci = veci(round([1 (ini-2+stepN):stepN:end]));
-%     end
-%     for i=veci,
-%         labele{i} = num2str(vecn(i));
-%     end
-%     elabel=labele'; 
-% end
+
 if ~isempty(vlabel) && isnumeric(vlabel), vlabel=num2str(vlabel); end
 
 % Convert char arrays to cell
@@ -124,7 +114,9 @@ if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(lcont), assert (isequal(size(lcont,1), N) || isequal(size(lcont,2), 1), 'Dimension Error: 5th argument must be N-by-L or L-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: 7th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: 8th argument must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 9th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); end;
  
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
@@ -137,7 +129,6 @@ if ~opt && ~isempty(classes) && size(vec, 2)>1,
     unique_classes = unique(classes);
     assert (min(hist(classes,unique(classes)))>1, 'Exception: Cannot visualize a multivariate bar plot with one-observation classes. Try setting the 6th argument to 1.'); 
 end;
-    
 
 %% Main code
 
@@ -154,6 +145,13 @@ else
 end
 
 % Plot vectors
+
+bins = [0 1 maxv Inf];
+
+sizes = [];
+for i=1:length(bins)-1
+    sizes (i) = round(.5 * i^2 * pi);
+end
 
 if ~isempty(classes)
     unique_classes = unique(classes);
@@ -172,7 +170,7 @@ if ~isempty(classes)
         else 
             bar(find(ind), vec(ind,:), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
         end
-    end
+    end 
 else
     color_list = hsv(M);
     for i=1:M,
@@ -189,7 +187,13 @@ else
                 bar(vec(:,i), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
             end
         end
-    end
+    end    
+end
+
+% Plot multiplicity
+for j=1:length(bins)-1,
+    ind = mult>bins(j) & mult<=bins(j+1);
+    plot(find(ind), 0*find(ind), 'kO', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
 end
 
 % Plot control limits
@@ -238,5 +242,4 @@ axis([ax(1:2) ax2(3:4)])
 legend off
 box on
 hold off
-
-       
+        

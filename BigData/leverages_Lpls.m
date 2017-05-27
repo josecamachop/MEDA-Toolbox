@@ -1,10 +1,10 @@
 
-function [P,W,Q] = loadings_Lpls(Lmodel,opt)
+function L = leverages_Lpls(Lmodel,opt)
 
-% Compute and plot loadings in PLS for large data.
+% Compute and plot the leverages of variables in PLS for large data.
 %
-% loadings_Lpls(Lmodel) % minimum call
-% [P,W,Q] = loadings_Lpls(Lmodel,opt) % complete call
+% L = leverages_Lpls(Lmodel) % minimum call
+% L = leverages_Lpls(Lmodel,opt) % complete call
 %
 % INPUTS:
 %
@@ -17,41 +17,27 @@ function [P,W,Q] = loadings_Lpls(Lmodel,opt)
 %       Lmodel.vclass: [Mx1] class associated to each variable.
 %       Lmodel.var_l: {ncx1} label of each variable.
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
-%       a:
-%           0: no plots
-%           1: plot loadings
-%       b:
-%           0: scatter plot of pairs of LVs
-%           1: bar plot of each single LV
-%       c:
-%           0: plot weights
-%           1: plot X-block loadings
-%   By deafult, opt = '100'. If less than 3 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
-%   If a=0, then b and c are ignored.
+% opt: (str or num) options for data plotting
+%       0: no plots.
+%       1: plot bar plot of leverages (default) 
 %
 %
 % OUTPUTS:
 %
-% P: [MxA] X-block loadings
-%
-% W: [MxA] X-block weights
-%
-% Q: [OxA] Y-block loadings
+% L: [Mx1] leverages of the variables
 %
 %
-% EXAMPLE OF USE: Random loadings: bar and scatter plot of loadings
+% EXAMPLE OF USE: Random leverages
 %
 % X = simuleMV(20,10,8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % Lmodel = Lmodel_ini(X,Y);
-% loadings_pls(X,Y,1);
-% [P,W,Q] = loadings_pls(X,Y,1:3);
+% Lmodel.lvs = 1:3;
+% L = leverages_Lpls(Lmodel);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/17.
+% last modification: 26/May/17.
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -75,17 +61,14 @@ function [P,W,Q] = loadings_Lpls(Lmodel,opt)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 [ok, Lmodel] = check_Lmodel(Lmodel);
-if nargin < 2 || isempty(opt), opt = '100'; end; 
+if nargin < 2 || isempty(opt), opt = 1; end; 
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
 
-% Convert int arrays to str
-while length(opt)<3, opt = strcat(opt,'0'); end
-
 % Validate dimensions of input data
 assert (~isempty(Lmodel.XY), 'Dimension Error: Empty XY. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 2nd argument must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 2nd argument must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
   
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
@@ -95,29 +78,11 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must cont
 
 [beta,W,P,Q,R] = Lpls(Lmodel);
 
+L = diag(W*W');
+
 
 %% Show results
 
-if opt(1) == '1',
-    
-    if opt(3) == '0',
-        Pt = W;
-        text = 'Weights';
-    else
-        Pt = P;
-        text = 'X-block loadings';
-    end
-    
-    if length(lvs) == 1 || opt(2) == '1',
-        for i=1:length(lvs),
-            plot_vec(Pt(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('%s LV %d',text,lvs(i))});
-        end
-    else
-        for i=1:length(lvs)-1,
-            for j=i+1:length(lvs),
-                plot_scatter([Pt(:,i),Pt(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}');
-            end      
-        end
-    end
-end
-        
+if opt == '1', 
+    plot_vec(L, Lmodel.var_l, Lmodel.vclass, {'Variables','Leverages'});
+end        

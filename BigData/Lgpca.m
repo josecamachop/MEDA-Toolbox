@@ -1,39 +1,53 @@
-function [p,t,bel] = Lgpca(Lmodel,states,opt)
+function [P,T,bel,E,Lmodel] = Lgpca(Lmodel,states)
 
 % Group-wise Principal Component Analysis for large data.
 %
-% [p,t,bel] = Lgpca(Lmodel,states)     % minimum call
-% [p,t,bel] = Lgpca(Lmodel,states,opt)     % complete call
+% [P,T,bel,E,Lmodel] = Lgpca(Lmodel,states)     % complete call
+%
 %
 % INPUTS:
 %
-
-% Lmodel: (struct Lmodel) model with the information to compute the PCA
+% Lmodel: (struct Lmodel) model with the information to compute the GPCA
 %   model:
-%       Lmodel.XX: (MxM) X-block cross-product matrix.
-%       Lmodel.lv: (1x1) number of PCs A.
+%       Lmodel.XX: [MxM] X-block cross-product matrix.
+%       Lmodel.lvs: [1x1] number of PCs A.
 %
 % states: {Sx1} Cell with the groups of variables.
-%
-% opt: options
-%   - 0: set the number of pcs to Lmodel.lv (by default)
-%   - 1: extract at least 1 PC per state.
 %
 %
 % OUTPUTS:
 %
-% p: (M x A) matrix of loadings.
+% P: [MxA] matrix of loadings.
 %
-% t: (N x A) matrix of scores.
+% T: [NxA] matrix of scores.
 %
-% bel: (A x 1) correspondence between PCs and States.
+% bel: [Ax1] correspondence between PCs and States.
+%
+% E: [NxM] matrix of residuals.
+%
+% Lmodel: (struct Lmodel) model after integrity checking.
+%
+%
+% EXAMPLE OF USE: Random data:
+%
+% X = simuleMV(20,10,8);
+% Lmodel = Lmodel_ini(X);
+% Lmodel.lvs = 0:10;
+% map = meda_Lpca(Lmodel);
+% [bel,states] = gia(map,0.3);
+% Lmodel.lvs = 1:length(states);
+% [P,T,bel,E] = Lgpca(Lmodel,states);
+% 
+% for i=Lmodel.lvs,
+%   plot_vec(P(:,i),[],[],{'',sprintf('PC %d',i)});
+% end
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Sep/15.
+% last modification: 21/May/2017
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -48,53 +62,55 @@ function [p,t,bel] = Lgpca(Lmodel,states,opt)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Parameters checking
+%% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-if nargin < 3, opt=0; end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-% Main code
+% Validate values of input data
+[ok, Lmodel] = check_Lmodel(Lmodel);
+
+
+%% Main code
 
 map = Lmodel.XX;
-x = Lmodel.centr;
+xcs = Lmodel.centr;
+N = size(xcs, 1);
+M = size(xcs, 2);
 I =  eye(size(map));
 B = I;
-j=1;
-if opt,
-    finish = false;
-else
-    finish = (j > Lmodel.lv);
-end
-while ~finish, 
+
+P = [];
+T = [];
+bel = [];
+for j = 1:max(Lmodel.lvs),  
+    
+    R = zeros(M,length(states));
+    S = zeros(N,length(states));
     
     for i=1:length(states), % construct eigenvectors according to states
         map_aux = zeros(size(map));
         map_aux(states{i},states{i})= map(states{i},states{i});
-        [V,D] = eig(map_aux);
-        ind = find(diag(D)==max(diag(D)),1);
-        R(:,i) = V(:,ind);
-        S(:,i) = x*R(:,i);       
+        if rank(map_aux),
+            [V,D] = eig(map_aux);
+            ind = find(diag(D)==max(diag(D)),1);
+            R(:,i) = V(:,ind);
+            S(:,i) = xcs*R(:,i);    
+        end
     end
 
     sS = sum(S.^2,1); % select pseudo-eigenvector with the highest variance
     ind = find(sS==max(sS),1);
-    p(:,j) = R(:,ind);
-    t(:,j) = S(:,ind);
+    P(:,j) = R(:,ind);
+    T(:,j) = S(:,ind);
     bel(j) = ind;
     
     q = B*R(:,ind); % deflate (Mackey'09)
     map = (I-q*q')*map*(I-q*q');
-    x = x*(I-q*q');
+    xcs = xcs*(I-q*q');
     B = B*(I-q*q');
     
-    j = j+1;
-    
-    if opt,
-        if length(unique(bel))==length(states),
-            finish = true;
-        end
-    else
-         finish = (j > Lmodel.lv);
-    end
-    
 end
+
+E = xcs;

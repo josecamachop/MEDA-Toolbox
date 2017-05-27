@@ -1,9 +1,9 @@
-function [y_var,t_var] = var_Lpls(Lmodel,maxlvs,opt)
+function [y_var,t_var] = var_Lpls(Lmodel,opt)
 
 % Variability captured in terms of the number of LVs.
 %
-% var_Lpls(Lmodel,maxlvs) % minimum call
-% var_Lpls(Lmodel,maxlvs,opt) %complete call
+% var_Lpls(Lmodel) % minimum call
+% [y_var,t_var] = var_Lpls(Lmodel,opt) %complete call
 %
 %
 % INPUTS:
@@ -14,27 +14,34 @@ function [y_var,t_var] = var_Lpls(Lmodel,maxlvs,opt)
 %       Lmodel.XY: (MxL) cross-product matrix between the x-block and the
 %           y-block.
 %       Lmodel.YY: (LxL) Y-block cross-product matrix.
+%       Lmodel.lvs: (1x1) number of PCs.
 %
-% maxlvs: (1x1) Latent Variables considered (e.g. maxlvs = 2 selects the
-%   first two lvs)
-%
-% opt: (1x1) options for data plotting.
+% opt: (str or num) options for data plotting.
 %       0: no plots.
 %       1: bar plot (default)
 %
 %
 % OUTPUTS:
 %
-% y_var: ((maxlvs+1)x1) Percentage of captured variance of Y.
+% y_var: [Ax1] Percentage of captured variance of Y.
 %
-% t_var: ((maxlvs+1)x1) Percentage of captured variance of the scores.
+% t_var: [Ax1] Percentage of captured variance of the scores.
+%
+%
+% EXAMPLE OF USE: Random data
+%
+% X = simuleMV(20,10,8);
+% Y = 0.1*randn(20,2) + X(:,1:2);
+% Lmodel = Lmodel_ini(X,Y);
+% Lmodel.lvs = 0:10;
+% x_var = var_Lpls(Lmodel);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 08/May/13.
+% last modification: 26/May/17.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -50,14 +57,32 @@ function [y_var,t_var] = var_Lpls(Lmodel,maxlvs,opt)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-%% Parameters checking
+%% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-if nargin < 3, opt = 1; end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
+check_Lmodel(Lmodel);
+
+% Preprocessing
+Lmodel.lvs = unique([0 Lmodel.lvs]);
+
+if nargin < 2 || isempty(opt), opt = '1'; end;
+
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
+% Validate dimensions of input data
+assert (ischar(opt) && length(opt)==1, 'Dimension Error: 2nd argument must be a string or num of 1 bit. Type ''help %s'' for more info.', routine(1).name);
+
+% Validate values of input data
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+
 
 %% Main code
 
-Lmodel.lv = maxlvs;   
+maxlvs = max(Lmodel.lvs);   
 [beta,W,P,Q,R] = Lpls(Lmodel);
 
 totalVt = sum(eig(Lmodel.XX));
@@ -71,7 +96,6 @@ end
     
 %% Show results
 
-if opt == 1,
-    fig_h = plot_vec(y_var,num2str((0:maxlvs)')','% Residual Variance',[],1);
-    fig_h = plot_vec(t_var,num2str((0:maxlvs)')','% Residual Variance',[],1,'r--',fig_h,{'Y','Scores'});
+if opt == '1',
+    plot_vec([y_var t_var],Lmodel.lvs,[],{'#PCs','% Residual Variance'},[],0,{'Y','Scores'});
 end

@@ -1,10 +1,10 @@
-function testcs = preprocess2Dapp(test,average,scale)
+function testcs = preprocess2Dapp(test,average,scale,weight)
 
 % Preprocess 2-way data with previously computed average and scale: 
-%   testcs = (test - average)/scale.
+%   testcs = weight.*(test - average)./scale.
 %
 % testcs = preprocess2Dapp(test,average)         % minimum call
-% testcs = preprocess2Dapp(test,average,scale)     % complete call
+% testcs = preprocess2Dapp(test,average,scale,weight)     % complete call
 %
 % INPUTS:
 %
@@ -14,6 +14,8 @@ function testcs = preprocess2Dapp(test,average,scale)
 %
 % scale: [1xM] scale to divide test. A vector or ones is used by default.
 %
+% weight: [1xM] weight applied after preprocessing scaling. Set to 1 by
+%   default.
 %
 % OUTPUTS:
 %
@@ -21,7 +23,7 @@ function testcs = preprocess2Dapp(test,average,scale)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 28/Mar/16.
+% last modification: 30/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez, 
@@ -48,16 +50,19 @@ assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(test, 1);
 M = size(test, 2);
 if nargin < 3 || isempty(scale), scale = ones(1,M); end;
+if nargin < 8 || isempty(weight), weight = ones(1,M); end;
 
 % Convert column arrays to row arrays
 if size(average,2) == 1, average = average'; end;
 if size(scale,2) == 1, scale = scale'; end;
+if size(weight,2) == 1, weight = weight'; end;
 
 % Validate dimensions of input data
 assert (isequal(size(average), [1 M]), 'Dimension Error: 2nd argument must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(scale), [1 M]), 'Dimension Error: 3rd argument must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(weight), [1 M]), 'Dimension Error: 4th argument must be 1-by-M. Type ''help %s'' for more info.', routine(1).name); 
 
 
 %% Main code
 
-testcs = (test - ones(N,1)*average)./(ones(N,1)*scale);
+testcs = (ones(N,1)*weight).*(test - ones(N,1)*average)./(ones(N,1)*scale);

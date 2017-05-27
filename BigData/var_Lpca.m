@@ -1,9 +1,9 @@
-function x_var = var_Lpca(Lmodel,maxpcs,opt)
+function x_var = var_Lpca(Lmodel,opt)
 
 % Variability captured in terms of the number of PCs.
 %
-% var_Lpca(Lmodel,maxpcs) % minimum call
-% var_Lpca(Lmodel,maxpcs,opt) %complete call
+% var_Lpca(Lmodel) % minimum call
+% x_var = var_Lpca(Lmodel,opt) %complete call
 %
 %
 % INPUTS:
@@ -11,22 +11,27 @@ function x_var = var_Lpca(Lmodel,maxpcs,opt)
 % Lmodel: (struct Lmodel) model with the information to compute the PCA
 %   model:
 %       Lmodel.XX: (MxM) X-block cross-product matrix.
+%       Lmodel.lvs: (1x1) number of PCs.
 %
-% maxpcs: (1x1) Principal Components considered (e.g. maxpcs = 2 selects the
-%   first two PCs)
-%
-% opt: (1x1) options for data plotting.
+% opt: (str or num) options for data plotting.
 %       0: no plots.
 %       1: bar plot (default)
 %
 %
 % OUTPUTS:
 %
-% x_var: ((maxpcs+1)x1) Percentage of captured variance of X.
+% x_var: [Ax1] Percentage of captured variance of X.
+%
+%
+% EXAMPLE OF USE: Random data
+%
+% Lmodel = Lmodel_ini(simuleMV(20,10,8));
+% Lmodel.lvs = 0:10;
+% x_var = var_Lpca(Lmodel);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 08/May/13.
+% last modification: 30/Oct/2016
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -45,24 +50,41 @@ function x_var = var_Lpca(Lmodel,maxpcs,opt)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
 
-%% Parameters checking
+%% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-if nargin < 3, opt = 1; end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
+check_Lmodel(Lmodel);
+
+% Preprocessing
+Lmodel.lvs = unique([0 Lmodel.lvs]);
+
+if nargin < 2 || isempty(opt), opt = '1'; end;
+
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
+% Validate dimensions of input data
+assert (ischar(opt) && length(opt)==1, 'Dimension Error: 2nd argument must be a string or num of 1 bit. Type ''help %s'' for more info.', routine(1).name);
+
+% Validate values of input data
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+
 
 %% Main code
 
-Lmodel.lv = maxpcs;   
 P = Lpca(Lmodel);
 
 totalVx = sum(eig(Lmodel.XX));
-x_var = ones(maxpcs+1,1);
-for i=1:maxpcs,
+x_var = ones(max(Lmodel.lvs)+1,1);
+for i=1:max(Lmodel.lvs),
     x_var(i+1) = x_var(i+1) - sum(eig(P(:,1:i)'*Lmodel.XX*P(:,1:i)))/totalVx;
 end
     
 %% Show results
 
-if opt == 1,
-    fig_h = plot_vec(x_var,num2str((0:maxpcs)')','% Residual Variance',[],1);
+if opt == '1',
+    plot_vec(x_var,Lmodel.lvs,[],{'#PCs','% Residual Variance'},[],0);
 end
