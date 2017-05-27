@@ -47,7 +47,7 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 %
 % EXAMPLE OF USE: with labels, multiplicity and classes in observations and variable limit:
 %
-% fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{[],'Functions'},randn(5,1),1,[1 20 50 100 1000]);
+% fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{[],'Functions'},randn(5,1),1,[],[],[20 50 100]);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -114,9 +114,9 @@ if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(lcont), assert (isequal(size(lcont,1), N) || isequal(size(lcont,2), 1), 'Dimension Error: 5th argument must be N-by-L or L-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: 7th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: 8th argument must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 9th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: 8th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: 9th argument must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
  
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
@@ -165,10 +165,17 @@ if ~isempty(classes)
     end  
     for i=1:length(unique_classes)
         ind = classes == unique_classes(i);
+        if isnumeric(elabel)
+            vind = elabel(find(ind));
+        else
+            vind = find(ind);
+        end
+            
+        
         if opt == '0',
-            plot(find(ind), vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', color_list(i,:), 'DisplayName', num2str(unique_classes(i)));
+            plot(vind, vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', color_list(i,:), 'DisplayName', num2str(unique_classes(i)));
         else 
-            bar(find(ind), vec(ind,:), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
+            bar(vind, vec(ind,:), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
         end
     end 
 else
@@ -193,7 +200,11 @@ end
 % Plot multiplicity
 for j=1:length(bins)-1,
     ind = mult>bins(j) & mult<=bins(j+1);
-    plot(find(ind), 0*find(ind), 'kO', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
+    if isnumeric(elabel)
+        plot(elabel(find(ind)), 0*find(ind), 'kO', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
+    else
+        plot(find(ind), 0*find(ind), 'kO', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
+    end
 end
 
 % Plot control limits
@@ -239,7 +250,7 @@ axis auto
 ax2 = axis;
 axis([ax(1:2) ax2(3:4)])
 
-legend off
+%legend off
 box on
 hold off
         

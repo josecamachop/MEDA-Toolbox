@@ -182,5 +182,17 @@ if opt(1) == '1'
     if  opt(2) == '1',
         plot([0 pcs],betas','c')
     end
+    
+    % Set axis
+    axis tight
+    ax = axis;
+    axis auto
+    ax2 = axis;
+    axis([ax(1:2) ax2(3:4)])
+    
+    %legend off
+    box on
+    hold off
+
 end
 
