@@ -167,29 +167,6 @@ sizes = zeros(size(mult));
 for i=1:length(bins)-1
     sizes (mult>bins(i) & mult<=bins(i+1)) = round(2.5 * i^2 * pi);
 end
- 
-% % Plot points
-% a=license('inuse');
-% lmatlab = false;
-% for i=1:length(a),
-%     if strcmp(a(i).feature,'matlab'),
-%         lmatlab = true;
-%     end
-% end
-%     
-% if lmatlab    
-%     a = gscatter(bdata(:,1), bdata(:,2), classes, [], 'o');
-%     
-%     % Fill marks
-%     if opt == '1',
-%         for i=1:length(a)
-%             color = get(a(i), 'Color');
-%             set(a(i), 'MarkerFaceColor',color);
-%         end
-%     end
-% else
-%     plot(bdata(:,1), bdata(:,2), 'o');
-% end
 
 switch opt
     case '000',  % 2D plot, No multiplicity info, filled marks
