@@ -45,7 +45,7 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 %   system.
 %
 %
-% EXAMPLE OF USE: Random leverages from 2000 to 20 clusters
+% EXAMPLE OF USE: Random values from 1000 to 20 clusters
 %
 % X = simuleMV(1000,2,8);
 % [centr,multn] = psc(X,20);

@@ -15,6 +15,9 @@ function [Dstt,Qstt,Rt,Rq] = mspc_ADICOV(Lmodel,test,index)
 %   model:
 %       Lmodel.XX: [MxM] X-block cross-product matrix.
 %       Lmodel.lvs: [1x1] number of PCs. 
+%       Lmodel.av: [1xM] sample average according to the preprocessing method.
+%       Lmodel.sc: [1xM] sample scale according to the preprocessing method.
+%       Lmodel.weight: [1xM] weight applied after the preprocessing method.
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -54,7 +57,7 @@ function [Dstt,Qstt,Rt,Rq] = mspc_ADICOV(Lmodel,test,index)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/17.
+% last modification: 27/May/17.
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -122,11 +125,7 @@ if Lmodel.N,
         
         onesV = ones(size(test,1),1);
         
-        if Lmodel.weight~=0,
-            tests = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
-        else
-            tests = preprocess2Dapp(test,Lmodel.av,Lmodel.sc);
-        end
+        tests = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
         
         if ~isempty(Lmodel.lvs),
             ti = ADICOV(Lmodel.XX,tests,length(Lmodel.lvs),R(:,Lmodel.lvs),P(:,Lmodel.lvs));

@@ -31,7 +31,7 @@ function [P,sdT,Lmodel] = Lpca(Lmodel)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/2017
+% last modification: 27/May/2017
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 20176  Jose Camacho Paez
@@ -64,6 +64,6 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 [P,d2] = eig(Lmodel.XX);
 dd = diag(d2);
 [dd,inddd]=sort(dd,'descend');
-P = P(:,inddd(1:max(Lmodel.lvs)));
+P = P(:,inddd(Lmodel.lvs));
 
 sdT = real(sqrt(dd(1:max(Lmodel.lvs))/(Lmodel.N-1)));

@@ -11,6 +11,8 @@ function P = loadings_Lpca(Lmodel,opt)
 %   model:
 %       Lmodel.XX: (MxM) X-block cross-product matrix.
 %       Lmodel.lvs: (1x1) number of PCs.
+%       Lmodel.vclass: [Mx1] class associated to each variable.
+%       Lmodel.var_l: {ncx1} label of each variable.
 %
 % opt: (str or num) options for data plotting: binary code of the form 'ab' for:
 %       a:
@@ -71,7 +73,7 @@ if isnumeric(opt), opt=num2str(opt); end
 if length(opt)<2, opt = strcat(opt,'0'); end
 
 % Validate dimensions of input data
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: 2nd argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==2, 'Dimension Error: 2nd argument must be a string or num of maximum 2 bits. Type ''help %s'' for more info.', routine(1).name);
   
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);

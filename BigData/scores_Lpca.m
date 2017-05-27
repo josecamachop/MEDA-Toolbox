@@ -15,6 +15,9 @@ function [T,TT] = scores_Lpca(Lmodel,test,opt,label,classes)
 %       Lmodel.centr: (LxM) centroids of the clusters of observations
 %       Lmodel.multr: (Lx1) multiplicity of each cluster.
 %       Lmodel.class: (Lx1) class associated to each cluster.
+%       Lmodel.av: [1xM] sample average according to the preprocessing method.
+%       Lmodel.sc: [1xM] sample scale according to the preprocessing method.
+%       Lmodel.weight: [1xM] weight applied after the preprocessing method.
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data

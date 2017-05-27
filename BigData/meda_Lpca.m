@@ -102,7 +102,7 @@ if length(opt)<3, opt = strcat(opt,'0'); end
 
 % Validate dimensions of input data
 assert (isequal(size(thres), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 3rd argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==3, 'Dimension Error: 3rd argument must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 4th argument must be at most M-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data

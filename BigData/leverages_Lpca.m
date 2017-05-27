@@ -11,6 +11,8 @@ function L = leverages_Lpca(Lmodel,opt)
 %   model:
 %       Lmodel.XX: (MxM) X-block cross-product matrix.
 %       Lmodel.lvs: (1x1) number of PCs.
+%       Lmodel.vclass: [Mx1] class associated to each variable.
+%       Lmodel.var_l: {ncx1} label of each variable.
 %
 % opt: (str or num) options for data plotting
 %       0: no plots.
@@ -61,7 +63,7 @@ if nargin < 2 || isempty(opt), opt = 1; end;
 if isnumeric(opt), opt=num2str(opt); end
 
 % Validate dimensions of input data
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 2nd argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 2nd argument must be a string or num of maximum 2 bits. Type ''help %s'' for more info.', routine(1).name);
   
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);

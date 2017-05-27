@@ -14,6 +14,8 @@ function [P,W,Q] = loadings_Lpls(Lmodel,opt)
 %       Lmodel.XY: [MxO] cross-product matrix between the x-block and the
 %           y-block.
 %       Lmodel.lvs: [1x1] number of Latent Variables.
+%       Lmodel.vclass: [Mx1] class associated to each variable.
+%       Lmodel.var_l: {ncx1} label of each variable.
 %
 % opt: (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
@@ -79,12 +81,11 @@ if nargin < 2 || isempty(opt), opt = '100'; end;
 if isnumeric(opt), opt=num2str(opt); end
 
 % Convert int arrays to str
-if length(opt)<2, opt = strcat(opt,'00'); end
-if length(opt)<3, opt = strcat(opt,'0'); end
+while length(opt)<3, opt = strcat(opt,'0'); end
 
 % Validate dimensions of input data
 assert (~isempty(Lmodel.XY), 'Dimension Error: Empty XY. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 2nd argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==3, 'Dimension Error: 2nd argument must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
   
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);

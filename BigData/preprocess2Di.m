@@ -48,11 +48,11 @@ function [xp,average,scale,N] = preprocess2Di(x,prep,ndim,lambda,average,scale,N
 %
 % X = simuleMV(10,10,8);
 % [Xcs,av,sc] = preprocess2Di(X,2,0);
-% plot_vec([av' sc'],[],[],{'Average & Std Dev' ,''},[], 1);
+% plot_vec([av' sc'],[],[],{'Average & Std Dev' ,''},[], 0);
 %
 % X = simuleMV(10,10,8);
 % [Xcs,av,sc] = preprocess2Di(X,2,0,0.9,av,sc);
-% plot_vec([av' sc'],[],[],{'Average & Std Dev' ,''},[], 1);
+% plot_vec([av' sc'],[],[],{'Average & Std Dev' ,''},[], 0);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)

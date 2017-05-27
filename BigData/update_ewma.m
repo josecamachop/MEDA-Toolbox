@@ -47,10 +47,12 @@ function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug)
 % Lmodel.mat = loadings_Lpca(Lmodel,0);
 % mspc_Lpca(Lmodel);
 %
-% n_obst = 10;
-% list(1).x = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
-% Lmodel = update_ewma(list,[],Lmodel);
-% mspc_Lpca(Lmodel);
+% for i=1:4,
+%   n_obst = 10;
+%   list(1).x = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
+%   Lmodel = update_ewma(list,[],Lmodel);
+%   mspc_Lpca(Lmodel);
+% end
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)

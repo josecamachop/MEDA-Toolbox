@@ -17,6 +17,11 @@ function omeda_vec = omeda_Lpls(Lmodel,test,dummy,opt)
 %       Lmodel.XY: [MxO] cross-product matrix between the x-block and the
 %           y-block.
 %       Lmodel.lvs: [1x1] number of PCs. 
+%       Lmodel.centr: [NxM] centroids of the clusters of observations.
+%       Lmodel.av: [1xM] sample average according to the preprocessing method.
+%       Lmodel.sc: [1xM] sample scale according to the preprocessing method.
+%       Lmodel.weight: [1xM] weight applied after the preprocessing method.
+%       Lmodel.var_l: {ncx1} label of each variable.
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -114,7 +119,7 @@ if length(opt)<3, opt = strcat(opt,'0'); end
 assert (A>0, 'Dimension Error: 1sr argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(test), [L M]), 'Dimension Error: 2nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(dummy), [L 1]), 'Dimension Error: 3rd argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 4th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==3, 'Dimension Error: 4th argument must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
