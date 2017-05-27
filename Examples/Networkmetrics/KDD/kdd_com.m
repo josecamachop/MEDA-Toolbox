@@ -29,7 +29,7 @@
 % each one with 122 features.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Apr/16.
+% last modification: 27/May/17.
 
 %% Inicialization, remember to set the path of the toolbox
 
@@ -38,12 +38,14 @@ clear
 load kdd
 
 Lmodel = Lmodel_ini; % Initialization
-Lmodel.update = 2; % Change this to 1 for EWMA and 2 for Iterative
-Lmodel.type = 1; % Change this to 1 for PCA and 2 for PLS
+Lmodel.update = 1; % Change this to 1 for EWMA and 2 for Iterative
+Lmodel.type = 2; % Change this to 1 for PCA and 2 for PLS
 Lmodel.lv = 3; % Initial number of LVs
 Lmodel.prep = 2; % X-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling 
 Lmodel.prepy = 2; % Y-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling
 Lmodel.nc = 100; % Number of clusters
+Lmodel.var_l = label';
+Lmodel.lvs = 1:2;
 
 lambda = 1-1e-4; % Forgetting factor in EWMA
 step = 0.01;
@@ -53,7 +55,7 @@ step = 0.01;
 if Lmodel.update == 1
     Lmodel = update_ewma(short_list,'',Lmodel,lambda,step,1); % EWMA
 else
-    Lmodel = update_iterative(short_list,'',Lmodel,20,step,0,'',1); % Iterative
+    Lmodel = update_iterative(short_list,'',Lmodel,step,0,1); % Iterative
 end
 
 %% Data Analysis
@@ -61,49 +63,52 @@ end
 if Lmodel.type==2, % for PLS
     
     % Score plot
-    scores_Lpls(Lmodel,1:2);   
+    scores_Lpls(Lmodel);   
         
     % MEDA
-    map = meda_Lpls(Lmodel,1:2,0,3); 
+    map = meda_Lpls(Lmodel,0.1,111); 
     
     % reorder variables
     [map,ind] = seriation(map);
     Lmodel.XX = Lmodel.XX(ind,ind);
     Lmodel.XY = Lmodel.XY(ind,:);
     Lmodel.centr = Lmodel.centr(:,ind);
+    Lmodel.var_l = Lmodel.var_l(ind);
 
     % oMEDAs
     dummy = zeros(100,1); % Comparison between classes 1 and 19
     dummy(find(Lmodel.class==1))=1;
     dummy(find(Lmodel.class==19))=-1;
-    omeda_Lpls(Lmodel,1:2,Lmodel,dummy,3,label(ind));
+    omeda_Lpls(Lmodel,Lmodel.centr,dummy,1);
 
     dummy = zeros(100,1); % Comparison between classes 1 and 11
     dummy(find(Lmodel.class==1))=1;
     dummy(find(Lmodel.class==11))=-1;
-    omeda_Lpls(Lmodel,1:2,Lmodel,dummy,3,label(ind));
+    omeda_Lpls(Lmodel,Lmodel.centr,dummy,1);
     
 else %for PCA
     
     % Score plot
-    scores_Lpca(Lmodel,1:2);
+    scores_Lpca(Lmodel);
     
     % MEDA
-    map = meda_Lpca(Lmodel,1:2,0,3);
+    map = meda_Lpca(Lmodel,0.1,111);
     
     % reorder variables
     [map,ind] = seriation(map);
     Lmodel.XX = Lmodel.XX(ind,ind);
     Lmodel.centr = Lmodel.centr(:,ind);
+    Lmodel.centr = Lmodel.centr(:,ind);
+    Lmodel.var_l = Lmodel.var_l(ind);
     
     % oMEDAs
     dummy = zeros(100,1); % Comparison between classes 1 and 19
     dummy(find(Lmodel.class==1))=1;
     dummy(find(Lmodel.class==19))=-1;
-    omeda_Lpca(Lmodel,1:2,Lmodel,dummy,3,label(ind));
+    omeda_Lpca(Lmodel,Lmodel.centr,dummy,1);
 
     dummy = zeros(100,1); % Comparison between classes 1 and 11
     dummy(find(Lmodel.class==1))=1;
     dummy(find(Lmodel.class==11))=-1;
-    omeda_Lpca(Lmodel,1:2,Lmodel,dummy,3,label(ind));
+    omeda_Lpca(Lmodel,Lmodel.centr,dummy,1);
 end

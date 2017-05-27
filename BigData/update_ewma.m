@@ -163,8 +163,16 @@ for t=1:length(list),
     end
          
     [xcs,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,Lmodel.prep,0,lambda,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
-    
-    Lmodel.XX = lambda*Lmodel.XX + xcs'*xcs;
+
+    if isempty(Lmodel.centr)
+        Lmodel.centr = xcs;
+    end
+            
+    if isempty(Lmodel.XX)
+        Lmodel.XX = xcs'*xcs;
+    else
+        Lmodel.XX = lambda*Lmodel.XX + xcs'*xcs;
+    end
     
     ind = isnan(Lmodel.XX);
     Lmodel.XX(ind) = 0;
@@ -185,8 +193,17 @@ for t=1:length(list),
     
         [ycs,Lmodel.avy,Lmodel.scy] = preprocess2Di(y,Lmodel.prepy,0,lambda,Lmodel.avy,Lmodel.scy,N,Lmodel.weighty);
         
-        Lmodel.XY = lambda*Lmodel.XY + xcs'*ycs;
-        Lmodel.YY = lambda*Lmodel.YY + ycs'*ycs;
+        if isempty(Lmodel.XY)
+            Lmodel.XY = xcs'*ycs;
+        else
+            Lmodel.XY = lambda*Lmodel.XY + xcs'*ycs;
+        end
+        
+        if isempty(Lmodel.YY)
+            Lmodel.YY = ycs'*ycs;
+        else
+            Lmodel.YY = lambda*Lmodel.YY + ycs'*ycs;
+        end
         
         if rank(Lmodel.XY)>0,
             
