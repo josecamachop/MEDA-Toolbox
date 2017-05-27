@@ -52,8 +52,8 @@ Items in the folder:
 
 - Examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox.
 
-Copyright (C) 2016  Universidad de Granada
-Copyright (C) 2016  José Camacho Páez
+Copyright (C) 2017  Universidad de Granada
+Copyright (C) 2017  José Camacho Páez
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
