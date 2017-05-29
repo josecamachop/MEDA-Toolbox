@@ -136,6 +136,13 @@ if Lmodel.prep==0,
             load([path list{t}],'x')
         end
         
+        indMV{t} = find(isnan(x));
+        if ~isempty(indMV{t})
+            disp('Missing values found in X. Set to average.');
+            av = ones(size(x,1),1)*Lmodel.av;
+            x(indMV{t}) = av(indMV{t});
+        end
+        
         [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
         
     end
@@ -150,6 +157,13 @@ elseif (Lmodel.type==1 && Lmodel.prep > 0) || (Lmodel.type==2 && Lmodel.prep > 0
             x = list(t).x;
         else
             load([path list{t}],'x')
+        end
+        
+        indMV{t} = find(isnan(x));
+        if ~isempty(indMV{t})
+            disp('Missing values found in X. Set to average.');
+            av = ones(size(x,1),1)*Lmodel.av;
+            x(indMV{t}) = av(indMV{t});
         end
         
         [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
@@ -167,6 +181,20 @@ elseif Lmodel.type==2 && Lmodel.prep > 0 && Lmodel.prepy > 0,
             y = list(t).y;
         else
             load([path list{t}],'x','y')
+        end
+        
+        indMV = find(isnan(x));
+        if ~isempty(indMV)
+            disp('Missing values found in X. Set to average.');
+            av = ones(size(x,1),1)*Lmodel.av;
+            x(indMV{t}) = av(indMV{t});
+        end
+        
+        indMVy{t} = find(isnan(y));
+        if ~isempty(indMVy{t})
+            disp('Missing values found in Y. Set to average.');
+            avy = ones(size(y,1),1)*Lmodel.avy;
+            y(indMVy{t}) = avy(indMVy{t});
         end
         
         [xc,Lmodel.av,Lmodel.sc] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
@@ -192,6 +220,11 @@ if (Lmodel.type==1 && Lmodel.prep == 2) || (Lmodel.type==2 && Lmodel.prep == 2 &
             load([path list{t}],'x')
         end
         
+        if ~isempty(indMV{t})
+            av = ones(size(x,1),1)*Lmodel.av;
+            x(indMV{t}) = av(indMV{t});
+        end
+        
         xc = x -  ones(size(x,1),1)*Lmodel.av;
         [xsc,av,Lmodel.sc,N] = preprocess2Di(xc,3,0,1,[],Lmodel.sc,N,Lmodel.weight);
         
@@ -208,6 +241,15 @@ elseif Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy == 2,
             y = list(t).y;
         else
             load([path list{t}],'x','y')
+        end
+        
+        if ~isempty(indMV{t})
+            av = ones(size(x,1),1)*Lmodel.av;
+            x(indMV{t}) = av(indMV{t});
+        end
+        if ~isempty(indMVy{t})
+            avy = ones(size(y,1),1)*Lmodel.avy;
+            y(indMVy{t}) = avy(indMVy{t});
         end
         
         xc = x -  ones(size(x,1),1)*Lmodel.av;
@@ -234,6 +276,11 @@ if Lmodel.type==1,
             load([path list{t}],'x')
         end
         
+        if ~isempty(indMV{t})
+            av = ones(size(x,1),1)*Lmodel.av;
+            x(indMV{t}) = av(indMV{t});
+        end
+        
         xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
         Lmodel.XX = Lmodel.XX + xcs'*xcs;
         
@@ -253,6 +300,15 @@ elseif Lmodel.type==2,
             y = list(t).y;
         else
             load([path list{t}],'x','y')
+        end
+        
+        if ~isempty(indMV{t})
+            av = ones(size(x,1),1)*Lmodel.av;
+            x(indMV{t}) = av(indMV{t});
+        end
+        if ~isempty(indMVy{t})
+            avy = ones(size(y,1),1)*Lmodel.avy;
+            y(indMVy{t}) = avy(indMVy{t});
         end
         
         xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
@@ -328,6 +384,11 @@ for t=1:length(list),
     else
         load([path list{t}],'x')
     end
+        
+    if ~isempty(indMV{t})
+        av = ones(size(x,1),1)*Lmodel.av;
+        x(indMV{t}) = av(indMV{t});
+    end
     
     xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
     T = xcs * Lmodel.mat;
@@ -379,6 +440,11 @@ for t=1:length(list),
         else
             obs_l = cellstr(num2str((1:size(x,1))'));
         end
+    end
+        
+    if ~isempty(indMV{t})
+        av = ones(size(x,1),1)*Lmodel.av;
+        x(indMV{t}) = av(indMV{t});
     end
     
     xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
