@@ -1,6 +1,9 @@
 function [T,TT] = scores_Lpca(Lmodel,test,opt,label,classes)
 
-% Compute and plot scores in PCA for large data.
+% Compute and plot compressed scores in PCA for large data. The original 
+% paper is Camacho J. Visualizing Big data with Compressed Score Plots: 
+% Approach and Research Challenges. Chemometrics and Intelligent Laboratory
+% Systems, 2014, 135: 110-125.
 %
 % scores_Lpca(Lmodel) % minimum call
 % [T,TT] = scores_Lpca(Lmodel,test,opt,label,classes) % complete call

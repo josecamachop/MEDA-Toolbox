@@ -2,8 +2,8 @@ function [p,t,bel,e] = gpca(xcs,states,pcs)
 
 % Group-wise Principal Component Analysis. The original paper is Camacho, J., 
 % Rodríguez-Gómez, R., Saccenti, E. Group-wise Principal Component Analysis 
-% for Exploratory Data Analysis. Accepted in Journal of Computational and 
-% Graphical Statistics, 2016.
+% for Exploratory Data Analysis. Journal of Computational and  Graphical 
+% Statistics, 2017.
 %
 % p = gpca(xcs,states)     % minimum call
 % [p,t,bel,e] = gpca(xcs,states,pcs)     % complete call

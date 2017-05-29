@@ -1,6 +1,9 @@
 function [P,T,bel,E,Lmodel] = Lgpca(Lmodel,states)
 
-% Group-wise Principal Component Analysis for large data.
+% Group-wise Principal Component Analysis for large data. The original 
+% paper is Camacho, J., Rodríguez-Gómez, R., Saccenti, E. Group-wise 
+% Principal Component Analysis for Exploratory Data Analysis. Journal of 
+% Computational and  Graphical Statistics, 2017.
 %
 % [P,T,bel,E,Lmodel] = Lgpca(Lmodel,states)     % complete call
 %
