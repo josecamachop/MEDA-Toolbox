@@ -66,6 +66,9 @@ M = size(data, 2);
 if nargin < 8 || isempty(preci), preci=8; end;
 if nargin < 9 || isempty(debug), debug = 1; end;
 
+% Convert row arrays to column arrays
+if size(label,1)  == 1, label = label'; end;
+
 % Validate dimensions of input data
 assert (isequal(size(label), [N 1]), 'Dimension Error: 4th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(class), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);

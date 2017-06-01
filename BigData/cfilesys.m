@@ -71,6 +71,15 @@ N = size(obslist, 1);
 [L M] = size(centr);
 if nargin < 9 || isempty(debug), debug = 1; end;
 
+% Convert row arrays to column arrays
+if size(obslist,1)  == 1, obslist = obslist'; end;
+if size(label,1)  == 1, label = label'; end;
+if size(mult,1)  == 1, mult = mult'; end;
+if size(class,1)  == 1, class = class'; end;
+
+% Convert column arrays to row arrays
+if size(index_fich,2)  == 1, index_fich = index_fich'; end;
+
 % Validate dimensions of input data
 assert (isequal(size(obslist), [N 1]), 'Dimension Error: 1st argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [L 1]), 'Dimension Error: 3rd argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -81,8 +90,8 @@ assert (isequal(size(thres), [1 1]), 'Dimension Error: 7th argument must be 1-by
 assert (isequal(size(debug), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (mult>0, 'Value Error: 4th argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
-assert (thres>0, 'Value Error: 7th argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(mult<=0)), 'Value Error: 4th argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(thres<=0)), 'Value Error: 7th argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(thres), thres), 'Value Error: 7th argument must contain an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (debug==0 || debug==1 || debig==2, 'Value Error: 9th argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 
