@@ -122,7 +122,13 @@ if nargin < 3 || isempty(obs_l),
         obs_l={}; 
     end;
 end
-if nargin < 4 || isempty(var_l), var_l = cellstr(num2str((1:M)')); end;
+if nargin < 4 || isempty(var_l), 
+    if M>0,
+        var_l = cellstr(num2str((1:M)')); 
+    else
+        var_l = [];
+    end
+end;
 
 Lmodel.centr = X;
 Lmodel.centrY = Y;
