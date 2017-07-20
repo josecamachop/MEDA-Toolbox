@@ -1,4 +1,4 @@
-function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,lvs)
+function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,lvs,tol)
 
 % Group-wise Partial Least Squares. The original paper is Camacho, J., 
 % Saccenti, E. Group-wise Partial Least Squares Regression. Submitted to
@@ -18,6 +18,8 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,lvs)
 %
 % lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(xcs)
+%
+% tol: [1x1] tolerance value
 %
 %
 % OUTPUTS:
@@ -54,7 +56,7 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,lvs)
 % plot_vec(beta,[],[],{'','Regression coefficients'});
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 4/Apr/17.
+% last modification: 20/Jul/2017
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -81,6 +83,7 @@ N = size(xcs, 1);
 M = size(xcs, 2);
 O = size(ycs, 2);
 if nargin < 4 || isempty(lvs), lvs = 0:rank(xcs); end;
+if nargin < 5 || isempty(tol), tol = 1e-15; end;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -131,20 +134,22 @@ for j = 1:max(lvs),
     for i=1:length(states), % construct eigenvectors according to states
         mapy_aux = zeros(size(mapy));
         mapy_aux(states{i},:)= mapy(states{i},:);
-        Wi = zeros(M,1);
-        if O == 1,
-            Wi = mapy_aux;
-        else
-            [C,D] = eig(mapy_aux'*mapy_aux);
-            dd = diag(D);
-            if find(dd)
-                Wi = (mapy_aux*C(:,find(dd==max(dd))));
+        if find(mapy_aux>tol),
+            Wi = zeros(M,1);
+            if O == 1,
+                Wi = mapy_aux;
+            else
+                [C,D] = eig(mapy_aux'*mapy_aux);
+                dd = diag(D);
+                if find(dd)
+                    Wi = (mapy_aux*C(:,find(dd==max(dd))));
+                end
             end
+
+            Rt(:,i) = B*Wi; % Dayal & MacGregor eq. (22)
+            Tt(:,i) = xcs*Rt(:,i);
+            Wt(:,i) = Wi;
         end
-        
-        Rt(:,i) = B*Wi; % Dayal & MacGregor eq. (22)
-        Tt(:,i) = xcs*Rt(:,i);
-        Wt(:,i) = Wi;
     end
 
     sS = sum((preprocess2D(Tt,2)'*ycs).^2,2); % select pseudo-eigenvector with the highest covariance
