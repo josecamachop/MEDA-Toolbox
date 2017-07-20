@@ -1,4 +1,4 @@
-function [beta,W,P,Q,R,bel] = gpls(xcs,ycs,states,lvs)
+function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,lvs)
 
 % Group-wise Partial Least Squares. The original paper is Camacho, J., 
 % Saccenti, E. Group-wise Partial Least Squares Regression. Submitted to
