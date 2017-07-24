@@ -1,4 +1,4 @@
-function [beta,W,P,Q,R,bel] = gpls(xcs,ycs,states,lvs)
+function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,lvs)
 
 % Group-wise Partial Least Squares. The original paper is Camacho, J., 
 % Saccenti, E. Group-wise Partial Least Squares Regression. Submitted to
@@ -33,6 +33,8 @@ function [beta,W,P,Q,R,bel] = gpls(xcs,ycs,states,lvs)
 % R: [MxA] matrix of modified weights: W*inv(P'*W)
 %
 % bel: [Ax1] correspondence between LVs and States.
+%
+% T: [NxA] matrix of scores.
 %
 %
 % EXAMPLE OF USE: Random data:
@@ -142,9 +144,9 @@ for j = 1:max(lvs),
             end
         end
         
-        Rt(:,i) = B*Wi; % Dayal & MacGregor eq. (22)
+        Wt(:,i) = Wi/sqrt(Wi'*Wi);
+        Rt(:,i) = B*Wt(:,i); % Dayal & MacGregor eq. (22)
         Tt(:,i) = xcs*Rt(:,i);
-        Wt(:,i) = Wi;
     end
 
     sS = sum((preprocess2D(Tt,2)'*ycs).^2,2); % select pseudo-eigenvector with the highest covariance

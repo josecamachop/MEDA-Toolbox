@@ -59,7 +59,7 @@ function [meda_map,ind,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 24/May/17
+% last modification: 19/Jun/17
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -102,9 +102,6 @@ if size(pcs,2) == 1, pcs = pcs'; end;
 pcs = unique(pcs);
 pcs(find(pcs==0)) = [];
 A = length(pcs);
-if isstruct(opt) % opt backward compatibility
-    opt = opt.plot + 10*opt.seriated + 100*opt.discard;
-end
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -124,7 +121,7 @@ assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: 7th argument must b
 
 % Validate values of input data
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (thres>0 && thres<=1, 'Value Error: 4th argument must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
+assert (thres>=0 && thres<=1, 'Value Error: 4th argument must be in [0,1]. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: 7th argument must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine(1).name);
 
