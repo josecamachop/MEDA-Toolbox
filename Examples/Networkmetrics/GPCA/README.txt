@@ -146,4 +146,6 @@ Items in the folder:
 - fortreemap.mat: file to upload to http://nesg.ugr.es/meda-visualization/ to issue the treemap visualization
 
 - Data: folder with information about original data (112 variables)
+
+- html: web version of the example
  
