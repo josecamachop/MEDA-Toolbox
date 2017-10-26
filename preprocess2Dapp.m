@@ -46,7 +46,7 @@ function testcs = preprocess2Dapp(test,average,scale,weight)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(test, 1);
 M = size(test, 2);
 if nargin < 3 || isempty(scale), scale = ones(1,M); end;

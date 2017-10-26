@@ -120,7 +120,8 @@ M=size(xcs,2);
 O=size(ycs,2);
 
 if isempty(stree) 
-    map = meda_pls(xcs,ycs,lvs,0,0,0.1,'000'); 
+    xcs2 = xcs./(ones(N,1)*sqrt(sum(xcs.^2)));
+    map = xcs2'*xcs2; 
 else
     map = zeros(M);
 end;
