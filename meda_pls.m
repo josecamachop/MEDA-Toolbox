@@ -153,13 +153,17 @@ y2 = preprocess2D(y,prepy);
 
 meda_map = meda(x2'*x2,R,P);
 
-if nargout > 1 || opt(3) == '1'
+if opt(3) == '1'
     Dmap = diag(meda_map);
     ind = find(Dmap > thres);
+else
+    ind = 1:length(vars);
 end
 
-if nargout > 2 || opt(2) == '1',
+if opt(2) == '1',
     [map, ord] = seriation(meda_map(ind,ind));
+else
+    ord = 1:length(vars);
 end
     
 

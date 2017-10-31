@@ -59,7 +59,7 @@ function [meda_map,ind,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Jun/17
+% last modification: 31/Oct/17
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
