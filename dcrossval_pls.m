@@ -38,7 +38,7 @@ function [Q,lvso,press] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 % lvso: [blocks_rx1] optimum number of LVs in the inner loop
 %
-% press: [NxO] PRESS per observations and variable
+% press: [NxO] Residuals per observations and variable
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
