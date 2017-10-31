@@ -47,12 +47,12 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 %
 % EXAMPLE OF USE: with labels, multiplicity and classes in observations and variable limit:
 %
-% fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{[],'Functions'},randn(5,1),1,[],[],[20 50 100]);
+% fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{[],'Functions'},randn(5,1),1,[],100*rand(5,1),[20 50 100]);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 03/May/2017
+% last modification: 28/Jun/2017
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez, Alejandro Perez Villegas
@@ -201,9 +201,9 @@ end
 for j=1:length(bins)-1,
     ind = mult>bins(j) & mult<=bins(j+1);
     if isnumeric(elabel)
-        plot(elabel(find(ind)), 0*find(ind), 'kO', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
+        plot(elabel(find(ind)), 0*find(ind), 'ko', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
     else
-        plot(find(ind), 0*find(ind), 'kO', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
+        plot(find(ind), 0*find(ind), 'ko', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
     end
 end
 

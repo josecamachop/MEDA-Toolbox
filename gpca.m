@@ -1,4 +1,4 @@
-function [p,t,bel,e] = gpca(xcs,states,pcs)
+function [p,t,bel,e] = gpca(xcs,states,pcs,tol)
 
 % Group-wise Principal Component Analysis. The original paper is Camacho, J., 
 % Rodríguez-Gómez, R., Saccenti, E. Group-wise Principal Component Analysis 
@@ -16,6 +16,8 @@ function [p,t,bel,e] = gpca(xcs,states,pcs)
 %
 % pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(xcs)
+%
+% tol: [1x1] tolerance value
 %
 %
 % OUTPUTS:
@@ -47,7 +49,7 @@ function [p,t,bel,e] = gpca(xcs,states,pcs)
 % end
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/2017
+% last modification: 20/Jul/2017
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -73,6 +75,7 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(xcs, 1);
 M = size(xcs, 2);
 if nargin < 3 || isempty(pcs), pcs = 0:rank(xcs); end;
+if nargin < 4 || isempty(tol), tol = 1e-15; end;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -111,11 +114,12 @@ for j = 1:max(pcs),
     
     R = zeros(M,length(states));
     S = zeros(N,length(states));
-    
+     j
     for i=1:length(states), % construct eigenvectors according to states
         map_aux = zeros(size(map));
         map_aux(states{i},states{i})= map(states{i},states{i});
-        if rank(map_aux),
+       
+        if find(map_aux>tol),
             [V,D] = eig(map_aux);
             ind = find(diag(D)==max(diag(D)),1);
             R(:,i) = V(:,ind);

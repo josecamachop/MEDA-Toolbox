@@ -44,10 +44,10 @@ function [bel,states,stree] = gia(map,gamma,siz,stree)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Apr/17.
+% last modification: 31/Oct/17.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -143,43 +143,8 @@ if isempty(stree),
             end
         else
             bel_r = setdiff(bel{r},bel{c});
-            bel_c = setdiff(bel{c},bel{r});
             
-            mod = 0;
-            mod2 = 0;
-            states_n = {};
-            
-            for i = 1:length(bel_r), % Should two states be combined?
-                for j = 1:length(bel_c),
-                    if isempty(find(map(states{bel_r(i)},states{bel_c(j)}) < val-1e-10,1)),
-                        mod(i,j) = 1;
-                        states_n{end+1} = unique([states{bel_r(i)} states{bel_c(j)}]);
-                        %map_v = reshape(map_v,M,M);
-                        %map_v = map_v(:);
-                    end
-                end
-            end
-            
-            if sum(sum(mod))
-                ind_r = find(sum(mod,2));
-                ind_c = find(sum(mod,1));
-                
-                delet = unique([bel_r(ind_r) bel_c(ind_c)]);
-                
-                states(delet) = [];
-                
-                states = [states_n states];
-                
-                bel = cell(M,1);
-                for j=1:length(states),
-                    for i=1:length(states{j}),
-                        bel{states{j}(i)} = [bel{states{j}(i)} j];
-                    end
-                end
-            end
-            
-            bel_r = setdiff(bel{r},bel{c});
-            bel_c = setdiff(bel{c},bel{r});
+            mod = [];
             
             for i=1:length(bel_r), % Should c be added to an state of r?
                 state_rec = states{bel_r(i)};
@@ -192,9 +157,11 @@ if isempty(stree),
                 if j > length(state_rec),
                     states{bel_r(i)} = [state_rec c];
                     bel{c} = [bel{c} bel_r(i)];
-                    mod2 = 1;
-                end
+                    mod(end+1) = bel_r(i);
+                end             
             end
+            
+            bel_c = setdiff(bel{c},bel{r});
             
             for i=1:length(bel_c), % Should r be added to an state of c?
                 state_rec = states{bel_c(i)};
@@ -207,15 +174,40 @@ if isempty(stree),
                 if j > length(state_rec),
                     states{bel_c(i)} = [state_rec r];
                     bel{r} = [bel{r} bel_c(i)];
-                    mod2 = 1;
+                    mod(end+1) = bel_c(i);
                 end
             end
             
-            if ~sum(sum(mod)) && ~mod2 && isempty(intersect(bel{r},bel{c})),    % non additions: new state
+            if isempty(mod),% && isempty(intersect(bel{r},bel{c})),   
                 states{end+1} = [r,c];
                 bel{r} = [bel{r} length(states)];
                 bel{c} = [bel{c} length(states)];
+                mod(end+1) = length(states); 
             end
+                 
+            dup = [];
+            modbel = union(bel{r},bel{c});
+            for i=1:length(mod),
+                l = find(ismember(modbel,mod(i)),1);
+                for j=[1:l-1 l+1:length(modbel)],
+                    if min(abs(map(states{mod(i)},states{modbel(j)}))) > val-1e-10,
+                        dup = [dup mod(i)];
+                        modbel(l) = [];
+                        break
+                    end
+                end,
+            end
+                
+            if ~isempty(dup),
+                states(dup) = [];
+                bel = cell(M2,1);
+                for k=1:length(states),
+                    for l=1:length(states{k}),
+                        bel{states{k}(l)} = [bel{states{k}(l)} k];
+                    end
+                end
+            end
+            
         end
         
         map_v(ind) = 0;
