@@ -1,5 +1,5 @@
-% EDA example with PLS using the MEDA Toolbox. See README.txt for more
-% details.
+%% EDA example with PLS using the MEDA Toolbox. 
+% See README.txt for more details.
 % 
 %  Data set: 
 % 

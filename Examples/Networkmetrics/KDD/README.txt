@@ -96,3 +96,4 @@ Items in the folder:
 - kdd_com.m: Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
 	current directory should be the one where the script is stored.
  
+- html: web version of the example

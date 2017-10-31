@@ -92,3 +92,4 @@ Items in the folder:
 
 - MapasRedLab3.4(A4).pdf: Diagram with the network topology (in Spanish).
  
+- html: web version of the example
