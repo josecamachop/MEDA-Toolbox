@@ -1,7 +1,8 @@
 function [bel,states,stree] = gia(map,gamma,siz,stree)
 
 % Group identification algorithm (gia) to generate groups of variables from 
-% a correlation map of variables x variables.
+% a correlation map of variables x variables. It should be noted that this
+% algorithm is a heuristic, and not all possible groups may be identified.
 %
 % bel = gia(map)   % minimum call
 % [bel,states] = gia(map,gamma,siz,stree)   % complete call
@@ -103,6 +104,8 @@ if gamma == 1,
     return
 end
 
+map2 = map;
+
 if isempty(stree),
     indm = find(max(map)>gamma); % reduce map
 else
@@ -160,6 +163,32 @@ if isempty(stree),
                     mod(end+1) = bel_r(i);
                 end             
             end
+                     
+            dup = [];
+            modbel = bel{c};
+            for i=1:length(mod),
+                l = find(ismember(modbel,mod(i)),1);
+                for j=[1:l-1 l+1:length(modbel)],
+                    if isempty(find(map(states{mod(i)},states{modbel(j)}) < val,1)),
+                        dup = [dup modbel(j)];
+                        modbel(j) = [];
+                        break
+                    end
+                end,
+            end
+                
+            if ~isempty(dup),
+                indd = 1:length(states);
+                states(dup) = [];
+                for k=1:length(dup),
+                    indd((dup(k)+1):end) = indd((dup(k)+1):end)-1;
+                end
+                indd(dup) = 0;
+                for k=1:M2,
+                    bel{k} = indd(bel{k});
+                    bel{k}(find(bel{k}==0)) = [];
+                end
+            end
             
             bel_c = setdiff(bel{c},bel{r});
             
@@ -175,6 +204,7 @@ if isempty(stree),
                     states{bel_c(i)} = [state_rec r];
                     bel{r} = [bel{r} bel_c(i)];
                     mod(end+1) = bel_c(i);
+                    
                 end
             end
             
@@ -182,36 +212,15 @@ if isempty(stree),
                 states{end+1} = [r,c];
                 bel{r} = [bel{r} length(states)];
                 bel{c} = [bel{c} length(states)];
-                mod(end+1) = length(states); 
+                mod = length(states); 
             end
-                 
-            dup = [];
-            modbel = union(bel{r},bel{c});
-            for i=1:length(mod),
-                l = find(ismember(modbel,mod(i)),1);
-                for j=[1:l-1 l+1:length(modbel)],
-                    if min(abs(map(states{mod(i)},states{modbel(j)}))) > val-1e-10,
-                        dup = [dup mod(i)];
-                        modbel(l) = [];
-                        break
-                    end
-                end,
-            end
-                
-            if ~isempty(dup),
-                states(dup) = [];
-                bel = cell(M2,1);
-                for k=1:length(states),
-                    for l=1:length(states{k}),
-                        bel{states{k}(l)} = [bel{states{k}(l)} k];
-                    end
-                end
-            end
-            
+
         end
         
+        
+        
         map_v(ind) = 0;
-        ind = find(map_v==max(map_v),1);
+        ind = find(map_v==max(map_v),1); 
         
         index(end+1) = val;
         tree{end+1} = {states bel};
