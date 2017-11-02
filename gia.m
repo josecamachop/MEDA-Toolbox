@@ -184,7 +184,7 @@ if isempty(stree),
                     indd((dup(k)+1):end) = indd((dup(k)+1):end)-1;
                 end
                 indd(dup) = 0;
-                for k=1:M2,
+                for k=1:M,
                     bel{k} = indd(bel{k});
                     bel{k}(find(bel{k}==0)) = [];
                 end
