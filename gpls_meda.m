@@ -3,8 +3,8 @@ function  [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,lvs,gamma,stree)
 % Group-wise Partial Least Squares based on MEDA. This routine includes the 
 % map estimation with MEDA, groups identification with GIA and model
 % calibration with GPLS. The original paper is Camacho, J., 
-% Saccenti, E. Group-wise Partial Least Squares Regression. Submitted to
-% Chemometrics and Intelligent Laboratory Systems, 2017.
+% Saccenti, E. Group-wise Partial Least Squares Regression. Journal of 
+% Chemometrics, 2017.
 %
 % beta = gpls_meda(xcs,ycs)     % minimum call
 % [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,lvs,gamma,stree)    % complete call
@@ -64,7 +64,7 @@ function  [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,lvs,gamma,stree)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Apr/17.
+% last modification: 1/Nov/17.
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez

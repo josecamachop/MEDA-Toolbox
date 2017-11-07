@@ -30,10 +30,10 @@ function fig_h = plot_map(map,label,int,ind)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 06/Apr/16.
+% last modification: 02/Nov/17.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez, Alejandro Perez Villegas
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez, Alejandro Perez Villegas
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -132,7 +132,11 @@ pos = get(axes_h, 'Position');
 set(axes_h,'Position',[pos(1) pos(2)/2 pos(3) pos(4)])
 
 % Set colors
-set(fig_h,'Colormap',[[ind;ones(length(ind),1)] [ind;flipud(ind)] [ones(length(ind),1);flipud(ind)]])
+if int(1)<0,
+    set(fig_h,'Colormap',[[ind;ones(length(ind),1)] [ind;flipud(ind)] [ones(length(ind),1);flipud(ind)]])
+else
+    set(fig_h,'Colormap',[[ones(length(ind),1)] [flipud(ind)] [flipud(ind)]])
+end
 caxis(int);
 if find(map>0 & map<1)
     c_h=colorbar;

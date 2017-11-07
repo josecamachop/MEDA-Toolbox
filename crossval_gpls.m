@@ -61,7 +61,7 @@ function [cumpress,press,nze] = crossval_gpls(x,y,lvs,gammas,blocks_r,prepx,prep
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Apr/17.
+% last modification: 1/Nov/17.
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -160,11 +160,16 @@ for i=1:blocks_r,
         stree = [];
     end
 
-    for lv=1:length(lvs),
-        for gamma=1:length(gammas),
+    for gamma=1:length(gammas),
+        
+        [beta,W,P,Q,R] = gpls_meda(ccs,ccs_y,1:max(lvs),gammas(gamma),stree);
+            
+        for lv=1:length(lvs),
                 
             if lvs(lv) > 0,
-                beta = gpls_meda(ccs,ccs_y,1:lvs(lv),gammas(gamma),stree);
+                Q2 = Q(:,1:min(lvs(lv),size(Q,2)));
+                R2 = R(:,1:min(lvs(lv),size(Q,2)));
+                beta=R2*Q2';
                 srec = scs*beta;
                 
                 pem = scs_y-srec;

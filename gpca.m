@@ -114,7 +114,6 @@ for j = 1:max(pcs),
     
     R = zeros(M,length(states));
     S = zeros(N,length(states));
-     j
     for i=1:length(states), % construct eigenvectors according to states
         map_aux = zeros(size(map));
         map_aux(states{i},states{i})= map(states{i},states{i});
