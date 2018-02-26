@@ -23,10 +23,10 @@ function testcs = preprocess2Dapp(test,average,scale,weight)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 30/Oct/2016
+% last modification: 19/Feb/2018
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez, 
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Paez, 
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(test, 1);
 M = size(test, 2);
 if nargin < 3 || isempty(scale), scale = ones(1,M); end;
-if nargin < 8 || isempty(weight), weight = ones(1,M); end;
+if nargin < 4 || isempty(weight), weight = ones(1,M); end;
 
 % Convert column arrays to row arrays
 if size(average,2) == 1, average = average'; end;

@@ -121,18 +121,18 @@ for j = 1:max(pcs),
         if find(map_aux>tol),
             [V,D] = eig(map_aux);
             ind = find(diag(D)==max(diag(D)),1);
-            R(:,i) = V(:,ind);
+            R(:,i) = V(:,ind)/sqrt((V(:,ind)'*B*V(:,ind)));
             S(:,i) = xcs*R(:,i);   
         end
     end
 
     sS = sum(S.^2,1); % select pseudo-eigenvector with the highest variance
     ind = find(sS==max(sS),1);
-    p(:,j) = R(:,ind);
-    t(:,j) = S(:,ind);
-    bel(j) = ind;
     
     q = B*R(:,ind); % deflate (Mackey'09)
+    p(:,j) = R(:,ind)/norm(R(:,ind));
+    t(:,j) = xcs*p(:,j);
+    bel(j) = ind;
     map = (I-q*q')*map*(I-q*q');
     xcs = xcs*(I-q*q');
     B = B*(I-q*q');

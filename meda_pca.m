@@ -46,7 +46,7 @@ function [meda_map,ind,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 % meda_map: [MxM] non-seriated, complete, MEDA matrix.
 %
-% ind: [M2x1] indices of seriated variables over the input threshold (M2 < M).
+% ind: [M2x1] indices of seriated variables over the input threshold (M2 <= M).
 %
 % ord: [M2x1] order of seriated variables.
 %
@@ -109,6 +109,7 @@ if isnumeric(opt), opt=num2str(opt); end
 % Complete opt
 if length(opt)<2, opt = strcat(opt,'00'); end
 if length(opt)<3, opt = strcat(opt,'0'); end
+
 
 % Validate dimensions of input data
 assert (A>0, 'Dimension Error: 2nd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
