@@ -311,8 +311,8 @@ disp(perc_effects(end))
                 plot(scores(f_found,1), scores(f_found,2), clr, 'LineWidth', 3 );
                 plot(plot_residuals(f_found,1), plot_residuals(f_found,2), clr);
                 stitle = [ 'Score plot factor: ' int2str(f_factor)];
-                xlabel('PC 1')
-                ylabel('PC 2')
+                xlabel(sprintf('PC 1 (%%%.1f)',ascao.factors.explained{f_factor}(1)))
+                ylabel(sprintf('PC 2 (%%%.1f)',ascao.factors.explained{f_factor}(2)))
                 title(stitle);
                 legend(legend_labels);
             end
