@@ -66,6 +66,7 @@ mapoa = abs(mapo);
 mapoa(1:(M+1):end) = -Inf;
 
 finish = false;
+iter = 0;
 while ~finish,
    i = find(mapoa(:)==max(mapoa(:)),1);
    ci = 1+fix((i-1)/M);
@@ -103,6 +104,17 @@ while ~finish,
    
    if length(fragment)==1,
        finish = true;
+   end
+   
+   iter = iter+1;
+   
+   if iter > 1e4,
+       finish = true;
+       frag2 = [];
+       for i=1:length(fragment),
+           frag2 = [frag2 fragment{i}];
+       end
+       fragment{1} = frag2;
    end
    
 end

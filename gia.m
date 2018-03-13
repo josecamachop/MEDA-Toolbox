@@ -5,7 +5,7 @@ function [bel,states,stree] = gia(map,gamma,siz,stree)
 % algorithm is a heuristic, and not all possible groups may be identified.
 %
 % bel = gia(map)   % minimum call
-% [bel,states] = gia(map,gamma,siz,stree)   % complete call
+% [bel,states,stree] = gia(map,gamma,siz,stree)   % complete call
 %
 %
 % INPUTS:
@@ -42,6 +42,26 @@ function [bel,states,stree] = gia(map,gamma,siz,stree)
 % pcs = 1:3;
 % map = meda_pca(X,pcs);
 % [bel,states] = gia(map,0.3);
+%
+%
+% EXAMPLE OF USE: Checking metaparameter:
+%
+% X = simuleMV(20,100,8);
+% pcs = 1:3;
+% map = meda_pca(X,pcs);
+% C = [0.05:0.05:0.95];
+%
+% [belv{1},statesv{1},stree] = gia(map,C(1));
+% S = 0;
+% for j=1:length(statesv{1}), S = S + length(statesv{1}{j}); end;
+% disp(['There are ',num2str(length(statesv{1})),' groups with mean size ' ,num2str(S/length(statesv{1})), ' for C = ', num2str(C(1))])
+%
+% for i=2:length(C)
+%   [belv{i},statesv{i}] = gia(map,C(i),[],stree);
+%   S = 0;
+%   for j=1:length(statesv{i}), S = S + length(statesv{i}{j}); end;
+%   disp(['There are ',num2str(length(statesv{i})),' groups with mean size ' ,num2str(S/length(statesv{i})), ' for C = ', num2str(C(i))])
+% end
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
