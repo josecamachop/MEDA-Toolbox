@@ -1,0 +1,273 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>EDA example for Big Data using the MEDA Toolbox.</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-03-13"><meta name="DC.source" content="run.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>EDA example for Big Data using the MEDA Toolbox.</h1><!--introduction--><p>See README.txt for more details.</p><pre>Data set and Analisys:</pre><pre>  J. Camacho. Networkmetrics: Multivariate Visual Analytics for Networking Data.
+	Technical Report. 2014.</pre><pre>  J. Camacho. Visualizing Big data with Compressed Score Plots: Approach and Research
+   	Challenges. Chemometrics and Intelligent Laboratory Systems, vol. 135, pp.
+	110-125, 2014.</pre><p>the data set was generated from the 1998 DARPA Intrusion Detection evaluation Program, prepared and managed by MIT Lincoln Labs. The objective of this program was to survey and evaluate research in networking intrusion detection. For that, a large data set including a wide variety of intrusions simulated in a military network environment was provided. The original data set included 4.880.000 observations (connection records). The observations belong to 22 different classes, one class for normal traffic and the remaining for different types of network attacks. Four main categories of attacks were simulated: denial-of-service (DoS), e.g., syn flood; unauthorized access from a remote machine, e.g., guessing password; unauthorized access to local superuser (root) privileges, e.g., buffer overflow attacks; and surveillance and probing, e.g., port-scan. For illustrative purposes, the analysis will be restricted to two types of DoS attack, smurf and neptune, and normal traffic. These three classes represent a 99.3% of the total traffic in the data set. For each connection, 42 features are computed, including numerical and categorical features. To consider categorical features in the EDA, one dummy variable per category is included in the data set. The resulting data set contains 4.844.253 observations, each one with 122 features.</p><p>coded by: Jose Camacho Paez (<a href="mailto:josecamacho@ugr.es">josecamacho@ugr.es</a>) last modification: 27/May/17.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Inicialization, remember to set the path of the toolbox</a></li><li><a href="#2">Model building (EWMA or Iterative)</a></li><li><a href="#3">Data Analysis</a></li></ul></div><h2>Inicialization, remember to set the path of the toolbox<a name="1"></a></h2><pre class="codeinput">clc
+clear
+load <span class="string">kdd</span>
+
+Lmodel = Lmodel_ini; <span class="comment">% Initialization</span>
+Lmodel.update = 1; <span class="comment">% Change this to 1 for EWMA and 2 for Iterative</span>
+Lmodel.type = 2; <span class="comment">% Change this to 1 for PCA and 2 for PLS</span>
+Lmodel.lv = 3; <span class="comment">% Initial number of LVs</span>
+Lmodel.prep = 2; <span class="comment">% X-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling</span>
+Lmodel.prepy = 2; <span class="comment">% Y-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling</span>
+Lmodel.nc = 100; <span class="comment">% Number of clusters</span>
+Lmodel.var_l = label';
+Lmodel.lvs = 1:2;
+
+lambda = 1-1e-4; <span class="comment">% Forgetting factor in EWMA</span>
+step = 0.01;
+</pre><h2>Model building (EWMA or Iterative)<a name="2"></a></h2><pre class="codeinput"><span class="keyword">if</span> Lmodel.update == 1
+    Lmodel = update_ewma(short_list,<span class="string">''</span>,Lmodel,lambda,step,1); <span class="comment">% EWMA</span>
+<span class="keyword">else</span>
+    Lmodel = update_iterative(short_list,<span class="string">''</span>,Lmodel,step,0,1); <span class="comment">% Iterative</span>
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">clustering: packet 1...........................................
+clustering: packet 2...........................................
+clustering: packet 3...........................................
+clustering: packet 4...........................................
+clustering: packet 5...........................................
+clustering: packet 6...........................................
+clustering: packet 7...........................................
+clustering: packet 8...........................................
+clustering: packet 9...........................................
+clustering: packet 10...........................................
+</pre><h2>Data Analysis<a name="3"></a></h2><pre class="codeinput"><span class="keyword">if</span> Lmodel.type==2, <span class="comment">% for PLS</span>
+
+    <span class="comment">% Score plot</span>
+    scores_Lpls(Lmodel);
+
+    <span class="comment">% MEDA</span>
+    map = meda_Lpls(Lmodel,0.1,111);
+
+    <span class="comment">% reorder variables</span>
+    [map,ind] = seriation(map);
+    Lmodel.XX = Lmodel.XX(ind,ind);
+    Lmodel.XY = Lmodel.XY(ind,:);
+    Lmodel.centr = Lmodel.centr(:,ind);
+    Lmodel.var_l = Lmodel.var_l(ind);
+
+    <span class="comment">% oMEDAs</span>
+    dummy = zeros(100,1); <span class="comment">% Comparison between classes 1 and 19</span>
+    dummy(find(Lmodel.class==1))=1;
+    dummy(find(Lmodel.class==19))=-1;
+    omeda_Lpls(Lmodel,Lmodel.centr,dummy,1);
+
+    dummy = zeros(100,1); <span class="comment">% Comparison between classes 1 and 11</span>
+    dummy(find(Lmodel.class==1))=1;
+    dummy(find(Lmodel.class==11))=-1;
+    omeda_Lpls(Lmodel,Lmodel.centr,dummy,1);
+
+<span class="keyword">else</span> <span class="comment">%for PCA</span>
+
+    <span class="comment">% Score plot</span>
+    scores_Lpca(Lmodel);
+
+    <span class="comment">% MEDA</span>
+    map = meda_Lpca(Lmodel,0.1,111);
+
+    <span class="comment">% reorder variables</span>
+    [map,ind] = seriation(map);
+    Lmodel.XX = Lmodel.XX(ind,ind);
+    Lmodel.centr = Lmodel.centr(:,ind);
+    Lmodel.centr = Lmodel.centr(:,ind);
+    Lmodel.var_l = Lmodel.var_l(ind);
+
+    <span class="comment">% oMEDAs</span>
+    dummy = zeros(100,1); <span class="comment">% Comparison between classes 1 and 19</span>
+    dummy(find(Lmodel.class==1))=1;
+    dummy(find(Lmodel.class==19))=-1;
+    omeda_Lpca(Lmodel,Lmodel.centr,dummy,1);
+
+    dummy = zeros(100,1); <span class="comment">% Comparison between classes 1 and 11</span>
+    dummy(find(Lmodel.class==1))=1;
+    dummy(find(Lmodel.class==11))=-1;
+    omeda_Lpca(Lmodel,Lmodel.centr,dummy,1);
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="run_01.png" alt=""> <img vspace="5" hspace="5" src="run_02.png" alt=""> <img vspace="5" hspace="5" src="run_03.png" alt=""> <img vspace="5" hspace="5" src="run_04.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% EDA example for Big Data using the MEDA Toolbox. 
+% See README.txt for more details.
+% 
+%  Data set and Analisys: 
+% 
+%    J. Camacho. Networkmetrics: Multivariate Visual Analytics for Networking Data. 
+% 	Technical Report. 2014.
+% 
+%    J. Camacho. Visualizing Big data with Compressed Score Plots: Approach and Research 
+%     	Challenges. Chemometrics and Intelligent Laboratory Systems, vol. 135, pp. 
+% 	110-125, 2014.
+% 
+% 
+% the data set was generated from the 1998 DARPA Intrusion Detection evaluation Program, 
+% prepared and managed by MIT Lincoln Labs. The objective of this program was to survey 
+% and evaluate research in networking intrusion detection. For that, a large data set 
+% including a wide variety of intrusions simulated in a military network environment
+% was provided. The original data set included 4.880.000 observations (connection records). 
+% The observations belong to 22 different classes, one class for normal traffic and the 
+% remaining for different types of network attacks. Four main categories of attacks were 
+% simulated: denial-of-service (DoS), e.g., syn flood; unauthorized access from a remote 
+% machine, e.g., guessing password; unauthorized access to local superuser (root) privileges, 
+% e.g., buffer overflow attacks; and surveillance and probing, e.g., port-scan. For 
+% illustrative purposes, the analysis will be restricted to two types of DoS attack, smurf 
+% and neptune, and normal traffic. These three classes represent a 99.3% of the total traffic 
+% in the data set. For each connection, 42 features are computed, including numerical and 
+% categorical features. To consider categorical features in the EDA, one dummy variable per 
+% category is included in the data set. The resulting data set contains 4.844.253 observations, 
+% each one with 122 features.
+%
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 27/May/17.
+
+%% Inicialization, remember to set the path of the toolbox
+
+clc
+clear
+load kdd
+
+Lmodel = Lmodel_ini; % Initialization
+Lmodel.update = 1; % Change this to 1 for EWMA and 2 for Iterative
+Lmodel.type = 2; % Change this to 1 for PCA and 2 for PLS
+Lmodel.lv = 3; % Initial number of LVs
+Lmodel.prep = 2; % X-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling 
+Lmodel.prepy = 2; % Y-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling
+Lmodel.nc = 100; % Number of clusters
+Lmodel.var_l = label';
+Lmodel.lvs = 1:2;
+
+lambda = 1-1e-4; % Forgetting factor in EWMA
+step = 0.01;
+
+%% Model building (EWMA or Iterative)
+
+if Lmodel.update == 1
+    Lmodel = update_ewma(short_list,'',Lmodel,lambda,step,1); % EWMA
+else
+    Lmodel = update_iterative(short_list,'',Lmodel,step,0,1); % Iterative
+end
+
+%% Data Analysis
+
+if Lmodel.type==2, % for PLS
+    
+    % Score plot
+    scores_Lpls(Lmodel);   
+        
+    % MEDA
+    map = meda_Lpls(Lmodel,0.1,111); 
+    
+    % reorder variables
+    [map,ind] = seriation(map);
+    Lmodel.XX = Lmodel.XX(ind,ind);
+    Lmodel.XY = Lmodel.XY(ind,:);
+    Lmodel.centr = Lmodel.centr(:,ind);
+    Lmodel.var_l = Lmodel.var_l(ind);
+
+    % oMEDAs
+    dummy = zeros(100,1); % Comparison between classes 1 and 19
+    dummy(find(Lmodel.class==1))=1;
+    dummy(find(Lmodel.class==19))=-1;
+    omeda_Lpls(Lmodel,Lmodel.centr,dummy,1);
+
+    dummy = zeros(100,1); % Comparison between classes 1 and 11
+    dummy(find(Lmodel.class==1))=1;
+    dummy(find(Lmodel.class==11))=-1;
+    omeda_Lpls(Lmodel,Lmodel.centr,dummy,1);
+    
+else %for PCA
+    
+    % Score plot
+    scores_Lpca(Lmodel);
+    
+    % MEDA
+    map = meda_Lpca(Lmodel,0.1,111);
+    
+    % reorder variables
+    [map,ind] = seriation(map);
+    Lmodel.XX = Lmodel.XX(ind,ind);
+    Lmodel.centr = Lmodel.centr(:,ind);
+    Lmodel.centr = Lmodel.centr(:,ind);
+    Lmodel.var_l = Lmodel.var_l(ind);
+    
+    % oMEDAs
+    dummy = zeros(100,1); % Comparison between classes 1 and 19
+    dummy(find(Lmodel.class==1))=1;
+    dummy(find(Lmodel.class==19))=-1;
+    omeda_Lpca(Lmodel,Lmodel.centr,dummy,1);
+
+    dummy = zeros(100,1); % Comparison between classes 1 and 11
+    dummy(find(Lmodel.class==1))=1;
+    dummy(find(Lmodel.class==11))=-1;
+    omeda_Lpca(Lmodel,Lmodel.centr,dummy,1);
+end
+
+##### SOURCE END #####
+--></body></html>

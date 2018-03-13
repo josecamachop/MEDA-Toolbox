@@ -93,7 +93,7 @@ Items in the folder:
 	- short_list: 10 data files, suitable for the example
 	- label: labels of the variables
 
-- kdd_com.m: Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
+- run.m: Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
 	current directory should be the one where the script is stored.
  
 - html: web version of the example

@@ -140,7 +140,7 @@ Items in the folder:
 	- weight_alt: degree of relevance of the variables (revised according to description in folder Data, more sensible)
 	- x: data with 2350 observations on 95 variables
 
-- gpca_com.m: Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
+- run.m: Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
 	current directory should be the one where the script is stored.
 
 - fortreemap.mat: file to upload to http://nesg.ugr.es/meda-visualization/ to issue the treemap visualization
