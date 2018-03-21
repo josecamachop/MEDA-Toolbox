@@ -1,0 +1,250 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>run</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-03-13"><meta name="DC.source" content="run.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">EDA example with GPCA using the MEDA Toolbox.</a></li><li><a href="#2">Inicialization, remember to set the path of the toolbox</a></li><li><a href="#3">Selection of the PCs</a></li><li><a href="#4">Visualize MEDA</a></li><li><a href="#5">Compute states with GIA</a></li><li><a href="#6">Prepare data for treemap visualization: load fortreemap to <a href="http://nesg.ugr.es/meda-visualization/">http://nesg.ugr.es/meda-visualization/</a></a></li><li><a href="#7">G-PCA</a></li><li><a href="#8">Visualizing scores and loads</a></li></ul></div><h2>EDA example with GPCA using the MEDA Toolbox.<a name="1"></a></h2><p>See README.txt for more details.</p><pre>Data set and Analysis:</pre><pre>  J. Camacho, R.A. Rodr&iacute;guez-G&oacute;mez, E. Saccenti, Group-wise Principal
+Component Analysis for Exploratory Data Analysis. Accepted in JCGS. 2017.</pre><pre class="language-matlab">Camacho, J., Maci&aacute;-Fern&aacute;ndez, G., D&iacute;az-Verdejo, J., Garc&iacute;a-Teodoro, P.
+Tackling <span class="string">the</span> <span class="string">Big</span> <span class="string">Data</span> <span class="string">4</span> <span class="string">Vs</span> <span class="string">for</span> <span class="string">Anomaly</span> <span class="string">Detection.</span> <span class="untermstring">INFOCOM'2014 Workshop</span>
+on <span class="string">Security</span> <span class="string">and</span> <span class="string">Privacy</span> <span class="string">in</span> <span class="string">Big</span> <span class="string">Data</span>, Toronto (Canada), 2014.
+</pre><p>The VAST 2012 2nd mini challenge is a benchmark for visualization in cybersecurity (<a href="http://www.vacommunity.org/VAST+Challenge+2012">http://www.vacommunity.org/VAST+Challenge+2012</a>)</p><p>The goal is to identify cybersecurity issues in the data collected during two days from a computer network. During those days, a number of non-legitimate programs were found to be running on several computers, slowing them down. A cyber-forensics operation is required to discover the root causes for this strange behavior.</p><p>Two typical sources of data are collected from the network: firewall and Intrusion Detection System (IDS) logs. The firewall analyses the incoming and outgoing data traffic in the network, and records in a log file all connection attempts that are blocked according to security policies. The IDS employs higher level intelligence to identify cybersecurity incidents in data traffic. It also stores the results in a log file, though it does not block any traffic connection. Also, typically, it only analyses a sub-set (sample) of the total traffic.</p><p>A total of 2350 observations, each one with the information for one minute, are obtained. For every sampling period of one minute, we defined a set of 112 variables that represent the information from the two data sources: 69 variables for the firewall log and 43 for the IDS log. The number of variables was reduced to 95 by discarding those with constant value throughout the capture period. The definition of the variables is introduced in Tackling the Big Data 4 Vs for Anomaly Detection. INFOCOM'2014 Workshop on Security and Privacy in Big Data, Toronto (Canada), 2014.</p><pre class="codeinput"><span class="comment">% coded by: Jos&eacute; Camacho P&aacute;ez.</span>
+<span class="comment">% last modification: 6/Feb/17.</span>
+</pre><h2>Inicialization, remember to set the path of the toolbox<a name="2"></a></h2><pre class="codeinput">clear
+close <span class="string">all</span>
+clc
+
+load <span class="string">gpca</span>
+
+<span class="comment">% Set to true for the published result in the first reference. Option false</span>
+<span class="comment">% makes use of a more sensible weighting (see Data folder)</span>
+published = false;
+
+<span class="comment">% preprocess</span>
+<span class="keyword">if</span> published,
+    xcs = preprocess2D(x,2);
+<span class="keyword">else</span>
+    xcs = preprocess2D(x,2,weight_alt);
+<span class="keyword">end</span>
+</pre><h2>Selection of the PCs<a name="3"></a></h2><pre class="codeinput">var_pca(xcs,0:30,0); <span class="comment">% 12 PCS (published false) or 15 PCs (true) could be a choice</span>
+</pre><img vspace="5" hspace="5" src="run_01.png" alt=""> <h2>Visualize MEDA<a name="4"></a></h2><pre class="codeinput">[meda_map,meda_dis,ord] = meda_pca(xcs,1:15,0,0.1,11); <span class="comment">% several groups of variables are found</span>
+</pre><img vspace="5" hspace="5" src="run_02.png" alt=""> <h2>Compute states with GIA<a name="5"></a></h2><pre class="codeinput">c = 0.7;
+
+[b ,stg]=  gia(meda_map,c);
+</pre><h2>Prepare data for treemap visualization: load fortreemap to <a href="http://nesg.ugr.es/meda-visualization/">http://nesg.ugr.es/meda-visualization/</a><a name="6"></a></h2><pre class="codeinput">names = var_l;
+
+<span class="keyword">if</span> published,
+    weights = (weight-1)/9;
+<span class="keyword">else</span>
+    weights = (weight_alt-1)/9;
+<span class="keyword">end</span>
+
+states = b';
+
+save <span class="string">fortreemap</span> <span class="string">names</span> <span class="string">weights</span> <span class="string">states</span>
+</pre><h2>G-PCA<a name="7"></a></h2><pre class="codeinput">[P,T] =  gpca(xcs,stg,1:12);
+</pre><h2>Visualizing scores and loads<a name="8"></a></h2><pre class="codeinput"><span class="keyword">for</span> i=1:2,
+    figure
+    t = T(:,i); <span class="comment">% score</span>
+    lim = tinv(0.99,size(t,1)-1)*std(t)*sqrt(1+1/size(t,1));
+    timestamps{i} = obs_l(find(t&gt;lim | t&lt;-lim));
+    subplot(2,1,1), plot(t,<span class="string">'.-'</span>), hold <span class="string">on</span>, plot(-lim*ones(size(t)),<span class="string">'r--'</span>),plot(lim*ones(size(t)),<span class="string">'r--'</span>)
+    ylabel(<span class="string">'Scores'</span>), axis <span class="string">tight</span>,
+    xlabel(<span class="string">'Time'</span>)
+
+    tit = {}; <span class="comment">% title</span>
+    vars = find(P(ord,i));
+    variables{i} = var_l(ord(vars));
+    <span class="keyword">for</span> j=1:6:length(vars),
+        tit{end+1} =  strjoin(var_l(ord(vars(j:min(j+5,length(vars))))));
+    <span class="keyword">end</span>
+    title(tit,<span class="string">'Interpreter'</span>,<span class="string">'none'</span>)
+
+    subplot(2,1,2), bar(P(ord,i)) <span class="comment">% loading</span>
+    ylabel(<span class="string">'Lodings'</span>)
+    xlabel(<span class="string">'Features'</span>)
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="run_03.png" alt=""> <img vspace="5" hspace="5" src="run_04.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% EDA example with GPCA using the MEDA Toolbox. 
+% See README.txt for more details.
+% 
+%  Data set and Analysis: 
+% 
+%    J. Camacho, R.A. Rodríguez-Gómez, E. Saccenti, Group-wise Principal 
+% Component Analysis for Exploratory Data Analysis. Accepted in JCGS. 2017.
+%
+%   Camacho, J., Maciá-Fernández, G., Díaz-Verdejo, J., García-Teodoro, P. 
+%   Tackling the Big Data 4 Vs for Anomaly Detection. INFOCOM'2014 Workshop 
+%   on Security and Privacy in Big Data, Toronto (Canada), 2014.
+%
+% The VAST 2012 2nd mini challenge is a benchmark for visualization in cybersecurity 
+% (http://www.vacommunity.org/VAST+Challenge+2012)
+% 
+% The goal is to identify cybersecurity issues in the data collected during two days from a
+% computer network. During those days, a number of non-legitimate programs were found
+% to be running on several computers, slowing them down. A cyber-forensics operation is
+% required to discover the root causes for this strange behavior.
+% 
+% Two typical sources of data are collected from the network: firewall and Intrusion
+% Detection System (IDS) logs. The firewall analyses the incoming and outgoing data traffic
+% in the network, and records in a log file all connection attempts that are blocked according
+% to security policies. The IDS employs higher level intelligence to identify cybersecurity
+% incidents in data traffic. It also stores the results in a log file, though it does not block any
+% traffic connection. Also, typically, it only analyses a sub-set (sample) of the total traffic.
+% 
+% A total of 2350 observations, each one with the information for one minute, are obtained.
+% For every sampling period of one minute, we defined a set of 112 variables that represent
+% the information from the two data sources: 69 variables for the firewall log and 43 for
+% the IDS log. The number of variables was reduced to 95 by discarding those with constant 
+% value throughout the capture period. The definition of the variables is
+% introduced in Tackling the Big Data 4 Vs for Anomaly Detection. INFOCOM'2014 Workshop on 
+% Security and Privacy in Big Data, Toronto (Canada), 2014.
+
+% coded by: José Camacho Páez.
+% last modification: 6/Feb/17.
+
+%% Inicialization, remember to set the path of the toolbox
+
+clear
+close all
+clc
+
+load gpca
+
+% Set to true for the published result in the first reference. Option false 
+% makes use of a more sensible weighting (see Data folder)
+published = false;
+
+% preprocess
+if published,
+    xcs = preprocess2D(x,2);
+else
+    xcs = preprocess2D(x,2,weight_alt);
+end
+
+%% Selection of the PCs
+
+var_pca(xcs,0:30,0); % 12 PCS (published false) or 15 PCs (true) could be a choice
+
+%% Visualize MEDA
+
+[meda_map,meda_dis,ord] = meda_pca(xcs,1:15,0,0.1,11); % several groups of variables are found
+
+
+%% Compute states with GIA
+
+c = 0.7;
+
+[b ,stg]=  gia(meda_map,c);
+
+
+%% Prepare data for treemap visualization: load fortreemap to http://nesg.ugr.es/meda-visualization/
+
+names = var_l;
+
+if published,
+    weights = (weight-1)/9;
+else 
+    weights = (weight_alt-1)/9;
+end
+
+states = b';
+    
+save fortreemap names weights states
+
+
+%% G-PCA
+
+[P,T] =  gpca(xcs,stg,1:12);
+
+%% Visualizing scores and loads
+
+for i=1:2,
+    figure
+    t = T(:,i); % score
+    lim = tinv(0.99,size(t,1)-1)*std(t)*sqrt(1+1/size(t,1));
+    timestamps{i} = obs_l(find(t>lim | t<-lim));
+    subplot(2,1,1), plot(t,'.-'), hold on, plot(-lim*ones(size(t)),'rREPLACE_WITH_DASH_DASH'),plot(lim*ones(size(t)),'rREPLACE_WITH_DASH_DASH')
+    ylabel('Scores'), axis tight,
+    xlabel('Time')
+    
+    tit = {}; % title
+    vars = find(P(ord,i));
+    variables{i} = var_l(ord(vars));
+    for j=1:6:length(vars),
+        tit{end+1} =  strjoin(var_l(ord(vars(j:min(j+5,length(vars))))));
+    end
+    title(tit,'Interpreter','none')
+    
+    subplot(2,1,2), bar(P(ord,i)) % loading
+    ylabel('Lodings')
+    xlabel('Features')
+end
+
+
+
+##### SOURCE END #####
+--></body></html>

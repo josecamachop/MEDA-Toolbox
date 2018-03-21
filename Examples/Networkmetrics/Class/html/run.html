@@ -1,0 +1,313 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>run</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-03-13"><meta name="DC.source" content="run.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">EDA example with PCA using the MEDA Toolbox.</a></li><li><a href="#2">Inicialization, remember to set the path of the toolbox</a></li><li><a href="#3">Step 1: Selection of the LVs</a></li><li><a href="#4">Step 2: observations distribution and relationships</a></li><li><a href="#5">Step 3: variables distribution and relationships</a></li><li><a href="#6">Steps 1-3 can be repeated for a subset of selected variables</a></li><li><a href="#7">Step 4: investigate differences between observations</a></li><li><a href="#8">Step 4b: investigate differences with outliers</a></li><li><a href="#9">Step 5: data set de test</a></li></ul></div><h2>EDA example with PCA using the MEDA Toolbox.<a name="1"></a></h2><p>See README.txt for more details.</p><pre>Data set and Analysis:</pre><pre>  J. Camacho, P. Padilla and J. Verdejo, Networkmetrics: Multivariate
+     Visual Analytics for Time Series Networking Data. Technical Report.</pre><p>variables</p><p>1	A.ifIn1		18 	B.ifIn9		35	C.ifIn9 	2	A.ifIn2		19 	B.ifIn10	36	C.ifIn10 	3	A.ifIn8		20 	B.ifIn4		37	C.ifIn12 	4	A.ifIn14	21 	B.ifOut1	38	C.ifIn14 	5	A.ifOut1	22 	B.ifOut2	39	C.ifOut1 	6	A.ifOut2	23 	B.ifOut3	40	C.ifOut2 	7	A.ifOut3	24 	B.ifOut4	41	C.ifOut3 	8	A.ifOut4	25 	B.ifOut8	42	C.ifOut4 	9	A.ifOut8	26 	B.ifOut9	43	C.ifOut5 	10	A.ifOut9	27 	B.ifOut10	44	C.ifOut7 	11	A.ifOut10	28 	B.ifOut11	45	C.ifOut9 	12	A.ifOut11	29 	B.ifOut12	46	C.ifOut10 	13	A.ifOut12	30 	B.ifOut14	47	C.ifOut11 	14	A.ifOut14	31	C.ifIn1		48	C.ifOut12 	15	B.ifIn1		32	C.ifIn2		49	C.ifOut14 	16	B.ifIn2		33	C.ifIn3 	17	B.ifIn8		34	C.ifIn5</p><p>where the name of each variable follows the format <a href="switch">switch</a>.if[In|Out]&lt;N&gt;. The remaining ports of the switches did not present any traffic load.</p><pre class="codeinput"><span class="comment">% coded by: Jos&eacute; Camacho P&aacute;ez.</span>
+<span class="comment">% last modification: 19/Apr/16.</span>
+</pre><h2>Inicialization, remember to set the path of the toolbox<a name="2"></a></h2><pre class="codeinput">prep_x = 1; <span class="comment">% centre X</span>
+max_PCs = 10; <span class="comment">% maximum number of PCs to take into account</span>
+
+load <span class="string">data_proc</span>
+</pre><h2>Step 1: Selection of the LVs<a name="3"></a></h2><pre class="codeinput">var_pca(cal,1:max_PCs,prep_x); <span class="comment">% 2 PCs seem to be adequate</span>
+</pre><img vspace="5" hspace="5" src="run_01.png" alt=""> <h2>Step 2: observations distribution and relationships<a name="4"></a></h2><pre class="language-matlab">scores <span class="string">and</span> <span class="string">residuals</span>, outliers <span class="string">detection</span>
+</pre><pre class="codeinput">scores_pca(cal,1:2,[],prep_x,1);
+<span class="comment">% there are two directions of variability, and observations 2, 9, 10 and 35</span>
+<span class="comment">% should be studied with more detail</span>
+
+mspc_pca(cal,1:2,[],prep_x,1);
+<span class="comment">% check also 5 (residuals)</span>
+</pre><img vspace="5" hspace="5" src="run_02.png" alt=""> <img vspace="5" hspace="5" src="run_03.png" alt=""> <h2>Step 3: variables distribution and relationships<a name="5"></a></h2><pre class="language-matlab">loadings, MEDA <span class="string">and</span> <span class="string">residuals</span>, selection <span class="string">of</span> <span class="string">variables</span>
+</pre><pre class="codeinput">loadings_pca(cal,1:2,prep_x,1,lab);
+<span class="comment">% two groups of variables are detected</span>
+<span class="comment">% GR1: C.ifIn10, C.ifOut10, C.ifIn3, C.ifOut3: traffic between Px/2 &lt;=&gt; Rx-A</span>
+<span class="comment">% GR2: C.ifOut9, A.ifOut8, C.ifIn1, C.ifIn9, A.ifIn8, C.ifOut1, A.ifIn14,</span>
+<span class="comment">%    A.ifOut14:  traffic between Px/1 &lt;=&gt; SWx-A</span>
+
+meda_pca(cal,1:2,prep_x,0.5,<span class="string">'111'</span>,lab);
+<span class="comment">% the same two groups are found</span>
+</pre><img vspace="5" hspace="5" src="run_04.png" alt=""> <img vspace="5" hspace="5" src="run_05.png" alt=""> <h2>Steps 1-3 can be repeated for a subset of selected variables<a name="6"></a></h2><p>To do that, excute the following code and then repeat the steps 1-3. Basically, the same conclusions are found, but this selection is suggested to simplify the interpretation of Step 4.</p><pre class="codeinput">load <span class="string">data_proc</span>
+sel = [3 4 9 14 31 33 35 36 39 41 45 46];
+
+map = meda_pca(cal(:,sel),1:2,prep_x,0.5,0);
+[map,ord] = seriation(map); <span class="comment">% variables reordering</span>
+cal = cal(:,sel(ord));
+test = test(:,sel(ord));
+lab = lab(sel(ord));
+</pre><h2>Step 4: investigate differences between observations<a name="7"></a></h2><pre class="language-matlab">Apply <span class="string">oMEDA</span> <span class="string">of</span> <span class="string">the</span> <span class="string">two</span> <span class="string">trends</span> <span class="string">found</span> <span class="string">in</span> <span class="string">the</span> <span class="string">score</span> <span class="string">plot</span>
+line <span class="string">plots</span> <span class="string">are</span> <span class="string">used</span> <span class="string">to</span> <span class="string">confirm</span> <span class="string">the</span> <span class="string">result</span>
+</pre><pre class="codeinput">scores_pca(cal,1:2,[],prep_x,1);
+
+<span class="comment">% the first trend is related to the group of variables GR1</span>
+dummy=-ones(48,1);
+dummy(35)=2;
+dummy([37,29,33,45])=1;
+dummy([10,2,6,8,1,25,14,24,13,9])=0;
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+
+figure, plot(1:size(cal,2),cal([12 16 19 18],:)',<span class="string">'c'</span>), hold <span class="string">on</span>, plot(1:size(cal,2),cal([37,29,33,45],:)',<span class="string">'r'</span>), axis <span class="string">tight</span>
+
+<span class="comment">% the second trend is mainly related to the group of variables GR2</span>
+dummy=-ones(48,1);
+dummy(9)=2;
+dummy([13,24,14,25])=1;
+dummy([10,2,9,6,8,1,26,28,36,22,23,29,35,37,45])=0;
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+
+figure, plot(1:size(cal,2),cal([12 16 19 18],:)',<span class="string">'c'</span>), hold <span class="string">on</span>, plot(1:size(cal,2),cal([13,24,14,25],:)',<span class="string">'r'</span>), axis <span class="string">tight</span>
+</pre><img vspace="5" hspace="5" src="run_06.png" alt=""> <img vspace="5" hspace="5" src="run_07.png" alt=""> <img vspace="5" hspace="5" src="run_08.png" alt=""> <img vspace="5" hspace="5" src="run_09.png" alt=""> <img vspace="5" hspace="5" src="run_10.png" alt=""> <h2>Step 4b: investigate differences with outliers<a name="8"></a></h2><pre class="language-matlab">oMEDA <span class="string">and</span> <span class="string">line</span> <span class="string">plots</span> <span class="string">of</span> <span class="string">outliers</span>
+Basically, all <span class="string">outliers</span> <span class="string">present</span> <span class="string">high</span> <span class="string">load</span> <span class="string">of</span> <span class="string">traffic.</span>
+</pre><pre class="codeinput"><span class="comment">% outlier 2</span>
+dummy=-ones(48,1);
+dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
+dummy(2)=1;
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+
+<span class="comment">% outlier 9</span>
+dummy=-ones(48,1);
+dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
+dummy(9)=1;
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+
+<span class="comment">% outlier 10</span>
+dummy=-ones(48,1);
+dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
+dummy(10)=1;
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+
+<span class="comment">% line plot to confirm results</span>
+figure, plot(1:size(cal,2),cal([12 16 19 18],:)',<span class="string">'c'</span>), hold <span class="string">on</span>, plot(1:size(cal,2),cal([2,9,10],:)',<span class="string">'r'</span>), axis <span class="string">tight</span>
+</pre><img vspace="5" hspace="5" src="run_11.png" alt=""> <img vspace="5" hspace="5" src="run_12.png" alt=""> <img vspace="5" hspace="5" src="run_13.png" alt=""> <img vspace="5" hspace="5" src="run_14.png" alt=""> <h2>Step 5: data set de test<a name="9"></a></h2><pre class="language-matlab">score <span class="string">plot</span> <span class="string">and</span> <span class="string">oMEDA</span> <span class="string">(perform with the complete set of variables)</span>
+</pre><pre class="codeinput">load <span class="string">data_proc</span>
+
+scores_pca(cal,1:2,test,prep_x,1);
+
+dummy=-ones(101,1);
+dummy([61,100,73,74,60,59])=1;
+dummy([63,75,101])=0;
+omeda_pca(cal,1:2,[cal;test],dummy,prep_x,111,lab);
+
+dummy=-ones(101,1);
+dummy([61,100,73,74,60,59])=0;
+dummy([63,75,101])=1;
+omeda_pca(cal,1:2,[cal;test],dummy,prep_x,111,lab);
+</pre><img vspace="5" hspace="5" src="run_15.png" alt=""> <img vspace="5" hspace="5" src="run_16.png" alt=""> <img vspace="5" hspace="5" src="run_17.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% EDA example with PCA using the MEDA Toolbox. 
+% See README.txt for more details.
+% 
+%  Data set and Analysis: 
+% 
+%    J. Camacho, P. Padilla and J. Verdejo, Networkmetrics: Multivariate 
+%       Visual Analytics for Time Series Networking Data. Technical Report. 
+%
+% variables
+%
+% 	1	A.ifIn1		18 	B.ifIn9		35	C.ifIn9
+% 	2	A.ifIn2		19 	B.ifIn10	36	C.ifIn10
+% 	3	A.ifIn8		20 	B.ifIn4		37	C.ifIn12
+% 	4	A.ifIn14	21 	B.ifOut1	38	C.ifIn14
+% 	5	A.ifOut1	22 	B.ifOut2	39	C.ifOut1
+% 	6	A.ifOut2	23 	B.ifOut3	40	C.ifOut2
+% 	7	A.ifOut3	24 	B.ifOut4	41	C.ifOut3
+% 	8	A.ifOut4	25 	B.ifOut8	42	C.ifOut4
+% 	9	A.ifOut8	26 	B.ifOut9	43	C.ifOut5
+% 	10	A.ifOut9	27 	B.ifOut10	44	C.ifOut7
+% 	11	A.ifOut10	28 	B.ifOut11	45	C.ifOut9
+% 	12	A.ifOut11	29 	B.ifOut12	46	C.ifOut10
+% 	13	A.ifOut12	30 	B.ifOut14	47	C.ifOut11
+% 	14	A.ifOut14	31	C.ifIn1		48	C.ifOut12
+% 	15	B.ifIn1		32	C.ifIn2		49	C.ifOut14
+% 	16	B.ifIn2		33	C.ifIn3		
+% 	17	B.ifIn8		34	C.ifIn5		
+%     
+% where the name of each variable follows the format <switch>.if[In|Out]<N>. 
+% The remaining ports of the switches did not present any traffic load.
+
+% coded by: José Camacho Páez.
+% last modification: 19/Apr/16.
+
+%% Inicialization, remember to set the path of the toolbox
+
+prep_x = 1; % centre X
+max_PCs = 10; % maximum number of PCs to take into account
+
+load data_proc
+
+%% Step 1: Selection of the LVs
+
+var_pca(cal,1:max_PCs,prep_x); % 2 PCs seem to be adequate
+
+
+%% Step 2: observations distribution and relationships 
+%   scores and residuals, outliers detection
+
+scores_pca(cal,1:2,[],prep_x,1); 
+% there are two directions of variability, and observations 2, 9, 10 and 35
+% should be studied with more detail
+
+mspc_pca(cal,1:2,[],prep_x,1); 
+% check also 5 (residuals)
+
+
+%% Step 3: variables distribution and relationships  
+%   loadings, MEDA and residuals, selection of variables
+
+loadings_pca(cal,1:2,prep_x,1,lab);
+% two groups of variables are detected 
+% GR1: C.ifIn10, C.ifOut10, C.ifIn3, C.ifOut3: traffic between Px/2 <=> Rx-A
+% GR2: C.ifOut9, A.ifOut8, C.ifIn1, C.ifIn9, A.ifIn8, C.ifOut1, A.ifIn14, 
+%    A.ifOut14:  traffic between Px/1 <=> SWx-A
+
+meda_pca(cal,1:2,prep_x,0.5,'111',lab);
+% the same two groups are found
+
+
+%% Steps 1-3 can be repeated for a subset of selected variables 
+% To do that, excute the following code and then repeat the steps 1-3. 
+% Basically, the same conclusions are found, but this selection is
+% suggested to simplify the interpretation of Step 4.
+
+load data_proc
+sel = [3 4 9 14 31 33 35 36 39 41 45 46];
+
+map = meda_pca(cal(:,sel),1:2,prep_x,0.5,0);
+[map,ord] = seriation(map); % variables reordering
+cal = cal(:,sel(ord));
+test = test(:,sel(ord));
+lab = lab(sel(ord));
+
+
+%% Step 4: investigate differences between observations
+%   Apply oMEDA of the two trends found in the score plot 
+%   line plots are used to confirm the result
+
+scores_pca(cal,1:2,[],prep_x,1);
+
+% the first trend is related to the group of variables GR1
+dummy=-ones(48,1);
+dummy(35)=2;
+dummy([37,29,33,45])=1;
+dummy([10,2,6,8,1,25,14,24,13,9])=0;
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+
+figure, plot(1:size(cal,2),cal([12 16 19 18],:)','c'), hold on, plot(1:size(cal,2),cal([37,29,33,45],:)','r'), axis tight
+
+% the second trend is mainly related to the group of variables GR2
+dummy=-ones(48,1);
+dummy(9)=2;
+dummy([13,24,14,25])=1;
+dummy([10,2,9,6,8,1,26,28,36,22,23,29,35,37,45])=0;
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+
+figure, plot(1:size(cal,2),cal([12 16 19 18],:)','c'), hold on, plot(1:size(cal,2),cal([13,24,14,25],:)','r'), axis tight
+
+
+%% Step 4b: investigate differences with outliers
+%   oMEDA and line plots of outliers
+%   Basically, all outliers present high load of traffic.
+
+% outlier 2
+dummy=-ones(48,1);
+dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
+dummy(2)=1;
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+
+% outlier 9
+dummy=-ones(48,1);
+dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
+dummy(9)=1;
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+
+% outlier 10
+dummy=-ones(48,1);
+dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
+dummy(10)=1;
+omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+
+% line plot to confirm results
+figure, plot(1:size(cal,2),cal([12 16 19 18],:)','c'), hold on, plot(1:size(cal,2),cal([2,9,10],:)','r'), axis tight
+
+
+%% Step 5: data set de test
+%   score plot and oMEDA (perform with the complete set of variables)
+
+load data_proc
+
+scores_pca(cal,1:2,test,prep_x,1);
+
+dummy=-ones(101,1);
+dummy([61,100,73,74,60,59])=1;
+dummy([63,75,101])=0;
+omeda_pca(cal,1:2,[cal;test],dummy,prep_x,111,lab);
+
+dummy=-ones(101,1);
+dummy([61,100,73,74,60,59])=0;
+dummy([63,75,101])=1;
+omeda_pca(cal,1:2,[cal;test],dummy,prep_x,111,lab);
+##### SOURCE END #####
+--></body></html>

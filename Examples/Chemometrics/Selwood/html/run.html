@@ -1,0 +1,285 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>run</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2018-03-13"><meta name="DC.source" content="run.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">EDA example with PLS using the MEDA Toolbox.</a></li><li><a href="#2">Inicialization, remember to set the path of the toolbox</a></li><li><a href="#3">Step 1: Selection of the LVs</a></li><li><a href="#4">Step 2: observations distribution and relationships</a></li><li><a href="#5">Step 3: investigate differences between observations</a></li><li><a href="#6">Step 4: variables distribution and relationships</a></li><li><a href="#7">Step 4b: variables distribution and relationships in PCA join xn and y</a></li></ul></div><h2>EDA example with PLS using the MEDA Toolbox.<a name="1"></a></h2><p>See README.txt for more details.</p><pre>Data set:</pre><pre>  D.L. Selwood, D.J. Livingstone, J.C.W. Comley, A.B. O&Acirc;&#8217;Dowd, A.T. Hudson,
+     P. Jackson, K.S. Jandu, V.S. Rose, J.N. Stables Structure-Activity
+     Relationships of Antifiral Antimycin Analogues: A Multivariate
+     Pattern Recognition Study, Journal of Medical Chemistry 33 (1990)
+     136&Acirc;&#8211;142.</pre><pre class="language-matlab">Analysis:
+</pre><pre class="language-matlab">J. Camacho. Exploratory Data <span class="string">Analysis</span> <span class="string">using</span> <span class="string">latent</span> <span class="string">subspace</span> <span class="string">models.</span>
+    INTECH. ISBN 978-953-51-0438-4. Pages <span class="string">63</span> <span class="string">-</span> <span class="string">90.</span> <span class="string">2012</span>
+</pre><pre class="codeinput"><span class="comment">% variables</span>
+<span class="comment">%</span>
+<span class="comment">% Indices Descriptors</span>
+<span class="comment">% 1:10 	ATCH1 ATCH2 ATCH3 ATCH4 ATCH5 ATCH6 ATCH7 ATCH8 ATCH9 ATCH10</span>
+<span class="comment">% 11:20 	DIPV_X DIPV_Y DIPV_Z DIPMOM ESDL1 ESDL2 ESDL3 ESDL4 ESDL5 ESDL6</span>
+<span class="comment">% 21:30 	ESDL7 ESDL8 ESDL9 ESDL10 NSDL1 NSDL2 NSDL3 NSDL4 NSDL5 NSDL6</span>
+<span class="comment">% 31:40 	NSDL7 NSDL8 NSDL9 NSDL10 VDWVOL SURF_A MOFI_X MOFI_Y MOFI_Z PEAX_X</span>
+<span class="comment">% 41:50 	PEAX_Y PEAX_Z MOL_WT S8_1DX S8_1DY S8_1DZ S8_1CX S8_1CY S8_1CZ LOGP</span>
+<span class="comment">% 51:53 	M_PNT SUM_F SUM_R</span>
+
+<span class="comment">%</span>
+<span class="comment">% codified by: Jos&eacute; Camacho P&aacute;ez.</span>
+<span class="comment">% last modification: 02/Feb/15.</span>
+</pre><h2>Inicialization, remember to set the path of the toolbox<a name="2"></a></h2><pre class="codeinput">load <span class="string">selwood</span>
+
+prep_x = 2; <span class="comment">% auto-scale X</span>
+prep_y = 2; <span class="comment">% auto-scale Y</span>
+max_LVs = 20; <span class="comment">% maximum number of PCs to take into account</span>
+
+y = x(:,end);
+xn = x(:,1:end-1);
+</pre><h2>Step 1: Selection of the LVs<a name="3"></a></h2><pre class="codeinput">var_pls(xn,y,0:max_LVs,prep_x,prep_y); <span class="comment">% 3 or 6 LVs</span>
+
+cumpress=crossval_pls(xn,y,0:10); <span class="comment">% LVs 2 and 3 are not predictive</span>
+</pre><img vspace="5" hspace="5" src="run_01.png" alt=""> <img vspace="5" hspace="5" src="run_02.png" alt=""> <h2>Step 2: observations distribution and relationships<a name="4"></a></h2><pre class="language-matlab">scores <span class="string">and</span> <span class="string">residuals</span>, outliers <span class="string">detection</span>
+5 LVs <span class="string">are</span> <span class="string">used</span> <span class="string">for</span> <span class="string">visualization</span>
+</pre><pre class="codeinput">T = scores_pls(xn,y,1:5,[],prep_x,prep_y,1,Obs);
+<span class="comment">% four abnormal observations are found in LV1 (J1(5), J19(3), K18(6), K17(1))</span>
+<span class="comment">% which should be studied with more detail. Also, N31(16) is an outlier in</span>
+<span class="comment">% LV2 vs LV3, and M6(18) in LV4.</span>
+
+mspc_pls(xn,y,1:5,[],prep_x,prep_y,1,Obs,[],[],[]);
+<span class="comment">% M6(18) is the clearest outlier in the D-st</span>
+<span class="comment">% No high residual (Q-st) are found.</span>
+</pre><img vspace="5" hspace="5" src="run_03.png" alt=""> <img vspace="5" hspace="5" src="run_04.png" alt=""> <img vspace="5" hspace="5" src="run_05.png" alt=""> <img vspace="5" hspace="5" src="run_06.png" alt=""> <img vspace="5" hspace="5" src="run_07.png" alt=""> <img vspace="5" hspace="5" src="run_08.png" alt=""> <img vspace="5" hspace="5" src="run_09.png" alt=""> <img vspace="5" hspace="5" src="run_10.png" alt=""> <img vspace="5" hspace="5" src="run_11.png" alt=""> <img vspace="5" hspace="5" src="run_12.png" alt=""> <img vspace="5" hspace="5" src="run_13.png" alt=""> <h2>Step 3: investigate differences between observations<a name="5"></a></h2><pre class="language-matlab">apply <span class="string">oMEDA</span> <span class="string">to</span> <span class="string">outliers</span> <span class="string">found</span>
+</pre><pre class="codeinput">dummy=-ones(31,1);
+dummy([1,3,5,6])=1;
+omeda_pls(xn,y,1,xn,dummy,prep_x,prep_y,111);
+<span class="comment">% the abnormal observations present a generalized higher magnitude value</span>
+<span class="comment">% than common observations (in both positive and negative directions)</span>
+
+dummy=-ones(31,1);
+dummy(16)=1;
+omeda_pls(xn,y,2:3,xn,dummy,prep_x,prep_y,111);
+<span class="comment">% The deviation of N31(16) is mainly related to an anomalous value of</span>
+<span class="comment">% ATCH8-ATCH10</span>
+
+dummy=-ones(31,1);
+dummy(18)=1;
+omeda_pls(xn,y,4,xn,dummy,prep_x,prep_y,111);
+<span class="comment">% the anomalour residual in M6(18) is related to a generalized high value in</span>
+<span class="comment">% most of NSDL variables</span>
+</pre><img vspace="5" hspace="5" src="run_14.png" alt=""> <img vspace="5" hspace="5" src="run_15.png" alt=""> <img vspace="5" hspace="5" src="run_16.png" alt=""> <h2>Step 4: variables distribution and relationships<a name="6"></a></h2><pre class="language-matlab">loadings, MEDA <span class="string">and</span> <span class="string">residuals</span>
+</pre><pre class="codeinput">P = loadings_pls(xn,y,1:5,prep_x,prep_y,1,Vars);
+<span class="comment">% a main limitation of loading plots is that only two LVs are</span>
+<span class="comment">% assessed at a time. Also, although some correlations are found (e.g ATCH9</span>
+<span class="comment">% and ATCH10), it is hard to interpret</span>
+
+meda_res = meda_pls(xn,y,1:5,prep_x,prep_y,0.5,111);
+<span class="comment">% with MEDA, the contribution of the selected LVs can be observed at once.</span>
+<span class="comment">% Also, the groups of variables are easily found. There are several groups</span>
+<span class="comment">% of related variables, which cannot be observed in the loading plots, but</span>
+<span class="comment">% it is not clear which are the most predictive. Here we can use a simple</span>
+<span class="comment">% trick (Step 3b): join xn and y in a single block and perform PCA and MEDA.</span>
+
+leverages_pls(xn,y,1:5,prep_x,prep_y,1,Vars);
+<span class="comment">% ATCH4, DIPV_X and LOGP variables with the higest leverage on the model</span>
+</pre><img vspace="5" hspace="5" src="run_17.png" alt=""> <img vspace="5" hspace="5" src="run_18.png" alt=""> <img vspace="5" hspace="5" src="run_19.png" alt=""> <img vspace="5" hspace="5" src="run_20.png" alt=""> <img vspace="5" hspace="5" src="run_21.png" alt=""> <img vspace="5" hspace="5" src="run_22.png" alt=""> <img vspace="5" hspace="5" src="run_23.png" alt=""> <img vspace="5" hspace="5" src="run_24.png" alt=""> <img vspace="5" hspace="5" src="run_25.png" alt=""> <img vspace="5" hspace="5" src="run_26.png" alt=""> <img vspace="5" hspace="5" src="run_27.png" alt=""> <img vspace="5" hspace="5" src="run_28.png" alt=""> <h2>Step 4b: variables distribution and relationships in PCA join xn and y<a name="7"></a></h2><pre class="codeinput">Vars2 = {Vars{:} <span class="string">'-LOGEC50'</span>};
+xaug = [xn y];
+
+SVIplot(xaug,[],size(xaug,2),size(xaug,1),prep_x);
+<span class="comment">% the SVI plot is useful to determine the number of PCs when a single</span>
+<span class="comment">% variable is of interest. 2 PCs may be a good choice (low uncertainty of</span>
+<span class="comment">% alpha parameters while Q2 remains high)</span>
+
+[meda_res,map,ord] = meda_pca(xaug,1:2,prep_x,0.5,1);
+<span class="comment">% it may be useful to combine this plot with the one focused on the column</span>
+<span class="comment">% representing -LOGEC50 (variable 54)</span>
+
+plot_vec(meda_res(:,54),1:54,[],{[],<span class="string">'-LOGEC50'</span>},[0.25, -0.25]);
+<span class="comment">% variables highlighted are 'ATCH1', 'ATCH3', 'ATCH5', 'ATCH7', 'ESDL3',</span>
+<span class="comment">% 'SUM_F', 'ATCH6', 'NSDL1'</span>
+</pre><img vspace="5" hspace="5" src="run_29.png" alt=""> <img vspace="5" hspace="5" src="run_30.png" alt=""> <img vspace="5" hspace="5" src="run_31.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% EDA example with PLS using the MEDA Toolbox. 
+% See README.txt for more details.
+% 
+%  Data set: 
+% 
+%    D.L. Selwood, D.J. Livingstone, J.C.W. Comley, A.B. OÂ’Dowd, A.T. Hudson, 
+%       P. Jackson, K.S. Jandu, V.S. Rose, J.N. Stables Structure-Activity 
+%       Relationships of Antifiral Antimycin Analogues: A Multivariate 
+%       Pattern Recognition Study, Journal of Medical Chemistry 33 (1990) 
+%       136Â–142.
+%
+%   Analysis:
+%
+%   J. Camacho. Exploratory Data Analysis using latent subspace models.
+%       INTECH. ISBN 978-953-51-0438-4. Pages 63 - 90. 2012
+
+% variables
+%
+% Indices Descriptors
+% 1:10 	ATCH1 ATCH2 ATCH3 ATCH4 ATCH5 ATCH6 ATCH7 ATCH8 ATCH9 ATCH10
+% 11:20 	DIPV_X DIPV_Y DIPV_Z DIPMOM ESDL1 ESDL2 ESDL3 ESDL4 ESDL5 ESDL6
+% 21:30 	ESDL7 ESDL8 ESDL9 ESDL10 NSDL1 NSDL2 NSDL3 NSDL4 NSDL5 NSDL6
+% 31:40 	NSDL7 NSDL8 NSDL9 NSDL10 VDWVOL SURF_A MOFI_X MOFI_Y MOFI_Z PEAX_X
+% 41:50 	PEAX_Y PEAX_Z MOL_WT S8_1DX S8_1DY S8_1DZ S8_1CX S8_1CY S8_1CZ LOGP
+% 51:53 	M_PNT SUM_F SUM_R
+
+%
+% codified by: José Camacho Páez.
+% last modification: 02/Feb/15.
+
+%% Inicialization, remember to set the path of the toolbox
+
+load selwood
+
+prep_x = 2; % auto-scale X
+prep_y = 2; % auto-scale Y
+max_LVs = 20; % maximum number of PCs to take into account
+
+y = x(:,end);
+xn = x(:,1:end-1);
+
+
+%% Step 1: Selection of the LVs
+
+var_pls(xn,y,0:max_LVs,prep_x,prep_y); % 3 or 6 LVs
+
+cumpress=crossval_pls(xn,y,0:10); % LVs 2 and 3 are not predictive 
+
+
+%% Step 2: observations distribution and relationships 
+%   scores and residuals, outliers detection
+%   5 LVs are used for visualization
+
+T = scores_pls(xn,y,1:5,[],prep_x,prep_y,1,Obs); 
+% four abnormal observations are found in LV1 (J1(5), J19(3), K18(6), K17(1)) 
+% which should be studied with more detail. Also, N31(16) is an outlier in
+% LV2 vs LV3, and M6(18) in LV4.
+
+mspc_pls(xn,y,1:5,[],prep_x,prep_y,1,Obs,[],[],[]); 
+% M6(18) is the clearest outlier in the D-st 
+% No high residual (Q-st) are found. 
+
+%% Step 3: investigate differences between observations
+%   apply oMEDA to outliers found
+
+dummy=-ones(31,1);
+dummy([1,3,5,6])=1;
+omeda_pls(xn,y,1,xn,dummy,prep_x,prep_y,111);
+% the abnormal observations present a generalized higher magnitude value
+% than common observations (in both positive and negative directions)
+
+dummy=-ones(31,1);
+dummy(16)=1;
+omeda_pls(xn,y,2:3,xn,dummy,prep_x,prep_y,111);
+% The deviation of N31(16) is mainly related to an anomalous value of 
+% ATCH8-ATCH10  
+
+dummy=-ones(31,1);
+dummy(18)=1;
+omeda_pls(xn,y,4,xn,dummy,prep_x,prep_y,111);
+% the anomalour residual in M6(18) is related to a generalized high value in
+% most of NSDL variables
+
+
+%% Step 4: variables distribution and relationships  
+%   loadings, MEDA and residuals
+
+P = loadings_pls(xn,y,1:5,prep_x,prep_y,1,Vars);
+% a main limitation of loading plots is that only two LVs are
+% assessed at a time. Also, although some correlations are found (e.g ATCH9
+% and ATCH10), it is hard to interpret
+
+meda_res = meda_pls(xn,y,1:5,prep_x,prep_y,0.5,111);
+% with MEDA, the contribution of the selected LVs can be observed at once. 
+% Also, the groups of variables are easily found. There are several groups 
+% of related variables, which cannot be observed in the loading plots, but 
+% it is not clear which are the most predictive. Here we can use a simple 
+% trick (Step 3b): join xn and y in a single block and perform PCA and MEDA. 
+
+leverages_pls(xn,y,1:5,prep_x,prep_y,1,Vars); 
+% ATCH4, DIPV_X and LOGP variables with the higest leverage on the model 
+
+
+%% Step 4b: variables distribution and relationships in PCA join xn and y
+
+Vars2 = {Vars{:} '-LOGEC50'};
+xaug = [xn y];
+
+SVIplot(xaug,[],size(xaug,2),size(xaug,1),prep_x); 
+% the SVI plot is useful to determine the number of PCs when a single
+% variable is of interest. 2 PCs may be a good choice (low uncertainty of
+% alpha parameters while Q2 remains high)
+
+[meda_res,map,ord] = meda_pca(xaug,1:2,prep_x,0.5,1);
+% it may be useful to combine this plot with the one focused on the column 
+% representing -LOGEC50 (variable 54)
+
+plot_vec(meda_res(:,54),1:54,[],{[],'-LOGEC50'},[0.25, -0.25]);
+% variables highlighted are 'ATCH1', 'ATCH3', 'ATCH5', 'ATCH7', 'ESDL3', 
+% 'SUM_F', 'ATCH6', 'NSDL1'
+
+
+
+
+##### SOURCE END #####
+--></body></html>
