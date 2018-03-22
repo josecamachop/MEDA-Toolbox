@@ -1,4 +1,4 @@
-function ascao = asca(X, F, interactions, center)
+function ascao = asca(paranovao, alpha)
 
 % ASCA is a data analysis algorithm for designed experiments. It does a 
 % principal component analysis on the level averages of each experimental 
@@ -8,24 +8,17 @@ function ascao = asca(X, F, interactions, center)
 % ANOVA–principal component analysis and ANOVA–simultaneous component 
 % analysis: a comparison. Journal of Chemometrics, 2018, 25:561-567.
 %
-% ascao = asca(X, F)   % minimum call
-% ascao = asca(X, F, interactions, center)   % complete call
+% ascao = asca(paranovao)   % minimum call
+% ascao = asca(paranovao, alpha)   % complete call
 %
 %
 % INPUTS:
 %
-% X: [NxM] billinear data set for model fitting, where each row is a
-% measurement, each column a variable
+% paranovao (structure): structure with the factor and interaction
+% matrices, p-values and explained variance. Obtained with parallel anova
+% (paranova)
 %
-% F: [NxF] design matrix, where columns correspond to factors and rows to
-% levels.
-%
-% interactions: [Ix2] matrix where rows contain the factors for which
-% interactions are to be calculated.
-%
-% center: [1x1] preprocesing:
-%       1: mean centering
-%       2: autoscaling (default)
+% alpha: [1x1] significance level (0.05 by default)
 %
 %
 % OUTPUTS:
@@ -50,7 +43,9 @@ function ascao = asca(X, F, interactions, center)
 %     end
 % end
 %
-% ascao = asca(X, F);
+% paranovao = paranova(X, F);
+%
+% ascao = asca(paranovao);
 %
 %
 % EXAMPLE OF USE: Random data, two factors, with 4 and 3 levels, but only
@@ -67,11 +62,14 @@ function ascao = asca(X, F, interactions, center)
 %     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
 %
-% ascao = asca(X, F);
+% paranovao = paranova(X, F);
+%
+% ascao = asca(paranovao);
 %
 %
 % coded by: Gooitzen Zwanenburg (G.Zwanenburg@uva.nl)
-% last modification: 2/Mar/18.
+%           José Camacho (josecamacho@ugr.es)
+% last modification: 21/Mar/18
 %
 % Copyright (C) 2018  Gooitzen Zwanenburg, University of Amsterdam
 %
@@ -92,113 +90,31 @@ function ascao = asca(X, F, interactions, center)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-N = size(X, 1);
-M = size(X, 2);
-if nargin < 3 || isempty(interactions), interactions = []; end;
-if nargin < 4 || isempty(center), center = 2; end;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+if nargin < 2 || isempty(alpha), alpha = 0.05; end;
 
 % Validate dimensions of input data
-assert (isequal(size(center), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(alpha), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
-size_data           = size(X);                   % size of the data matrix
-n_levels            = max(F);                    % number of levels / factor
-n_interactions      = size(interactions,1);      % number of interactions
-n_factors           = size(F,2);                 % number of factors
-factors             = 1 : n_factors;             % factors to be evaluated
-X_raw               = X;                         % Input data matrix
-X_level_means       = cell(n_factors,1);         % level_means per factor
-SSQ_factors         = zeros(1,n_factors,1);      % sum of squares for factors
-X_interaction_means = cell(n_interactions);      % cell_means for interactions
-SSQ_interactions    = zeros(1,n_interactions);   % sum of squares for interactions
+ascao = paranovao;
 
 % Structure with results
-ascao.factors.scores               = cell(n_factors,1);
-ascao.factors.loadings             = cell(n_factors,1);
-ascao.factors.projected            = cell(n_factors,1);
-ascao.factors.singular             = cell(n_factors,1);
-ascao.factors.explained            = cell(n_factors,1);
-ascao.interactions.scores          = cell(n_interactions);
-ascao.interactions.loadings        = cell(n_interactions);
-ascao.interactions.singular        = cell(n_interactions);
-ascao.interactions.explained       = cell(n_interactions);
+ascao.factors.scores               = cell(ascao.n_factors,1);
+ascao.factors.loadings             = cell(ascao.n_factors,1);
+ascao.factors.projected            = cell(ascao.n_factors,1);
+ascao.factors.singular             = cell(ascao.n_factors,1);
+ascao.interactions.scores          = cell(ascao.n_interactions);
+ascao.interactions.loadings        = cell(ascao.n_interactions);
+ascao.interactions.singular        = cell(ascao.n_interactions);
 
-% In column space
-ascao.factors.means                = cell(n_factors,1);
-ascao.interactions.means           = cell(n_interactions);
 
-% center/standardize the data
-
-if center == 1
-    Mean = ones(size_data(1),1)*mean(X_raw);        % Overall mean
-    X = (X_raw - Mean);                             % Center
-    SSQ_mean = sum(sum(Mean.^2));                   % SSQ overall means
-    SSQ_X = sum(sum(X_raw.^2));                     % Sum of squares data matrix
-elseif center == 2
-    Mean_std = ones(size_data(1),1)*mean(X_raw)./...
-        (ones(size_data(1),1)*std(X_raw));
-    X_std = X_raw./(ones(size_data(1),1)*std(X_raw));
-    X = (X_std - Mean_std);                         % Standardize
-    SSQ_mean = sum(sum(Mean_std.^2));               % SSQ overall means
-    SSQ_X = sum(sum(X_std.^2));
-end
-X_residuals         = X;                            % initial matrix with residuals
-ascao.data           = X;
-ascao.design         = F;
-
-% Collect level means for the factors indicated in the model
-for factor = factors
-    X_level_means{factor} = zeros(size_data);
-    for level = 1 : n_levels(factor)
-        tmp = zeros(size_data(1),1);
-        found = find(F(:,factor) == level);      % find rows that belong to level
-        m = mean(X(found,:));                    % calculate level mean
-        tmp(found) = 1;                          % flag the rows found
-        X_level_means{factor} = X_level_means{factor} + tmp*m;
-    end
-    SSQ_factors(factor) = sum(sum(X_level_means{factor}.^2));
-    X_residuals = X_residuals - X_level_means{factor};
-    ascao.factors.means{factor} = X_level_means{factor};
-end
-
-% Interactions
-for i = 1 : n_interactions
-    factor_1 = interactions(i,1);
-    factor_2 = interactions(i,2);
-    X_interaction_means{i} = zeros(size_data);
-    for level_factor_1 = 1 : n_levels(factor_1)          % levels for first factor
-        for level_factor_2 = 1 : n_levels(factor_2)      % levels for second factor
-            tmp = zeros(size_data(1),1);
-            found = find((F(:,factor_2) == level_factor_2) & ...  % find rows
-                (F(:,factor_1) == level_factor_1));
-            if size(found,1) == 1                        % only one subject/cell
-                m = X(found,:);                          % average is row
-            else
-                m = mean(X(found,:));                    % average over cell
-            end
-            tmp(found) = 1;
-            X_interaction_means{i} = X_interaction_means{i} + tmp*m;
-        end
-    end
-    X_interaction_means{i} = X_interaction_means{i} - ...
-        X_level_means{factor_1} - X_level_means{factor_2};
-    SSQ_interactions(i) = sum(sum(X_interaction_means{i}.^2));
-    ascao.interactions.means{i} = X_interaction_means{i};
-    X_residuals = X_residuals - X_interaction_means{i};
-end
-
-SSQ_residuals = sum(sum(X_residuals.^2));
-perc_effects = effect_explains(SSQ_X, SSQ_mean, SSQ_factors, ...
-    SSQ_interactions, SSQ_residuals);
-ascao.effects = perc_effects;
-ascao.residuals = X_residuals;
 %Do PCA on level averages for each factor
-for factor = 1 : n_factors
-    [t,s,p] = do_pca(X_level_means{factor});
-    projected_data = (X_residuals*p);       % project residuals on loadings
+for factor = 1 : ascao.n_factors
+    [t,s,p] = do_pca(ascao.factors.means{factor});
+    projected_data = (ascao.residuals*p);       % project residuals on loadings
     ascao.factors.scores{factor}    = t;
     ascao.factors.loadings{factor}  = p;
     ascao.factors.singular{factor}  = s;
@@ -207,9 +123,9 @@ for factor = 1 : n_factors
 end
 
 %Do PCA on interactions
-for interaction = 1 : n_interactions
-    [t,s,p] = do_pca(X_interaction_means{interaction});
-    projected_data = (X_residuals*p);       % project residuals on loadings
+for interaction = 1 : ascao.n_interactions
+    [t,s,p] = do_pca(ascao.interactions.means{interaction});
+    projected_data = (ascao.residuals*p);       % project residuals on loadings
     ascao.interactions.scores{interaction}    = t;
     ascao.interactions.loadings{interaction}  = p;
     ascao.interactions.singular{interaction}  = s;
@@ -218,20 +134,7 @@ for interaction = 1 : n_interactions
 end
 
 plot_asca(ascao);
-plot_interactions(ascao, n_interactions);
-
-disp('Percentage each effect contributes to the total sum of squares')
-disp('Overall means')
-disp(perc_effects(1))
-disp('Factors')
-disp(perc_effects(1 + (1 : n_factors)))
-if n_interactions>0
-    disp('Interactions')
-    disp(perc_effects(1 + n_factors + (1 : n_interactions)))
-end
-disp('Residuals')
-disp(perc_effects(end))
-
+plot_interactions(ascao, ascao.n_interactions);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
