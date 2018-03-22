@@ -120,7 +120,7 @@ p_interaction       = zeros(1, n_interactions);  % p-values interactions
 
 % In column space
 paranovao.factors.means                = cell(n_factors,1);
-paranovao.interactions.means           = cell(n_interactions);
+paranovao.interactions.means           = cell(n_interactions,1);
 
 % center/standardize the data
 if center == 1
@@ -141,7 +141,6 @@ X_residuals         = X;                            % initial matrix with residu
 % Make structure with unchanging 'variables'
 paranovao.data           = X;
 paranovao.design         = F;
-paranovao.interactions   = interactions;
 paranovao.n_factors      = n_factors;
 paranovao.n_levels       = n_levels;
 paranovao.n_interactions = n_interactions;
@@ -153,6 +152,8 @@ for factor = factors
     X_residuals = X_residuals - X_level_means{factor};
     paranovao.factors.means{factor} = X_level_means{factor};
 end
+
+X_residuals_afterF = X_residuals;
 
 % Interactions
 for i = 1 : n_interactions
@@ -197,23 +198,11 @@ disp(perc_effects(end))
 % Do the permutations (do this, for now, for two factors)
 for j = 1 : n_perm
     
-    % Permutations of experimental factors
-    % Restrict permutations to the factor considered
-    reverse_factors = n_factors : -1 : 1;
+    perms = randperm(size(X,1)); % permuted data (permute whole data matrix)
+        
     for factor = 1 : n_factors
-        other_factor       = reverse_factors(factor);
-        X_permuted{factor} = zeros(size(X));
-        for level = 1 : n_levels(other_factor)
-            found = find(F(:,other_factor) == level);
-            n_rows = length(found);                               % number of rows for level
-            perms  = randperm(n_rows);                            % random permutations of n_rows
-            permuted_level = found(perms);
-            X_permuted{factor}(found,:) = X(permuted_level,:);
-        end
-        
         % Level means for each factor
-        X_level_means{factor} = level_means(X_permuted{factor}, paranovao, factor);
-        
+        X_level_means{factor} = level_means(X(perms, :), paranovao, factor);
         SSQ_factors(1 + j, factor) = sum(sum( (X_level_means{factor}).^2));
     end
     
@@ -221,23 +210,14 @@ for j = 1 : n_perm
     for i = 1 : n_interactions
         factor_1 = interactions(i,1);
         factor_2 = interactions(i,2);
-        perms    = randperm(size(X,1));
-        X_r      = X(perms, :);          % permuted data (permute whole data matrix)
         
-        % Calculate level means experimental factors for permuted data
-        for factor = [factor_1 factor_2]
-            X_level_means{factor} = level_means(X_r, paranovao, factor);
-        end
-        
-        % X_residuals = Xr - Xa - Xb
-        X_residuals = X_r - X_level_means{factor_1} - X_level_means{factor_2};
         X_interaction_means{i} = zeros(size(X));
         for level_factor_1 = 1 : n_levels(factor_1)                   % levels for first factor
             for level_factor_2 = 1 : n_levels(factor_2)               % levels for second factor
                 tmp = zeros(size_data(1),1);
                 found = find((F(:,factor_2) == level_factor_2) & ...  % find rows
                     (F(:,factor_1) == level_factor_1));
-                m = mean(X_residuals(found,:));                       % average over cell
+                m = mean(X_residuals_afterF(perms(found),:));                       % average over cell
                 tmp(found) = 1;
                 X_interaction_means{i} = X_interaction_means{i} + tmp*m;
             end
