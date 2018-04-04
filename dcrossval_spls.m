@@ -1,9 +1,8 @@
 function [Q,lvso,keepXso,press] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt)
 
 % Row-wise k-fold (rkf) double cross-validation in SPLS. Reference:
-% J. Camacho and E. Saccenti. A modified double cross validation scheme for sparse 
-% partial past squares implementing a trade-off between model simplicity and predictive 
-% capability. Submitted to Journal of Chemometrics. 2016.
+% J. Camacho, J. González-Martínez and E. Saccenti. 
+% Rethinking cross-validation in SPLS. Submitted to Journal of Chemometrics. 
 %
 % Q = dcrossval_spls(x,y) % minimum call
 % [Q,lvso,keepXso,press] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt) % complete call
@@ -21,7 +20,9 @@ function [Q,lvso,keepXso,press] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,p
 % keepXs: [1xK] Numbers of x-block variables kept per latent variable modeled. By default,
 % 	keepXs = 1:M
 %
-% alpha: [1x1] Trade-off controlling parameter between 0 (maximum parsimony) and 1 (pure prediction)
+% alpha: [1x1] Trade-off controlling parameter that goes from -1 (maximum 
+%   completeness), through 0 (pure prediction, by default) to 1 (maximum 
+%   parsimony) 
 %
 % blocks_r: [1x1] maximum number of blocks of samples (N by default)
 %
@@ -54,18 +55,20 @@ function [Q,lvso,keepXso,press] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,p
 % EXAMPLE OF USE: Random data with structural relationship
 %
 % X = simuleMV(20,10,8);
+% X = [X 0.1*randn(20,10) + X];
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
 % keepXs = 1:10;
-% [Q,lvso,keepXso] = dcrossval_spls(X,Y,lvs,keepXs,1);
-% [Q_05,lvso_05,keepXso_05] = dcrossval_spls(X,Y,lvs,keepXs,0.5);
+% [Q,lvso,keepX] = dcrossval_spls(X,Y,lvs,keepXs,0,5)
+% [Q_simple,lvso_simple,keepX_simple] = dcrossval_spls(X,Y,lvs,keepXs,0.5,5)
+% [Q_complete,lvso__complete,keepX__complete] = dcrossval_spls(X,Y,lvs,keepXs,-0.5,5)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 24/Aug/16.
+% last modification: 04/Apr/18.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -92,7 +95,7 @@ if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
 A = length(lvs);
 if nargin < 4 || isempty(keepXs), keepXs = 1:M; end;
 J =  length(keepXs);
-if nargin < 5 || isempty(alpha), alpha = 1; end;
+if nargin < 5 || isempty(alpha), alpha = 0; end;
 if nargin < 6 || isempty(blocks_r), blocks_r = N; end;
 if nargin < 7 || isempty(prepx), prepx = 2; end;
 if nargin < 8 || isempty(prepy), prepy = 2; end;
@@ -106,6 +109,7 @@ if size(keepXs,2) == 1, keepXs = keepXs'; end;
 assert (isequal(size(y), [N O]), 'Dimension Error: 2nd argument must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(keepXs), [1 J]), 'Dimension Error: 4th argument must be 1-by-J. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(alpha), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -119,8 +123,9 @@ keepXs = unique(keepXs);
 assert (isempty(find(lvs<0)), 'Value Error: 3rd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(keepXs), keepXs), 'Value Error: 4th argument must contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (alpha>=-1 & alpha<=1, 'Value Error: 5th argument must contain values in [-1, 1]. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 6th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r>2, 'Value Error: 6th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r>3, 'Value Error: 6th argument must be above 3. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r<=N, 'Value Error: 6th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -153,7 +158,8 @@ for i=1:blocks_r,
         
     [cumpress,kk,nze] =  crossval_spls(rest,rest_y,lvs,keepXs,blocks_r-1,prepx,prepy,0);
         
-    cumpressb = alpha*cumpress/max(max(cumpress)) + (1-alpha)*nze/max(max(nze));
+    cumpressb = (1-abs(alpha))*cumpress/max(max(cumpress)) + alpha*nze/max(max(nze));
+    
     [l,k]=find(cumpressb==min(min(cumpressb)));
     lvso(i) = lvs(l(1));
     keepXso(i) = keepXs(k(1));

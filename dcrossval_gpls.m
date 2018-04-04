@@ -63,10 +63,10 @@ function [Q,lvso,gammaso,press] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,p
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Apr/17.
+% last modification: 04/Apr/18.
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Pae
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -124,7 +124,7 @@ assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argumentmust contain integers.
 assert (isempty(find(gammas<0 | gammas>1)), 'Value Error: 4th argument must not contain values out of [0,1]. Type ''help %s'' for more info.', routine(1).name);
 assert (alpha>=0 & alpha<=1, 'Value Error: 5th argument must not be out of [0,1]. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 6th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r>2, 'Value Error: 6th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r>3, 'Value Error: 6th argument must be above 3. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r<=N, 'Value Error: 6th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
 
 

@@ -1,6 +1,7 @@
 function [AUC,nze] = crossval_spls_da(x,y,lvs,keepXs,blocks_r,prepx,prepy,opt)
 
-% Row-wise k-fold (rkf) cross-validation for square-prediction-errors computing in SPLS-DA.
+% Row-wise k-fold (rkf) cross-validation in SPLS-DA, restricted to one 
+% response categorical variable of two levels.
 %
 % cumpress = crossval_spls_da(x,y) % minimum call
 % [AUC,nze] =
@@ -11,14 +12,16 @@ function [AUC,nze] = crossval_spls_da(x,y,lvs,keepXs,blocks_r,prepx,prepy,opt)
 %
 % x: [NxM] billinear data set for model fitting
 %
-% y: [Nx1] billinear data set of predicted variables
+% y: [Nx1] billinear data set of one categorical variable with two levels
 %
 % lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
-% keepXs: [1xK] Numbers of x-block variables kept per latent variable modeled. By default, keepXs = 1:M
+% keepXs: [1xK] Numbers of x-block variables kept per latent variable modeled. 
+%   By default, keepXs = 1:M
 %
-% blocks_r: [1x1] maximum number of blocks of samples (N by default)
+% blocks_r: [1x1] maximum number of blocks of samples (the minimum number
+%   of observations of a class divided by 2 by default)
 %
 % prepx: [1x1] preprocesing of the x-block
 %       0: no preprocessing
@@ -48,14 +51,14 @@ function [AUC,nze] = crossval_spls_da(x,y,lvs,keepXs,blocks_r,prepx,prepy,opt)
 % Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
 % lvs = 0:10;
 % keepXs = 1:10;
-% [AUC,nze] = crossval_spls_da(X,Y,lvs,keepXs);
+% [AUC,nze] = crossval_spls_da(X,Y,lvs,keepXs,5);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/Sep/16.
+% last modification: 04/Apr/18.
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -84,6 +87,12 @@ if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
 A = length(lvs);
 if nargin < 4 || isempty(keepXs), keepXs = 1:M; end;
 J =  length(keepXs);
+
+vals = unique(y);
+rep = sort(histc(y,vals),'descend');
+N2 = rep(2);
+if nargin < 5 || isempty(blocks_r), blocks_r = max(2,round(N2/2)); end;
+
 if nargin < 6 || isempty(prepx), prepx = 2; end;
 if nargin < 7 || isempty(prepy), prepy = 2; end;
 if nargin < 8 || isempty(opt), opt = 1; end;
@@ -106,19 +115,11 @@ keepXs = unique(keepXs);
 
 % Validate values of input data
 
-vals = unique(y);
-
 assert (isempty(find(y~=1 & y~=-1)), 'Value Error: 2rd argument must not contain values different to 1 or -1. Type ''help %s'' for more info.', routine(1).name);
-
-rep = sort(histc(y,vals),'descend');
-N2 = rep(2);
-
-if nargin < 5 || isempty(blocks_r), blocks_r = N2; end;
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-
 assert (isempty(find(lvs<0)), 'Value Error: 3rd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(keepXs), keepXs), 'Value Error: 4th argument must contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 5th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r>2, 'Value Error: 5th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r<=N2, 'Value Error: 5th argument must be at most %d. Type ''help %s'' for more info.', N2, routine(1).name);
@@ -205,5 +206,6 @@ AUC = AUC/blocks_r;
 
 if opt == 1,
     fig_h = plot_vec(AUC',keepXs,[],{'#NZV','AUC'},[],0,lvs); 
+    legend('show')
 end
 
