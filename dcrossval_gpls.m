@@ -1,9 +1,9 @@
-function [Q,lvso,gammaso,press] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,prepx,prepy,opt)
+function [Qm,Q,lvso,gammaso] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,prepx,prepy,opt)
 
 % Row-wise k-fold (rkf) double cross-validation for square-prediction-errors computing in GPLS.
 %
-% Q = dcrossval_gpls(x,y) % minimum call
-% [Q,lvso,gammaso,press] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,prepx,prepy,opt) % complete call
+% Qm = dcrossval_gpls(x,y) % minimum call
+% [Qm,Q,lvso,gammaso] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,prepx,prepy,opt) % complete call
 %
 %
 % INPUTS:
@@ -17,7 +17,9 @@ function [Q,lvso,gammaso,press] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,p
 %
 % gammas: [1xJ] gamma values considered. By default, gammas = 0:0.1:1
 %
-% alpha: [1x1] tradeoff [0, 1] between prediction (1) and sparseness (0).
+% alpha: [1x1] Trade-off controlling parameter that goes from -1 (maximum 
+%   completeness), through 0 (pure prediction, by default) to 1 (maximum 
+%   parsimony) 
 %
 % blocks_r: [1x1] maximum number of blocks of samples (N by default)
 %
@@ -38,13 +40,13 @@ function [Q,lvso,gammaso,press] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,p
 %
 % OUTPUTS:
 %
-% Q: [1x1] sum of squares of the errors
+% Qm: [1x1] Mean Goodness of Prediction
+%
+% Q: [blocks_rx1] Goodness of Prediction
 %
 % lvso: [blocks_rx1] optimum number of LVs in the inner loop
 %
 % gammaso: [blocks_rx1] optimum gamma in the inner loop
-%
-% press: [NxO] PRESS per observations and variable
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
@@ -58,15 +60,15 @@ function [Q,lvso,gammaso,press] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,p
 %
 % lvs = 0:10;
 % gammas = [0 0.5:0.1:1];
-% [Q,lvso,gammaso] = dcrossval_gpls(X,Y,lvs,gammas,1,7);
-% [Qb,lvsob,gammasob] = dcrossval_gpls(X,Y,lvs,gammas,0.5,7);
+% [Qm,Q,lvso,gammaso] = dcrossval_gpls(X,Y,lvs,gammas,0,5)
+% [Qm_simple,Q_simple,lvso_simple,gammaso_simple] = dcrossval_gpls(X,Y,lvs,gammas,0.5,5)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 04/Apr/18.
 %
 % Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Pae
+% Copyright (C) 2018  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -122,7 +124,7 @@ gammas = unique(gammas);
 assert (isempty(find(lvs<0)), 'Value Error: 3rd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(gammas<0 | gammas>1)), 'Value Error: 4th argument must not contain values out of [0,1]. Type ''help %s'' for more info.', routine(1).name);
-assert (alpha>=0 & alpha<=1, 'Value Error: 5th argument must not be out of [0,1]. Type ''help %s'' for more info.', routine(1).name);
+assert (alpha>=-1 & alpha<=1, 'Value Error: 5th argument must not be out of [1,1]. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 6th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r>3, 'Value Error: 6th argument must be above 3. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r<=N, 'Value Error: 6th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
@@ -131,9 +133,6 @@ assert (blocks_r<=N, 'Value Error: 6th argument must be at most N. Type ''help %
 %% Main code
 
 % Cross-validation
-        
-press = zeros(N,O);
-press0 = zeros(N,O);
 
 rows = rand(1,N);
 [a,r_ind]=sort(rows);
@@ -151,7 +150,8 @@ for i=1:blocks_r,
         
     [cumpress,kk,nze] =  crossval_gpls(rest,rest_y,lvs,gammas,blocks_r-1,prepx,prepy,0);
        
-    cumpressb = alpha*cumpress/max(max(cumpress)) + (1-alpha)*nze/max(max(nze));
+    cumpressb = (1-abs(alpha))*cumpress/max(max(cumpress)) + alpha*nze/max(max(nze));
+    
     [l,g]=find(cumpressb==min(min(cumpressb)));
     lvso(i) = lvs(l(1));
     gammaso(i) = gammas(g(1));
@@ -164,17 +164,16 @@ for i=1:blocks_r,
     
     beta = gpls_meda(ccs,ccs_y,1:lvso(i),gammaso(i));
     srec = vcs*beta;
-
-    press(ind_i,:) = vcs_y-srec;
-    press0(ind_i,:) = vcs_y;
+    
+    Q(i) = 1 - sum(sum((vcs_y-srec).^2))/sum(sum(vcs_y.^2));
     
 end
 
-Q = 1 - sum(sum(press.^2))/sum(sum(press0.^2));
+Qm = mean(Q);
 
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(sum(press.^2,2),[],[],{'#Observation','PRESS'},[],1); 
+    fig_h = plot_vec(Q,[],[],{'#Split','Goodness of Prediction'},[],1); 
 end
 

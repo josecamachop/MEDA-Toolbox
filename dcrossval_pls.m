@@ -1,9 +1,9 @@
-function [Q,lvso,press] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
+function [Qm,Q,lvso] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 
 % Row-wise k-fold (rkf) double cross-validation for square-prediction-errors computing in PLS.
 %
-% Q = dcrossval_pls(x,y) % minimum call
-% [Q,lvso,press] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt) % complete call
+% Qm = dcrossval_pls(x,y) % minimum call
+% [Qm,Q,lvso] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt) % complete call
 %
 %
 % INPUTS:
@@ -34,11 +34,11 @@ function [Q,lvso,press] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 % OUTPUTS:
 %
-% Q: [1x1] Index Q2
+% Qm: [1x1] Mean Goodness of Prediction
+%
+% Q: [blocks_rx1] Goodness of Prediction
 %
 % lvso: [blocks_rx1] optimum number of LVs in the inner loop
-%
-% press: [NxO] Residuals per observations and variable
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
@@ -53,7 +53,7 @@ function [Q,lvso,press] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 % last modification: 04/Apr/18.
 %
 % Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Pae
+% Copyright (C) 2018  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -107,10 +107,7 @@ assert (blocks_r<=N, 'Value Error: 4th argument must be at most N. Type ''help %
 
 %% Main code
 
-% Cross-validation
-        
-press = zeros(N,O);
-press0 = zeros(N,O);
+% Cross-validation 
 
 rows = rand(1,N);
 [a,r_ind]=sort(rows);
@@ -135,19 +132,18 @@ for i=1:blocks_r,
     vcs = preprocess2Dapp(val,av,st);
     vcs_y = preprocess2Dapp(val_y,av_y,st_y);
         
-    [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,1:lvso(i));
+    beta = kernel_pls(ccs'*ccs,ccs'*ccs_y,1:lvso(i));
     srec = vcs*beta;
     
-    press(ind_i,:) = vcs_y-srec;
-    press0(ind_i,:) = vcs_y;
+    Q(i) = 1 - sum(sum((vcs_y-srec).^2))/sum(sum(vcs_y.^2));
     
 end
 
-Q = 1 - sum(sum(press.^2))/sum(sum(press0.^2));
+Qm = mean(Q);
 
 %% Show results
 
 if opt == 1,
-   fig_h = plot_vec(sum(press.^2,2),[],[],{'#Observation','PRESS'},[],1); 
+   fig_h = plot_vec(Q,[],[],{'#Split','Goodness of Prediction'},[],1); 
 end
 

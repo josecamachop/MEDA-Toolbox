@@ -1,11 +1,11 @@
-function [Q,lvso,keepXso,press] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt)
+function [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt)
 
 % Row-wise k-fold (rkf) double cross-validation in SPLS. Reference:
 % J. Camacho, J. González-Martínez and E. Saccenti. 
 % Rethinking cross-validation in SPLS. Submitted to Journal of Chemometrics. 
 %
-% Q = dcrossval_spls(x,y) % minimum call
-% [Q,lvso,keepXso,press] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt) % complete call
+% Qm = dcrossval_spls(x,y) % minimum call
+% [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt) % complete call
 %
 %
 % INPUTS:
@@ -43,13 +43,13 @@ function [Q,lvso,keepXso,press] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,p
 %
 % OUTPUTS:
 %
-% Q: [1x1] Index Q2
+% Qm: [1x1] Mean Goodness of Prediction
+%
+% Q: [blocks_rx1] Goodness of Prediction
 %
 % lvso: [blocks_rx1] optimum number of LVs in the inner loop
 %
 % keepXso: [blocks_rx1] optimum number of keepXs in the inner loop
-%
-% press: [NxO] PRESS per observations and variable
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
@@ -59,9 +59,9 @@ function [Q,lvso,keepXso,press] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,p
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
 % keepXs = 1:10;
-% [Q,lvso,keepX] = dcrossval_spls(X,Y,lvs,keepXs,0,5)
-% [Q_simple,lvso_simple,keepX_simple] = dcrossval_spls(X,Y,lvs,keepXs,0.5,5)
-% [Q_complete,lvso__complete,keepX__complete] = dcrossval_spls(X,Y,lvs,keepXs,-0.5,5)
+% [Qm,Q,lvso,keepX] = dcrossval_spls(X,Y,lvs,keepXs,0,5)
+% [Qm_simple,Q_simple,lvso_simple,keepX_simple] = dcrossval_spls(X,Y,lvs,keepXs,0.5,5)
+% [Qm_complete,Q_complete,lvso__complete,keepX__complete] = dcrossval_spls(X,Y,lvs,keepXs,-0.5,5)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -132,9 +132,6 @@ assert (blocks_r<=N, 'Value Error: 6th argument must be at most N. Type ''help %
 %% Main code
 
 % Cross-validation
-        
-press = zeros(N,O);
-press0 = zeros(N,O);
 
 rows = rand(1,N);
 [a,r_ind]=sort(rows);
@@ -176,16 +173,15 @@ for i=1:blocks_r,
         srec = zeros(size(vcs_y));
     end
 
-    press(ind_i,:) = vcs_y-srec;
-    press0(ind_i,:) = vcs_y;
+    Q(i) = 1 - sum(sum((vcs_y-srec).^2))/sum(sum(vcs_y.^2));
     
 end
 
-Q = 1 - sum(sum(press.^2))/sum(sum(press0.^2));
+Qm = mean(Q);
 
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(sum(press.^2,2),[],[],{'#Observation','PRESS'},[],1); 
+    fig_h = plot_vec(Q,[],[],{'#Split','Goodness of Prediction'},[],1); 
 end
 

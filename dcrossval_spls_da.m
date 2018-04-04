@@ -1,12 +1,12 @@
-function [AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt)
+function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt)
 
 % Row-wise k-fold (rkf) double cross-validation in SPLS-DA, restricted to 
 % one response categorical variable of two levels. Reference:
 % J. Camacho, J. González-Martínez and E. Saccenti.
 % Rethinking cross-validation in SPLS. Submitted to Journal of Chemometrics. 
 %
-% AUC = dcrossval_spls_da(x,y) % minimum call
-% [AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt) % complete call
+% AUCm = dcrossval_spls_da(x,y) % minimum call
+% [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt) % complete call
 %
 %
 % INPUTS:
@@ -45,7 +45,9 @@ function [AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,pr
 %
 % OUTPUTS:
 %
-% AUC: [AxK] Area Under the Curve in ROC
+% AUCm: [1x1] Mean Area Under the ROC 
+%
+% AUC: [blocks_rx1] Area Under the ROC
 %
 % lvso: [blocks_rx1] optimum number of LVs in the inner loop
 %
@@ -59,9 +61,9 @@ function [AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,pr
 % Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
 % lvs = 0:10;
 % keepXs = 1:10;
-% [AUC,lvso,keepX] = dcrossval_spls_da(X,Y,lvs,keepXs,0,5)
-% [AUC_simple,lvso_simple,keepX_simple] = dcrossval_spls_da(X,Y,lvs,keepXs,0.5,5)
-% [AUC_complete,lvso_complete,keepX_complete] = dcrossval_spls_da(X,Y,lvs,keepXs,-0.5,5)
+% [AUCm,AUC,lvso,keepX] = dcrossval_spls_da(X,Y,lvs,keepXs,0,5)
+% [AUCm_simple,AUC_simple,lvso_simple,keepX_simple] = dcrossval_spls_da(X,Y,lvs,keepXs,0.5,5)
+% [AUCm_complete,AUC_complete,lvso_complete,keepX_complete] = dcrossval_spls_da(X,Y,lvs,keepXs,-0.5,5)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -195,15 +197,17 @@ for i=1:blocks_r,
         
     else
         keepXso(i) = nan;
-        srec = zeros(size(vcs_y));
+        AUC(i) = [];
     end
     
 end
 
+AUCm = mean(AUC);
 
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(AUC,[],[],{'','AUC'},[],1); 
+    fig_h = plot_vec(AUC,[],[],{'#Split','AUC'},[],1);
 end
+
 
