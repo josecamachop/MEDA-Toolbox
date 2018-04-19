@@ -45,18 +45,21 @@ function gascao = gasca(X, F, interactions, options)
 %
 %
 % EXAMPLE OF USE: Random data, two significative factors, with 4 and 3 
-%   levels, and 4 replicates:
+%   levels, and 4 replicates, sparse relevant loadings:
 %
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
+% where = 100;
 %
 % F = create_design(levels,reps);
 %
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     for j = 1:length(levels{2}),
-%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(randn(1,vars),reps,1);
+%         data = 0.1*randn(reps,vars);
+%         data(:,where:where+9) = data(:,where:where+9) + simuleMV(reps,10,8) + repmat(randn(1,10),reps,1);
+%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = data;
 %     end
 % end
 %
@@ -219,7 +222,7 @@ gascao.residuals = X_residuals;
 %Do GPCA on level averages for each factor
 for factor = 1 : n_factors
     figureindex = factor;
-    [t,s,p,o] = do_gpca(X_level_means{factor},sprintf('factor %d',factor),options,figureindex);
+    [t,s,p,o] = do_gpca(X_level_means{factor}+gascao.residuals,sprintf('factor %d',factor),options,figureindex);
     projected_data = (X_residuals*p);       % project residuals on loadings
     gascao.factors.scores{factor}    = t;
     gascao.factors.loadings{factor}  = p;
@@ -236,7 +239,7 @@ end
 %Do GPCA on interactions
 for interaction = 1 : n_interactions
     figureindex = 2*n_factors + 1;
-    [t,s,p,o] = do_gpca(X_interaction_means{interaction},sprintf('interaction %d',interaction),options, figureindex);
+    [t,s,p,o] = do_gpca(X_interaction_means{interaction}+gascao.residuals,sprintf('interaction %d',interaction),options, figureindex);
     projected_data = (X_residuals*p);       % project residuals on loadings
     gascao.interactions.scores{interaction}    = t;
     gascao.interactions.loadings{interaction}  = p;
@@ -280,24 +283,27 @@ disp(perc_effects(end))
             ExploreMap(D,label,options.corrtype,options.significance,figureindex);
         end
         
-        [meda_map, pval] = corr(D,'type',options.corrtype);
-        
-        if  options.significance > 0
-            meda_map(find(pval>options.significance)) = 0;
-        end
+%         [meda_map, pval] = corr(D,'type',options.corrtype);
+%         
+%         if  options.significance > 0
+%             meda_map(find(pval>options.significance)) = 0;
+%         end
+
+        [meda_map,ind,ord] = meda_pca(D,[],0,[],110);
 
         disp(['Visualizing relationship map for ', label,' ...']);
 
-        [map, ord] = seriation(meda_map);
+       % [map, ord] = seriation(meda_map);
+       meda_map = meda_map(ord,ord);
         
-        plot_map(map);
+       % plot_map(map);
         title(label)
         
         axis square;
         
         c = input(sprintf('Please, select c for %s: ',label));
         
-        min_group_size = floor(sqrt(size(meda_map,2)));
+        min_group_size = 1;%floor(sqrt(size(meda_map,2)));
         
         disp('Computing group selection...');
         

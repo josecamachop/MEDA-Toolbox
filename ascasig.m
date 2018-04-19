@@ -21,7 +21,7 @@ function p = ascasig(X, F, interactions, center, n_perm)
 %       1: mean centering
 %       2: autoscaling (default)
 % 
-% n_perm: [1x1] number of permutations.
+% n_perm: [1x1] number of permutations (1000 by default).
 %
 %
 % OUTPUTS:
@@ -66,7 +66,7 @@ function p = ascasig(X, F, interactions, center, n_perm)
 %
 %
 % coded by: Gooitzen Zwanenburg (G.Zwanenburg@uva.nl)
-% last modification: 8/Mar/18.
+% last modification: 19/Apr/18.
 %
 % Copyright (C) 2018  Gooitzen Zwanenburg, University of Amsterdam
 %
@@ -92,7 +92,7 @@ N = size(X, 1);
 M = size(X, 2);
 if nargin < 3 || isempty(interactions), interactions = []; end;
 if nargin < 4 || isempty(center), center = 2; end;
-if nargin < 5 || isempty(n_perm), n_perm = 100; end;
+if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
 
 % Validate dimensions of input data
 assert (isequal(size(center), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
