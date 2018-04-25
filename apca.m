@@ -1,15 +1,11 @@
-function T = scores_asca(paranovao, alpha, labels)
+function apcao = apca(paranovao)
 
-% ASCA is a data analysis algorithm for designed experiments. It does a 
+% ANOVA-PCA is a data analysis algorithm for designed experiments. It does a 
 % principal component analysis on the level averages of each experimental 
 % factor in a designed experiment with balanced data. Interactions between 
-% two factors can also be calculated. The original paper for this software 
-% is Zwanenburg, G, Hoefsloot, HCJ, Westerhuis, JA, Jansen, JJ, Smilde, AK.
-% ANOVA–principal component analysis and ANOVA–simultaneous component 
-% analysis: a comparison. Journal of Chemometrics, 2018, 25:561-567.
+% two factors can also be calculated.
 %
-% T = scores_asca(paranovao)   % minimum call
-% T = scores_asca(paranovao, alpha, labels)   % complete call
+% apcao = apca(paranovao)   % complete call
 %
 %
 % INPUTS:
@@ -18,14 +14,11 @@ function T = scores_asca(paranovao, alpha, labels)
 % matrices, p-values and explained variance. Obtained with parallel anova
 % (paranova)
 %
-% alpha: [1x1] significance level (0.05 by default)
-%
-% labels: [Kx1] name of the factors and interactions (empty by default)
-%
 %
 % OUTPUTS:
 %
-% T: [NxA] calibration scores
+% apcao (structure): structure that contains scores, loadings, singular
+% values and projections of the factors and interactions.
 %
 %
 % EXAMPLE OF USE: Random data, two significative factors, with 4 and 3 
@@ -45,8 +38,11 @@ function T = scores_asca(paranovao, alpha, labels)
 % end
 %
 % paranovao = paranova(X, F);
+% apcao = apca(paranovao);
 %
-% T = scores_asca(paranovao,0.05,{'Factor 1','Factor 2'});
+% for i=1:2,
+%   scores(apcao.factors{i},[],[],sprintf('Factor %d',i),[],apcao.design(:,i));
+% end
 %
 %
 % EXAMPLE OF USE: Random data, two factors, with 4 and 3 levels, but only
@@ -64,12 +60,17 @@ function T = scores_asca(paranovao, alpha, labels)
 % end
 %
 % paranovao = paranova(X, F);
+% apcao = apca(paranovao);
 %
-% T = scores_asca(paranovao,0.05,{'Factor 1','Factor 2'});
+% for i=1:2,
+%   scores(apcao.factors{i},[],[],sprintf('Factor %d',i),[],apcao.design(:,i));
+% end
 %
+%
+% Related routines: paranova, asca, gasca, create_design
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 21/Mar/18
+% last modification: 25/Apr/18
 %
 % Copyright (C) 2018  University of Granada, Granada
 % Copyright (C) 2018  Jose Camacho Paez
@@ -92,22 +93,31 @@ function T = scores_asca(paranovao, alpha, labels)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-if nargin < 2 || isempty(alpha), alpha = 0.05; end;
-if nargin < 3, labels = []; end
-    
-% Validate dimensions of input data
-assert (isequal(size(alpha), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
-T = {};
-ind = find(paranovao.p<alpha);
-for i=1:length(ind)
-    xf = paranovao.factors.means{ind(i)};
-    e = paranovao.residuals;
-    T{ind(i)} = scores_pca(xf,1:rank(xf),xf+e,0,101,[],paranovao.design(:,ind(i)));
-    if ~isempty(labels),
-        title(labels{ind(i)})
-    end
+apcao = paranovao;
+
+%Do PCA on level averages for each factor
+for factor = 1 : apcao.n_factors
+    
+    xf = apcao.factors{factor}.means+apcao.residuals;
+    [p,t] = pca_pp(xf,1:rank(apcao.factors{factor}.means));
+    
+    apcao.factors{factor}.lvs = 1:size(p,2);
+    apcao.factors{factor}.loads = p;
+    apcao.factors{factor}.scores = t;
 end
+
+%Do PCA on interactions
+for interaction = 1 : apcao.n_interactions
+    
+    xf = apcao.interactions{interaction}.means+apcao.residuals;
+    p = pca_pp(xf,1:rank(apcao.interactions{interaction}.means));
+    
+    apcao.interactions{interaction}.lvs = 1:size(p,2);
+    apcao.interactions{interaction}.loads = p;
+    apcao.interactions{interaction}.scores = t;
+end
+

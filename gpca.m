@@ -49,7 +49,7 @@ function [p,t,bel,e] = gpca(xcs,states,pcs,tol)
 % end
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 20/Jul/2017
+% last modification: 25/Apr/2018
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -74,6 +74,10 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(xcs, 1);
 M = size(xcs, 2);
+if length(states)==0,
+    states{1} = 1:M;
+end
+
 if nargin < 3 || isempty(pcs), pcs = 0:rank(xcs); end;
 if nargin < 4 || isempty(tol), tol = 1e-15; end;
 
@@ -87,7 +91,6 @@ pcs(find(pcs>rank(xcs))) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (length(states)>0, 'Dimension Error: 2nd argument must contain at least one state. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(pcs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 

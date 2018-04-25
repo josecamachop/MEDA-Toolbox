@@ -22,7 +22,7 @@ function paranovao = paranova(X, F, interactions, center, n_perm)
 %       1: mean centering
 %       2: autoscaling (default)
 %
-% n_perm: [1x1] number of permutations.
+% n_perm: [1x1] number of permutations (1000 by default).
 %
 %
 % OUTPUTS:
@@ -69,7 +69,7 @@ function paranovao = paranova(X, F, interactions, center, n_perm)
 %
 % coded by: Gooitzen Zwanenburg (G.Zwanenburg@uva.nl)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 21/Mar/18
+% last modification: 19/Apr/18
 %
 % Copyright (C) 2018  Gooitzen Zwanenburg, University of Amsterdam
 %
@@ -95,7 +95,7 @@ N = size(X, 1);
 M = size(X, 2);
 if nargin < 3 || isempty(interactions), interactions = []; end;
 if nargin < 4 || isempty(center), center = 2; end;
-if nargin < 5 || isempty(n_perm), n_perm = 100; end;
+if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
 
 % Validate dimensions of input data
 assert (isequal(size(center), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -119,8 +119,8 @@ p_factor            = zeros(1, n_factors);       % p-values factors
 p_interaction       = zeros(1, n_interactions);  % p-values interactions
 
 % In column space
-paranovao.factors.means                = cell(n_factors,1);
-paranovao.interactions.means           = cell(n_interactions,1);
+paranovao.factors                = cell(n_factors,1);
+paranovao.interactions           = cell(n_interactions,1);
 
 % center/standardize the data
 if center == 1
@@ -150,7 +150,7 @@ for factor = factors
     X_level_means{factor} = level_means(X, paranovao, factor);
     SSQ_factors(1,factor) = sum(sum(X_level_means{factor}.^2));
     X_residuals = X_residuals - X_level_means{factor};
-    paranovao.factors.means{factor} = X_level_means{factor};
+    paranovao.factors{factor}.means = X_level_means{factor};
 end
 
 X_residuals_afterF = X_residuals;
@@ -171,7 +171,7 @@ for i = 1 : n_interactions
             X_interaction_means{i} = X_interaction_means{i} + tmp*m;
         end
     end
-    paranovao.interactions.means{i} = X_interaction_means{i};
+    paranovao.interactions{i}.means = X_interaction_means{i};
     SSQ_interactions(1,i) = sum(sum(X_interaction_means{i}.^2));
     X_residuals = X_residuals - X_interaction_means{i};
 end
