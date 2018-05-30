@@ -129,9 +129,11 @@ if center == 1
     SSQ_mean = sum(sum(Mean.^2));                   % SSQ overall means
     SSQ_X = sum(sum(X_raw.^2));                     % Sum of squares data matrix
 elseif center == 2
+    stdm = std(X_raw);
+    stdm(find(stdm==0)) = 1;
     Mean_std = ones(size_data(1),1)*mean(X_raw)./...
-        (ones(size_data(1),1)*std(X_raw));
-    X_std = X_raw./(ones(size_data(1),1)*std(X_raw));
+        (ones(size_data(1),1)*stdm);
+    X_std = X_raw./(ones(size_data(1),1)*stdm);
     X = (X_std - Mean_std);                         % Standardize
     SSQ_mean = sum(sum(Mean_std.^2));               % SSQ overall means
     SSQ_X = sum(sum(X_std.^2));
