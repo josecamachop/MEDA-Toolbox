@@ -120,7 +120,8 @@ end
 
 if opt==1,
     for k=1:length(ucl),
-        plot_map(DImap(:,:,k),[],[0,max(max(squeeze(DImap(:,:,k))))]);
+        Mv = max(max(squeeze(DImap(:,:,k))));
+        plot_map(DImap(:,:,k),[],[0,Mv]);
         ylabel('#LV','FontSize',18)
         xlabel('#LV','FontSize',18)
     end  
