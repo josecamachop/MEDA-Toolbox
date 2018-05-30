@@ -1977,10 +1977,11 @@ set(handles.cleanButton,'Enable',state_omeda);
 set(handles.trendButton,'Enable',state_omeda);
 
 %Preprocessing
-child=get(handles.uipanelGen,'Children');
-for i=1:length(child),
-    set(child(i),'Enable',state_gen);
-end
+set(handles.generalPopup,'Enable',state_gen);
+set(handles.text26,'Enable',state_gen);
+set(handles.text25,'Enable',state_gen);
+set(handles.generalEdit,'Enable',state_gen);
+set(handles.generalButton,'Enable',state_gen);
 
 %General plots
 child=get(handles.uipanelPCA,'Children');
