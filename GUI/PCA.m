@@ -27,11 +27,11 @@ function varargout = PCA(varargin)
 % coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 07/May/17.
+% last modification: 30/May/18.
 %
 %
-% Copyright (C) 2017 University of Granada, Granada
-% Copyright (C) 2017 Elena Jiménez Mañas, Rafael Rodriguez Gomez, José Camacho
+% Copyright (C) 2018 University of Granada, Granada
+% Copyright (C) 2018 Elena Jiménez Mañas, Rafael Rodriguez Gomez, José Camacho
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -166,12 +166,12 @@ if length(varargin) > 0 & ~isempty(varargin{1})
             assert (isequal(fix(handles.data.PCs), handles.data.PCs), 'Value Error: 2nd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
             
             set(handles.pcEdit,'String',num2str(max(handles.data.PCs)));
-            set(handles.pcEdit,'Enable','off');
+            %set(handles.pcEdit,'Enable','off');
             
             pcaButton_Callback(handles.pcaButton, eventdata, handles);
             handles = guidata(handles.pcaButton);
             
-            set(handles.pcaButton,'Enable','off');
+            %set(handles.pcaButton,'Enable','off');
             
         end
         

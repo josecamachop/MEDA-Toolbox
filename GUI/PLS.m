@@ -33,10 +33,10 @@ function varargout = PLS(varargin)
 % coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 07/Nay/15.
+% last modification: 30/May/18.
 %
-% Copyright (C) 2017 University of Granada, Granada
-% Copyright (C) 2017 Elena Jiménez Mañas, Rafael Rodriguez Gomez, José Camacho
+% Copyright (C) 2018 University of Granada, Granada
+% Copyright (C) 2018 Elena Jiménez Mañas, Rafael Rodriguez Gomez, José Camacho
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -180,12 +180,12 @@ if length(varargin) > 1 & ~isempty(varargin{1}) & ~isempty(varargin{2})
             assert (isequal(fix(handles.data.LVs), handles.data.LVs), 'Value Error: 3th argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
             
             set(handles.lvsEdit,'String',num2str(max(handles.data.LVs)));
-            set(handles.lvsEdit,'Enable','off');
+            %set(handles.lvsEdit,'Enable','off');
             
             plsButton_Callback(handles.plsButton, eventdata, handles);
             handles = guidata(handles.plsButton);
             
-            set(handles.plsButton,'Enable','off');
+            %set(handles.plsButton,'Enable','off');
       
         end
         
