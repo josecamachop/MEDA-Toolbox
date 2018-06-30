@@ -46,7 +46,7 @@ function gascao = gasca(paranovao_st)
 %
 % paranovao_st = paranova(X, F);
 % 
-% for i=1:length(paranovao.factors),
+% for i=1:length(paranovao_st.factors),
 %   map = corr(paranovao_st.factors{i}.means);
 %   plot_map(map);
 %   c = input('Introduce threshold for correlation in interval (0,1): ');
@@ -57,7 +57,7 @@ function gascao = gasca(paranovao_st)
 %
 % for i=1:2,
 %   scores(gascao.factors{i},[],[],sprintf('Factor %d',i),[],gascao.design(:,i));
-%   loadings(gascao.factors{i},11,sprintf('Factor %d',i));
+%   loadings(gascao.factors{i},[],sprintf('Factor %d',i));
 % end
 %
 %
@@ -81,7 +81,7 @@ function gascao = gasca(paranovao_st)
 %
 % paranovao_st = paranova(X, F);
 % 
-% for i=1:length(paranovao.factors),
+% for i=1:length(paranovao_st.factors),
 %   map = meda_pca(paranovao_st.factors{i}.means+paranovao_st.residuals,[],0,0.3,'100');
 %   c = input('Introduce threshold for correlation in interval (0,1): ');
 %   [bel,paranovao_st.factors{i}.states] = gia(map,c);
@@ -91,14 +91,14 @@ function gascao = gasca(paranovao_st)
 %
 % for i=1:2,
 %   scores(gascao.factors{i},[],[],sprintf('Factor %d',i),[],gascao.design(:,i));
-%   loadings(gascao.factors{i},11,sprintf('Factor %d',i));
+%   loadings(gascao.factors{i},[],sprintf('Factor %d',i));
 % end
 %
 %
 % Related routines: paranova, asca, apca, create_design 
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 25/Apr/18
+% last modification: 30/May/18
 %
 % Copyright (C) 2018  University of Granada, Granada
 % Copyright (C) 2018  Jose Camacho Paez
