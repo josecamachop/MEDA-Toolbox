@@ -46,7 +46,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %       maxv(1): maximum threshold for marker 's' for opt = 2 (100 by default)
 %
 % blur: [1x1] avoid blurr when adding labels (0,inf). The higher, the more
-%   labels are printer (the higher blur). (0.3 by default)
+%   labels are printer (the higher blur). (.02 by default)
 %
 %
 % OUTPUTS:
@@ -108,7 +108,7 @@ if nargin < 5 || isempty(lcont),  lcont = []; end;
 if nargin < 6 || isempty(opt),     opt     = '000';                 end;
 if nargin < 7 || isempty(mult),    mult    = ones(N,1);         end;
 if nargin < 8 || isempty(maxv),    maxv    = [20 50 100];       end;
-if nargin < 9 || isempty(blur),    blur    = 0.3;       end;
+if nargin < 9 || isempty(blur),    blur    = .02;       end;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -224,9 +224,11 @@ if ~isempty(elabel)
     for i=1:N
         nch = length(char(strtrim(elabel(i,1))));
         ind = [1:(i-1) (i+1):size(bdata,1)];
-        dx = bdata(ind,1)-bdata(i,1);
-        dy = bdata(ind,2)-bdata(i,2);
-        ratio = sum(1./(dx.^2 + dy.^2))/length(ind);
+        dx = (bdata(ind,1)-bdata(i,1))/deltax;
+        dx(find(dx<0)) = Inf;
+        dy = (bdata(ind,2)-bdata(i,2))/deltay;
+        dy(find(dy<0)) = Inf;
+        ratio = 1./min(dx.^2 + dy.^2);%ratio = sum(1./(dx.^2 + dy.^2))/length(ind);
         if ratio < blur/nch || isempty(ind),
             switch opt
                 case '110'
