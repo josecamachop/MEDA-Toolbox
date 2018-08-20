@@ -1,4 +1,4 @@
-function [p,t] = pca_pp(xcs,pcs)
+function [p,t] = pca_pp(xcs,pcs,sel)
 
 % Principal Component Analysis based on svd.
 %
@@ -30,10 +30,11 @@ function [p,t] = pca_pp(xcs,pcs)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 09/May/16.
+% last modification: 18/Aug/18.
+% major change: include nipls
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -75,8 +76,49 @@ assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argume
 
 %% Main code
 
-[u,d,p]=svd(xcs);
-t = u*d;
+if N>M,
+    if N<1000,
+        [u,d,p]=svd(xcs);
+        t = u*d;
+    else
+        XX = xcs'*xcs;
+        [p,D] = eig(XX);
+        [kk,ind] = sort(real(diag(D)),'descend');
+        p = p(:,ind);
+        t = xcs*p;
+    end
+else,
+    if M<1000,
+        tol = 1e-10; nmax = 1e5;
+        for i=1:max(pcs)
+            t(:,i) = xcs(:,i);
+            nconv = true;
+            n = 0;
+            while nconv,
+                p(:,i) = xcs'*t(:,i)/(t(:,i)'*t(:,i));
+                p(:,i) = p(:,i)/sqrt(p(:,i)'*p(:,i));
+                t2 = xcs*p(:,i)/(p(:,i)'*p(:,i));
+                if sum(sum((t2-t(:,i)).^2)) < tol | n > nmax,
+                    nconv = false;
+                end
+                t(:,i) = t2;
+                n = n+1;
+            end
+            xcs = xcs - t(:,i)*p(:,i)'; 
+        end
+    else 
+        XX = xcs*xcs';
+        [t,D] = eig(XX);
+        s = sqrt(real(diag(D)));
+        [kk,ind] = sort(s,'descend');
+        t = t(:,ind).*(ones(N,1)*s(ind)');
+        p = xcs'*t;
+        for i=1:size(p,2)
+            p(:,i) = p(:,i)/sqrt(p(:,i)'*p(:,i));
+        end
+    end
+end
+
 p = p(:,pcs);
 t = t(:,pcs);
 

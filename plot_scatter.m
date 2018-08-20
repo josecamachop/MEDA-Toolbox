@@ -45,8 +45,8 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %       maxv(1): maximum threshold for marker 'o' for opt = 2 (50 by default)
 %       maxv(1): maximum threshold for marker 's' for opt = 2 (100 by default)
 %
-% blur: [1x1] avoid blurr when adding labels (0,inf). The higher, the more
-%   labels are printer (the higher blur). (.02 by default)
+% blur: [1x1] avoid blur when adding labels (0,1]. The higher, the more
+%   labels are printer (the higher blur). (1 by default)
 %
 %
 % OUTPUTS:
@@ -108,7 +108,7 @@ if nargin < 5 || isempty(lcont),  lcont = []; end;
 if nargin < 6 || isempty(opt),     opt     = '000';                 end;
 if nargin < 7 || isempty(mult),    mult    = ones(N,1);         end;
 if nargin < 8 || isempty(maxv),    maxv    = [20 50 100];       end;
-if nargin < 9 || isempty(blur),    blur    = .02;       end;
+if nargin < 9 || isempty(blur),    blur    = 1;       end;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -145,7 +145,7 @@ if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 9th arg
 
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
-assert (blur>0, 'Value Error: 9th argument must contain positive values. Type ''help %s'' for more info.', routine(1).name);
+assert (blur>0 & blur<=1, 'Value Error: 9th argument must contain a value in (0, 1]. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -177,26 +177,26 @@ end
 switch opt
     case '000',  % 2D plot, No multiplicity info, filled marks
         for i=1:length(unique_classes)
-            ind = classes == unique_classes(i);
+            ind = find(classes == unique_classes(i));
             scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'filled','DisplayName',num2str(unique_classes(i)));
         end
 
     case '010',  % 2D plot, No multiplicity info, empty marks
         for i=1:length(unique_classes)
-            ind = classes == unique_classes(i);
+            ind = find(classes == unique_classes(i));
             scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'DisplayName',num2str(unique_classes(i)));
         end
     
     case '100',  % 2D plot, Multiplicity in size
         for i=1:length(unique_classes)
-            ind = classes == unique_classes(i);
+            ind = find(classes == unique_classes(i));
             scatter(bdata(ind,1), bdata(ind,2),sizes(ind), colors(ind,:),'filled','DisplayName',num2str(unique_classes(i)));
         end
     
     case '101',  % 2D plot, Multiplicity in markers
         for i=1:length(unique_classes)
             for j=1:length(bins)-1
-                ind = classes==unique_classes(i) & mult<=bins(j+1) & mult>bins(j);
+                ind = find(classes==unique_classes(i) & mult<=bins(j+1) & mult>bins(j));
                 disp_name = strcat(num2str(unique_classes(i)), ' (mult: > ', num2str(bins(j)), ')');
                 scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:), 'filled', markers(j), 'DisplayName', disp_name);
             end
@@ -204,13 +204,13 @@ switch opt
     
     case '110',  % 3D plot, Multiplicity in Z-axis
         for i=1:length(unique_classes)
-            ind = classes == unique_classes(i);
+            ind = find(classes == unique_classes(i));
             scatter3(bdata(ind,1), bdata(ind,2), mult(ind), [], colors(ind,:), 'filled', 'DisplayName',num2str(unique_classes(i)));
         end
     
     case '111',  % 3D plot, Multiplicity in size, classes in Z-axis
         for i=1:length(unique_classes)
-            ind = classes == unique_classes(i);
+            ind = find(classes == unique_classes(i));
             scatter3(bdata(ind,1), bdata(ind,2), normal_classes(ind), sizes(ind), colors(ind,:), 'filled', 'DisplayName',num2str(unique_classes(i)));
         end
 end
@@ -218,18 +218,19 @@ end
 % Plot labels    
 ax = axis;
 f = 5;
-deltax = (ax(2)-ax(1))/150;
-deltay = (ax(4)-ax(3))/150;
+deltax = (ax(2)-ax(1))/100;
+deltay = (ax(4)-ax(3))/100;
 if ~isempty(elabel)
     for i=1:N
         nch = length(char(strtrim(elabel(i,1))));
         ind = [1:(i-1) (i+1):size(bdata,1)];
         dx = (bdata(ind,1)-bdata(i,1))/deltax;
-        dx(find(dx<0)) = Inf;
+        dx(find(abs(dx)>2*nch)) = Inf;
         dy = (bdata(ind,2)-bdata(i,2))/deltay;
         dy(find(dy<0)) = Inf;
-        ratio = 1./min(dx.^2 + dy.^2);%ratio = sum(1./(dx.^2 + dy.^2))/length(ind);
-        if ratio < blur/nch || isempty(ind),
+        dy(find(dy>10)) = Inf;
+        ratio = max((2*nch./abs(dx)).*(10./dy));%ratio = sum(1./(dx.^2 + dy.^2))/length(ind);
+        if (ratio < blur ) || isempty(ind),
             switch opt
                 case '110'
                     text(bdata(i,1)+deltax, bdata(i,2)+deltay, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
