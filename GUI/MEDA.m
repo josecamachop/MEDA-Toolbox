@@ -47,7 +47,7 @@ function varargout = MEDA(varargin)
 
 % Edit the above text to modify the response to help MEDA
 
-% Last Modified by GUIDE v2.5 05-Jul-2016 11:58:27
+% Last Modified by GUIDE v2.5 29-Jun-2018 22:28:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -98,7 +98,7 @@ axes(handles.axesMEDA);
 % disp(kk2)
 % set(gcf, 'position', [kk2(1) kk2(2) kk2(3)*1.3 kk2(4)*1.3]);
 % set(gca, 'position', [kk1(1) kk1(2) kk1(3)*1.2 kk1(4)*1.2]);
-logo=image(imread('logo.png'));
+logo=image(imread('Logo.png'));
 axis image
 set(get(logo,'Parent'),'YTick',[]);
 set(get(logo,'Parent'),'XTick',[]);

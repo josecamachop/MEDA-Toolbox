@@ -88,10 +88,10 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 26/May/17.
+% last modification: 24/Aug/18.
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -114,7 +114,7 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 
 [ok, Lmodel] = check_Lmodel(Lmodel);
 
-N = Lmodel.nc;
+N = min(Lmodel.nc,size(Lmodel.centr,1));
 M = size(Lmodel.XX, 2);
 
 if nargin < 2, test = []; end;

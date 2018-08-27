@@ -244,13 +244,13 @@ if ~isempty(xylabel)
 end
 
 % Set axis
-axis tight
+axis tight;
 ax = axis;
-axis auto
+axis auto;
 ax2 = axis;
-axis([ax(1:2) ax2(3:4)])
+axis([ax(1:2) ax2(3:4)]);
 
 %legend off
-box on
-hold off
+box on;
+hold off;
         

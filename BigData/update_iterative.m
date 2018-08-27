@@ -126,7 +126,7 @@ end
 
 % compute mean
 
-if Lmodel.prep==0,
+if Lmodel.type==1,
     
     for t=1:length(list),
         
@@ -143,34 +143,11 @@ if Lmodel.prep==0,
             x(indMV{t}) = av(indMV{t});
         end
         
-        [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
+        [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,Lmodel.prep>0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
         
     end
         
-elseif (Lmodel.type==1 && Lmodel.prep > 0) || (Lmodel.type==2 && Lmodel.prep > 0 && Lmodel.prepy == 0), 
-    
-    if debug, disp('mean centering X block...........................................'), end;
-    
-    for t=1:length(list),
-        
-        if isstruct(list(t))
-            x = list(t).x;
-        else
-            load([path list{t}],'x')
-        end
-        
-        indMV{t} = find(isnan(x));
-        if ~isempty(indMV{t})
-            disp('Missing values found in X. Set to average.');
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        
-        [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
-        
-    end
-    
-elseif Lmodel.type==2 && Lmodel.prep > 0 && Lmodel.prepy > 0,
+elseif Lmodel.type==2,
     
     if debug, disp('mean centering X and Y blocks...........................................'), end;
     
@@ -183,8 +160,8 @@ elseif Lmodel.type==2 && Lmodel.prep > 0 && Lmodel.prepy > 0,
             load([path list{t}],'x','y')
         end
         
-        indMV = find(isnan(x));
-        if ~isempty(indMV)
+        indMV{t} = find(isnan(x));
+        if ~isempty(indMV{t})
             disp('Missing values found in X. Set to average.');
             av = ones(size(x,1),1)*Lmodel.av;
             x(indMV{t}) = av(indMV{t});
@@ -197,8 +174,8 @@ elseif Lmodel.type==2 && Lmodel.prep > 0 && Lmodel.prepy > 0,
             y(indMVy{t}) = avy(indMVy{t});
         end
         
-        [xc,Lmodel.av,Lmodel.sc] = preprocess2Di(x,1,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
-        [yc,Lmodel.avy,Lmodel.scy,Lmodel.N] = preprocess2Di(y,1,0,1,Lmodel.avy,Lmodel.scy,Lmodel.N,Lmodel.weighty);
+        [xc,Lmodel.av,Lmodel.sc] = preprocess2Di(x,Lmodel.prep>0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
+        [yc,Lmodel.avy,Lmodel.scy,Lmodel.N] = preprocess2Di(y,Lmodel.prepy>0,0,1,Lmodel.avy,Lmodel.scy,Lmodel.N,Lmodel.weighty);
         
     end
     
