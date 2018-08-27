@@ -164,7 +164,7 @@ if length(varargin) > 1 & ~isempty(varargin{1}) & ~isempty(varargin{2})
     assert (M>1, 'Dimension Error: Number of columns in X should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
     assert (isequal(size(handles.data.data_matrixY), [N O]), 'Dimension Error: 2nd argument must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
 
-    set(handles.refreshbutton,'Enable','off');
+   % set(handles.refreshbutton,'Enable','off');
     
     if length(varargin) > 2    
     

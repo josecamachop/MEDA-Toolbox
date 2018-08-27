@@ -150,7 +150,7 @@ if length(varargin) > 0 & ~isempty(varargin{1})
     assert (N>1, 'Dimension Error: Number of rows should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
     assert (M>1, 'Dimension Error: Number of columns should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
 
-    set(handles.refreshbutton,'Enable','off');
+    %set(handles.refreshbutton,'Enable','off');
     
     if length(varargin) > 1    
     
