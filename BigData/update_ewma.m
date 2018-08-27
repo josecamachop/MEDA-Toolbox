@@ -1,10 +1,10 @@
-function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug)
+function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug,erase)
 
 % Big data analysis based on bilinear proyection models (PCA and PLS) with
 % the exponentially weighted moving average approach.
 %
 % Lmodel = update_ewma(list)          % minimum call
-% Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug) % complete call
+% Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug,erase) % complete call
 %
 %
 % INPUTS:
@@ -28,6 +28,8 @@ function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug)
 %       0: no messages are displayed.
 %       1: display only main messages (default)
 %       2: display all messages.  
+%
+% erase: [1x1] threshold to erase an observation (1 by default)
 %
 %
 % OUTPUTS:
@@ -56,10 +58,10 @@ function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 26/May/17
+% last modification: 24/Aug/18
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -91,16 +93,19 @@ end;
 if nargin < 4 || isempty(lambda), lambda = 1; end;
 if nargin < 5 || isempty(step), step = 1; end;
 if nargin < 6 || isempty(debug), debug = 1; end;
+if nargin < 7 || isempty(erase), erase = 1; end;
 
 % Validate dimensions of input data
-assert (isequal(size(lambda), [1 1]), 'Dimension Error: 4th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(step), [1 1]), 'Dimension Error: 5th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(debug), [1 1]), 'Dimension Error: 6th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lambda), [1 1]), 'Dimension Error: 4th argument must be a scalar. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(step), [1 1]), 'Dimension Error: 5th argument must be a scalar. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(debug), [1 1]), 'Dimension Error: 6th argument must be a scalar. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(erase), [1 1]), 'Dimension Error: 7th argument must be a scalar. Type ''help %s'' for more info.', routine(1).name);
   
 % Validate values of input data
 assert (lambda>=0 && lambda<=1, 'Value Error: 4th argument must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
 assert (step>0 && step<=1, 'Value Error: 5th argument must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
 assert (debug==0 || debug==1 || debig==2, 'Value Error: 6th argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+assert (erase>0 && erase<=1, 'Value Error: 7th argument must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
     
     
 %% Main code
@@ -125,9 +130,7 @@ for t=1:length(list),
             load([path list{t}],'x','y')
         end
     end
-    
-    if size(x,1)<2, return; end
-    
+       
     if isstruct(list(t))
         vars = fieldnames(list(t));
         if ismember('class', vars)
@@ -222,7 +225,7 @@ for t=1:length(list),
     end
     
     Lmodel.multr = lambda*Lmodel.multr;
-    ind_lab = find(Lmodel.multr>=1);
+    ind_lab = find(Lmodel.multr>=erase);
     Lmodel.centr =  Lmodel.centr(ind_lab,:);
     Lmodel.multr = Lmodel.multr(ind_lab);
     Lmodel.class = Lmodel.class(ind_lab);
