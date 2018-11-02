@@ -356,8 +356,10 @@ if isequal(get(hObject,'Enable'),'on'),
 
     [M N]=size(handles.data.data_matrixX);
     %Summary Panel:
-    sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
-    handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    if ~iscell(data_matrix),  
+        sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
+        handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    end
 end
 
 set(handles.labscorePopup,'Value',1);
@@ -423,10 +425,12 @@ if isequal(get(hObject,'Enable'),'on'),
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
     handles.data.data_matrixY=data_matrix;
 
-    %Summary Panel:
     [M N]=size(data_matrix);
-    sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
-    handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    %Summary Panel:
+    if ~iscell(data_matrix),  
+        sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
+        handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    end
 else
     [M N]=size(handles.data.data_matrixY);
 end

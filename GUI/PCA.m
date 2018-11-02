@@ -294,10 +294,12 @@ if isequal(get(handles.dataPopup,'Enable'),'on'),
     data_matrix=evalin('base',string_evaluation);%Data content in that name
     handles.data.data_matrix=data_matrix;
 
-    %Summary Panel
     [M N]=size(handles.data.data_matrix);
-    sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(handles.data.data_matrix)),max(max(handles.data.data_matrix)));
-    handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    %Summary Panel
+    if ~iscell(data_matrix),    
+        sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(handles.data.data_matrix)),max(max(handles.data.data_matrix)));
+        handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    end
 else
     [M N]=size(handles.data.data_matrix);
 end
