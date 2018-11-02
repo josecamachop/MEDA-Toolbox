@@ -1,7 +1,7 @@
 ﻿MEDA Toolbox for its use in MATLAB. 
 
 Contact person: José Camacho Páez (josecamacho@ugr.es)
-Last modification of this document: 02/Mar/18
+Last modification of this document: 02/Nov/18
 
 Installation
 
@@ -24,6 +24,8 @@ We would like to thanks the direct or indirect contribution of several colleague
 
 - E. Szymanska, G.H. Tinnevelt and T.P.J. Offermans for the Sparse Partial Least Squares (SPLS) routine.
 - G. Zwanenburg, H.C.J. Hoefsloot, J.A. Westerhuis, J.J. Jansen and A.K. Smilde for the ANOVA Simultaneous Component Analysis (ASCA) routine.
+- E. Saccenti for the Horn's Parallel Analysis to determine the number of Principal Components.
+- R. Vitale for the Dray's method and permutation testing method to determine the number of Principal Components.
 
 Items in the folder:
 
@@ -38,7 +40,7 @@ Items in the folder:
 		
 	- exploratory tools without visualization: meda.m, omeda.m, mspc.m
 
-	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca, ckf, crossval_pls, dcrossval_pls (Cross-validation rutines)
+	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca, ckf, crossval_pls, dcrossval_pls (Cross-validation rutines), PAtest, permsvd, dray
 
 	- tools to select the number of LVs & sparsity in SPLS: crossval_spls, dcrossval_spls, crossval_spls_da, dcrossval_spls_da
 
