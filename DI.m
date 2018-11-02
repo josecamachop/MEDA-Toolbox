@@ -1,7 +1,9 @@
 function [DImap,best] = DI(T,classes,reg,opt)
 
-% Discriminant Index fro selection of best visualization subspace. The original
-% paper is .... 
+% Discriminant Index for selection of best visualization subspace. The original
+% paper is Sara Tortorella, Maurizio Servili, Tullia Gallina Toschi, Gabriele 
+% Cruciani, José Camacho. Subspace Discriminant Index for Improved Interpretation
+% of Omics Data Analysis. Submitted to Metabolomics, 2018.
 %
 % DImap = DI(T,classes) % minimum call
 % [DImap,best] = DI(T,classes,reg,opt) % complete call
