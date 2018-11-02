@@ -354,6 +354,11 @@ if isequal(get(hObject,'Enable'),'on'),
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
     handles.data.data_matrixX=data_matrix;
 
+    
+    while iscell(handles.data.data_matrix),
+        handles.data.data_matrix = handles.data.data_matrix{1};
+    end
+    
     [M N]=size(handles.data.data_matrixX);
     %Summary Panel:
     sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
@@ -423,6 +428,10 @@ if isequal(get(hObject,'Enable'),'on'),
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
     handles.data.data_matrixY=data_matrix;
 
+    while iscell(handles.data.data_matrixY),
+        handles.data.data_matrixY = handles.data.data_matrixY{1};
+    end
+    
     %Summary Panel:
     [M N]=size(data_matrix);
     sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));

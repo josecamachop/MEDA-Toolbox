@@ -72,6 +72,7 @@ function varargout = PCA(varargin)
 % Last Modified by GUIDE v2.5 05-May-2017 09:33:17
 
 % Begin initialization code - DO NOT EDIT
+
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
     'gui_Singleton',  gui_Singleton, ...
@@ -294,6 +295,10 @@ if isequal(get(handles.dataPopup,'Enable'),'on'),
     data_matrix=evalin('base',string_evaluation);%Data content in that name
     handles.data.data_matrix=data_matrix;
 
+    while iscell(handles.data.data_matrix),
+        handles.data.data_matrix = handles.data.data_matrix{1};
+    end
+        
     %Summary Panel
     [M N]=size(handles.data.data_matrix);
     sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(handles.data.data_matrix)),max(max(handles.data.data_matrix)));
