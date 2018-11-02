@@ -161,6 +161,7 @@ if iscell(classes)
 else
      normal_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
 end
+unique_classes = unique(normal_classes);
 
 % Define mult bins, markers, colors and sizes 
 bins = [0 1 maxv Inf];
@@ -177,26 +178,26 @@ end
 switch opt
     case '000',  % 2D plot, No multiplicity info, filled marks
         for i=1:length(unique_classes)
-            ind = find(classes == unique_classes(i));
+            ind = find(normal_classes == unique_classes(i));
             scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'filled','DisplayName',num2str(unique_classes(i)));
         end
 
     case '010',  % 2D plot, No multiplicity info, empty marks
         for i=1:length(unique_classes)
-            ind = find(classes == unique_classes(i));
+            ind = find(normal_classes == unique_classes(i));
             scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'DisplayName',num2str(unique_classes(i)));
         end
     
     case '100',  % 2D plot, Multiplicity in size
         for i=1:length(unique_classes)
-            ind = find(classes == unique_classes(i));
+            ind = find(normal_classes == unique_classes(i));
             scatter(bdata(ind,1), bdata(ind,2),sizes(ind), colors(ind,:),'filled','DisplayName',num2str(unique_classes(i)));
         end
     
     case '101',  % 2D plot, Multiplicity in markers
         for i=1:length(unique_classes)
             for j=1:length(bins)-1
-                ind = find(classes==unique_classes(i) & mult<=bins(j+1) & mult>bins(j));
+                ind = find(normal_classes==unique_classes(i) & mult<=bins(j+1) & mult>bins(j));
                 disp_name = strcat(num2str(unique_classes(i)), ' (mult: > ', num2str(bins(j)), ')');
                 scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:), 'filled', markers(j), 'DisplayName', disp_name);
             end
@@ -204,13 +205,13 @@ switch opt
     
     case '110',  % 3D plot, Multiplicity in Z-axis
         for i=1:length(unique_classes)
-            ind = find(classes == unique_classes(i));
+            ind = find(normal_classes == unique_classes(i));
             scatter3(bdata(ind,1), bdata(ind,2), mult(ind), [], colors(ind,:), 'filled', 'DisplayName',num2str(unique_classes(i)));
         end
     
     case '111',  % 3D plot, Multiplicity in size, classes in Z-axis
         for i=1:length(unique_classes)
-            ind = find(classes == unique_classes(i));
+            ind = find(normal_classes == unique_classes(i));
             scatter3(bdata(ind,1), bdata(ind,2), normal_classes(ind), sizes(ind), colors(ind,:), 'filled', 'DisplayName',num2str(unique_classes(i)));
         end
 end
