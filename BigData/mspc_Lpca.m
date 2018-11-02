@@ -88,7 +88,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 24/Aug/18.
+% last modification: 27/Aug/18.
 %
 % Copyright (C) 2018  University of Granada, Granada
 % Copyright (C) 2018  Jose Camacho Paez
@@ -242,12 +242,12 @@ if limtype==0,
 else
     UCLd = [];   
     for i=1:Ld,
-        UCLd(i) = prctile(Dst,100*(1-p_valueD(i)));
+        UCLd(i) = prctile(repelem(Dst,Lmodel.multr),100*(1-p_valueD(i)));
     end
     
     UCLq = [];   
     for i=1:Lq,
-        UCLq(i) = prctile(Qst,100*(1-p_valueQ(i)));
+        UCLq(i) = prctile(repelem(Qst,Lmodel.multr),100*(1-p_valueQ(i)));
     end
 end
 

@@ -164,7 +164,7 @@ if length(varargin) > 1 & ~isempty(varargin{1}) & ~isempty(varargin{2})
     assert (M>1, 'Dimension Error: Number of columns in X should be higher than 1. Type ''help %s'' for more info.', routine(1).name);
     assert (isequal(size(handles.data.data_matrixY), [N O]), 'Dimension Error: 2nd argument must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
 
-    set(handles.refreshbutton,'Enable','off');
+   % set(handles.refreshbutton,'Enable','off');
     
     if length(varargin) > 2    
     
@@ -353,16 +353,13 @@ if isequal(get(hObject,'Enable'),'on'),
     string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posición
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
     handles.data.data_matrixX=data_matrix;
-
-    
-    while iscell(handles.data.data_matrix),
-        handles.data.data_matrix = handles.data.data_matrix{1};
-    end
     
     [M N]=size(handles.data.data_matrixX);
     %Summary Panel:
-    sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
-    handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    if isa(data_matrix,'double'),
+        sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
+        handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    end
 end
 
 set(handles.labscorePopup,'Value',1);
@@ -428,14 +425,12 @@ if isequal(get(hObject,'Enable'),'on'),
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
     handles.data.data_matrixY=data_matrix;
 
-    while iscell(handles.data.data_matrixY),
-        handles.data.data_matrixY = handles.data.data_matrixY{1};
-    end
-    
-    %Summary Panel:
     [M N]=size(data_matrix);
-    sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
-    handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    %Summary Panel:
+    if isa(data_matrix,'double'),   
+        sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(data_matrix)),max(max(data_matrix)));
+        handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    end
 else
     [M N]=size(handles.data.data_matrixY);
 end
@@ -491,25 +486,31 @@ if ~isempty(handles.data.WorkSpace),
     set(handles.xdataPopup, 'String', handles.data.WorkSpace);
     nombres=cellstr(get(handles.xdataPopup,'String'));
     if ~isempty(handles.data.nameData),
+        val = 0;
         for i=1:length(nombres),
             if strcmp(nombres(i),handles.data.nameData),
                 val=i;
             end
         end
-        set(handles.xdataPopup,'Value',val);
-        handles.data.data_matrixX=evalin('base',handles.data.WorkSpace{val});
+        if val,
+            set(handles.xdataPopup,'Value',val);
+            handles.data.data_matrixX=evalin('base',handles.data.WorkSpace{val});
+        end
     end
     
     set(handles.ydataPopup, 'String', handles.data.WorkSpace);
     nombres=cellstr(get(handles.ydataPopup,'String'));
     if ~isempty(handles.data.nameDatay),
+        val = 0;
         for i=1:length(nombres),
             if strcmp(nombres(i),handles.data.nameDatay),
                 val=i;
             end
         end
-        set(handles.ydataPopup,'Value',val);
-        handles.data.data_matrixY=evalin('base',handles.data.WorkSpace{val});
+        if val,
+            set(handles.ydataPopup,'Value',val);
+            handles.data.data_matrixY=evalin('base',handles.data.WorkSpace{val});
+        end
     end
     
     if handles.data.control_Refresh==0 && isempty(handles.data.data_matrixX) && isempty(handles.data.data_matrixY),
@@ -540,13 +541,16 @@ if ~isempty(handles.data.WorkSpace),
     set(handles.classcorePopup,'String',strvcat(aux));
     nombres=cellstr(get(handles.classcorePopup,'String'));
     if ~strcmp(handles.data.nameClasscore,'emptyclasses'),
+        val = 0;
         for i=1:length(nombres),
             if strcmp(nombres(i),handles.data.nameClasscore),
                 val=i;
             end
         end
-        set(handles.classcorePopup,'Value',val);
-        handles.data.classes=evalin('base',handles.data.WorkSpace{val-1});    
+        if val,
+            set(handles.classcorePopup,'Value',val);
+            handles.data.classes=evalin('base',handles.data.WorkSpace{val-1});
+        end
     end
     
     contents=get(handles.labscorePopup,'String');
@@ -564,13 +568,16 @@ if ~isempty(handles.data.WorkSpace),
     set(handles.labscorePopup,'String',strvcat(aux2));
     nombres=cellstr(get(handles.labscorePopup,'String'));
     if ~strcmp(handles.data.nameLabscore,'emptylabel'),
+        val = 0;
         for i=1:length(nombres),
             if strcmp(nombres(i),handles.data.nameLabscore),
                 val=i;
             end
         end
-        set(handles.labscorePopup,'Value',val);
-        handles.data.label=evalin('base',handles.data.WorkSpace{val-1});    
+        if val,
+            set(handles.labscorePopup,'Value',val);
+            handles.data.label=evalin('base',handles.data.WorkSpace{val-1}); 
+        end
     end
     
     contents=get(handles.clasloadingPopup,'String');
@@ -588,13 +595,16 @@ if ~isempty(handles.data.WorkSpace),
     set(handles.clasloadingPopup,'String',strvcat(aux3));
     nombres=cellstr(get(handles.clasloadingPopup,'String'));
     if ~strcmp(handles.data.nameClasvar,'emptyclasses'),
+        val = 0;
         for i=1:length(nombres),
             if strcmp(nombres(i),handles.data.nameClasvar),
                 val=i;
             end
         end
-        set(handles.clasloadingPopup,'Value',val);
-        handles.data.classes_LP=evalin('base',handles.data.WorkSpace{val-1});    
+        if val,
+            set(handles.clasloadingPopup,'Value',val);
+            handles.data.classes_LP=evalin('base',handles.data.WorkSpace{val-1});
+        end
     end
     
     contents=get(handles.labloadingPopup,'String');
@@ -612,13 +622,16 @@ if ~isempty(handles.data.WorkSpace),
     set(handles.labloadingPopup,'String',strvcat(aux4));
     nombres=cellstr(get(handles.labloadingPopup,'String'));
     if ~strcmp(handles.data.nameLabvar,'emptylabel'),
+        val = 0;
         for i=1:length(nombres),
             if strcmp(nombres(i),handles.data.nameLabvar),
                 val=i;
             end
         end
-        set(handles.labloadingPopup,'Value',val);
-        handles.data.label_LP=evalin('base',handles.data.WorkSpace{val-1});    
+        if val,
+            set(handles.labloadingPopup,'Value',val);
+            handles.data.label_LP=evalin('base',handles.data.WorkSpace{val-1}); 
+        end
     end
     handles.data.control_Refresh=1;
 else
