@@ -142,6 +142,7 @@ if nargin < 9 || isempty(classes),
         classes = [ones(N,1);2*ones(L,1)];  
     end
 end
+if nargin < 10 || isempty(blur),    blur    = 1;       end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;

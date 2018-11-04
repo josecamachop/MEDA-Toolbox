@@ -104,7 +104,6 @@ if nargin < 3, test = []; end;
 L = size(test, 1);
 if nargin < 4 || isempty(prep), prep = 2; end;
 if nargin < 5 || isempty(opt), opt = '100'; end; 
-if nargin < 6 || isempty(blur),    blur    = 1;       end;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -132,6 +131,7 @@ if nargin < 7 || isempty(classes),
         classes = [ones(N,1);2*ones(L,1)];  
     end
 end
+if nargin < 8 || isempty(blur),    blur    = 1;       end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
