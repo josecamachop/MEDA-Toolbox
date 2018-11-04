@@ -1,10 +1,11 @@
 
-function P = loadings_pca(x,pcs,prep,opt,label,classes)
+function P = loadings_pca(x,pcs,prep,opt,label,classes,blur)
+
 
 % Compute and plot loadings in PCA
 %
 % P = loadings_pca(x) % minimum call
-% P = loadings_pca(x,pcs,prep,opt,label,classes) % complete call
+% P = loadings_pca(x,pcs,prep,opt,label,classes,blur) % complete call
 %
 % INPUTS:
 %
@@ -34,6 +35,9 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes)
 % classes: [Mx1] groups for different visualization (a single group 
 %   by default)
 %
+% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+%   are printer (the higher blur). Inf shows all the labels (1 by default).
+%
 %
 % OUTPUTS:
 %
@@ -54,10 +58,10 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 19/Apr/2016
+% last modification: 4/Nov/18.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -84,6 +88,7 @@ if nargin < 3 || isempty(prep), prep = 2; end;
 if nargin < 4 || isempty(opt), opt = '10'; end; 
 if nargin < 5 || isempty(label), label = [1:M]; end
 if nargin < 6 || isempty(classes), classes = ones(M,1); end
+if nargin < 7 || isempty(blur),    blur    = 1;       end;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -110,6 +115,7 @@ assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-
 assert (ischar(opt) && length(opt)==2, 'Dimension Error: 4th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: 5th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
@@ -133,7 +139,7 @@ if opt(1) == '1',
     else
         for i=1:length(pcs)-1,
             for j=i+1:length(pcs),
-                plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d',pcs(i)),sprintf('Loadings PC %d',pcs(j))}');
+                plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d',pcs(i)),sprintf('Loadings PC %d',pcs(j))}',[],[],[],[],blur);
             end      
         end
     end

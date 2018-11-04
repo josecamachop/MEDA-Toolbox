@@ -1,5 +1,5 @@
 
-function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes)
+function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
 
 % Compute and plot scores in PLS.
 %
@@ -48,6 +48,9 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes)
 % classes: [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
 %   visualization (a single group by default per calibration and test)
 %
+% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+%   are printer (the higher blur). Inf shows all the labels (1 by default).
+%
 %
 % OUTPUTS:
 %
@@ -80,10 +83,10 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 19/Apr/2016
+% last modification: 4/Nov/18.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez, Alejandro Perez Villegas 
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -161,6 +164,7 @@ assert (isequal(size(prepy), [1 1]), 'Dimension Error: 6th argument must be 1-by
 assert (ischar(opt) && length(opt)==3, 'Dimension Error: 7th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: 8th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: 9th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 10th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
@@ -200,7 +204,7 @@ if opt(1) == '1',
     else
         for i=1:length(lvs)-1,
             for j=i+1:length(lvs),
-                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores LV %d',lvs(i)),sprintf('Scores LV %d',lvs(j))}');
+                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores LV %d',lvs(i)),sprintf('Scores LV %d',lvs(j))}',[],[],[],[],blur);
             end      
         end
     end
