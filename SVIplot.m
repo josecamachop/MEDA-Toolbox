@@ -1,4 +1,4 @@
-function [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(x,pcs,var,groups,prep,opt)
+function [r2,alpha,q2,res_cross,alpha_cross,betas] = SVIplot(x,pcs,var,groups,prep,opt)
 
 % Structural and Variance Information plots. The original paper is 
 % Chemometrics and Intelligent Laboratory Systems 100, 2010, pp. 48-56. 
