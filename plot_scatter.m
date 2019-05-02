@@ -108,7 +108,7 @@ if nargin < 5 || isempty(lcont),  lcont = []; end;
 if nargin < 6 || isempty(opt),     opt     = '000';                 end;
 if nargin < 7 || isempty(mult),    mult    = ones(N,1);         end;
 if nargin < 8 || isempty(maxv),    maxv    = [20 50 100];       end;
-if nargin < 9 || isempty(blur),    blur    = 1;       end;
+if nargin < 9 || isempty(blur),    blur    = Inf;       end;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end

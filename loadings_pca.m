@@ -125,7 +125,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must cont
 %% Main code
 
 xcs = preprocess2D(x,prep);
-P = pca_pp(xcs,pcs);
+[P,T] = pca_pp(xcs,pcs);
 
 
 %% Show results
@@ -134,12 +134,12 @@ if opt(1) == '1',
     
     if length(pcs) == 1 || opt(2) == '1',
         for i=1:length(pcs),
-                plot_vec(P(:,i), label, classes, {'',sprintf('Loadings PC %d',pcs(i))});
+                plot_vec(P(:,i), label, classes, {'',sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*trace(T(:,i)'*T(:,i))/trace(xcs'*xcs))});
         end
     else
         for i=1:length(pcs)-1,
             for j=i+1:length(pcs),
-                plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d',pcs(i)),sprintf('Loadings PC %d',pcs(j))}',[],[],[],[],blur);
+                plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*trace(T(:,i)'*T(:,i))/trace(xcs'*xcs)),sprintf('Loadings PC %d (%.0f%%)',pcs(j),100*trace(T(:,j)'*T(:,j))/trace(xcs'*xcs))}',[],[],[],[],blur);
             end      
         end
     end

@@ -138,7 +138,7 @@ else
     set(fig_h,'Colormap',[[ones(length(ind),1)] [flipud(ind)] [flipud(ind)]])
 end
 caxis(int);
-if find(map>0 & map<1)
+if find(map>0 & map<=1)
     c_h=colorbar;
     set(c_h,'FontSize',14);
 end
