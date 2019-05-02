@@ -228,7 +228,7 @@ if isempty(stree),
                 end
             end
             
-            if isempty(mod),% && isempty(intersect(bel{r},bel{c})),   
+            if isempty(mod) && isempty(intersect(bel{r},bel{c})),   
                 states{end+1} = [r,c];
                 bel{r} = [bel{r} length(states)];
                 bel{c} = [bel{c} length(states)];
