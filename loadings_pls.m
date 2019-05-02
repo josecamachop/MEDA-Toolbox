@@ -1,10 +1,10 @@
 
-function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes)
+function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur)
 
 % Compute and plot loadings in PLS
 %
 % P = loadings_pls(x,y) % minimum call
-% [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes) % complete call
+% [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur) % complete call
 %
 % INPUTS:
 %
@@ -44,6 +44,9 @@ function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 % classes: [Mx1] groups for different visualization (a single group 
 %   by default)
 %
+% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+%   are printer (the higher blur). Inf shows all the labels (1 by default).
+%
 %
 % OUTPUTS:
 %
@@ -64,10 +67,10 @@ function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 19/Apr/2016
+% last modification: 4/Nov/18.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -96,6 +99,7 @@ if nargin < 5 || isempty(prepy), prepy = 2; end;
 if nargin < 6 || isempty(opt), opt = '100'; end; 
 if nargin < 7 || isempty(label), label = [1:M]; end
 if nargin < 8 || isempty(classes), classes = ones(M,1); end
+if nargin < 9 || isempty(blur),    blur    = 1;       end;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -124,6 +128,7 @@ assert (isequal(size(prepy), [1 1]), 'Dimension Error: 5th argument must be 1-by
 assert (ischar(opt) && length(opt)==3, 'Dimension Error: 6th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [M 1]), 'Dimension Error: 8th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
@@ -157,7 +162,7 @@ if opt(1) == '1',
     else
         for i=1:length(lvs)-1,
             for j=i+1:length(lvs),
-                plot_scatter([Pt(:,i),Pt(:,j)], label, classes, {sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}');
+                plot_scatter([Pt(:,i),Pt(:,j)], label, classes, {sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}',[],[],[],[],blur);
             end      
         end
     end

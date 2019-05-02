@@ -45,8 +45,8 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %       maxv(1): maximum threshold for marker 'o' for opt = 2 (50 by default)
 %       maxv(1): maximum threshold for marker 's' for opt = 2 (100 by default)
 %
-% blur: [1x1] avoid blur when adding labels (0,1]. The higher, the more
-%   labels are printer (the higher blur). (1 by default)
+% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+%   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
 %
 % OUTPUTS:
@@ -74,7 +74,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 30/Jul/18.
+% last modification: 4/Nov/18.
 %
 % Copyright (C) 2018  University of Granada, Granada
 % Copyright (C) 2018  Jose Camacho Paez
@@ -145,7 +145,6 @@ if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 9th arg
 
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
-assert (blur>0 & blur<=1, 'Value Error: 9th argument must contain a value in (0, 1]. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

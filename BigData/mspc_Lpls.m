@@ -167,7 +167,7 @@ if nargin < 5 || isempty(classes),
     if opt(3) == '1', 
         classes = ones(L,1); 
     else
-        classes = [ones(N,1);2*ones(L,1)];  
+        classes = [Lmodel.class;2*ones(L,1)];  
     end
 elseif opt(3) == '0' && length(classes)==L,
         classes = [Lmodel.class;2*classes];

@@ -185,7 +185,7 @@ end
 
 N = 0;
     
-if (Lmodel.type==1 && Lmodel.prep == 2) || (Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy < 2), 
+if (Lmodel.type==1 & Lmodel.prep == 2) | (Lmodel.type==2 & Lmodel.prep == 2 & Lmodel.prepy < 2), 
     
     if debug, disp('scaling X block..................................................'), end;
         
@@ -207,7 +207,7 @@ if (Lmodel.type==1 && Lmodel.prep == 2) || (Lmodel.type==2 && Lmodel.prep == 2 &
         
     end
     
-elseif Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy == 2,
+elseif Lmodel.type==2 & Lmodel.prep == 2 & Lmodel.prepy == 2,
     
     if debug, disp('scaling X and Y blocks..................................................'), end;
     

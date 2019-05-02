@@ -353,7 +353,7 @@ if isequal(get(hObject,'Enable'),'on'),
     string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posición
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
     handles.data.data_matrixX=data_matrix;
-
+    
     [M N]=size(handles.data.data_matrixX);
     %Summary Panel:
     if isa(data_matrix,'double'),
