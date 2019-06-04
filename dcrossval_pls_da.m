@@ -130,7 +130,6 @@ rows = rand(1,length(yn1));
 elem_rn1=length(yn1)/blocks_r;
 
 % Cross-validation
-
 for i=1:blocks_r,
     
     ind_i = r_ind1(round((i-1)*elem_r1+1):round(i*elem_r1)); % Sample selection
@@ -173,7 +172,7 @@ for i=1:blocks_r,
         [~,~,~,AUC(i)] = perfcurve(val_y,srec,1);
         
     else
-        AUC(i) = [];
+        AUC(i) = 0.5;
     end
     
 end

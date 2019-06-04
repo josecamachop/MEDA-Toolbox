@@ -182,6 +182,9 @@ for h = 1:nlv
     
     %Step b: svd of crossproduct of X and Y based on simpls:
     M = X_1' * Y_1;%Crossproduct.
+    if find(isnan(M)),
+        break;
+    end
     [U, ~, V] = svd(M, 0);
     a_old = U(:, 1);
     b_old = V(:, 1);
@@ -365,6 +368,19 @@ elseif mode == 2
 end
 R = a_matrix(:, 1:nlv) / ((c_matrix(:, 1:nlv))' * a_matrix(:, 1:nlv));
 A = (lY(:, 1:nlv))';
+while find(isnan(R)),
+    nlv=nlv-1;
+    R = a_matrix(:, 1:nlv) / ((c_matrix(:, 1:nlv))' * a_matrix(:, 1:nlv));
+    A = (lY(:, 1:nlv))';
+     t_matrix(:, end) = [];
+     u_matrix(:, end) = [];
+    
+     a_matrix(:, end) = [];
+     b_matrix(:, end) = [];
+     c_matrix(:, end) = [];
+     d_matrix(:, end) = [];
+     e_matrix(:, end) = [];
+end
 B = R * A;
 B0 = mean_Y - mean_X * B;
 

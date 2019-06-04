@@ -175,7 +175,8 @@ if ~isempty(classes)
         if opt == '0',
             plot(vind, vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', color_list(i,:), 'DisplayName', num2str(unique_classes(i)));
         else 
-            bar(vind, vec(ind,:), 2*length(find(ind))/N, 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
+            %bar(vind, vec(ind,:), 2*length(find(ind))/N, 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
+            bar(vind, vec(ind,:), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
         end
     end 
 else

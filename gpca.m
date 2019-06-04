@@ -87,7 +87,7 @@ if size(pcs,2) == 1, pcs = pcs'; end;
 % Preprocessing
 pcs = unique(pcs);
 pcs(find(pcs==0)) = [];
-pcs(find(pcs>rank(xcs))) = [];
+%pcs(find(pcs>rank(xcs))) = [];
 A = length(pcs);
 
 % Validate dimensions of input data

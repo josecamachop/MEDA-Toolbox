@@ -108,7 +108,7 @@ if nargin < 5 || isempty(lcont),  lcont = []; end;
 if nargin < 6 || isempty(opt),     opt     = '000';                 end;
 if nargin < 7 || isempty(mult),    mult    = ones(N,1);         end;
 if nargin < 8 || isempty(maxv),    maxv    = [20 50 100];       end;
-if nargin < 9 || isempty(blur),    blur    = Inf;       end;
+if nargin < 9 || isempty(blur),    blur    = 1;       end;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -230,7 +230,7 @@ if ~isempty(elabel)
         dy(find(dy<0)) = Inf;
         dy(find(dy>10)) = Inf;
         ratio = max((2*nch./abs(dx)).*(10./dy));%ratio = sum(1./(dx.^2 + dy.^2))/length(ind);
-       % if (ratio < blur ) || isempty(ind),
+        if (ratio < blur ) || isempty(ind),
             switch opt
                 case '110'
                     text(bdata(i,1)+deltax, bdata(i,2)+deltay, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
@@ -239,7 +239,7 @@ if ~isempty(elabel)
                 otherwise
                     text(bdata(i,1)+deltax, bdata(i,2)+deltay, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
             end
-        %end
+        end
     end
 end
 
