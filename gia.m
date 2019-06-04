@@ -261,7 +261,15 @@ vs = [];
 om = ceil(log10(M));
 j=1;
 for i=1:length(states),
-    if length(states{i})>=siz,
+    is = 0;
+    l = 1;
+    while ~is && l<j,
+        if isequal(stateso{l},sort(indm(states{i}))),
+            is = true;
+        end
+        l = l+1;
+    end
+    if ~is && length(states{i})>=siz,
         stateso{j} = sort(indm(states{i}));
         vs(j) = sum(stateso{j}.*(10.^(-1*(1:om:om*length(states{i})))));  
         j = j+1;
