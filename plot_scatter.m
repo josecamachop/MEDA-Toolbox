@@ -222,22 +222,76 @@ deltax = (ax(2)-ax(1))/100;
 deltay = (ax(4)-ax(3))/100;
 if ~isempty(elabel)
     for i=1:N
-        nch = length(char(strtrim(elabel(i,1))));
+        suffx = length(char(strtrim(elabel(i,1))));
         ind = [1:(i-1) (i+1):size(bdata,1)];
+        
         dx = (bdata(ind,1)-bdata(i,1))/deltax;
-        dx(find(abs(dx)>2*nch)) = Inf;
+        dxM = dx;
+        dxM(dxM<0) = Inf;
+        dxm = dx;
+        dxm(dxm>0) = Inf;
         dy = (bdata(ind,2)-bdata(i,2))/deltay;
-        dy(find(dy<0)) = Inf;
-        dy(find(dy>10)) = Inf;
-        ratio = max((2*nch./abs(dx)).*(10./dy));%ratio = sum(1./(dx.^2 + dy.^2))/length(ind);
-        if (ratio < blur ) || isempty(ind),
+        dyM = dy;
+        dyM(dyM<0) = Inf;
+        dym = dy;
+        dym(dym>0) = Inf;
+        
+        % Labels in any direction: not used
+        
+%         d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
+%         if length(find(d > 10/blur))>1 || isempty(ind),
+%             quad = find(d==max(d),1);
+%             switch quad,
+%                 case 1,
+%                     posx = bdata(i,1)+deltax;
+%                     posy = bdata(i,2)+deltay;
+%                 case 2,
+%                     posx = bdata(i,1)+deltax;
+%                     posy = bdata(i,2)-6*deltay;
+%                 case 3,
+%                     posx = bdata(i,1)-deltax-suffx/2;
+%                     posy = bdata(i,2)+2*deltay;
+%                 case 4,
+%                     posx = bdata(i,1)-deltax-suffx/2;
+%                     posy = bdata(i,2)-6*deltay;
+%             end
+% 
+% 
+%         % Labels only to the right: used
+%         
+        d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
+        if (length(find(d > 10/blur))>1 && length(find(d(1:2) > 10/blur))>0)|| isempty(ind),
+            quad = find(d(1:2)==max(d(1:2)),1);
+            switch quad,
+                case 1,
+                    posx = bdata(i,1)+deltax;
+                    posy = bdata(i,2)+deltay;
+                case 2,
+                    posx = bdata(i,1)+deltax;
+                    posy = bdata(i,2)-6*deltay;
+                case 3,
+                    posx = bdata(i,1)-deltax-suffx/2;
+                    posy = bdata(i,2)+2*deltay;
+                case 4,
+                    posx = bdata(i,1)-deltax-suffx/2;
+                    posy = bdata(i,2)-6*deltay;
+            end
+            
+%         % Labels only to upper right: not used
+%         
+%         d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
+%         if (length(find(d > 10/blur))>1 && d(1) > 10/blur)|| isempty(ind),
+%             posx = bdata(i,1)+deltax;
+%             posy = bdata(i,2)+deltay;
+            
+            
             switch opt
                 case '110'
-                    text(bdata(i,1)+deltax, bdata(i,2)+deltay, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
+                    text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
                 case '111'
-                    text(bdata(i,1)+deltax, bdata(i,2)+deltay, normal_classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
+                    text(posx, posy, normal_classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
                 otherwise
-                    text(bdata(i,1)+deltax, bdata(i,2)+deltay, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
+                    text(posx, posy, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
             end
         end
     end

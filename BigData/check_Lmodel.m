@@ -135,7 +135,7 @@ end
 if M>0,
     if ~isfield(Lmodel,'av') || isempty(Lmodel.av), Lmodel.av = zeros(1,M); end
     if ~isfield(Lmodel,'sc') || isempty(Lmodel.sc), Lmodel.sc = ones(1,M); end
-    if ~isfield(Lmodel,'vclass') || isempty(Lmodel.weight), Lmodel.vclass = ones(1,M); end
+    if ~isfield(Lmodel,'vclass') || isempty(Lmodel.vclass), Lmodel.vclass = ones(1,M); end
     if ~isfield(Lmodel,'weight') || isempty(Lmodel.weight), Lmodel.weight = ones(1,M); end
     if ~isfield(Lmodel,'var_l') || isempty(Lmodel.var_l), Lmodel.var_l = cellstr(num2str((1:M)')); end
 else

@@ -253,6 +253,10 @@ if Lmodel.type==1,
             load([path list{t}],'x')
         end
         
+        if ~isempty(find(isnan(x))), 
+                if debug, disp(sprintf('Found nans in file %d',t)), end;
+        end;
+        
         if ~isempty(indMV{t})
             av = ones(size(x,1),1)*Lmodel.av;
             x(indMV{t}) = av(indMV{t});
