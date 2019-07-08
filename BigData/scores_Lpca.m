@@ -205,14 +205,16 @@ if opt(1) == '1',
         mult = ones(size(TT,1));
     end
     
+    t_var = var_Lpca(Lmodel,0);
+    
     if length(Lmodel.lvs) == 1 || opt(2) == '1',
         for i=1:length(Lmodel.lvs)
-            plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d',Lmodel.lvs(i))}, [], [], [], mult, [0.01 0.1 1]*Lmodel.N/Lmodel.nc);
+            plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1)))}, [], [], [], mult, [0.01 0.1 1]*Lmodel.N/Lmodel.nc);
         end
     else
         for i=1:length(Lmodel.lvs)-1,
             for j=i+1:length(Lmodel.lvs),
-                plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d',Lmodel.lvs(i)),sprintf('Scores PC %d',Lmodel.lvs(j))}, [], strcat('1',opt(4:5)), mult, [0.01 0.1 1]*Lmodel.N/Lmodel.nc, 0.1);
+                plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat('1',opt(4:5)), mult, [0.01 0.1 1]*Lmodel.N/Lmodel.nc, 0.1);
             end
         end
     end

@@ -88,14 +88,16 @@ P = Lpca(Lmodel);
 
 if opt(1) == '1',
     
+    t_var = var_Lpca(Lmodel,0);
+    
     if length(Lmodel.lvs) == 1 || opt(2) == '1',
         for i=1:length(Lmodel.lvs),
-                plot_vec(P(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('Loadings PC %d',Lmodel.lvs(i))});
+                plot_vec(P(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1)))});
         end
     else
         for i=1:length(Lmodel.lvs)-1,
             for j=i+1:length(Lmodel.lvs),
-                plot_scatter([P(:,i),P(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('Loadings PC %d',Lmodel.lvs(i)),sprintf('Loadings PC %d',Lmodel.lvs(j))}');
+                plot_scatter([P(:,i),P(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))),sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}');
             end      
         end
     end
