@@ -108,14 +108,16 @@ if opt(1) == '1',
         text = 'X-block loadings';
     end
     
-    if length(lvs) == 1 || opt(2) == '1',
-        for i=1:length(lvs),
-            plot_vec(Pt(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('%s LV %d',text,lvs(i))});
+    [y_var,t_var] = var_Lpls(Lmodel,0);
+     
+    if length(Lmodel.lvs) == 1 || opt(2) == '1',
+        for i=1:length(Lmodel.lvs),
+            plot_vec(Pt(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i)),100*(t_var(i) - t_var(i+1))});
         end
     else
-        for i=1:length(lvs)-1,
-            for j=i+1:length(lvs),
-                plot_scatter([Pt(:,i),Pt(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}');
+        for i=1:length(Lmodel.lvs)-1,
+            for j=i+1:length(Lmodel.lvs),
+                plot_scatter([Pt(:,i),Pt(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))),sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}');
             end      
         end
     end

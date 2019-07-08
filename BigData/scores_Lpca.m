@@ -207,12 +207,12 @@ if opt(1) == '1',
     
     if length(Lmodel.lvs) == 1 || opt(2) == '1',
         for i=1:length(Lmodel.lvs)
-            plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d',Lmodel.lvs(i))}, [], [], [], mult);
+            plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d',Lmodel.lvs(i))}, [], [], [], mult, [0.01 0.1 1]*Lmodel.N/Lmodel.nc);
         end
     else
         for i=1:length(Lmodel.lvs)-1,
             for j=i+1:length(Lmodel.lvs),
-                plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d',Lmodel.lvs(i)),sprintf('Scores PC %d',Lmodel.lvs(j))}, [], strcat('1',opt(4:5)), mult);
+                plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d',Lmodel.lvs(i)),sprintf('Scores PC %d',Lmodel.lvs(j))}, [], strcat('1',opt(4:5)), mult, [0.01 0.1 1]*Lmodel.N/Lmodel.nc, 0.1);
             end
         end
     end

@@ -287,11 +287,11 @@ if ~isempty(elabel)
             
             switch opt
                 case '110'
-                    text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
+                    text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
                 case '111'
-                    text(posx, posy, normal_classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
+                    text(posx, posy, normal_classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
                 otherwise
-                    text(posx, posy, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left');
+                    text(posx, posy, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
             end
         end
     end
@@ -327,8 +327,8 @@ axis(ax)
 
 % Set axis labels
 if ~isempty(xylabel)
-    xlabel(xylabel{1}, 'FontSize', 16);
-    ylabel(xylabel{2}, 'FontSize', 16);
+    xlabel(xylabel{1}, 'FontSize', 20);
+    ylabel(xylabel{2}, 'FontSize', 20);
 end
 
 axes_h = get(fig_h,'Children');
