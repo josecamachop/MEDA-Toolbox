@@ -1,5 +1,5 @@
 function [model]=sparsepls2(X, Y, nlv, nvarX, nvarY, max_iter, tol, mode, mc)
-
+%[max(nlv), unique(nvarX), unique(nvarY), rank(X), rank(Y)]
 % Sparse Partial Least Squares. References:
 % Lê Cao et al.,Statistical applications in genetics and molecular biology. 2008;7.
 % Szymanska et al., Journal of Pharmaceutical and Biomedical Analysis (2016), 27, 170-175
@@ -80,6 +80,12 @@ end
 if nlv > p
     warning('Maximum number of latent variables is set');
     nlv=p;
+end
+if nlv > max(nvarX)
+%    warning('Maximum number of latent variables is set');
+    nlv=max(nvarX);
+    nvarX(nlv+1:end) = [];
+    nvarY(nlv+1:end) = [];
 end
 if length(nvarX) ~= nlv
     error(['Length of keepX must be equal to: ' num2str(nlv)]);
@@ -302,7 +308,7 @@ for h = 1:nlv
         a_old = a;
         b_old = b;
         if iter > max_iter
-            disp('Maximum number of iteration is reached');
+            %disp('Maximum number of iteration is reached');
             break
         end 
     end
@@ -366,21 +372,21 @@ if mode == 1
 elseif mode == 2
     lY = e_matrix;
 end
+while isnan(rcond(((c_matrix(:, 1:nlv))' * a_matrix(:, 1:nlv)))),
+    nlv=nlv-1;
+end
 R = a_matrix(:, 1:nlv) / ((c_matrix(:, 1:nlv))' * a_matrix(:, 1:nlv));
 A = (lY(:, 1:nlv))';
-while find(isnan(R)),
-    nlv=nlv-1;
-    R = a_matrix(:, 1:nlv) / ((c_matrix(:, 1:nlv))' * a_matrix(:, 1:nlv));
-    A = (lY(:, 1:nlv))';
-     t_matrix(:, end) = [];
-     u_matrix(:, end) = [];
-    
-     a_matrix(:, end) = [];
-     b_matrix(:, end) = [];
-     c_matrix(:, end) = [];
-     d_matrix(:, end) = [];
-     e_matrix(:, end) = [];
-end
+
+t_matrix(:, nlv+1:end) = [];
+u_matrix(:, nlv+1:end) = [];
+
+a_matrix(:, nlv+1:end) = [];
+b_matrix(:, nlv+1:end) = [];
+c_matrix(:, nlv+1:end) = [];
+d_matrix(:, nlv+1:end) = [];
+e_matrix(:, nlv+1:end) = [];
+
 B = R * A;
 B0 = mean_Y - mean_X * B;
 

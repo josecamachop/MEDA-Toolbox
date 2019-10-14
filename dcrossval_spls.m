@@ -1,11 +1,14 @@
-function [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt)
+function [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,rep,opt)
 
 % Row-wise k-fold (rkf) double cross-validation in SPLS. Reference:
 % J. Camacho, J. González-Martínez and E. Saccenti. 
 % Rethinking cross-validation in SPLS. Submitted to Journal of Chemometrics. 
+% The algorithm uses repetitions of the dCV loop to estimate the stability: 
+% see Szymanska, E., Saccenti, E., Smilde, A.K., Weterhuis, J. Metabolomics 
+% (2012) 8: 3.
 %
 % Qm = dcrossval_spls(x,y) % minimum call
-% [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt) % complete call
+% [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,rep,opt) % complete call
 %
 %
 % INPUTS:
@@ -36,6 +39,8 @@ function [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prep
 %       1: mean centering
 %       2: autoscaling (default)  
 %
+% rep: [1x1] number of repetitios for stability.
+%
 % opt: [1x1] options for data plotting
 %       0: no plots
 %       1: bar plot (default)
@@ -65,10 +70,10 @@ function [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,lvs,keepXs,alpha,blocks_r,prep
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 04/Apr/18.
+% last modification: 14/Oct/19
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2019  University of Granada, Granada
+% Copyright (C) 2019  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -99,7 +104,8 @@ if nargin < 5 || isempty(alpha), alpha = 0; end;
 if nargin < 6 || isempty(blocks_r), blocks_r = N; end;
 if nargin < 7 || isempty(prepx), prepx = 2; end;
 if nargin < 8 || isempty(prepy), prepy = 2; end;
-if nargin < 9 || isempty(opt), opt = 1; end;
+if nargin < 9 || isempty(rep), rep = 10; end;
+if nargin < 10 || isempty(opt), opt = 1; end;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -113,7 +119,8 @@ assert (isequal(size(alpha), [1 1]), 'Dimension Error: 5th argument must be 1-by
 assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(rep), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 10th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
@@ -131,49 +138,54 @@ assert (blocks_r<=N, 'Value Error: 6th argument must be at most N. Type ''help %
 
 %% Main code
 
-% Cross-validation
-
-rows = rand(1,N);
-[a,r_ind]=sort(rows);
-elem_r=N/blocks_r;
-        
-for i=1:blocks_r,
-    disp(sprintf('Crossvalidation block %i of %i',i,blocks_r))
-    ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
-    i2 = ones(N,1);
-    i2(ind_i)=0;
-    val = x(ind_i,:);
-    rest = x(find(i2),:); 
-    val_y = y(ind_i,:);
-    rest_y = y(find(i2),:);
+for j=1:rep,
+    % Cross-validation
     
-    [ccs,av,st] = preprocess2D(rest,prepx);
-    [ccs_y,av_y,st_y] = preprocess2D(rest_y,prepy);
+    rows = rand(1,N);
+    [a,r_ind]=sort(rows);
+    elem_r=N/blocks_r;
     
-    vcs = preprocess2Dapp(val,av,st);
-    vcs_y = preprocess2Dapp(val_y,av_y,st_y);
+    for i=1:blocks_r,
+        % disp(sprintf('Crossvalidation block %i of %i',i,blocks_r))
+        ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
+        i2 = ones(N,1);
+        i2(ind_i)=0;
+        val = x(ind_i,:);
+        rest = x(find(i2),:);
+        val_y = y(ind_i,:);
+        rest_y = y(find(i2),:);
         
-    [cumpress,kk,nze] =  crossval_spls(rest,rest_y,lvs,keepXs,blocks_r-1,prepx,prepy,0);
+        [ccs,av,st] = preprocess2D(rest,prepx);
+        [ccs_y,av_y,st_y] = preprocess2D(rest_y,prepy);
         
-    cumpressb = (1-abs(alpha))*cumpress/max(max(cumpress)) + alpha*nze/max(max(nze));
-    
-    [l,k]=find(cumpressb==min(min(cumpressb)));
-    lvso(i) = lvs(l(1));
-    keepXso(i) = keepXs(k(1));
-    
-    if lvso(i)~=0,
+        vcs = preprocess2Dapp(val,av,st);
+        vcs_y = preprocess2Dapp(val_y,av_y,st_y);
         
-        model = sparsepls2(ccs, ccs_y, lvso(i), keepXso(i)*ones(size(1:lvso(i))), O*ones(size(1:lvso(i))), 500, 1e-10, 1, 0);
-        beta = model.R*model.Q';
-
-        srec = vcs*beta;
+        [cumpress,kk,nze] =  crossval_spls(rest,rest_y,lvs,keepXs,blocks_r-1,prepx,prepy,0);
         
-    else
-        keepXso(i) = nan;
-        srec = zeros(size(vcs_y));
+        cumpressb = (1-abs(alpha))*cumpress/max(max(cumpress)) + alpha*nze/max(max(nze));
+        
+        [l,k]=find(cumpressb==min(min(cumpressb)));
+        lvso(j,i) = lvs(l(1));
+        keepXso(j,i) = keepXs(k(1));
+        
+        if lvso(j,i)~=0,
+            
+            model = sparsepls2(ccs, ccs_y, lvso(j,i), keepXso(j,i)*ones(size(1:lvso(j,i))), O*ones(size(1:lvso(j,i))), 500, 1e-10, 1, 0);
+            beta = model.R*model.Q';
+            
+            srec = vcs*beta;
+            
+        else
+            keepXso(j,i) = nan;
+            srec = zeros(size(vcs_y));
+        end
+        
+        Qu(i) = sum(sum((vcs_y-srec).^2));
+        Qd(i) = sum(sum(vcs_y.^2));
     end
-
-    Q(i) = 1 - sum(sum((vcs_y-srec).^2))/sum(sum(vcs_y.^2));
+    
+    Q(j) = 1-sum(Qu)/sum(Qd);
     
 end
 
@@ -182,6 +194,6 @@ Qm = mean(Q);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(Q,[],[],{'#Split','Goodness of Prediction'},[],1); 
+    fig_h = plot_vec(Q,[],[],{'#Repetition','Goodness of Prediction'},[],1); 
 end
 

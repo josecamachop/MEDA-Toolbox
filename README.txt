@@ -1,7 +1,7 @@
 ﻿MEDA Toolbox for its use in MATLAB. 
 
 Contact person: José Camacho Páez (josecamacho@ugr.es)
-Last modification of this document: 02/Nov/18
+Last modification of this document: 14/Oct/19
 
 Installation
 
@@ -29,20 +29,22 @@ We would like to thanks the direct or indirect contribution of several colleague
 
 Items in the folder:
 
-- GUIDELINES.txt: Guidelines for the use of the EDA Toolbox (Please, read first)
+- GUIDELINES.txt: Guidelines for the use of the MEDA Toolbox (Please, read first)
 
 - toolbox routines:
 
-	- projection models: pca_pp.m (PCA), kernel_pls.m (PLS), gia & gpca (GPCA), sparsepls2 (SPLS) 
+	- projection models: pca_pp.m (PCA), kernel_pls.m (PLS), gia & gpca (GPCA), sparsepls2 (SPLS), gpls, gasca, x-can 
 
 	- exploratory & visualization tools: SVIplot.m (SVI plots), scores_pca.m & scores_pls.m (Socre plots), loadings_pca.m & loadings_pls.m (Loading plots), 
 		meda_pca.m & meda_pls.m (MEDA), omeda_pca.m & omeda_pls.m (oMEDA), mspc_pca.m & mspc_pls.m (MSPC), leverages_pca.m & leverages_pls.m (leverages of variables)
 		
 	- exploratory tools without visualization: meda.m, omeda.m, mspc.m
 
-	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca, ckf, crossval_pls, dcrossval_pls (Cross-validation rutines), PAtest, permsvd, dray
+	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca, ckf, crossval_pls, dcrossval_pls (Cross-validation routines), PAtest, permsvd, dray
 
 	- tools to select the number of LVs & sparsity in SPLS: crossval_spls, dcrossval_spls, crossval_spls_da, dcrossval_spls_da
+
+	- tools to select the number of LVs & sparsity in GPLS: crossval_gpls, dcrossval_gpls
 
 	- graphical tools: plot_scatter.m, plot_vec.m, plot_map.m 
 
@@ -56,8 +58,8 @@ Items in the folder:
 
 - Examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox.
 
-Copyright (C) 2018  Universidad de Granada
-Copyright (C) 2018  José Camacho Páez
+Copyright (C) 2019  Universidad de Granada
+Copyright (C) 2019  José Camacho Páez
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

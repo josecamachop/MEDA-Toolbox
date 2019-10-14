@@ -1,7 +1,9 @@
 function [AUC,nze] = crossval_spls_da(x,y,lvs,keepXs,blocks_r,prepx,prepy,opt)
 
 % Row-wise k-fold (rkf) cross-validation in SPLS-DA, restricted to one 
-% response categorical variable of two levels.
+% response categorical variable of two levels. We correct the 
+% classification limit following Richard G. Brereton, J. Chemometrics 2014; 
+% 28: 213–225
 %
 % cumpress = crossval_spls_da(x,y) % minimum call
 % [AUC,nze] =
@@ -55,7 +57,7 @@ function [AUC,nze] = crossval_spls_da(x,y,lvs,keepXs,blocks_r,prepx,prepy,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 04/Apr/18.
+% last modification: 14/Oct/19
 %
 % Copyright (C) 2018  University of Granada, Granada
 % Copyright (C) 2018  Jose Camacho Paez
@@ -147,26 +149,32 @@ elem_rn1=length(yn1)/blocks_r;
         
 for i=1:blocks_r,
     
-    ind_i = r_ind1(round((i-1)*elem_r1+1):round(i*elem_r1)); % Sample selection
+    ind_i1 = r_ind1(round((i-1)*elem_r1+1):round(i*elem_r1)); % Sample selection
     i2 = ones(length(y1),1);
-    i2(ind_i)=0;
-    sample = x(y1(ind_i),:);
-    calibr = x(y1(find(i2)),:); 
-    sample_y = y(y1(ind_i),:);
-    calibr_y = y(y1(find(i2)),:); 
+    i2(ind_i1)=0;
+    sample = x(y1(ind_i1),:);
+    calibr = x(y1(find(i2)),:);
+    sample_y = y(y1(ind_i1),:);
+    calibr_y = y(y1(find(i2)),:);
     
-    ind_i = r_indn1(round((i-1)*elem_rn1+1):round(i*elem_rn1)); % Sample selection
+    ind_in1 = r_indn1(round((i-1)*elem_rn1+1):round(i*elem_rn1)); % Sample selection
     i2 = ones(length(yn1),1);
-    i2(ind_i)=0;
-    sample = [sample;x(yn1(ind_i),:)];
-    calibr = [calibr;x(yn1(find(i2)),:)]; 
-    sample_y = [sample_y;y(yn1(ind_i),:)];
-    calibr_y = [calibr_y;y(yn1(find(i2)),:)];    
+    i2(ind_in1)=0;
+    sample = [sample;x(yn1(ind_in1),:)];
+    calibr = [calibr;x(yn1(find(i2)),:)];
+    sample_y = [sample_y;y(yn1(ind_in1),:)];
+    calibr_y = [calibr_y;y(yn1(find(i2)),:)];   
     
-    [ccs,av,st] = preprocess2D(calibr,prepx);
-    [ccs_y,av_y,st_y] = preprocess2D(calibr_y,prepy);
+    [ccs,av,st] = preprocess2D(calibr,prepx);    
+    %[ccs_y,av_y,st_y] = preprocess2D(calibr_y,prepy);
+    ccs_y = calibr_y;
+    
+    [kk,m1] = preprocess2D(ccs(find(calibr_y==1),:),1);  % additional subtraction of class mean
+    [kk,mn1] = preprocess2D(ccs(find(calibr_y==-1),:),1);
+    ccs = preprocess2Dapp(ccs,(m1+mn1)/2);
         
     scs = preprocess2Dapp(sample,av,st);
+    scs = preprocess2Dapp(scs,(m1+mn1)/2);
     
     if  ~isempty(find(lvs)),
         
@@ -177,14 +185,15 @@ for i=1:blocks_r,
                 if lvs(lv),
                     model = sparsepls2(ccs, ccs_y, lvs(lv), keepXs(keepX)*ones(size(1:lvs(lv))), O*ones(size(1:lvs(lv))), 500, 1e-10, 1, 0);
                     beta = model.R*model.Q';
-
-                    srec = scs*beta;
-                    [X,Y,T,AUCt] = perfcurve(sample_y,srec,1);
                     
-                    AUC(lv,keepX) = AUC(lv,keepX) + AUCt;
+                    sr = scs*beta;
+                    srec1(ind_i1',lv,keepX) = sr(1:length(ind_i1));
+                    srecn1(ind_in1',lv,keepX) = sr(length(ind_i1)+1:end);
+                
 					nze(lv,keepX) = nze(lv,keepX) + length(find(beta)); 
                 else
-                    AUC(lv,keepX) = AUC(lv,keepX) + 0.5;
+                    srec1(ind_i1',lv,keepX) = 0;
+                    srecn1(ind_in1',lv,keepX) = 0;
 					nze(lv,keepX) = nze(lv,keepX) + M*O; 
                 end
                 
@@ -193,13 +202,18 @@ for i=1:blocks_r,
         end
         
     else
-        AUC = AUC + ones(length(keepXs),1)*0.5;
+        srec1(ind_i1',1,1) = 0;
+        srecn1(ind_in1',1,1) = 0;
 		nze = nze + ones(length(keepXs),1)*M*O;
     end
     
 end
-    
-AUC = AUC/blocks_r;
+
+for lv=1:size(srec1,2),
+    for keepX=1:size(srec1,3),
+        [~,~,~,AUC(lv,keepX)] = perfcurve(y([y1;yn1]),[srec1(:,lv,keepX);srecn1(:,lv,keepX)],1);
+    end
+end
 
 
 %% Show results

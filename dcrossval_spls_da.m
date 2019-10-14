@@ -1,12 +1,16 @@
-function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt)
+function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,rep,opt)
 
 % Row-wise k-fold (rkf) double cross-validation in SPLS-DA, restricted to 
 % one response categorical variable of two levels. Reference:
 % J. Camacho, J. González-Martínez and E. Saccenti.
 % Rethinking cross-validation in SPLS. Submitted to Journal of Chemometrics. 
+% The algorithm uses repetitions of the dCV loop to estimate the stability: 
+% see Szymanska, E., Saccenti, E., Smilde, A.K., Weterhuis, J. Metabolomics 
+% (2012) 8: 3. It also corrects the classification limit following Richard 
+% G. Brereton, J. Chemometrics 2014; 28: 213–225
 %
 % AUCm = dcrossval_spls_da(x,y) % minimum call
-% [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,opt) % complete call
+% [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,rep,opt) % complete call
 %
 %
 % INPUTS:
@@ -38,6 +42,8 @@ function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks
 %       1: mean centering
 %       2: autoscaling (default)  
 %
+% rep: [1x1] number of repetitios for stability
+%
 % opt: [1x1] options for data plotting
 %       0: no plots
 %       1: bar plot (default)
@@ -47,11 +53,11 @@ function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks
 %
 % AUCm: [1x1] Mean Area Under the ROC 
 %
-% AUC: [blocks_rx1] Area Under the ROC
+% AUC: [rep x 1] Area Under the ROC
 %
-% lvso: [blocks_rx1] optimum number of LVs in the inner loop
+% lvso: [rep x blocks_r] optimum number of LVs in the inner loop
 %
-% keepXso: [blocks_rx1] optimum number of keepXs in the inner loop
+% keepXso: [rep x blocks_r] optimum number of keepXs in the inner loop
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
@@ -67,7 +73,7 @@ function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 04/Apr/18.
+% last modification: 14/Oct/19
 %
 % Copyright (C) 2018  University of Granada, Granada
 % Copyright (C) 2018  Jose Camacho Paez
@@ -100,12 +106,13 @@ J =  length(keepXs);
 if nargin < 5 || isempty(alpha), alpha = 0; end;
 
 vals = unique(y);
-rep = sort(histc(y,vals),'descend');
-N2 = rep(2);
+rep2 = sort(histc(y,vals),'descend');
+N2 = rep2(2);
 if nargin < 6 || isempty(blocks_r), blocks_r = max(3,round(N2/2)); end;
 if nargin < 7 || isempty(prepx), prepx = 2; end;
 if nargin < 8 || isempty(prepy), prepy = 2; end;
-if nargin < 9 || isempty(opt), opt = 1; end;
+if nargin < 9 || isempty(rep), rep = 10; end;
+if nargin < 10 || isempty(opt), opt = 1; end;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -119,7 +126,8 @@ assert (isequal(size(alpha), [1 1]), 'Dimension Error: 5th argument must be 1-by
 assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(rep), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: 10th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
@@ -140,66 +148,80 @@ assert (blocks_r<=N, 'Value Error: 6th argument must be at most N. Type ''help %
 
 %% Main code
 
-% Cross-validation
-
-y1 = find(y==1);
-yn1 = find(y==-1);
-
-rows = rand(1,length(y1));
-[a,r_ind1]=sort(rows);
-elem_r1=length(y1)/blocks_r;
-
-rows = rand(1,length(yn1));
-[a,r_indn1]=sort(rows);
-elem_rn1=length(yn1)/blocks_r;
-
-% Cross-validation
-        
-for i=1:blocks_r,
-    disp(sprintf('Crossvalidation block %i of %i',i,blocks_r))
-    ind_i = r_ind1(round((i-1)*elem_r1+1):round(i*elem_r1)); % Sample selection
-    i2 = ones(length(y1),1);
-    i2(ind_i)=0;
-    val = x(y1(ind_i),:);
-    rest = x(y1(find(i2)),:); 
-    val_y = y(y1(ind_i),:);
-    rest_y = y(y1(find(i2)),:); 
+for j=1:rep,
+    % Cross-validation
     
-    ind_i = r_indn1(round((i-1)*elem_rn1+1):round(i*elem_rn1)); % Sample selection
-    i2 = ones(length(yn1),1);
-    i2(ind_i)=0;
-    val = [val;x(yn1(ind_i),:)];
-    rest = [rest;x(yn1(find(i2)),:)]; 
-    val_y = [val_y;y(yn1(ind_i),:)];
-    rest_y = [rest_y;y(yn1(find(i2)),:)];  ;
+    y1 = find(y==1);
+    yn1 = find(y==-1);
     
-    [ccs,av,st] = preprocess2D(rest,prepx);
-    [ccs_y,av_y,st_y] = preprocess2D(rest_y,prepy);
+    rows = rand(1,length(y1));
+    [a,r_ind1]=sort(rows);
+    elem_r1=length(y1)/blocks_r;
     
-    vcs = preprocess2Dapp(val,av,st);
-    vcs_y = preprocess2Dapp(val_y,av_y,st_y);
-        
-    [AUCt,nze] =  crossval_spls_da(rest,rest_y,lvs,keepXs,blocks_r-1,prepx,prepy,0);
-        
-    cumpressb = (abs(alpha)-1)*AUCt/max(max(AUCt)) + alpha*nze/max(max(nze));
- 
-    [l,k]=find(cumpressb==min(min(cumpressb)));
-    lvso(i) = lvs(l(1));
-    keepXso(i) = keepXs(k(1));
+    rows = rand(1,length(yn1));
+    [a,r_indn1]=sort(rows);
+    elem_rn1=length(yn1)/blocks_r;
     
-    if lvso(i)~=0,
+    % Cross-validation
+    
+    for i=1:blocks_r,
         
-        model = sparsepls2(ccs, ccs_y, lvso(i), keepXso(i)*ones(size(1:lvso(i))), O*ones(size(1:lvso(i))), 500, 1e-10, 1, 0);
-        beta = model.R*model.Q';
-
-        srec = vcs*beta;
-        [X,Y,T,AUC(i)] = perfcurve(val_y,srec,1);
+        ind_i1 = r_ind1(round((i-1)*elem_r1+1):round(i*elem_r1)); % Sample selection
+        i2 = ones(length(y1),1);
+        i2(ind_i1)=0;
+        val = x(y1(ind_i1),:);
+        rest = x(y1(find(i2)),:);
+        val_y = y(y1(ind_i1),:);
+        rest_y = y(y1(find(i2)),:);
         
-    else
-        keepXso(i) = nan;
-        AUC(i) = [];
+        ind_in1 = r_indn1(round((i-1)*elem_rn1+1):round(i*elem_rn1)); % Sample selection
+        i2 = ones(length(yn1),1);
+        i2(ind_in1)=0;
+        val = [val;x(yn1(ind_in1),:)];
+        rest = [rest;x(yn1(find(i2)),:)];
+        val_y = [val_y;y(yn1(ind_in1),:)];
+        rest_y = [rest_y;y(yn1(find(i2)),:)];
+        
+        [ccs,av,st] = preprocess2D(rest,prepx);
+        %[ccs_y,av_y,st_y] = preprocess2D(rest_y,prepy);
+        ccs_y = rest_y;
+        
+        [kk,m1] = preprocess2D(ccs(find(rest_y==1),:),1);  % additional subtraction of class mean
+        [kk,mn1] = preprocess2D(ccs(find(rest_y==-1),:),1);
+        ccs = preprocess2Dapp(ccs,(m1+mn1)/2);
+        
+        vcs = preprocess2Dapp(val,av,st);
+        vcs = preprocess2Dapp(vcs,(m1+mn1)/2);
+        
+        %vcs_y = preprocess2Dapp(val_y,av_y,st_y);
+        vcs_y = val_y;
+        
+        [AUCt,nze] =  crossval_spls_da(rest,rest_y,lvs,keepXs,blocks_r-1,prepx,prepy,0);
+        
+        cumpressb = (abs(alpha)-1)*AUCt/max(max(AUCt)) + alpha*nze/max(max(nze));
+        
+        [l,k]=find(cumpressb==min(min(cumpressb)));
+        lvso(j,i) = lvs(l(1));
+        keepXso(j,i) = keepXs(k(1));
+        
+        if lvso(j,i)~=0,
+            
+            model = sparsepls2(ccs, ccs_y, lvso(j,i), keepXso(j,i)*ones(size(1:lvso(j,i))), O*ones(size(1:lvso(j,i))), 500, 1e-10, 1, 0);
+            beta = model.R*model.Q';
+            
+            sr = vcs*beta;
+            srec1(ind_i1') = sr(1:length(ind_i1));
+            srecn1(ind_in1') = sr(length(ind_i1)+1:end);
+            
+        else
+            keepXso(j,i) = nan;
+            srec1(ind_i1') = 0;
+            srecn1(ind_in1') = 0;
+        end
+        
     end
     
+    [~,~,~,AUC(j)] = perfcurve(y([y1;yn1]),[srec1';srecn1'],1);
 end
 
 AUCm = mean(AUC);
@@ -207,7 +229,7 @@ AUCm = mean(AUC);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(AUC,[],[],{'#Split','AUC'},[],1);
+    fig_h = plot_vec(AUC,[],[],{'#Repetition','AUC'},[],1);
 end
 
 
