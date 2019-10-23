@@ -38,14 +38,14 @@ clear
 load kdd
 
 Lmodel = Lmodel_ini; % Initialization
-Lmodel.update = 1; % Change this to 1 for EWMA and 2 for Iterative
+Lmodel.update = 2; % Change this to 1 for EWMA and 2 for Iterative
 Lmodel.type = 2; % Change this to 1 for PCA and 2 for PLS
-Lmodel.lv = 3; % Initial number of LVs
+Lmodel.lvs = 1:2; % Number of LVs
 Lmodel.prep = 2; % X-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling 
 Lmodel.prepy = 2; % Y-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling
 Lmodel.nc = 100; % Number of clusters
 Lmodel.var_l = label';
-Lmodel.lvs = 1:2;
+
 
 lambda = 1-1e-4; % Forgetting factor in EWMA
 step = 0.01;

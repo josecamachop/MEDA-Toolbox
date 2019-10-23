@@ -61,7 +61,7 @@ if nargin < 3 || isempty(debug), debug = 1; end;
 assert (isequal(size(debug), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (debug==0 || debug==1 || debig==2, 'Value Error: 3rd argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+assert (debug==0 || debug==1 || debug==2, 'Value Error: 3rd argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

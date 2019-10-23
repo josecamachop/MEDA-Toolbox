@@ -83,7 +83,7 @@ assert (thres>0, 'Value Error: 7th argument must be above 0. Type ''help %s'' fo
 assert (isequal(fix(thres), thres), 'Value Error: 7th argument must contain an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (preci>0, 'Value Error: 8th argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(preci), preci), 'Value Error: 8th argument must contain an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (debug==0 || debug==1 || debig==2, 'Value Error: 9th argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+assert (debug==0 || debug==1 || debug==2, 'Value Error: 9th argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

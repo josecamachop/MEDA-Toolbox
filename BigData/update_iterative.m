@@ -68,10 +68,10 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 26/May/17
+% last modification: 22/Oct/19
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2019  University of Granada, Granada
+% Copyright (C) 2019  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -324,10 +324,10 @@ elseif Lmodel.type==2,
         
         if debug, disp('computing PLS model.....................................................'), end;
             
-        if ~Lmodel.lv,
+        if ~Lmodel.lvs,
             Lmodel.lvs = 1:rank(Lmodel.XX);
             var_Lpls(Lmodel);
-            Lmodel.lv = input('Select the LVs to include in the model: ');
+            Lmodel.lvs = input('Select the LVs to include in the model: ');
         end
         
         [beta,W,P,Q,R] = Lpls(Lmodel);
@@ -339,10 +339,10 @@ elseif Lmodel.type==2,
         
         if debug, disp('computing PCA model..............................................'), end;
         
-        if ~Lmodel.lv,
+        if ~Lmodel.lvs,
             Lmodel.lvs = 1:rank(Lmodel.XX);
             var_Lpca(Lmodel);
-            Lmodel.lv = input('Select the PCs to include in the model: ');
+            Lmodel.lvs = input('Select the PCs to include in the model: ');
         end
         
         P = Lpca(Lmodel); 

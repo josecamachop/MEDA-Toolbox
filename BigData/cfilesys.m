@@ -93,7 +93,7 @@ assert (isequal(size(debug), [1 1]), 'Dimension Error: 9th argument must be 1-by
 assert (isempty(find(mult<=0)), 'Value Error: 4th argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(thres<=0)), 'Value Error: 7th argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(thres), thres), 'Value Error: 7th argument must contain an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (debug==0 || debug==1 || debig==2, 'Value Error: 9th argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+assert (debug==0 || debug==1 || debug==2, 'Value Error: 9th argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -126,13 +126,13 @@ for i=1:s,
             indj2 = obslist{i}(indj(j)+1);
             if mult(indj2)>thres,
                 indices = read_indices(index_fich{indj2},path,debug);
-                system(['del ' path index_fich{indj2} '.txt']);
-                if debug>1, disp(['delete file: ' path index_fich{indj2} ' ...']), end;
+                system(['rm ' path index_fich{indj2} '.txt']);
+                if debug>1, disp(['delete file: ' path index_fich{indj2} '.txt ...']), end;
                 add_indices(index_fich2{i},path,indices,debug);
             else
                 [recovered_column,recovered_label] = read_data(index_fich{indj2},path,sc,debug);
-                system(['del ' path index_fich{indj2} '.txt']);
-                if debug>1, disp(['delete file: ' path index_fich{indj2} ' ...']), end;
+                system(['rm ' path index_fich{indj2} '.txt']);
+                if debug>1, disp(['delete file: ' path index_fich{indj2} '.txt ...']), end;
                 add_data(index_fich2{i},path,recovered_column,recovered_label,class(indi),'a',thres,[],debug);
             end
         end

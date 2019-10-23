@@ -61,6 +61,7 @@ routine=dbstack;
 assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 file=[path name '.txt'];
 if debug>1, disp(['read data in file: ' file ' ...']), end;
+
 fid=fopen(file,'r');
 if nargin < 4 || isempty(debug), debug = 1; end;
 
@@ -70,7 +71,7 @@ assert (isequal(size(debug), [1 1]), 'Dimension Error: 4th argument must be 1-by
 
 % Validate values of input data
 assert (isequal(fix(nvars), nvars), 'Value Error: 3rd argument must contain an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (debug==0 || debug==1 || debig==2, 'Value Error: 4th argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+assert (debug==0 || debug==1 || debug==2, 'Value Error: 4th argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
