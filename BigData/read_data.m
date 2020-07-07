@@ -59,11 +59,12 @@ function [data,label,class,lev,s]=read_data(name,path,nvars,debug)
 % Set default values
 routine=dbstack;
 assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+if nargin < 4 || isempty(debug), debug = 1; end;
+
 file=[path name '.txt'];
 if debug>1, disp(['read data in file: ' file ' ...']), end;
 
 fid=fopen(file,'r');
-if nargin < 4 || isempty(debug), debug = 1; end;
 
 % Validate dimensions of input data
 assert (isequal(size(nvars), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);

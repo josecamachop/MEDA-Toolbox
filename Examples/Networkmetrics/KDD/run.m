@@ -60,7 +60,7 @@ end
 
 %% Data Analysis
 
-if Lmodel.type==2, % for PLS
+if Lmodel.type==2 % for PLS
     
     % Score plot
     scores_Lpls(Lmodel);   
