@@ -1,12 +1,12 @@
-function [DImap,best] = DI(T,classes,reg,opt)
+function [DImap,best] = SDI(T,classes,reg,opt)
 
 % Discriminant Index for selection of best visualization subspace. The original
 % paper is Sara Tortorella, Maurizio Servili, Tullia Gallina Toschi, Gabriele 
 % Cruciani, José Camacho. Subspace Discriminant Index for Improved Interpretation
-% of Omics Data Analysis. Submitted to Metabolomics, 2018.
+% of Omics Data Analysis. Submitted to Chemolab, 2020.
 %
-% DImap = DI(T,classes) % minimum call
-% [DImap,best] = DI(T,classes,reg,opt) % complete call
+% DImap = SDI(T,classes) % minimum call
+% [DImap,best] = SDI(T,classes,reg,opt) % complete call
 %
 %
 % INPUTS:
@@ -36,8 +36,8 @@ function [DImap,best] = DI(T,classes,reg,opt)
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 24/May/18
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2020  University of Granada, Granada
+% Copyright (C) 2020  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
