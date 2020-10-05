@@ -83,10 +83,10 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 4/Nov/18.
+% last modification: 8/Apr/20
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2020  University of Granada, Granada
+% Copyright (C) 2020  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -200,12 +200,12 @@ if opt(1) == '1',
     
     if length(lvs) == 1 || opt(2) == '1',
         for i=1:length(lvs),
-            plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores LV %d',lvs(i))});
+            plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores LV %d (%.0f%%)',lvs(i),100*trace(T(:,i)'*T(:,i))/trace(xcs'*xcs))});
         end
     else
         for i=1:length(lvs)-1,
             for j=i+1:length(lvs),
-                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores LV %d',lvs(i)),sprintf('Scores LV %d',lvs(j))}',[],[],[],[],blur);
+                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores LV %d (%.0f%%)',lvs(i),100*trace(T(:,i)'*T(:,i))/trace(xcs'*xcs)),sprintf('Scores LV %d (%.0f%%)',lvs(j),100*trace(T(:,j)'*T(:,j))/trace(xcs'*xcs))}',[],[],[],[],blur);
             end      
         end
     end

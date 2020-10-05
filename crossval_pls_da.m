@@ -172,10 +172,8 @@ for i=1:blocks_r,
                 %%Here PLS
                 X = ccs;
                 Y = ccs_y;
-                XY = X'*Y;
-                XX = X'*X;
               
-                [beta,W,P,Q,R] = kernel_pls(XX,XY,1 : lvs(lv));
+                beta = simpls(X,Y,1 : lvs(lv));
                 
                 sr = scs*beta;
                 srec1(ind_i1',lv) = sr(1:length(ind_i1));

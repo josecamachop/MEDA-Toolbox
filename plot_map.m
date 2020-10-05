@@ -30,10 +30,10 @@ function fig_h = plot_map(map,label,int,ind)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 02/Nov/17.
+% last modification: 08/Apr/20
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez, Alejandro Perez Villegas
+% Copyright (C) 2020  University of Granada, Granada
+% Copyright (C) 2020  Jose Camacho Paez, Alejandro Perez Villegas
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -103,7 +103,7 @@ axes_h = get(sur_h,'Parent');
 if ~isempty(label)
     label_length = max(cellfun('length', label));
     label_size = 300/(length(find(~cellfun('isempty', label)))*label_length);
-    set(axes_h, 'FontSize', max(min(14,round(label_size)), 10));
+    set(axes_h, 'FontSize', max(min(18,round(label_size)), 14));
 end
 
 % Set axis properties

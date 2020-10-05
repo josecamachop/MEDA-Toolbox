@@ -47,7 +47,7 @@ function [ok,Lmodel] = check_Lmodel(Lmodel)
 %
 % Lmodel.obs_l: {ncx1} label of each cluster.
 %
-% Lmodel.var_l: {ncx1} label of each variable.
+% Lmodel.var_l: {Mx1} label of each variable.
 %
 % Lmodel.mat: [MxA] projection matrix for distance computation.
 %
@@ -57,15 +57,15 @@ function [ok,Lmodel] = check_Lmodel(Lmodel)
 %       2: auto-scaling (centers and scales data so that each variable 
 %           has variance 1)
 %
-% Lmodel.avy: [1xM] sample average according to the preprocessing method.
+% Lmodel.avy: [1xL] sample average according to the preprocessing method.
 %
-% Lmodel.scy: [1xM] sample scale according to the preprocessing method.
+% Lmodel.scy: [1xL] sample scale according to the preprocessing method.
 %
-% Lmodel.weighty: [1xM] weight applied after the preprocessing method.
+% Lmodel.weighty: [1xL] weight applied after the preprocessing method.
 %
-% Lmodel.XY: [MxO] sample cross-product matrix of X and Y.
+% Lmodel.XY: [MxL] sample cross-product matrix of X and Y.
 %
-% Lmodel.YY: [OxO] sample cross-product matrix of Y.
+% Lmodel.YY: [LxL] sample cross-product matrix of Y.
 %
 % Lmodel.index_fich: {ncx1} file system with the original observations in
 %   each cluster for ITERATIVE models.

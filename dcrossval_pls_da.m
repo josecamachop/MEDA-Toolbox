@@ -178,10 +178,8 @@ for j=1:rep,
             
             X = ccs;
             Y = ccs_y;
-            XY = X'*Y;
-            XX = X'*X;
-            
-            beta = kernel_pls(XX,XY,1:lvso(j,i));
+              
+            beta = simpls(X,Y,1:lvso(j,i));
             
             sr = vcs*beta;
             srec1(ind_i1') = sr(1:length(ind_i1));
