@@ -1,12 +1,13 @@
-function [DImap,best] = SDI(T,classes,reg,opt)
+function [SDImap,best] = SDI(T,classes,reg,opt)
 
 % Discriminant Index for selection of best visualization subspace. The original
 % paper is Sara Tortorella, Maurizio Servili, Tullia Gallina Toschi, Gabriele 
-% Cruciani, José Camacho. Subspace Discriminant Index for Improved Interpretation
-% of Omics Data Analysis. Submitted to Chemolab, 2020.
+% Cruciani, José Camacho. Subspace discriminant index to expedite exploration
+% of multi-class omics data. Chemometrics and Intelligent Laboratory Systems 206
+% (2020) 104160.
 %
-% DImap = SDI(T,classes) % minimum call
-% [DImap,best] = SDI(T,classes,reg,opt) % complete call
+% SDImap = SDI(T,classes) % minimum call
+% [SDImap,best] = SDI(T,classes,reg,opt) % complete call
 %
 %
 % INPUTS:
@@ -16,25 +17,36 @@ function [DImap,best] = SDI(T,classes,reg,opt)
 % classes: [Nx1] groups of observations. 0 values will be treated as the
 %   rest, and no DImap will be computed for those.
 %
-% reg: [1x1] regularization parameter, to favour optimums in 1 LV space.
+% reg: [1x1] regularization parameter, to favour optimums in 1 LV space
+% (0.1 by default)
 %
 % opt: [1x1] options for data plotting:
 %       0: no plots
-%       1: plot DI matrix per class
+%       1: plot SDI matrix per class (by default)
 %
 %
 % OUTPUTS:
 %
-% DImap: [AxAxC] DI matrix per class with code above 0.
+% SDImap: [AxAxC] SDI matrix per class with code above 0.
 %
 % best:[Cx2] best subspace for discrimination per class.
 %
 %
-% EXAMPLE OF USE: Seriation and discarding uninformative variables
+% EXAMPLE OF USE: Random data with structural relationship
+%
+% X = simuleMV(20,10,8);
+% Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
+% lvs = 0:10;
+% [beta,W,P,Q,R] = simpls(X,Y,lvs);
+% T = X*R;
+%
+% class = Y;
+% class(find(Y==-1))=2;
+% SDImap = SDI(T,class);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 24/May/18
+% last modification: 5/Oct/20
 %
 % Copyright (C) 2020  University of Granada, Granada
 % Copyright (C) 2020  Jose Camacho Paez
@@ -112,9 +124,9 @@ for i=1:size(T,2),
 end
 
 for k=1:length(ucl),    
-    DImap(:,:,k) = BS(:,:,k)./WS(:,:,k) .* (ones(size(T,2))+reg*eye(size(T,2))); % I prefer to select single LVs if the difference is below 10%
+    SDImap(:,:,k) = BS(:,:,k)./WS(:,:,k) .* (ones(size(T,2))+reg*eye(size(T,2))); % I prefer to select single LVs if the difference is below 10%
     
-    [topx,topy] = find(DImap(:,:,k)==max(max(squeeze(DImap(:,:,k)))),1);
+    [topx,topy] = find(SDImap(:,:,k)==max(max(squeeze(SDImap(:,:,k)))),1);
     best(k,:) = [topx,topy];
 end
     
@@ -122,8 +134,8 @@ end
 
 if opt==1,
     for k=1:length(ucl),
-        Mv = max(max(squeeze(DImap(:,:,k))));
-        plot_map(DImap(:,:,k),[],[0,Mv]);
+        Mv = max(max(squeeze(SDImap(:,:,k))));
+        plot_map(SDImap(:,:,k),[],[0,Mv]);
         ylabel('#LV','FontSize',18)
         xlabel('#LV','FontSize',18)
     end  
