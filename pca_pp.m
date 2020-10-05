@@ -1,4 +1,4 @@
-function [p,t] = pca_pp(xcs,pcs,sel)
+function [p,t] = pca_pp(xcs,pcs)
 
 % Principal Component Analysis based on svd.
 %
@@ -30,11 +30,11 @@ function [p,t] = pca_pp(xcs,pcs,sel)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 18/Aug/18.
+% last modification: 5/Oct/20
 % major change: include nipls
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2020  University of Granada, Granada
+% Copyright (C) 2020  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(xcs, 1);
 M = size(xcs, 2);
-if nargin < 2 || isempty(pcs), pcs = 0:size(xcs,2); end;
+if nargin < 2 || isempty(pcs), pcs = 0:rank(xcs); end;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
