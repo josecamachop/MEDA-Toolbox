@@ -119,7 +119,11 @@ assert (isempty(find(debug~=0 & debug~=1 & debug~=2)), 'Value Error: 6th argumen
 Lmodel.update = 2; 
 
 if files,
-	[status,result] = system(['del ' Lmodel.path 'MEDA*.txt']); % delete previous files
+  if ispc
+	  [status,result] = system(['del ' Lmodel.path 'MEDA*.txt']); % delete previous files
+  else
+	  [status,result] = system(['rm ' Lmodel.path 'MEDA*.txt']); % delete previous files
+  end
 end
 
 % preprocess
