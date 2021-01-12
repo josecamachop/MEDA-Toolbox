@@ -38,10 +38,10 @@ function add_data(name,path,data,label,class,type,thres,preci,debug)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/2017
+% last modification: 12/Jan/2021
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -111,7 +111,7 @@ if isequal('a',type),
         else
             fid=fopen(file,'r+');
             str=sprintf('%d %d %d',0,stot,class); 
-            str = [str 12*ones(1,10-length(str))];
+            str = [str char(12*ones(1,10-length(str)))];
             fprintf(fid,'%s\n',str);  
             fseek(fid,0,'eof');
             for u=1:s(1),
@@ -138,7 +138,7 @@ else
     else
         fid=fopen(file,'w');
         str=sprintf('%d %d %d',0,s(1),class); 
-        str = [str 12*ones(1,10-length(str))];
+        str = [str char(12*ones(1,10-length(str)))];
         fprintf(fid,'%s\n',str);  
         for u=1:s(1),
             a=num2str(data(u,:),preci_str);
@@ -167,7 +167,7 @@ else
     fid=fopen(file,'w');
 end
 str=sprintf('%d %d %d',1,nfich+s2-1,class);
-str = [str 12*ones(1,10-length(str))];
+str = [str char(12*ones(1,10-length(str)))];
 fprintf(fid,'%s\n',str);
 fseek(fid,0,'eof');
 
@@ -178,7 +178,7 @@ for i=s2:nfich+s2-1,
     fid2=fopen(file,'w');
     indu = (((i-s2)*thres+1):min(s,(i-s2+1)*thres));
     str=sprintf('%d %d %d',0,length(indu),class); 
-    str = [str 12*ones(1,10-length(str))];
+    str = [str char(12*ones(1,10-length(str)))];
     fprintf(fid2,'%s\n',str);    
     for u=indu,
         a=num2str(data(u,:),preci_str);

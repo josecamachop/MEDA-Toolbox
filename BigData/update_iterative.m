@@ -68,10 +68,10 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Oct/19
+% last modification: 12/Jan/21
 %
-% Copyright (C) 2019  University of Granada, Granada
-% Copyright (C) 2019  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -185,7 +185,7 @@ end
 
 N = 0;
     
-if (Lmodel.type==1 & Lmodel.prep == 2) | (Lmodel.type==2 & Lmodel.prep == 2 & Lmodel.prepy < 2), 
+if (Lmodel.type==1 && Lmodel.prep == 2) || (Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy < 2), 
     
     if debug, disp('scaling X block..................................................'), end;
         
@@ -207,7 +207,7 @@ if (Lmodel.type==1 & Lmodel.prep == 2) | (Lmodel.type==2 & Lmodel.prep == 2 & Lm
         
     end
     
-elseif Lmodel.type==2 & Lmodel.prep == 2 & Lmodel.prepy == 2,
+elseif Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy == 2,
     
     if debug, disp('scaling X and Y blocks..................................................'), end;
     
