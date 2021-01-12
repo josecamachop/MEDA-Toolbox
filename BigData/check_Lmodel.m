@@ -177,7 +177,7 @@ A = length(Lmodel.lvs);
 
 % Validate dimensions of input data
 assert (isequal(size(Lmodel.XX), [M M]), 'Dimension Error: Lmodel.XX must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Lmodel.lvs), [1 A]) | isequal(size(Lmodel.lvs), [0 0]), 'Dimension Error: Lmodel.lvs must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Lmodel.lvs), [1 A]) | isequal(size(Lmodel.lvs), [0 1]), 'Dimension Error: Lmodel.lvs must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (isempty(find(Lmodel.type~=1 & Lmodel.type~=2)), 'Value Error: Lmodel.type must contain 1 or 2. Type ''help %s'' for more info.', routine(1).name);
