@@ -88,10 +88,10 @@ function [T,TT] = scores_Lpls(Lmodel,test,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 24/Aug/18.
+% last modification: 13/Jan/21
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -211,7 +211,11 @@ if opt(1) == '1',
     end
     
     [y_var,t_var] = var_Lpls(Lmodel,0);
-    
+        
+    M = max(Lmodel.multr)/10;
+    m = max(1,M/100);
+    int = 10^((log10(M)-log10(m))/2 + log10(m));
+    markers = [m,int,M];
     if length(Lmodel.lvs) == 1 || opt(2) == '1',
         for i=1:length(Lmodel.lvs)
             plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1)))}, [], [], [], mult, [0.01 0.1 1]*Lmodel.N/Lmodel.nc);

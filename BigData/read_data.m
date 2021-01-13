@@ -87,6 +87,7 @@ if lev==0,
     data = zeros(s,nvars);
     for i=1:s,
         label{i}=fscanf(fid,'%s:',1);
+        label{i}(end)=[]; 
         a=fscanf(fid,'%s',1);
         b = textscan(a,'%f',nvars,'Delimiter',',');
         data(i,:) = cell2mat(b);
@@ -95,6 +96,7 @@ if lev==0,
 elseif lev == 1,
     fclose(fid);
     [data,class,lev,s]=read_indices(name,path,debug);
+    label = {};
 else
     error('Error in the level.');
 end
