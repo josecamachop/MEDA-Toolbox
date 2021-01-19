@@ -177,7 +177,10 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must cont
 [xcs,m,sd] = preprocess2D(x,prepx);
 ycs = preprocess2D(y,prepy);
 
-[beta,W,P,Q,R] = kernel_pls(xcs'*xcs,xcs'*ycs,lvs);
+[beta,W,P,Q,R] = simpls(xcs,ycs,lvs); % Change SIMPLS to normalize loadings
+for i=1:size(R,2),
+    R(:,i) = R(:,i)/norm(R(:,i));
+end
 T = xcs*R;
 
 if ~isempty(test),

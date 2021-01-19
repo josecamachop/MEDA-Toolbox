@@ -126,6 +126,12 @@ pcs = 1:size(sparseLoadings,2);
 
 %% Main code
 
+% Deleted non-used columns
+ind = find(~sum(abs(sparseLoadings),2));
+X(:,ind) = [];
+sparseLoadings(ind,:) = [];
+vars = size(X,2);
+
 % Perfoma a standard PCA on the data to get standard PCA score T
 [~, T] = pca_pp(X);
 
