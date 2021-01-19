@@ -44,10 +44,10 @@ function index_fich2 = cfilesys(obslist,centr,label,mult,class,index_fich,thres,
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/2017
+% last modification: 12/Jan/2021
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -126,12 +126,20 @@ for i=1:s,
             indj2 = obslist{i}(indj(j)+1);
             if mult(indj2)>thres,
                 indices = read_indices(index_fich{indj2},path,debug);
-                system(['rm ' path index_fich{indj2} '.txt']);
+                if ispc
+                    system(['del ' path index_fich{indj2} '.txt']);
+                else
+                    system(['rm ' path index_fich{indj2} '.txt']);
+                end
                 if debug>1, disp(['delete file: ' path index_fich{indj2} '.txt ...']), end;
                 add_indices(index_fich2{i},path,indices,debug);
             else
                 [recovered_column,recovered_label] = read_data(index_fich{indj2},path,sc,debug);
-                system(['rm ' path index_fich{indj2} '.txt']);
+                if ispc
+                    system(['del ' path index_fich{indj2} '.txt']);
+                else
+                    system(['rm ' path index_fich{indj2} '.txt']);
+                end
                 if debug>1, disp(['delete file: ' path index_fich{indj2} '.txt ...']), end;
                 add_data(index_fich2{i},path,recovered_column,recovered_label,class(indi),'a',thres,[],debug);
             end

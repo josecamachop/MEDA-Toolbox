@@ -36,10 +36,10 @@ function [data,label,class,lev,s]=read_data(name,path,nvars,debug)
 % 
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 26/May/2017
+% last modification: 12/Jan/2021
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -87,13 +87,16 @@ if lev==0,
     data = zeros(s,nvars);
     for i=1:s,
         label{i}=fscanf(fid,'%s:',1);
+        label{i}(end)=[]; 
         a=fscanf(fid,'%s',1);
-        data(i,:) = strread(a,'%f,',nvars);
+        b = textscan(a,'%f',nvars,'Delimiter',',');
+        data(i,:) = cell2mat(b);
     end
     fclose(fid);
 elseif lev == 1,
     fclose(fid);
     [data,class,lev,s]=read_indices(name,path,debug);
+    label = {};
 else
     error('Error in the level.');
 end
