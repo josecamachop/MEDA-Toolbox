@@ -15,7 +15,7 @@ function ascao = asca(paranovao)
 %
 % paranovao (structure): structure with the factor and interaction
 % matrices, p-values and explained variance. Obtained with parallel anova
-% (paranova)
+% o parallel general linear model.
 %
 %
 % OUTPUTS:
@@ -40,7 +40,7 @@ function ascao = asca(paranovao)
 %     end
 % end
 %
-% paranovao = paranova(X, F);
+% paranovao = parglm(X, F);
 % ascao = asca(paranovao);
 %
 % for i=1:2,
@@ -62,7 +62,7 @@ function ascao = asca(paranovao)
 %     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
 %
-% paranovao = paranova(X, F);
+% paranovao = parglm(X, F);
 % ascao = asca(paranovao);
 %
 % for i=1:2,
@@ -70,13 +70,13 @@ function ascao = asca(paranovao)
 % end
 %
 %
-% Related routines: paranova, apca, gasca, create_design
+% Related routines: parglm, paranova, apca, gasca, create_design
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 25/Apr/18
+% last modification: 26/Apr/21
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -105,7 +105,7 @@ ascao = paranovao;
 %Do PCA on level averages for each factor
 for factor = 1 : ascao.n_factors
     
-    xf = ascao.factors{factor}.means;
+    xf = ascao.factors{factor}.matrix;
     p = pca_pp(xf,1:rank(xf));
     
     ascao.factors{factor}.lvs = 1:size(p,2);
@@ -116,7 +116,7 @@ end
 %Do PCA on interactions
 for interaction = 1 : ascao.n_interactions
     
-    xf = ascao.factors{interaction}.means;
+    xf = ascao.factors{interaction}.matrix;
     p = pca_pp(xf,1:rank(xf));
     
     ascao.interactions{interaction}.lvs = 1:size(p,2);

@@ -152,7 +152,7 @@ for factor = factors
     X_level_means{factor} = level_means(X, paranovao, factor);
     SSQ_factors(1,factor) = sum(sum(X_level_means{factor}.^2));
     X_residuals = X_residuals - X_level_means{factor};
-    paranovao.factors{factor}.means = X_level_means{factor};
+    paranovao.factors{factor}.matrix = X_level_means{factor};
 end
 
 X_residuals_afterF = X_residuals;
@@ -173,7 +173,7 @@ for i = 1 : n_interactions
             X_interaction_means{i} = X_interaction_means{i} + tmp*m;
         end
     end
-    paranovao.interactions{i}.means = X_interaction_means{i};
+    paranovao.interactions{i}.matrix = X_interaction_means{i};
     SSQ_interactions(1,i) = sum(sum(X_interaction_means{i}.^2));
     X_residuals = X_residuals - X_interaction_means{i};
 end
