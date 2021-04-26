@@ -103,7 +103,7 @@ assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-b
 
 
 %% Main code
-
+                  
 n_interactions      = size(interactions,1);      % number of interactions
 n_factors           = size(F,2);                 % number of factors
 SSQ_factors         = zeros(n_perm + 1,n_factors,1);      % sum of squares for factors
@@ -133,38 +133,45 @@ D = ones(size(X,1),1);
 
 for f = 1 : n_factors
     uF = unique(F(:,f));
+    paranovao.n_levels(f) = length(uF); 
     for i = 1:length(uF)-1
         D(find(F(:,f)==uF(i)),n+i) = 1;
     end
-    D(find(F(:,f)==uF(end)),n+(1:length(uF)-1)) = -1;
+    parglmo.factors{f}.Dvars = n+(1:length(uF)-1);
+    D(find(F(:,f)==uF(end)),parglmo.factors{f}.Dvars) = -1;
     n = n + length(uF) - 1;
 end
 
 for i = 1 : n_interactions
-    D(:,end+1) = D(:,interactions(i,1)).* D(:,interactions(i,2));
+    for j = parglmo.factors{interactions(i,1)}.Dvars
+        for k = parglmo.factors{interactions(i,2)}.Dvars
+            D(:,end+1) = D(:,j).* D(:,k);
+        end
+    end
+    parglmo.interactions{i}.Dvars = n+1:size(D,2);
+    n = size(D,2);
 end
     
 % GLM model calibration
 
 B = pinv(D'*D)*D'*X;
 X_residuals = X - D*B;
+parglmo.D = D;
+parglmo.B = B;
 
 % Create Effect Matrices
 
 parglmo.inter = D(:,1)*B(1,:);
 SSQ_inter = sum(sum(parglmo.inter.^2));
 
-n = 1;
 for f = 1 : n_factors
-    uF = unique(F(:,f));
-    parglmo.factors{f}.matrix = D(:,n+(1:length(uF)-1))*B(n+(1:length(uF)-1),:);
+    parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
     SSQ_factors(1,f) = sum(sum(parglmo.factors{f}.matrix.^2));
-    n = n + length(uF) - 1;
 end
 
 % Interactions
 for i = 1 : n_interactions
-    parglmo.interactions{i}.matrix = D(:,n+i)*B(n+i,:);
+    parglmo.interactions{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
     SSQ_interactions(1,i) = sum(sum(parglmo.interactions{i}.matrix.^2));
 end
 
@@ -191,20 +198,18 @@ for j = 1 : n_perm
     perms = randperm(size(X,1)); % permuted data (permute whole data matrix)
       
     B = pinv(D'*D)*D'*X(perms, :);
-
-    n = 1;
+    
     for f = 1 : n_factors
-        uF = unique(F(:,f));
-    	factors{f}.matrix = D(:,n+(1:length(uF)-1))*B(n+(1:length(uF)-1),:);
-        SSQ_factors(1 + j,f) = sum(sum(	factors{f}.matrix.^2));
-        n = n + length(uF) - 1;
+        factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
+        SSQ_factors(1 + j,f) = sum(sum(factors{f}.matrix.^2));
     end
     
+    % Interactions
     for i = 1 : n_interactions
-        interactions{i}.matrix = D(:,n+i)*B(n+i,:);
-        SSQ_interactions(1 + j,i) = sum(sum(interactions{i}.matrix.^2));
+        interacts{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
+        SSQ_interactions(1 + j,i) = sum(sum(interacts{i}.matrix.^2));
     end
-    
+
 end        % permutations
 
 % Calculate p-values
