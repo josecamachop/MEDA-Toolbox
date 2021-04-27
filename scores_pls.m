@@ -203,12 +203,12 @@ if opt(1) == '1',
     
     if length(lvs) == 1 || opt(2) == '1',
         for i=1:length(lvs),
-            plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores LV %d (%.0f%%)',lvs(i),100*trace(T(:,i)'*T(:,i))/trace(xcs'*xcs))});
+            plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
         end
     else
         for i=1:length(lvs)-1,
             for j=i+1:length(lvs),
-                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores LV %d (%.0f%%)',lvs(i),100*trace(T(:,i)'*T(:,i))/trace(xcs'*xcs)),sprintf('Scores LV %d (%.0f%%)',lvs(j),100*trace(T(:,j)'*T(:,j))/trace(xcs'*xcs))}',[],[],[],[],blur);
+                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores LV %d (%.0f%%)',lvs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}',[],[],[],[],blur);
             end      
         end
     end
