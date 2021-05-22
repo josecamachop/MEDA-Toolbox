@@ -1,7 +1,9 @@
 function paranovao = paranova(X, F, interactions, center, n_perm)
 
 % Parallel ANOVA to obtain multivariate factor and interaction matrices in
-% a crossed experimental design and permutation test for significance
+% a crossed experimental design and permutation test for significance. This
+% approach permutes the raw values, which is sub-optimal in terms of power 
+% according to Andreson and Ter Braak.
 %
 % paranovao = paranova(X, F)   % minimum call
 % paranovao = paranova(X, F, interactions, center, n_perm)   % complete call

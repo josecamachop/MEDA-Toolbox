@@ -116,7 +116,7 @@ end
 %Do PCA on interactions
 for interaction = 1 : ascao.n_interactions
     
-    xf = ascao.factors{interaction}.matrix;
+    xf = ascao.interactions{interaction}.matrix;
     p = pca_pp(xf,1:rank(xf));
     
     ascao.interactions{interaction}.lvs = 1:size(p,2);

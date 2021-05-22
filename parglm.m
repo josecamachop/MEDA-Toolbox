@@ -1,7 +1,9 @@
 function parglmo = parglm(X, F, interactions, center, n_perm)
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
-% matrices in a crossed experimental design and permutation test for significance
+% matrices in a crossed experimental design and permutation test for significance. This
+% approach permutes the raw values, which is sub-optimal in terms of power 
+% according to Andreson and Ter Braak.
 %
 % parglmo = paranova(X, F)   % minimum call
 % parglmo = paranova(X, F, interactions, center, n_perm)   % complete call
@@ -152,7 +154,7 @@ for i = 1 : n_interactions
     n = size(D,2);
 end
     
-% GLM model calibration
+% GLM model calibration with LS, only fixed factors
 
 B = pinv(D'*D)*D'*X;
 X_residuals = X - D*B;

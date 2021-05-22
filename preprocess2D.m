@@ -35,10 +35,10 @@ function [xcs,average,scale] = preprocess2D(x,prep,weights)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 28/Mar/16.
+% last modification: 15/May/21
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ assert (isequal(size(prep), [1 1]), 'Dimension Error: 2nd argument must be 1-by-
 assert (isequal(size(weights), [1 M]), 'Dimension Error: 3rd argument must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (prep>=0 && prep<=2 && isequal(fix(prep), prep), 'Value Error: 2nd argument must contain integers between 0 and 2. Type ''help %s'' for more info.', routine(1).name);
+assert (prep>=0 && prep<=3 && isequal(fix(prep), prep), 'Value Error: 2nd argument must contain integers between 0 and 2. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(weights<0)) && isempty(find(weights==Inf)), 'Value Error: 3rd argument must contain positive values. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -80,9 +80,9 @@ assert (isempty(find(weights<0)) && isempty(find(weights==Inf)), 'Value Error: 3
 
 if N==1 && prep == 2, prep =1; end;
 
-switch prep,
+switch prep
     
-    case 1, % mean centering
+    case 1 % mean centering
         
         nanM = isnan(x);
         anM = 1 - nanM;
@@ -92,7 +92,7 @@ switch prep,
         xcs = x - ones(N,1)*average;
         xcs(find(nanM)) = nan;
         
-    case 2, % auto-sclaing
+    case 2 % auto-sclaing
         
         nanM = isnan(x);
         anM = 1 - nanM;
@@ -109,7 +109,24 @@ switch prep,
         xcs = xc./(ones(N,1)*scale);
         xcs(find(nanM)) = nan;
         
-    otherwise, % No preprocessing 
+    case 3 % pareto-scaling
+        
+        nanM = isnan(x);
+        anM = 1 - nanM;
+        x(find(nanM)) = 0;
+        average = sum(x,1)./sum(anM,1);
+        xc = x - ones(N,1)*average; 
+        xc(find(nanM)) = 0;
+        scale = sqrt(sqrt(sum(xc.^2,1)./(sum(anM,1)-1)));
+        ind = find(scale==0);
+        scale(ind) = sqrt(sqrt(ones(1,length(ind))./(2*sum(anM(:,ind),1)-1))); 
+        % use 1 by default may reduce detection of anomalous events 
+        % what we do is to infer that we need to double the calibration
+        % data to find one single element
+        xcs = xc./(ones(N,1)*scale);
+        xcs(find(nanM)) = nan;
+        
+    otherwise % No preprocessing 
         average = zeros(1,M);     
         scale = ones(1,M); 
         xcs = x;

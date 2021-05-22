@@ -190,7 +190,7 @@ if opt(1) == '1',
     else
         for i=1:length(pcs)-1,
             for j=i+1:length(pcs),
-                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,j).^2)/sum(sum(xcs.^2))),sprintf('Scores PC %d (%.0f%%)',pcs(j),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))}',[],[],[],[],blur);
+                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}',[],[],[],[],blur);
             end      
         end
     end
