@@ -12,7 +12,7 @@ function apcao = apca(paranovao)
 %
 % paranovao (structure): structure with the factor and interaction
 % matrices, p-values and explained variance. Obtained with parallel anova
-% (paranova)
+% o parallel general linear model
 %
 %
 % OUTPUTS:
@@ -37,7 +37,7 @@ function apcao = apca(paranovao)
 %     end
 % end
 %
-% paranovao = paranova(X, F);
+% paranovao = parglm(X, F);
 % apcao = apca(paranovao);
 %
 % for i=1:2,
@@ -59,18 +59,18 @@ function apcao = apca(paranovao)
 %     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
 %
-% paranovao = paranova(X, F);
-% apcao = apca(paranovao);
+% parglmo = parglm(X, F);
+% apcao = apca(parglmo);
 %
 % for i=1:2,
 %   scores(apcao.factors{i},[],[],sprintf('Factor %d',i),[],apcao.design(:,i));
 % end
 %
 %
-% Related routines: paranova, asca, gasca, create_design
+% Related routines: parglm, paranova, asca, gasca, create_design
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 6/Apr/21
+% last modification: 26/Apr/21
 %
 % Copyright (C) 2021  University of Granada, Granada
 % Copyright (C) 2021  Jose Camacho Paez
@@ -102,8 +102,8 @@ apcao = paranovao;
 %Do PCA on level averages for each factor
 for factor = 1 : apcao.n_factors
     
-    xf = apcao.factors{factor}.means+apcao.residuals;
-    [p,t] = pca_pp(xf,1:rank(apcao.factors{factor}.means));
+    xf = apcao.factors{factor}.matrix+apcao.residuals;
+    [p,t] = pca_pp(xf,1:rank(apcao.factors{factor}.matrix));
     
     apcao.factors{factor}.var = trace(xf'*xf);
     apcao.factors{factor}.lvs = 1:size(p,2);
@@ -114,8 +114,8 @@ end
 %Do PCA on interactions
 for interaction = 1 : apcao.n_interactions
     
-    xf = apcao.interactions{interaction}.means+apcao.residuals;
-    p = pca_pp(xf,1:rank(apcao.interactions{interaction}.means));
+    xf = apcao.interactions{interaction}.matrix+apcao.residuals;
+    p = pca_pp(xf,1:rank(apcao.interactions{interaction}.matrix));
     
     apcao.factors{factor}.var = trace(xf'*xf);
     apcao.interactions{interaction}.lvs = 1:size(p,2);

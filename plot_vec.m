@@ -153,11 +153,21 @@ for i=1:length(bins)-1
     sizes (i) = round(.5 * i^2 * pi);
 end
 
+% Plot multiplicity
+for j=1:length(bins)-1,
+    ind = mult>bins(j) & mult<=bins(j+1);
+    if isnumeric(elabel)
+        plot(elabel(find(ind)), 0*find(ind), 'ko', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
+    else
+        plot(find(ind), 0*find(ind), 'ko', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
+    end
+end
+
 if ~isempty(classes)
     unique_classes = unique(classes);
     color_list = hsv(length(unique_classes));
     if opt == '0',
-        if isnumeric(elabel)
+        if isnumeric(elabel) && length(elabel)==length(unique(elabel))
             plot(elabel,vec,'k','HandleVisibility', 'off');
         else
             plot(vec,'k','HandleVisibility', 'off');
@@ -165,7 +175,7 @@ if ~isempty(classes)
     end  
     for i=1:length(unique_classes)
         ind = classes == unique_classes(i);
-        if isnumeric(elabel)
+        if isnumeric(elabel) && length(elabel)==length(unique(elabel))
             vind = elabel(find(ind));
         else
             vind = find(ind);
@@ -175,37 +185,26 @@ if ~isempty(classes)
         if opt == '0',
             plot(vind, vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', color_list(i,:), 'DisplayName', num2str(unique_classes(i)));
         else 
-            %bar(vind, vec(ind,:), 2*length(find(ind))/N, 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
-            bar(vind, vec(ind,:), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
+           bar([0;vind;max(vind)+1], [0;vec(ind,:);0], 0.8, 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
         end
     end 
 else
     color_list = hsv(M);
     for i=1:M,
         if opt == '0',
-            if isnumeric(elabel)
+            if isnumeric(elabel) && length(elabel)==length(unique(elabel))
                 plot(elabel, vec(:,i), 'LineWidth', 2, 'Color', color_list(i,:), 'DisplayName', vlabel{i});
             else
                 plot(vec(:,i), 'LineWidth', 2, 'Color', color_list(i,:), 'DisplayName', vlabel{i});
             end
         else
-            if isnumeric(elabel)
+            if isnumeric(elabel) && length(elabel)==length(unique(elabel))
                 bar(elabel, vec(:,i), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
             else
                 bar(vec(:,i), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
             end
         end
     end    
-end
-
-% Plot multiplicity
-for j=1:length(bins)-1,
-    ind = mult>bins(j) & mult<=bins(j+1);
-    if isnumeric(elabel)
-        plot(elabel(find(ind)), 0*find(ind), 'ko', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
-    else
-        plot(find(ind), 0*find(ind), 'ko', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
-    end
 end
 
 % Plot control limits

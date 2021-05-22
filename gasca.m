@@ -15,8 +15,8 @@ function gascao = gasca(paranovao_st)
 %
 % paranovao_st (structure): structure with the factor and interaction
 % matrices, p-values and explained variance. Obtained with parallel anova
-% (paranovao_st) and where the field 'states' contains cells with the groups
-% of variables per factor and interaction.
+% and where the field 'states' contains cells with the groups of variables 
+% per factor and interaction.
 %
 %
 % OUTPUTS:
@@ -44,10 +44,10 @@ function gascao = gasca(paranovao_st)
 %   X(find(F(:,2) == levels{2}(i)),int2) = X(find(F(:,2) == levels{2}(i)),int2) + simuleMV(reps*length(levels{1}),length(int2),8) + repmat(randn(1,length(int2)),reps*length(levels{1}),1);
 % end
 %
-% paranovao_st = paranova(X, F);
+% paranovao_st = parglm(X, F);
 % 
 % for i=1:length(paranovao_st.factors),
-%   map = corr(paranovao_st.factors{i}.means);
+%   map = corr(paranovao_st.factors{i}.matrix);
 %   plot_map(map);
 %   c = input('Introduce threshold for correlation in interval (0,1): ');
 %   [bel,paranovao_st.factors{i}.states] = gia(map,c);
@@ -79,10 +79,10 @@ function gascao = gasca(paranovao_st)
 %   X(find(F(:,2) == levels{2}(i)),int2) = X(find(F(:,2) == levels{2}(i)),int2) + simuleMV(reps*length(levels{1}),length(int2),8) + repmat(randn(1,length(int2)),reps*length(levels{1}),1);
 % end
 %
-% paranovao_st = paranova(X, F);
+% paranovao_st = parglm(X, F);
 % 
 % for i=1:length(paranovao_st.factors),
-%   map = meda_pca(paranovao_st.factors{i}.means+paranovao_st.residuals,[],0,0.3,'100');
+%   map = meda_pca(paranovao_st.factors{i}.matrix+paranovao_st.residuals,[],0,0.3,'100');
 %   c = input('Introduce threshold for correlation in interval (0,1): ');
 %   [bel,paranovao_st.factors{i}.states] = gia(map,c);
 % end
@@ -95,10 +95,10 @@ function gascao = gasca(paranovao_st)
 % end
 %
 %
-% Related routines: paranova, asca, apca, create_design 
+% Related routines: parglm, paranova, asca, apca, create_design 
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 6/Apr/21
+% last modification: 26/Apr/21
 %
 % Copyright (C) 2021  University of Granada, Granada
 % Copyright (C) 2021  Jose Camacho Paez
@@ -130,7 +130,7 @@ gascao = paranovao_st;
 %Do GPCA on level averages for each factor
 for factor = 1 : gascao.n_factors
     
-    xf = gascao.factors{factor}.means;
+    xf = gascao.factors{factor}.matrix;
     p = gpca(xf,gascao.factors{factor}.states,1:length(gascao.factors{factor}.states));
     
     gascao.factors{factor}.var = trace(xf'*xf);
@@ -143,7 +143,7 @@ end
 %Do GPCA on interactions
 for interaction = 1 : gascao.n_interactions
     
-    xf = gascao.interactions{interaction}.means;
+    xf = gascao.interactions{interaction}.matrix;
     p = gpca(xf,gascao.interactions{interaction}.states,1:length(gascao.interactions{interaction}.states));
     
     gascao.factors{factor}.var = trace(xf'*xf);

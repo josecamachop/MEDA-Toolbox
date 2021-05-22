@@ -85,7 +85,7 @@ if N>M,
 else,
     XX = xcs*xcs';
     [t,D] = eig(XX);
-    s = sqrt(real(diag(D)));
+    s = real(sqrt(real(diag(D))));
     [kk,ind] = sort(s,'descend');
     t = t(:,ind).*(ones(N,1)*s(ind)');
     p = xcs'*t;
