@@ -73,10 +73,10 @@ function ascao = asca(paranovao)
 % Related routines: paranova, apca, gasca, create_design
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 25/Apr/18
+% last modification: 6/Apr/21
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -108,9 +108,11 @@ for factor = 1 : ascao.n_factors
     xf = ascao.factors{factor}.means;
     p = pca_pp(xf,1:rank(xf));
     
+    ascao.factors{factor}.var = trace(xf'*xf);
     ascao.factors{factor}.lvs = 1:size(p,2);
     ascao.factors{factor}.loads = p;
-    ascao.factors{factor}.scores = (xf+ascao.residuals)*p;
+    ascao.factors{factor}.scores = xf*p;
+    ascao.factors{factor}.scoresV = (xf+ascao.residuals)*p;
 end
 
 %Do PCA on interactions
@@ -119,8 +121,10 @@ for interaction = 1 : ascao.n_interactions
     xf = ascao.factors{interaction}.means;
     p = pca_pp(xf,1:rank(xf));
     
+    ascao.factors{factor}.var = trace(xf'*xf);
     ascao.interactions{interaction}.lvs = 1:size(p,2);
     ascao.interactions{interaction}.loads = p;
-    ascao.interactions{interaction}.scores = (xf+ascao.residuals)*p;
+    ascao.interactions{interaction}.scores = xf*p;
+    ascao.interactions{interaction}.scoresV = (xf+ascao.residuals)*p;
 end
 

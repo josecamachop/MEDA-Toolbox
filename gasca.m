@@ -98,10 +98,10 @@ function gascao = gasca(paranovao_st)
 % Related routines: paranova, asca, apca, create_design 
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 30/May/18
+% last modification: 6/Apr/21
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -133,9 +133,11 @@ for factor = 1 : gascao.n_factors
     xf = gascao.factors{factor}.means;
     p = gpca(xf,gascao.factors{factor}.states,1:length(gascao.factors{factor}.states));
     
+    gascao.factors{factor}.var = trace(xf'*xf);
     gascao.factors{factor}.lvs = 1:size(p,2);
     gascao.factors{factor}.loads = p;
-    gascao.factors{factor}.scores = (xf+gascao.residuals)*p;
+    ascao.factors{factor}.scores = xf*p;
+    gascao.factors{factor}.scoresV = (xf+gascao.residuals)*p;
 end
 
 %Do GPCA on interactions
@@ -144,8 +146,10 @@ for interaction = 1 : gascao.n_interactions
     xf = gascao.interactions{interaction}.means;
     p = gpca(xf,gascao.interactions{interaction}.states,1:length(gascao.interactions{interaction}.states));
     
+    gascao.factors{factor}.var = trace(xf'*xf);
     gascao.interactions{interaction}.lvs = 1:size(p,2);
     gascao.interactions{interaction}.loads = p;
-    gascao.interactions{interaction}.scores = (xf+gascao.residuals)*p;
+    ascao.interactions{interaction}.scores = xf*p;
+    gascao.interactions{interaction}.scoresV = (xf+gascao.residuals)*p;
 end
 

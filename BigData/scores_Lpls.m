@@ -1,4 +1,4 @@
-function [T,TT] = scores_Lpls(Lmodel,test,opt,label,classes)
+function [T,TT,fig_h] = scores_Lpls(Lmodel,test,opt,label,classes)
 
 % Compute and plot scores in PLS for large data. The original 
 % paper is Camacho J. Visualizing Big data with Compressed Score Plots: 
@@ -56,9 +56,11 @@ function [T,TT] = scores_Lpls(Lmodel,test,opt,label,classes)
 %
 % OUTPUTS:
 %
-% T: [LxA] calibration scores.
+% T: [LxA] calibration scores
 %
-% TT: [NxA] test scores.
+% TT: [NxA] test scores
+%
+% fig_h: (Lx1) figure handles
 %
 %
 % EXAMPLE OF USE: Random scores
@@ -88,7 +90,7 @@ function [T,TT] = scores_Lpls(Lmodel,test,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 13/Jan/21
+% last modification: 22/Jan/21
 %
 % Copyright (C) 2021  University of Granada, Granada
 % Copyright (C) 2021  Jose Camacho Paez
@@ -200,6 +202,7 @@ end
 
 %% Show results
 
+fig_h = [];
 if opt(1) == '1',
      
     if opt(3) == '0'
@@ -218,12 +221,14 @@ if opt(1) == '1',
     markers = [m,int,M];
     if length(Lmodel.lvs) == 1 || opt(2) == '1',
         for i=1:length(Lmodel.lvs)
-            plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1)))}, [], [], [], mult, [0.01 0.1 1]*Lmodel.N/Lmodel.nc);
+            fig_h(i) = plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1)))}, [], [], [], mult, [0.01 0.1 1]*Lmodel.N/Lmodel.nc);
         end
     else
+        h = 1;
         for i=1:length(Lmodel.lvs)-1,
             for j=i+1:length(Lmodel.lvs),
-                plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))),sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat('1',opt(4:5)), mult,  [0.01 0.1 1]*Lmodel.N/Lmodel.nc, 0.1);
+                fig_h(h) = plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1))),sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat('1',opt(4:5)), mult,  [0.01 0.1 1]*Lmodel.N/Lmodel.nc, 0.1);
+                h = h+1;
             end
         end
     end

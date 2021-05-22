@@ -75,6 +75,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must cont
 
 %% Main code
 
+Lmodel.lvs = 0:max(Lmodel.lvs);
 P = Lpca(Lmodel);
 
 totalVx = sum(eig(Lmodel.XX));

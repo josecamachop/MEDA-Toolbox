@@ -89,7 +89,7 @@ ucl(find(ucl==0))=[];
 classesD = zeros(length(classes),length(ucl));
 for i=1:length(ucl),
     ind = find(classes==ucl(i));
-    classesD(ind,ucl(i)) = 1;
+    classesD(ind,i) = 1;
 end
 
 WS = zeros(size(T,2),size(T,2));
@@ -124,7 +124,7 @@ for i=1:size(T,2),
 end
 
 for k=1:length(ucl),    
-    SDImap(:,:,k) = BS(:,:,k)./WS(:,:,k) .* (ones(size(T,2))+reg*eye(size(T,2))); % I prefer to select single LVs if the difference is below 10%
+    SDImap(:,:,k) = BS(:,:,k)./WS(:,:,k) .* (ones(size(T,2))+reg*eye(size(T,2))); % I prefer to select single LVs so I use the regularization parameter
     
     [topx,topy] = find(SDImap(:,:,k)==max(max(squeeze(SDImap(:,:,k)))),1);
     best(k,:) = [topx,topy];

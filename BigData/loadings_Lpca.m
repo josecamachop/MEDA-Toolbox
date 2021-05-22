@@ -1,4 +1,4 @@
-function P = loadings_Lpca(Lmodel,opt)
+function [P,fig_h] = loadings_Lpca(Lmodel,opt)
 
 % Compute and plot loadings in PCA for large data.
 %
@@ -28,7 +28,9 @@ function P = loadings_Lpca(Lmodel,opt)
 %
 % OUTPUTS:
 %
-% P: [MxA] scores.
+% P: [MxA] scores
+%
+% fig_h: (Lx1) figure handles
 %
 %
 % EXAMPLE OF USE: Scatter plot of random scores
@@ -40,10 +42,10 @@ function P = loadings_Lpca(Lmodel,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/17.
+% last modification: 22/Jan/21
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -86,18 +88,21 @@ P = Lpca(Lmodel);
 
 %% Show results
 
+fig_h = [];
 if opt(1) == '1',
     
     t_var = var_Lpca(Lmodel,0);
     
     if length(Lmodel.lvs) == 1 || opt(2) == '1',
         for i=1:length(Lmodel.lvs),
-                plot_vec(P(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1)))});
+                fig_h(i) = plot_vec(P(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1)))});
         end
     else
+        h = 1;
         for i=1:length(Lmodel.lvs)-1,
             for j=i+1:length(Lmodel.lvs),
-                plot_scatter([P(:,i),P(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))),sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}');
+                fig_h(h) = plot_scatter([P(:,i),P(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))),sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}');
+                h = h+1;
             end      
         end
     end

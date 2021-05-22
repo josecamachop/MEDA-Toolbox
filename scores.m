@@ -1,5 +1,6 @@
 
-function [T,TT] = scores(model,test,opt,tit,label,classes)
+function [T,TT] = scores(model,test,opt,tit,label,classes,blur)
+
 
 % Compute and plot scores.
 %
@@ -9,6 +10,7 @@ function [T,TT] = scores(model,test,opt,tit,label,classes)
 % INPUTS:
 %
 % model (structure): structure with model parameters. 
+%   var: [1x1] Total variance
 %   lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %       first two LVs).
 %   av: [1xM] centering parameters. 
@@ -40,6 +42,9 @@ function [T,TT] = scores(model,test,opt,tit,label,classes)
 %
 % classes: [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
 %   visualization (a single group by default per calibration and test)
+%
+% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+%   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
 %
 % OUTPUTS:
@@ -78,10 +83,10 @@ function [T,TT] = scores(model,test,opt,tit,label,classes)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 25/Apr/2018
+% last modification: 6/Apr/2021
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez, Alejandro Perez Villegas
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez, Alejandro Perez Villegas
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -134,6 +139,7 @@ if nargin < 6 || isempty(classes),
         classes = [ones(N,1);2*ones(L,1)];  
     end
 end
+if nargin < 7 || isempty(blur),    blur    = 1;       end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -145,6 +151,7 @@ if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 2nd arg
 assert (ischar(opt) && length(opt)==3, 'Dimension Error: 3rd argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: 5th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: 6th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
@@ -153,6 +160,10 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must cont
 %% Main code
 
 T = model.scores;
+
+if isfield(model,'scoresV'),
+    T = model.scoresV;
+end
 
 if ~isempty(test),
     testcs = preprocess2Dapp(test,model.av,model.sc);
@@ -174,13 +185,13 @@ if opt(1) == '1',
     
     if length(model.lvs) == 1 || opt(2) == '1',
         for i=1:length(model.lvs),
-            plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d',model.lvs(i))});
+            plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var)});
             title(tit);
         end
     else
         for i=1:length(model.lvs)-1,
             for j=i+1:length(model.lvs),
-                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d',model.lvs(i)),sprintf('Scores PC %d',model.lvs(j))}');
+                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('Scores PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}',[],[],[],[],blur);
                 title(tit);
             end      
         end

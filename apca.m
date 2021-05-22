@@ -70,10 +70,10 @@ function apcao = apca(paranovao)
 % Related routines: paranova, asca, gasca, create_design
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 25/Apr/18
+% last modification: 6/Apr/21
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -105,6 +105,7 @@ for factor = 1 : apcao.n_factors
     xf = apcao.factors{factor}.means+apcao.residuals;
     [p,t] = pca_pp(xf,1:rank(apcao.factors{factor}.means));
     
+    apcao.factors{factor}.var = trace(xf'*xf);
     apcao.factors{factor}.lvs = 1:size(p,2);
     apcao.factors{factor}.loads = p;
     apcao.factors{factor}.scores = t;
@@ -116,6 +117,7 @@ for interaction = 1 : apcao.n_interactions
     xf = apcao.interactions{interaction}.means+apcao.residuals;
     p = pca_pp(xf,1:rank(apcao.interactions{interaction}.means));
     
+    apcao.factors{factor}.var = trace(xf'*xf);
     apcao.interactions{interaction}.lvs = 1:size(p,2);
     apcao.interactions{interaction}.loads = p;
     apcao.interactions{interaction}.scores = t;

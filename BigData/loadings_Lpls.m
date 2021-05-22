@@ -1,5 +1,5 @@
 
-function [P,W,Q] = loadings_Lpls(Lmodel,opt)
+function [P,W,Q,fig_h] = loadings_Lpls(Lmodel,opt)
 
 % Compute and plot loadings in PLS for large data.
 %
@@ -40,6 +40,8 @@ function [P,W,Q] = loadings_Lpls(Lmodel,opt)
 %
 % Q: [OxA] Y-block loadings
 %
+% fig_h: (Lx1) figure handles
+%
 %
 % EXAMPLE OF USE: Random loadings: bar and scatter plot of loadings
 %
@@ -51,10 +53,10 @@ function [P,W,Q] = loadings_Lpls(Lmodel,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/17.
+% last modification: 22/Jan/21
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -98,6 +100,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must cont
 
 %% Show results
 
+fig_h = [];
 if opt(1) == '1',
     
     if opt(3) == '0',
@@ -112,12 +115,14 @@ if opt(1) == '1',
      
     if length(Lmodel.lvs) == 1 || opt(2) == '1',
         for i=1:length(Lmodel.lvs),
-            plot_vec(Pt(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i)),100*(t_var(i) - t_var(i+1))});
+            fig_h(i) = plot_vec(Pt(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i)),100*(t_var(i) - t_var(i+1))});
         end
     else
+        h = 1;
         for i=1:length(Lmodel.lvs)-1,
             for j=i+1:length(Lmodel.lvs),
-                plot_scatter([Pt(:,i),Pt(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))),sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}');
+                fig_h(h) = plot_scatter([Pt(:,i),Pt(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))),sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}');
+                h = h+1;
             end      
         end
     end
