@@ -92,16 +92,9 @@ if nargin < 4 || isempty(lambda), lambda = 0; end;
 if nargin < 5 || isempty(average), average = av; end;
 if nargin < 6 || isempty(scale), scale = sc; end;
 if nargin < 7 || isempty(N), N = 0; end;
-if nargin < 8 || isempty(weight), 
-    if ndim,
-        weight = ones(1,n);
-    else
-        weight = ones(1,M);
-    end;
+if nargin < 8 || isempty(weight),
+    weight = ones(1,M);
 end
-    
-% Convert column arrays to row arrays
-if size(weight,2) == 1, weight = weight'; end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -120,56 +113,76 @@ assert (isempty(find(weight<0)) && isempty(find(weight==Inf)), 'Value Error: 8th
 
 %% Main code
 
-if ndim,
-    x = x';
-    s = size(x);
-end
+if ndim==0 % observations
+    acc = average*N;
+    acc2 = (scale.^2)*max(N-1,0);
+    N = lambda*N + n; % update number of elements
 
-acc = average*N;
-acc2 = (scale.^2)*max(N-1,0);
-N = lambda*N + n; % update number of elements
-switch prep,
-    
-    case 1, % mean centering
-        acc = lambda*acc + sum(x,1); % update accumulate 
-        average = acc/N;    
-        scale = ones(1,M);
-        xp = x - ones(n,1)*average;
-        
-    case 2, % auto-scaling
-        acc = lambda*acc + sum(x,1); % update accumulate 
-        average = acc/N;   
-        xc = x - ones(n,1)*average; 
-        acc2 = lambda*acc2 + sum(xc.^2,1);% update variability  
-        scale = sqrt(acc2/(N-1));
-        mS = min(scale(find(scale)));
-        if isempty(mS)
-            mS = 2;
-        end
-        scale(find(scale==0))=mS/2; % use 1 by default may reduce detection of anomalous events 
-        xp = xc./(ones(n,1)*scale);
-        
-    case 3, % scaling  
-        average = zeros(1,M); 
-        acc2 = lambda*acc2 + sum(x.^2,1);% update variability  
-        if acc2 < 0, pause, end
-        scale = sqrt(acc2/(N-1));
-        mS = min(scale(find(scale)));
-        if isempty(mS)
-            mS = 2;
-        end
-        scale(find(scale==0))=mS/2; % use 1 by default may reduce detection of anomalous events  
-        xp = x./(ones(n,1)*scale);
-        
-    otherwise, % No preprocessing 
-        average = zeros(1,M);     
-        scale = ones(1,M); 
-        xp = x;
+    switch prep,
+        case 1, % mean centering
+            acc = lambda*acc + sum(x,1); % update accumulate
+            average = acc/N;
+            scale = ones(1,M);
+            xp = x - ones(n,1)*average;
+
+        case 2, % auto-scaling
+            acc = lambda*acc + sum(x,1); % update accumulate
+            average = acc/N;
+            xc = x - ones(n,1)*average;
+            acc2 = lambda*acc2 + sum(xc.^2,1);% update variability
+            scale = sqrt(acc2/(N-1));
+            mS = min(scale(find(scale)));
+            if isempty(mS)
+                mS = 2;
+            end
+            scale(find(scale==0))=mS/2; % use 1 by default may reduce detection of anomalous events
+            xp = xc./(ones(n,1)*scale);
+
+        case 3, % scaling
+            average = zeros(1,M);
+            acc2 = lambda*acc2 + sum(x.^2,1);% update variability
+            if acc2 < 0, pause, end
+            scale = sqrt(acc2/(N-1));
+            mS = min(scale(find(scale)));
+            if isempty(mS)
+                mS = 2;
+            end
+            scale(find(scale==0))=mS/2; % use 1 by default may reduce detection of anomalous events
+            xp = x./(ones(n,1)*scale);
+
+        otherwise, % No preprocessing
+            average = zeros(1,M);
+            scale = ones(1,M);
+            xp = x;
+    end
+
+elseif ndim==1 % variables
+    N = lambda*N + M; % update number of variables
+
+    switch prep
+        case 1 % mean centering
+            batch_average = sum(x,1) / n;
+            average = [average batch_average];
+            xp = x - ones(n,1) * batch_average;
+
+        case 2 % autoescaling
+            batch_average = sum(x,1) / n;
+            average = [average batch_average];
+            xc = x - ones(n,1) * batch_average;
+            stde = sqrt(sum(xc.^2,1) / N);
+            scale = [scale stde];
+            xp = xc./stde;
+
+        case 3 % scaling
+            stde = sqrt(sum(x.^2,1) / N);
+            scale = [scale stde];
+            xp = x./stde;
+
+        otherwise % no preprocessing
+            average = [average zeros(1,M)];
+            scale = [scale ones(1,M)];
+            xp = x;
+    end
 end
 
 xp = xp.*(ones(n,1)*weight);
-
-if ndim,
-    xp = xp';
-end
-

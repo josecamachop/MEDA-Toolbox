@@ -1,9 +1,9 @@
-function [P,fig_h] = loadings_Lpca(Lmodel,opt)
+function [P,fig_h] = loadings_Lpca(Lmodel,big_mode,opt)
 
 % Compute and plot loadings in PCA for large data.
 %
 % loadings_Lpca(Lmodel) % minimum call
-% loadings_Lpca(Lmodel,opt) % complete call
+% loadings_Lpca(Lmodel,big_mode,opt) % complete call
 %
 % INPUTS:
 %
@@ -13,6 +13,10 @@ function [P,fig_h] = loadings_Lpca(Lmodel,opt)
 %       Lmodel.lvs: (1x1) number of PCs.
 %       Lmodel.vclass: [Mx1] class associated to each variable.
 %       Lmodel.var_l: {ncx1} label of each variable.
+%
+% big_mode: [1x1] indicate if matrix is big in observations or in variables
+%       0: big in observations, loading plot will be computed (option by default).
+%       1: big in variables, compressed loading plot will be computed.
 %
 % opt: (str or num) options for data plotting: binary code of the form 'ab' for:
 %       a:
@@ -66,7 +70,9 @@ function [P,fig_h] = loadings_Lpca(Lmodel,opt)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 [ok, Lmodel] = check_Lmodel(Lmodel);
-if nargin < 2 || isempty(opt), opt = '10'; end; 
+
+if nargin < 2 || isempty(big_mode), big_mode = 0; end % loading plot by default
+if nargin < 3 || isempty(opt), opt = '10'; end
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -75,36 +81,42 @@ if isnumeric(opt), opt=num2str(opt); end
 if length(opt)<2, opt = strcat(opt,'0'); end
 
 % Validate dimensions of input data
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: 2nd argument must be a string or num of maximum 2 bits. Type ''help %s'' for more info.', routine(1).name);
-  
-% Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(big_mode), [1 1]), 'Dimension Error: 2th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==2, 'Dimension Error: 3nd argument must be a string or num of maximum 2 bits. Type ''help %s'' for more info.', routine(1).name);
 
+% Validate values of input data
+assert (isempty(find(big_mode~=0 & big_mode~=1)), 'Value Error: 2th argument must contain 0 or 1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 %% Main code
 
-P = Lpca(Lmodel);
-
+if big_mode == 0 % loading plot
+    P = Lpca(Lmodel);
+    multr = ones(1, size(Lmodel.centr,2));
+elseif big_mode == 1 % compressed loading plot
+    T = Lpca(Lmodel);
+    P = Lmodel.centr' * T;
+    multr = Lmodel.multr;
+end
 
 %% Show results
 
 fig_h = [];
-if opt(1) == '1',
-    
+
+if opt(1) == '1'
     t_var = var_Lpca(Lmodel,0);
-    
-    if length(Lmodel.lvs) == 1 || opt(2) == '1',
-        for i=1:length(Lmodel.lvs),
-                fig_h(i) = plot_vec(P(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1)))});
+
+    if length(Lmodel.lvs) == 1 || opt(2) == '1' % bar plot
+        for i=1:length(Lmodel.lvs)
+            fig_h(i) = plot_vec(P(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1)))});
         end
-    else
+    else % loading and compressed loading plot
         h = 1;
-        for i=1:length(Lmodel.lvs)-1,
-            for j=i+1:length(Lmodel.lvs),
-                fig_h(h) = plot_scatter([P(:,i),P(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))),sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}');
+        for i=1:length(Lmodel.lvs)-1
+            for j=i+1:length(Lmodel.lvs)
+                fig_h(h) = plot_scatter([P(:,i), P(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('Loadings PC %d (%.0f%%)', Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))), sprintf('Loadings PC %d (%.0f%%)',  Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}', [], opt, multr, [], 0.1);
                 h = h+1;
-            end      
+            end
         end
     end
 end
-        

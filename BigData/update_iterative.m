@@ -1,11 +1,10 @@
-function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
+function Lmodel = update_iterative(list,path,Lmodel,step,files,debug,big_mode)
 
 % Big data analysis based on bilinear proyection models (PCA and PLS),
 % iterative approach.
 %
 % Lmodel = update_iterative(list)          % minimum call
-% Lmodel = update_iterative(list,path,Lmodel,step,files,debug) % complete call
-%
+% Lmodel = update_iterative(list,path,Lmodel,step,files,debug,big_mode) % complete call
 %
 % INPUTS:
 %
@@ -29,6 +28,8 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 %       1: display only main messages (default)
 %       2: display all messages.
 %
+% big_mode: [1x1] indicate if matrix is big in observations (0) or in variables (1)
+%
 %
 % OUTPUTS:
 %
@@ -45,7 +46,7 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 % MEDA#to#oc#c, where #t is the index of the original file in the imput 
 % list for the first observation introduced, starting from 1, #o is the 
 % order of the  observation in that file and #c the class. For bottom layer
-% we add _#n for the n-th file depending on the same top file. Name format 
+% we add _#n for the n-th file depending on the same top file. Name format
 % can be chaged in this routine (line app. 399).
 %
 %
@@ -72,20 +73,20 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 %
 % Copyright (C) 2021  University of Granada, Granada
 % Copyright (C) 2021  Jose Camacho Paez
-% 
+%
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
 % the Free Software Foundation, either version 3 of the License, or
 % (at your option) any later version.
-% 
+%
 % This program is distributed in the hope that it will be useful,
 % but WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 % GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-      
+
 %% Arguments checking
 
 routine=dbstack;
@@ -102,258 +103,303 @@ end;
 if nargin < 4 || isempty(step), step = 1; end;
 if nargin < 5 || isempty(files), files = 0; end;
 if nargin < 6 || isempty(debug), debug = 1; end;
+if nargin < 7 || isempty(big_mode), big_mode = 0; end;
 
 % Validate dimensions of input data
 assert (isequal(size(step), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(files), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(debug), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(big_mode), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (isempty(find(step<=0 | step>1)), 'Value Error: 4th argument must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); 
 assert (isempty(find(files~=0 & files~=1)), 'Value Error: 5th argument must contain 0 or 1. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(debug~=0 & debug~=1 & debug~=2)), 'Value Error: 6th argument must contain 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
-
+assert (isempty(find(big_mode~=0 & big_mode~=1)), 'Value Error: 7th argument must contain 0 or 1. Type ''help %s'' for more info.', routine(1).name);
 
 %% Main code
 
 Lmodel.update = 2; 
 
 if files,
-  if ispc
-	  [status,result] = system(['del ' Lmodel.path 'MEDA*.txt']); % delete previous files
-  else
-	  [status,result] = system(['rm ' Lmodel.path 'MEDA*.txt']); % delete previous files
-  end
+    if ispc
+        [status,result] = system(['del ' Lmodel.path 'MEDA*.txt']); % delete previous files
+    else
+        [status,result] = system(['rm ' Lmodel.path 'MEDA*.txt']); % delete previous files
+    end
 end
 
 % preprocess
 
-% compute mean
+if big_mode==0, % big observations
 
-if Lmodel.type==1,
-    
-    for t=1:length(list),
-        
-        if isstruct(list(t))
-            x = list(t).x;
-        else
-            load([path list{t}],'x')
-        end
-        
-        indMV{t} = find(isnan(x));
-        if ~isempty(indMV{t})
-            disp('Missing values found in X. Set to average.');
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        
-        [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,Lmodel.prep>0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
-        
-    end
-        
-elseif Lmodel.type==2,
-    
-    if debug, disp('mean centering X and Y blocks...........................................'), end;
-    
-    for t=1:length(list),
-        
-        if isstruct(list(t))
-            x = list(t).x;
-            y = list(t).y;
-        else
-            load([path list{t}],'x','y')
-        end
-        
-        indMV{t} = find(isnan(x));
-        if ~isempty(indMV{t})
-            disp('Missing values found in X. Set to average.');
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        
-        indMVy{t} = find(isnan(y));
-        if ~isempty(indMVy{t})
-            disp('Missing values found in Y. Set to average.');
-            avy = ones(size(y,1),1)*Lmodel.avy;
-            y(indMVy{t}) = avy(indMVy{t});
-        end
-        
-        [xc,Lmodel.av,Lmodel.sc] = preprocess2Di(x,Lmodel.prep>0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
-        [yc,Lmodel.avy,Lmodel.scy,Lmodel.N] = preprocess2Di(y,Lmodel.prepy>0,0,1,Lmodel.avy,Lmodel.scy,Lmodel.N,Lmodel.weighty);
-        
-    end
-    
-end
+    if Lmodel.type==1,
+        if debug, disp('mean centering X block ...........................................'), end;
 
-% compute scale
+        for t=1:length(list),
+            if isstruct(list(t))
+                x = list(t).x;
+            else
+                load([path list{t}],'x')
+            end
 
-N = 0;
-    
-if (Lmodel.type==1 && Lmodel.prep == 2) || (Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy < 2), 
-    
-    if debug, disp('scaling X block..................................................'), end;
-        
-    for t=1:length(list),
-        
-        if isstruct(list(t))
-            x = list(t).x;
-        else
-            load([path list{t}],'x')
-        end
-        
-        if ~isempty(indMV{t})
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        
-        xc = x -  ones(size(x,1),1)*Lmodel.av;
-        [xsc,av,Lmodel.sc,N] = preprocess2Di(xc,3,0,1,[],Lmodel.sc,N,Lmodel.weight);
-        
-    end
-    
-elseif Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy == 2,
-    
-    if debug, disp('scaling X and Y blocks..................................................'), end;
-    
-    for t=1:length(list),
-        
-        if isstruct(list(t))
-            x = list(t).x;
-            y = list(t).y;
-        else
-            load([path list{t}],'x','y')
-        end
-        
-        if ~isempty(indMV{t})
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        if ~isempty(indMVy{t})
-            avy = ones(size(y,1),1)*Lmodel.avy;
-            y(indMVy{t}) = avy(indMVy{t});
-        end
-        
-        xc = x -  ones(size(x,1),1)*Lmodel.av;
-        [xc,av,Lmodel.sc] = preprocess2Di(xc,3,0,1,[],Lmodel.sc,N,Lmodel.weight);
-        yc = y -  ones(size(x,1),1)*Lmodel.avy;
-        [yc,avy,Lmodel.scy,N] = preprocess2Di(y,1,0,1,Lmodel.avy,Lmodel.scy,N,Lmodel.weighty);
-        
-    end
-    
-end
+            indMV{t} = find(isnan(x));
+            if ~isempty(indMV{t})
+                disp('Missing values found in X. Set to average.');
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
 
-% compute cross-product matrices
+            [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,Lmodel.prep>0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
 
-Lmodel.XX = zeros(size(x,2));
-if Lmodel.type==1, 
-    
-    if debug, disp('computing XX ....................................................'), end;
-        
-    for t=1:length(list),
-        
-        if isstruct(list(t))
-            x = list(t).x;
-        else
-            load([path list{t}],'x')
         end
-        
-        if ~isempty(find(isnan(x))), 
-                if debug, disp(sprintf('Found nans in file %d',t)), end;
-        end;
-        
-        if ~isempty(indMV{t})
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
+
+    elseif Lmodel.type==2,
+        if debug, disp('mean centering X and Y blocks...........................................'), end;
+
+        for t=1:length(list),
+
+            if isstruct(list(t))
+                x = list(t).x;
+                y = list(t).y;
+            else
+                load([path list{t}],'x','y')
+            end
+
+            indMV{t} = find(isnan(x));
+            if ~isempty(indMV{t})
+                disp('Missing values found in X. Set to average.');
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+
+            indMVy{t} = find(isnan(y));
+            if ~isempty(indMVy{t})
+                disp('Missing values found in Y. Set to average.');
+                avy = ones(size(y,1),1)*Lmodel.avy;
+                y(indMVy{t}) = avy(indMVy{t});
+            end
+
+            [xc,Lmodel.av,Lmodel.sc] = preprocess2Di(x,Lmodel.prep>0,0,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
+            [yc,Lmodel.avy,Lmodel.scy,Lmodel.N] = preprocess2Di(y,Lmodel.prepy>0,0,1,Lmodel.avy,Lmodel.scy,Lmodel.N,Lmodel.weighty);
+
         end
-        
-        xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
-        Lmodel.XX = Lmodel.XX + xcs'*xcs;
-        
+
     end
-    
-elseif Lmodel.type==2,
-    
-    Lmodel.XY = zeros(size(x,2),size(y,2));
-    Lmodel.YY = zeros(size(y,2),size(y,2));
-    
-    if debug, disp('computing XX, XY .......................................................'), end;
-    
-    for t=1:length(list),
-        
-        if isstruct(list(t))
-            x = list(t).x;
-            y = list(t).y;
-        else
-            load([path list{t}],'x','y')
+
+    % compute scale
+
+    N = 0;
+
+    if (Lmodel.type==1 && Lmodel.prep == 2) || (Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy < 2),
+
+        if debug, disp('scaling X block..................................................'), end;
+
+        for t=1:length(list),
+
+            if isstruct(list(t))
+                x = list(t).x;
+            else
+                load([path list{t}],'x')
+            end
+
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+
+            xc = x -  ones(size(x,1),1)*Lmodel.av;
+            [xsc,av,Lmodel.sc,N] = preprocess2Di(xc,3,0,1,[],Lmodel.sc,N,Lmodel.weight);
+
         end
-        
-        if ~isempty(indMV{t})
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
+
+    elseif Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy == 2,
+
+        if debug, disp('scaling X and Y blocks..................................................'), end;
+
+        for t=1:length(list),
+
+            if isstruct(list(t))
+                x = list(t).x;
+                y = list(t).y;
+            else
+                load([path list{t}],'x','y')
+            end
+
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            if ~isempty(indMVy{t})
+                avy = ones(size(y,1),1)*Lmodel.avy;
+                y(indMVy{t}) = avy(indMVy{t});
+            end
+
+            xc = x -  ones(size(x,1),1)*Lmodel.av;
+            [xc,av,Lmodel.sc] = preprocess2Di(xc,3,0,1,[],Lmodel.sc,N,Lmodel.weight);
+            yc = y -  ones(size(x,1),1)*Lmodel.avy;
+            [yc,avy,Lmodel.scy,N] = preprocess2Di(y,1,0,1,Lmodel.avy,Lmodel.scy,N,Lmodel.weighty);
+
         end
-        if ~isempty(indMVy{t})
-            avy = ones(size(y,1),1)*Lmodel.avy;
-            y(indMVy{t}) = avy(indMVy{t});
-        end
-        
-        xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
-        Lmodel.XX = Lmodel.XX + xcs'*xcs;        
-        ycs = preprocess2Dapp(y,Lmodel.avy,Lmodel.scy,Lmodel.weighty);
-        Lmodel.XY = Lmodel.XY + xcs'*ycs;
-        Lmodel.YY = Lmodel.YY + ycs'*ycs;
-        
+
     end
-    
+
+    % compute cross-product matrices
+
+    Lmodel.XX = zeros(size(x,2));
+    if Lmodel.type==1,
+
+        if debug, disp('computing XX ....................................................'), end;
+
+        for t=1:length(list),
+
+            if isstruct(list(t))
+                x = list(t).x;
+            else
+                load([path list{t}],'x')
+            end
+
+            if ~isempty(find(isnan(x))),
+                    if debug, disp(sprintf('Found nans in file %d',t)), end;
+            end;
+
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+
+            xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
+            Lmodel.XX = Lmodel.XX + xcs'*xcs;
+
+        end
+
+    elseif Lmodel.type==2,
+
+        Lmodel.XY = zeros(size(x,2),size(y,2));
+        Lmodel.YY = zeros(size(y,2),size(y,2));
+
+        if debug, disp('computing XX, XY .......................................................'), end;
+
+        for t=1:length(list),
+
+            if isstruct(list(t))
+                x = list(t).x;
+                y = list(t).y;
+            else
+                load([path list{t}],'x','y')
+            end
+
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            if ~isempty(indMVy{t})
+                avy = ones(size(y,1),1)*Lmodel.avy;
+                y(indMVy{t}) = avy(indMVy{t});
+            end
+
+            xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
+            Lmodel.XX = Lmodel.XX + xcs'*xcs;
+            ycs = preprocess2Dapp(y,Lmodel.avy,Lmodel.scy,Lmodel.weighty);
+            Lmodel.XY = Lmodel.XY + xcs'*ycs;
+            Lmodel.YY = Lmodel.YY + ycs'*ycs;
+
+        end
+
+    end
+
+elseif big_mode==1, % variables
+
+    if Lmodel.type==1
+        % For each batch of data
+        for t=1:length(list)
+
+            fprintf("Computing mean, scale and cross product matrix for batch %d ...\n",t);
+            disp(list(t))
+
+            % Read data
+            if isstruct(list(t))
+                x = list(t).x;
+            else
+                load([path list{t}],'x');
+            end
+
+            % Impute NaN values
+            indMV{t} = find(isnan(x));
+            if ~isempty(indMV{t})
+                disp('Missing values found in X. Set to average.');
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+
+            % Compute mean
+            [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x,Lmodel.prep>0,1,1,Lmodel.av,Lmodel.sc,Lmodel.N,Lmodel.weight);
+
+            % Compute scale
+            N = 0;
+            [xsc,av,Lmodel.sc,N] = preprocess2Di(xc,3,1,1,[],Lmodel.sc,N,Lmodel.weight);
+
+            % Compute cross-product matrices
+            if t==1, Lmodel.XX = zeros(size(x,1)); end % create matrix on the first batch
+            Lmodel.XX = Lmodel.XX + xsc * xsc';
+        end
+    end
 end
 
 % compute model
-Lmodel.centr = ones(size(Lmodel.centr,1),size(Lmodel.XX,1));
-if Lmodel.type==1, 
-    
+
+if big_mode==0, % observations
+    Lmodel.centr = ones(size(Lmodel.centr,1),size(Lmodel.XX,1));
+elseif big_mode==1, % variables
+    Lmodel.centr = ones(size(Lmodel.XX,2),size(Lmodel.centr,2));
+end
+
+if Lmodel.type==1,
+
     if debug, disp('computing PCA model..............................................'), end;
-    
+
     if ~Lmodel.lvs,
         Lmodel.lvs = 1:rank(Lmodel.XX);
         var_Lpca(Lmodel);
         Lmodel.lvs = input('Select the PCs to include in the model: ');
         Lmodel.lvs = 1:Lmodel.lvs;
     end
-    
-    P = Lpca(Lmodel);
-    Lmodel.mat = P;
-    
+
+    R = Lpca(Lmodel);
+    Lmodel.mat = R;
+
 elseif Lmodel.type==2,
-       
+
     if rank(Lmodel.XY)>0,
-        
+
         if debug, disp('computing PLS model.....................................................'), end;
-            
+
         if ~Lmodel.lvs,
             Lmodel.lvs = 1:rank(Lmodel.XX);
             var_Lpls(Lmodel);
             Lmodel.lvs = input('Select the LVs to include in the model: ');
         end
-        
+
         [beta,W,P,Q,R] = Lpls(Lmodel);
         Lmodel.mat = R;
-        
+
     else
-        
+
         if debug>1, disp('XY Rank 0: using PCA.'), end;
-        
+
         if debug, disp('computing PCA model..............................................'), end;
-        
+
         if ~Lmodel.lvs,
             Lmodel.lvs = 1:rank(Lmodel.XX);
             var_Lpca(Lmodel);
             Lmodel.lvs = input('Select the PCs to include in the model: ');
         end
-        
-        P = Lpca(Lmodel); 
-        Lmodel.mat = P;
-        
+
+        R = Lpca(Lmodel);
+        Lmodel.mat = R;
+
     end
-    
+
 end
 
 % compute maximum and minimum
@@ -362,43 +408,58 @@ if debug, disp('computing maximum and minimum ..................................
 
 mini = Inf(1,size(Lmodel.mat,2));
 maxi = -Inf(1,size(Lmodel.mat,2));
+
 for t=1:length(list),
-    
+
     if isstruct(list(t))
         x = list(t).x;
     else
         load([path list{t}],'x')
     end
-        
+
     if ~isempty(indMV{t})
         av = ones(size(x,1),1)*Lmodel.av;
         x(indMV{t}) = av(indMV{t});
     end
-    
-    xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
-    T = xcs * Lmodel.mat;
-    M = max(T);
-    m = min(T);
-    
+
+    if big_mode==0 % observations
+        xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
+
+        T = xcs * Lmodel.mat;
+        M = max(T);
+        m = min(T);
+
+    elseif big_mode==1 % variables
+        % Preprocess matrix
+        [xcs,av,sc,N] = preprocess2Di(x,2,1,1,[],[],0,[]);
+
+        P = xcs' * Lmodel.mat;
+        M = max(P);
+        m = min(P);
+    end
+
     indM = find(maxi < M);
     maxi(indM) = M(indM);
     indm = find(mini > m);
     mini(indm) = m(indm);
-    
+
 end
-    
+
 mM = maxi-mini;
 Lmodel.mat = Lmodel.mat*diag(1./mM);
 Lmodel.maxi = maxi;
 Lmodel.mini = mini;
 
 % clustering
-
 Lmodel.index_fich={};
+
+% Change default value of Lmodel.multr if big in variables
+if big_mode == 1, Lmodel.multr = Lmodel.multr'; end
+
 for t=1:length(list),
-    
+
     if debug, disp(sprintf('clustering: packet %d...........................................', t)), end;
-    
+
     if isstruct(list(t))
         x = list(t).x;
         vars = fieldnames(list(t));
@@ -415,26 +476,54 @@ for t=1:length(list),
     else
         load([path list{t}],'x')
         vars = whos('-file',[path list{t}]);
+
+        % Load classes
         if ismember('class', {vars.name})
-            load([path list{t}],'class')
+            load([path list{t}], 'class')
         else
             class = ones(size(x,1),1);
         end
+        if ismember('vclass', {vars.name})
+            load([path list{t}], 'vclass')
+        else
+            vclass = ones(1, size(x,2));
+        end
+        % Save classes of the non massive dimension
+        if big_mode == 0 %obs
+            Lmodel.vclass = vclass;
+        elseif big_mode == 1 % vars
+            Lmodel.class = class;
+        end
+
+        % Load observations and variables labels
         if ismember('obs_l', {vars.name})
             load([path list{t}],'obs_l')
         else
             obs_l = cellstr(num2str((1:size(x,1))'));
         end
+
+        if ismember('var_l', {vars.name})
+            load([path list{t}], 'var_l')
+        else
+            var_l = cellstr(num2str((1:size(x,2))'));
+        end
+
     end
-        
+
     if ~isempty(indMV{t})
         av = ones(size(x,1),1)*Lmodel.av;
         x(indMV{t}) = av(indMV{t});
     end
-    
-    xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
-    
-    if files, % The updated field is not included in the FS yet
+
+    % Apply preprocessing
+    if big_mode==0 % observations
+        xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
+    elseif big_mode==1 % variables
+        [xcs,av,sc,N] = preprocess2Di(x,2,1,1,[],[],0,[]);
+    end
+
+     % The updated field is not included in the FS yet
+    if files
         indorig = length(Lmodel.class);
         red = [Lmodel.centr;xcs];
         lred = {Lmodel.obs_l{:} obs_l{:}};
@@ -445,44 +534,91 @@ for t=1:length(list),
     else
         obslist = {};
     end
-    
+
     s = size(x);
-    step2 = round(s(1)*step);
+
+    % Calculate step
+    if big_mode==0 %obs
+        step2 = round(s(1)*step);
+        limit = s(1);
+    elseif big_mode==1 %vars
+        step2 = round(s(2)*step);
+        limit = s(2);
+    end
+
     Lmodel.updated(:) = 0;
-    for i = 1:step2:s(1),
-        endv = min(s(1),i+step2-1);
-        ss = endv-i+1;
-        xstep = xcs(i:endv,:);
-        clstep = class(i:endv);
-        if isempty(obs_l)
-            obs_step = {};
-        else
-            obs_step = obs_l(i:endv);
+
+    for i = 1:step2:limit
+
+        if big_mode==0 % obs
+            endv = min(s(1),i+step2-1);
+            xstep = xcs(i:endv,:);
+            clstep = class(i:endv);
+        elseif big_mode==1 % vars
+            endv = min(s(2),i+step2-1);
+            xstep = xcs(:,i:endv);
+            clstep = vclass(:,i:endv);
         end
-        
-        Lmodel.centr = [Lmodel.centr;xstep];
-        Lmodel.multr = [Lmodel.multr;ones(ss,1)];
-        Lmodel.class = [Lmodel.class;clstep];
-        Lmodel.obs_l = {Lmodel.obs_l{:} obs_step{:}};
-        Lmodel.updated = [Lmodel.updated;ones(size(xstep,1),1)]; 
-        
+
+        ss = endv-i+1;
+
+        % Extend observations or variables with step
+        if big_mode==0, %obs
+            if isempty(obs_l)
+                obs_step = {};
+            else
+                obs_step = obs_l(i:endv);
+            end
+        elseif big_mode==1, %vars
+            if isempty(var_l)
+                var_step = {};
+            else
+                var_step = var_l(i:endv);
+            end
+        end
+
+        % Set Lmodel parameters
+        if big_mode==0 % observations
+            Lmodel.centr = [Lmodel.centr;xstep];
+            Lmodel.multr = [Lmodel.multr;ones(ss,1)];
+            Lmodel.class = [Lmodel.class;clstep];
+            Lmodel.obs_l = {Lmodel.obs_l{:} obs_step{:}};
+            Lmodel.updated = [Lmodel.updated;ones(size(xstep,1),1)];
+        elseif big_mode==1 % variables
+            Lmodel.centr = [Lmodel.centr xstep];
+            Lmodel.multr = [Lmodel.multr ones(ss,1)'];
+            Lmodel.vclass = [Lmodel.vclass clstep];
+            Lmodel.var_l = [Lmodel.var_l var_step];
+            Lmodel.updated = [Lmodel.updated ones(size(xstep,2),1)'];
+        end
+
         if files,
             for k=i:endv,
                 Lmodel.index_fich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
             end
         end
-                   
-        [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,obslist] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,Lmodel.mat,obslist);
+
+        % PSC Call (when big variables, Lmodel parameters are trasposed so PSC code remain the same)
+        if big_mode == 0 % obervations
+            [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,obslist] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,Lmodel.mat,obslist);
+        elseif big_mode == 1 % variables
+            [Lmodel.centr,Lmodel.multr,Lmodel.vclass,Lmodel.var_l,Lmodel.updated,obslist] = psc(Lmodel.centr',Lmodel.nc,Lmodel.multr',Lmodel.vclass',Lmodel.var_l,Lmodel.updated',Lmodel.mat,obslist);
+            % Restore transposed parameters
+            Lmodel.centr = Lmodel.centr';
+            Lmodel.multr = Lmodel.multr';
+            Lmodel.vclass = Lmodel.vclass';
+            Lmodel.updated = Lmodel.updated';
+        end
+
     end
-    
+
     if files,
         Lmodel.index_fich = cfilesys(obslist,red,lred,multr,classr,Lmodel.index_fich,100,Lmodel.path,debug); % update of the clustering file system
     end
-      
+
 end
 
 if files,
     ind = find(strcmp(Lmodel.obs_l, 'mixed'));
     Lmodel.obs_l(ind) = Lmodel.index_fich(ind);
 end
-

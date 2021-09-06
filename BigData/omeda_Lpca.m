@@ -1,4 +1,4 @@
-function omeda_vec = omeda_Lpca(Lmodel,test,dummy,opt)
+function omeda_vec = omeda_Lpca(Lmodel,test,dummy,big_mode,opt)
 
 % Observation-based Missing data methods for Exploratory Data Analysis 
 % (oMEDA) for PCA in Big Data. The original paper is Journal of Chemometrics, 2011, 25 
@@ -6,7 +6,7 @@ function omeda_vec = omeda_Lpca(Lmodel,test,dummy,opt)
 % Known Data Regression (KDR) missing data imputation.
 %
 % omeda_vec = omeda_Lpca(Lmodel,test,dummy) % minimum call
-% [omeda_vec,lim] = omeda_Lpca(Lmodel,test,dummy,opt) %complete call
+% [omeda_vec,lim] = omeda_Lpca(Lmodel,big_mode,test,dummy,big_mode,opt) %complete call
 %
 %
 % INPUTS:
@@ -26,6 +26,10 @@ function omeda_vec = omeda_Lpca(Lmodel,test,dummy,opt)
 %
 % dummy: [Lx1] dummy variable containing weights for the observations to 
 %   compare, and 0 for the rest of observations
+%
+% big_mode: [1x1] indicate if matrix is big in observations or in variables
+%       0: big in observations
+%       1: big in variables
 %
 % opt: (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
@@ -94,13 +98,20 @@ assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for mor
 
 check_Lmodel(Lmodel);
 
-N = Lmodel.nc;
-M = size(Lmodel.XX, 2);
+if nargin < 4 || isempty(big_mode), big_mode = 0; end; % big observations by default
+
+if big_mode == 0 % obs
+    N = Lmodel.nc;
+    M = size(Lmodel.XX, 2);
+elseif big_mode == 1 % vars
+    N = size(Lmodel.XX, 2);
+    M = Lmodel.nc;
+end
 
 if isempty(test), test = x; end;
 L = size(test, 1);
 if isempty(dummy), dummyones(L,1); end;
-if nargin < 4 || isempty(opt), opt = '100'; end; 
+if nargin < 5 || isempty(opt), opt = '100'; end;
 
 A = length(Lmodel.lvs);
 
@@ -115,17 +126,25 @@ if length(opt)<3, opt = strcat(opt,'0'); end
 assert (A>0, 'Dimension Error: 1sr argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(test), [L M]), 'Dimension Error: 2nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(dummy), [L 1]), 'Dimension Error: 3rd argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 4th argument must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(big_mode), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==3, 'Dimension Error: 5th argument must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(big_mode~=0 & big_mode~=1)), 'Value Error: 4th argument must contain 0 or 1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
-P = Lpca(Lmodel);
-    
-testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
+if big_mode == 0 % obs
+    P = Lpca(Lmodel);
+    testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
+elseif big_mode == 1 % vars
+    T = Lpca(Lmodel);
+    P = Lmodel.centr' * T;
+    testcs = preprocess2Di(test,2,1,1,[],[],0,[]); % preprocess matrix
+end
+
 omeda_vec = omeda(testcs,dummy,P);
 
 % heuristic: 95% limit for one-observation-dummy

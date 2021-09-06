@@ -1,4 +1,4 @@
-function [T,TT,fig_h] = scores_Lpca(Lmodel,test,opt,label,classes)
+function [T,TT,fig_h] = scores_Lpca(Lmodel,big_mode,test,opt,label,classes)
 
 % Compute and plot compressed scores in PCA for large data. The original 
 % paper is Camacho J. Visualizing Big data with Compressed Score Plots: 
@@ -21,6 +21,10 @@ function [T,TT,fig_h] = scores_Lpca(Lmodel,test,opt,label,classes)
 %       Lmodel.av: [1xM] sample average according to the preprocessing method.
 %       Lmodel.sc: [1xM] sample scale according to the preprocessing method.
 %       Lmodel.weight: [1xM] weight applied after the preprocessing method.
+%
+% big_mode: [1x1] indicate if matrix is big in observations or in variables
+%       0: big in observations, compressed score plot will be computed (option by default).
+%       1: big in variables, score plot will be computed.
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -116,10 +120,11 @@ check_Lmodel(Lmodel);
 N = size(Lmodel.centr,1);
 M = size(Lmodel.XX, 2);
 
-if nargin < 2, test = []; end;
+if nargin < 2, big_mode = 0; end % compute compressed score plot by default
+if nargin < 3, test = []; end
 L = size(test, 1);
 
-if nargin < 3 || isempty(opt), opt = '100'; end; 
+if nargin < 4 || isempty(opt), opt = '100'; end
 
 A = length(Lmodel.lvs);
 
@@ -134,7 +139,7 @@ else
     K = N+L;
 end
 
-if nargin < 4 || isempty(label), 
+if nargin < 5 || isempty(label),
     if  opt(3) == '1',
         label = cellstr(num2str((1:L)'));
     elseif isempty(Lmodel.obs_l),
@@ -158,7 +163,7 @@ else
     end
 end
 
-if nargin < 5 || isempty(classes),
+if nargin < 6 || isempty(classes),
     if opt(3) == '1', 
         classes = ones(L,1); 
     else
@@ -174,19 +179,25 @@ if size(classes,1) == 1, classes = classes'; end;
 
 % Validate dimensions of input data
 assert (A>0, 'Dimension Error: 1sr argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 2nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
-assert (ischar(opt) && length(opt)==5, 'Dimension Error: 3rd argument must be a string or num of maximum 5 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [K 1]), 'Dimension Error: 4th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [K 1]), 'Dimension Error: 5th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(big_mode), [1 1]), 'Dimension Error: 2th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 3nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
+assert (ischar(opt) && length(opt)==5, 'Dimension Error: 4rd argument must be a string or num of maximum 5 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [K 1]), 'Dimension Error: 5th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(classes), [K 1]), 'Dimension Error: 6th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
-
+assert (isempty(find(big_mode~=0 & big_mode~=1)), 'Value Error: 2th argument must contain 0 or 1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4rd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 %% Main code
 
-P = Lpca(Lmodel);
-T = Lmodel.centr*P;
+if big_mode == 0 % compressed score plot
+    P = Lpca(Lmodel);
+    T = Lmodel.centr*P;
+elseif big_mode == 1 % score plot
+    T = Lpca(Lmodel);
+    P = Lmodel.centr' * T;
+end
 
 if ~isempty(test)
     testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
@@ -195,39 +206,43 @@ else
     TT = [];
 end
 
+if opt(3) == '0'
+    ttt = [T;TT];
+    multr = [Lmodel.multr;ones(size(TT,1),1)];
+else
+    ttt = TT;
+    multr = ones(size(TT,1));
+end
+
 %% Show results
 
 fig_h = [];
-if opt(1) == '1',
-     
-    if opt(3) == '0'
-        ttt = [T;TT];
-        mult = [Lmodel.multr;ones(size(TT,1),1)];
-    else
-        ttt = TT;
-        mult = ones(size(TT,1));
+if opt(1) == '1'
+
+    if big_mode == 0 % compressed score plot
+        M = max(multr)/10;
+        m = max(1,M/100);
+        int = 10^((log10(M)-log10(m))/2 + log10(m));
+        markers = [m,int,M];
+
+    elseif big_mode == 1 %score plot
+        multr = ones(1, size(Lmodel.centr,1));
+        markers = [];
     end
-    
+
     t_var = var_Lpca(Lmodel,0);
-    
-    M = max(Lmodel.multr)/10;
-    m = max(1,M/100);
-    int = 10^((log10(M)-log10(m))/2 + log10(m));
-    markers = [m,int,M];
-    if length(Lmodel.lvs) == 1 || opt(2) == '1',
+
+    if length(Lmodel.lvs) == 1 || opt(2) == '1' % bar plot
         for i=1:length(Lmodel.lvs)
             fig_h(i) = plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1)))}, [], [], [], mult, markers);
         end
-    else
+    else % score and compressed score plot
         h = 1;
         for i=1:length(Lmodel.lvs)-1,
             for j=i+1:length(Lmodel.lvs),
-                fig_h(h) = plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat('1',opt(4:5)), mult, markers, 0.1);
+                fig_h(h) = plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat('1',opt(4:5)), multr, markers, 0.1);
                 h = h+1;
             end
         end
     end
 end
-
-
-

@@ -26,7 +26,7 @@ function [ok,Lmodel] = check_Lmodel(Lmodel)
 %
 % Lmodel.update: [1x1] EWMA (1) or ITERATIVE (2)
 %
-% Lmodel.XX: [MxM] sample cross-product matrix of X.
+% Lmodel.XX: [NxN] or [MxM] sample cross-product matrix of X.
 %
 % Lmodel.lvs: [1x1] number of latent variables (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, Lmodel.lvs = 1:rank(xcs)
@@ -96,6 +96,8 @@ function [ok,Lmodel] = check_Lmodel(Lmodel)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 assert (isfield(Lmodel,'centr'), 'Content Error: Lmodel without centroids. Type ''help %s'' for more info.', routine(1).name);
+
+N = size(Lmodel.centr, 1);
 M = size(Lmodel.centr, 2);
 
 % Set default values
@@ -176,7 +178,7 @@ Lmodel.lvs(find(Lmodel.lvs==0)) = [];
 A = length(Lmodel.lvs);
 
 % Validate dimensions of input data
-assert (isequal(size(Lmodel.XX), [M M]), 'Dimension Error: Lmodel.XX must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert ((isequal(size(Lmodel.XX), [M M]) || isequal(size(Lmodel.XX), [N N])), 'Dimension Error: Lmodel.XX must be M-by-M (for big observations) or N-by-N (for big variables). Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(Lmodel.lvs), [1 A]) | isequal(size(Lmodel.lvs), [0 1]), 'Dimension Error: Lmodel.lvs must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
