@@ -48,7 +48,7 @@ function omeda_vec = omeda(testcs,dummy,R,Q)
 % p = pca_pp(Xcs,pcs);
 %
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
 % test(1,1:2) = 10*max(abs(X(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;

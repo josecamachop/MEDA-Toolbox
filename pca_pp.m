@@ -30,11 +30,11 @@ function [p,t] = pca_pp(xcs,pcs)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Oct/20
+% last modification: 20/Oct/21
 % major change: include nipls
 %
-% Copyright (C) 2020  University of Granada, Granada
-% Copyright (C) 2020  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -65,6 +65,7 @@ if size(pcs,2) == 1, pcs = pcs'; end;
 pcs = unique(pcs);
 pcs(find(pcs==0)) = [];
 pcs(find(pcs>size(xcs,2))) = [];
+pcs(find(pcs>rank(xcs))) = [];
 A = length(pcs);
 
 % Validate dimensions of input data

@@ -110,7 +110,7 @@ P = model.loads;
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
     if length(model.lvs) == 1 || opt(2) == '1',
         for i=1:length(model.lvs),

@@ -15,7 +15,7 @@ function paranovao = paranova(X, F, interactions, center, n_perm)
 % measurement, each column a variable
 %
 % F: [NxF] design matrix, where columns correspond to factors and rows to
-% levels.
+% levels. Levels start at 1 and should be correlative.
 %
 % interactions: [Ix2] matrix where rows contain the factors for which
 % interactions are to be calculated.
