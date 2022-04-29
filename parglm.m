@@ -6,7 +6,7 @@ function parglmo = parglm(X, F, interactions, prep, n_perm, ordinal)
 % according to Andreson and Ter Braak.
 %
 % parglmo = parglm(X, F)   % minimum call
-% parglmo = parglm(X, F, interactions, ordinal, prep, n_perm, ordinal)   % complete call
+% parglmo = parglm(X, F, interactions, prep, n_perm, ordinal)   % complete call
 %
 %
 % INPUTS:
