@@ -861,6 +861,10 @@ handles.data.LVs = [1:LVs_num];
 %Si la variable handles.data.LVs es distinta de vacía, imprimir en xlvscorePopup,
 %xlvloadingPopup, ylvloadingPopup y ylvscorePopup las LVs posibles.
 if ~isempty(handles.data.LVs),
+    set(handles.xlvscorePopup, 'Value',1);
+    set(handles.ylvscorePopup, 'Value',1);
+    set(handles.xlvloadingPopup, 'Value',1);
+    set(handles.ylvloadingPopup, 'Value',1);
     set(handles.xlvscorePopup, 'String',handles.data.LVs);
     set(handles.ylvscorePopup, 'String',handles.data.LVs);
     set(handles.xlvloadingPopup, 'String',handles.data.LVs);

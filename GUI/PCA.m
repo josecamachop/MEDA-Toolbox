@@ -695,6 +695,10 @@ handles.data.PCs=[1:pc_num];
 %Si la variable handles.data.PCs es distinta de vacía, imprimir en xpcscorePopup,
 %xpcvarPopup, ypcvarPopup y ypcscorePopup los PCs posibles.
 if ~isempty(handles.data.PCs),
+    set(handles.xpcscorePopup, 'Value',1);
+    set(handles.ypcscorePopup, 'Value',1);
+    set(handles.xpcvarPopup, 'Value',1);
+    set(handles.ypcvarPopup, 'Value',1);
     set(handles.xpcscorePopup, 'String',handles.data.PCs);
     set(handles.ypcscorePopup, 'String',handles.data.PCs);
     set(handles.xpcvarPopup, 'String',handles.data.PCs);
