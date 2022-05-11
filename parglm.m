@@ -1,12 +1,12 @@
-function parglmo = parglm(X, F, interactions, center, n_perm)
+function parglmo = parglm(X, F, interactions, prep, n_perm, ordinal)
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
 % matrices in a crossed experimental design and permutation test for significance. This
 % approach permutes the raw values, which is sub-optimal in terms of power 
 % according to Andreson and Ter Braak.
 %
-% parglmo = paranova(X, F)   % minimum call
-% parglmo = paranova(X, F, interactions, center, n_perm)   % complete call
+% parglmo = parglm(X, F)   % minimum call
+% parglmo = parglm(X, F, interactions, prep, n_perm, ordinal)   % complete call
 %
 %
 % INPUTS:
@@ -20,11 +20,15 @@ function parglmo = parglm(X, F, interactions, center, n_perm)
 % interactions: [Ix2] matrix where rows contain the factors for which
 % interactions are to be calculated.
 %
-% center: [1x1] preprocesing:
-%       1: mean centering
+% prep: [1x1] preprocesing:
+%       1: mean preping
 %       2: autoscaling (default)
 %
 % n_perm: [1x1] number of permutations (1000 by default).
+%
+% ordinal: [1xF] whether factors are nominal or ordinal
+%       0: nominal
+%       1: ordinal
 %
 %
 % OUTPUTS:
@@ -70,10 +74,9 @@ function parglmo = parglm(X, F, interactions, center, n_perm)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-%           Gooitzen Zwanenburg (G.Zwanenburg@uva.nl)
-% last modification: 26/Apr/21
+% last modification: 18/Apr/22
 %
-% Copyright (C) 2021  José Camacho, Universidad de Granada
+% Copyright (C) 2022  José Camacho, Universidad de Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -96,11 +99,12 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(X, 1);
 M = size(X, 2);
 if nargin < 3 || isempty(interactions), interactions = []; end;
-if nargin < 4 || isempty(center), center = 2; end;
+if nargin < 4 || isempty(prep), prep = 2; end;
 if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
+if nargin < 6 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
 
 % Validate dimensions of input data
-assert (isequal(size(center), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -108,8 +112,10 @@ assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-b
                   
 n_interactions      = size(interactions,1);      % number of interactions
 n_factors           = size(F,2);                 % number of factors
-SSQ_factors         = zeros(n_perm + 1,n_factors,1);      % sum of squares for factors
-SSQ_interactions    = zeros(n_perm + 1,n_interactions);   % sum of squares for interactions
+SSQ_factors         = zeros(1,n_factors,1);      % sum of squares for factors
+SSQ_interactions    = zeros(1,n_interactions);   % sum of squares for interactions
+F_factors         = zeros(n_perm + 1,n_factors,1);      % F for factors
+F_interactions    = zeros(n_perm + 1,n_interactions);   % F for interactions
 p_factor            = zeros(1, n_factors);       % p-values factors
 p_interaction       = zeros(1, n_interactions);  % p-values interactions
 
@@ -118,7 +124,7 @@ parglmo.factors                = cell(n_factors,1);
 parglmo.interactions           = cell(n_interactions,1);
 
 % preprocess the data
-[Xs,m,dt] = preprocess2D(X,center);
+[Xs,m,dt] = preprocess2D(X,prep);
 X = X./(ones(size(X,1),1)*dt);
 
 SSQ_X = sum(sum(X.^2));
@@ -134,14 +140,20 @@ n = 1;
 D = ones(size(X,1),1);
 
 for f = 1 : n_factors
-    uF = unique(F(:,f));
-    paranovao.n_levels(f) = length(uF); 
-    for i = 1:length(uF)-1
-        D(find(F(:,f)==uF(i)),n+i) = 1;
+    if ordinal(f)
+        D(:,n+1) = preprocess2D(F(:,f),1);
+        parglmo.factors{f}.Dvars = n+1;
+        n = n + 1;
+    else
+        uF = unique(F(:,f));
+        paranovao.n_levels(f) = length(uF);
+        for i = 1:length(uF)-1
+            D(find(F(:,f)==uF(i)),n+i) = 1;
+        end
+        parglmo.factors{f}.Dvars = n+(1:length(uF)-1);
+        D(find(F(:,f)==uF(end)),parglmo.factors{f}.Dvars) = -1;
+        n = n + length(uF) - 1;
     end
-    parglmo.factors{f}.Dvars = n+(1:length(uF)-1);
-    D(find(F(:,f)==uF(end)),parglmo.factors{f}.Dvars) = -1;
-    n = n + length(uF) - 1;
 end
 
 for i = 1 : n_interactions
@@ -153,6 +165,27 @@ for i = 1 : n_interactions
     parglmo.interactions{i}.Dvars = n+1:size(D,2);
     n = size(D,2);
 end
+
+% Degrees of freedom
+
+Tdf = size(X,1)-1;      
+
+for f = 1 : n_factors
+    if ordinal(f)
+        df(f) = 1;
+    else
+        df(f) = size(unique(D(:,parglmo.factors{f}.Dvars),'Rows'),1) -1;
+    end
+end
+df_int = 0;
+for i = 1 : n_interactions
+    df_int(i)=(df(interactions(i,1))+1)*(df(interactions(i,2))+1) - 1;
+end
+Rdf = Tdf - sum(df) - sum(df_int);
+if Rdf < 0
+    disp('Warning: degrees of freedom exhausted');
+    return
+end;
     
 % GLM model calibration with LS, only fixed factors
 
@@ -169,12 +202,14 @@ SSQ_inter = sum(sum(parglmo.inter.^2));
 for f = 1 : n_factors
     parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
     SSQ_factors(1,f) = sum(sum(parglmo.factors{f}.matrix.^2));
+    F_factors(1,f) = (sum(sum(parglmo.factors{f}.matrix.^2))/df(f))/(sum(sum((X_residuals).^2))/Rdf);
 end
 
 % Interactions
 for i = 1 : n_interactions
     parglmo.interactions{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
     SSQ_interactions(1,i) = sum(sum(parglmo.interactions{i}.matrix.^2));
+    F_interactions(1,i) = (sum(sum(parglmo.interactions{i}.matrix.^2))/df_int(i))/(sum(sum((X_residuals).^2))/Rdf);
 end
 
 SSQ_residuals = sum(sum(X_residuals.^2));
@@ -200,16 +235,17 @@ for j = 1 : n_perm
     perms = randperm(size(X,1)); % permuted data (permute whole data matrix)
       
     B = pinv(D'*D)*D'*X(perms, :);
+    X_residuals = X(perms, :) - D*B;
     
     for f = 1 : n_factors
         factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
-        SSQ_factors(1 + j,f) = sum(sum(factors{f}.matrix.^2));
+        F_factors(1 + j,f) = (sum(sum(factors{f}.matrix.^2))/df(f))/(sum(sum((X_residuals).^2))/Rdf);
     end
     
     % Interactions
     for i = 1 : n_interactions
         interacts{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
-        SSQ_interactions(1 + j,i) = sum(sum(interacts{i}.matrix.^2));
+        F_interactions(1 + j,i) = (sum(sum(interacts{i}.matrix.^2))/df_int(i))/(sum(sum((X_residuals).^2))/Rdf);
     end
 
 end        % permutations
@@ -217,11 +253,11 @@ end        % permutations
 % Calculate p-values
 % how many ssq's are larger than measurement ssq?
 for factor = 1 : n_factors
-    p_factor(factor) = (size(find(SSQ_factors(2:n_perm + 1, factor) >= SSQ_factors(1, factor)),1) + 1)/(n_perm);
+    p_factor(factor) = (size(find(F_factors(2:n_perm + 1, factor) >= F_factors(1, factor)),1) + 1)/(n_perm);
 end
 for interaction = 1 : n_interactions
-    p_interaction(interaction) = (size(find(SSQ_interactions(2:n_perm + 1, interaction) ...
-        >= SSQ_interactions(1, interaction)),1) + 1)/(n_perm);
+    p_interaction(interaction) = (size(find(F_interactions(2:n_perm + 1, interaction) ...
+        >= F_interactions(1, interaction)),1) + 1)/(n_perm);
 end
 disp('p-values factors:')
 disp (p_factor)

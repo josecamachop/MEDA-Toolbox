@@ -51,7 +51,7 @@ function [Dst,Qst] = mspc(testcs,invCT,R,Q)
 % UCLq = spe_lim(e,0.01);
 % 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
 % test(6:10,:) = 3*test(6:10,:);
 % testcs = preprocess2Dapp(test,m,sc);
 % 

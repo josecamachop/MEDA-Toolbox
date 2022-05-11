@@ -86,7 +86,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,pcs,test,prep,opt,label,clas
 % pcs = 1:n_PCs;
 % 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
 % [Dst,Qst,Dstt,Qstt] = mspc_pca(X,pcs,test,2,100,[],[ones(100,1);2*ones(5,1);3*ones(5,1)]);

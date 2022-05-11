@@ -1,10 +1,10 @@
 
-function P = loadings(model,opt,tit,label,classes)
+function P = loadings(model,opt,tit,label,classes,blur)
 
 % Compute and plot loadings.
 %
 % P = loadings_pca(model) % minimum call
-% P = loadings_pca(model,opt,tit,label,classes) % complete call
+% P = loadings_pca(model,opt,tit,label,classes,blur) % complete call
 %
 % INPUTS:
 %
@@ -34,6 +34,9 @@ function P = loadings(model,opt,tit,label,classes)
 % classes: [Mx1] groups for different visualization (a single group 
 %   by default)
 %
+% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+%   are printer (the higher blur). Inf shows all the labels (1 by default).
+%
 %
 % OUTPUTS:
 %
@@ -53,10 +56,10 @@ function P = loadings(model,opt,tit,label,classes)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 25/Apr/2018
+% last modification: 06/Apr/2022
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2022  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -82,6 +85,7 @@ if nargin < 2 || isempty(opt), opt = '10'; end;
 if nargin < 3, tit = ''; end 
 if nargin < 4 || isempty(label), label = [1:M]; end
 if nargin < 5 || isempty(classes), classes = ones(M,1); end
+if nargin < 6 || isempty(blur),    blur    = 1;       end;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -98,6 +102,7 @@ if size(classes,1) == 1, classes = classes'; end;
 assert (ischar(opt) && length(opt)==2, 'Dimension Error: 2nd argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: 4th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [M 1]), 'Dimension Error: 5th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
@@ -110,7 +115,7 @@ P = model.loads;
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
     if length(model.lvs) == 1 || opt(2) == '1',
         for i=1:length(model.lvs),
@@ -120,7 +125,7 @@ if opt(1) == '1',
     else
         for i=1:length(model.lvs)-1,
             for j=i+1:length(model.lvs),
-                plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d',model.lvs(i)),sprintf('Loadings PC %d',model.lvs(j))}');
+                plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d',model.lvs(i)),sprintf('Loadings PC %d',model.lvs(j))}',[],[],[],[],blur); 
                 title(tit);
             end      
         end
