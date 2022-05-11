@@ -1,5 +1,5 @@
 
-function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
+function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label,classes)
 
 % Observation-based Missing data methods for Exploratory Data Analysis 
 % (oMEDA) for PLS. The original paper is Journal of Chemometrics, 2011, 25 
@@ -7,7 +7,7 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 % Known Data Regression (KDR) missing data imputation.
 %
 % omeda_vec = omeda_pls(x,y,lvs,test,dummy) % minimum call
-% [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label) %complete call
+% [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label,classes) %complete call
 %
 %
 % INPUTS:
@@ -51,6 +51,8 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 %
 % label: [Mx1] name of the variables (numbers are used by default)
 %
+% classes: [Mx1] groups of variables (one group by default)
+%
 %
 % OUTPUTS:
 %
@@ -79,10 +81,10 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/May/16.
+% last modification: 11/May/2021
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -113,9 +115,11 @@ if nargin < 6 || isempty(prepx), prepx = 2; end;
 if nargin < 7 || isempty(prepy), prepy = 2; end;
 if nargin < 8 || isempty(opt), opt = '100'; end; 
 if nargin < 9 || isempty(label), label = 1:M; end
+if nargin < 10 || isempty(classes), classes = ones(M,1); end
 
 % Convert row arrays to column arrays
 if size(label,1) == 1, label = label'; end;
+if size(classes,1) == 1, classes = classes'; end;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -141,6 +145,7 @@ assert (isequal(size(prepx), [1 1]), 'Dimension Error: 6th argument must be 1-by
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (ischar(opt) && length(opt)==3, 'Dimension Error: 8th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: 9th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(classes), [M 1]), 'Dimension Error: 10th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
@@ -183,7 +188,7 @@ if opt(1) == '1',
         end
     end
     
-    plot_vec(vec,label,[],{[],'d^2_A'},[limp -limp]);
+    plot_vec(vec,label,classes,{[],'d^2_A'},[limp -limp]);
     
 end
 

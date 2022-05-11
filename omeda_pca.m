@@ -1,5 +1,5 @@
 
-function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label)
+function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label,classes)
 
 % Observation-based Missing data methods for Exploratory Data Analysis 
 % (oMEDA) for PCA. The original paper is Journal of Chemometrics, 2011, 25 
@@ -7,7 +7,7 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label)
 % Known Data Regression (KDR) missing data imputation.
 %
 % omeda_vec = omeda_pca(x,pcs,test,dummy) % minimum call
-% [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label) %complete call
+% [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label,classes) %complete call
 %
 %
 % INPUTS:
@@ -45,6 +45,8 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label)
 %
 % label: [Mx1] name of the variables (numbers are used by default)
 %
+% classes: [Mx1] groups of variables (one group by default)
+%
 %
 % OUTPUTS:
 %
@@ -72,10 +74,10 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Jan/17.
+% last modification: 11/May/2021
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -104,9 +106,11 @@ if nargin < 4 || isempty(dummy), dummy = ones(L,1); end;
 if nargin < 5 || isempty(prep), prep = 2; end;
 if nargin < 6 || isempty(opt), opt = '100'; end; 
 if nargin < 7 || isempty(label), label = 1:M; end
+if nargin < 8 || isempty(classes), classes = ones(M,1); end
 
 % Convert row arrays to column arrays
 if size(label,1) == 1, label = label'; end;
+if size(classes,1) == 1, classes = classes'; end;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -131,6 +135,7 @@ assert (isequal(size(dummy), [L 1]), 'Dimension Error: 4th argument must be L-by
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (ischar(opt) && length(opt)==3, 'Dimension Error: 6th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(classes), [M 1]), 'Dimension Error: 8th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 
 % Validate values of input data
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
@@ -172,7 +177,7 @@ if opt(1) == '1',
         end
     end
     
-    plot_vec(vec,label,[],{[],'d^2_A'},[limp -limp]);
+    plot_vec(vec,label,classes,{[],'d^2_A'},[limp -limp]);
     
 end
 

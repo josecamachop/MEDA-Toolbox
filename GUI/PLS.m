@@ -1544,9 +1544,9 @@ end
 
 if ~isempty(handles.data.weightDummy{1,ID}),
     handles.data.weightDummy{1,ID}=handles.data.weightDummy{1,ID}./abs(max(handles.data.weightDummy{1,ID}));
-    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.weightDummy{1,ID}',handles.data.prepX,handles.data.prepY,1,handles.data.label_LP);
+    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.weightDummy{1,ID}',handles.data.prepX,handles.data.prepY,1,handles.data.label_LP,handles.data.classes_LP);
 else
-    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.dummy{1,ID}',handles.data.prepX,handles.data.prepY,1,handles.data.label_LP);
+    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.dummy{1,ID}',handles.data.prepX,handles.data.prepY,1,handles.data.label_LP,handles.data.classes_LP);
 end
 
 guidata(hObject,handles);
