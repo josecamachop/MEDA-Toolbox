@@ -74,10 +74,10 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 4/Nov/18.
+% last modification: 11/May/2021
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -332,10 +332,15 @@ if ~isempty(xylabel)
 end
 
 axes_h = get(fig_h,'Children');
-set(axes_h, 'FontSize', 12);
+for i=1:length(axes_h)
+    if strcmp(get(axes_h(i), 'type'), 'axes')
+        set(axes_h(i), 'FontSize', 12);
+    end
+end
 
 legend off
 box on
 hold off
 
+    
   

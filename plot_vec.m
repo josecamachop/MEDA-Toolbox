@@ -52,10 +52,10 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 28/Jun/2017
+% last modification: 11/May/2021
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez, Alejandro Perez Villegas
+% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -219,8 +219,13 @@ end
 
 % Get axes handler
 axes_h = get(fig_h,'Children');
-if length(axes_h)>1, axes_h = axes_h(1); end;
-set(axes_h, 'FontSize', 14);
+for i=1:length(axes_h)
+    if strcmp(get(axes_h(i), 'type'), 'axes')
+        set(axes_h(i), 'FontSize', 14);
+        val=i;
+    end
+end
+axes_h = axes_h(i); 
 
 % Set ticks and labels
 if ~isempty(elabel) & ~isnumeric(elabel),
