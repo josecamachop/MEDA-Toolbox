@@ -1853,8 +1853,10 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 size_x = size(handles.data.data_matrix);
-num_var = size_x(2);
-E=leverages_pca(handles.data.data_matrix,max(handles.data.PCs)+1:num_var,handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
+PCs = 1:size_x(2);
+PCs(handles.data.PCs) = [];
+E=leverages_pca(handles.data.data_matrix,PCs,handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
+ylabel('Residuals')
 
 % --- Executes on button press in modelomedaButton.
 function modelomedaButton_Callback(hObject, eventdata, handles)
@@ -1870,7 +1872,7 @@ function modelmedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %E=leverage_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),handles.data.prep,1,handles.data.label_LP,handles.data.classes);
-E=leverages_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),handles.data.prep,1,handles.data.label_LP);
+E=leverages_pca(handles.data.data_matrix,handles.data.PCs,handles.data.prep,1,handles.data.label_LP);
 
 
 % --- Executes on button press in nextButton.
