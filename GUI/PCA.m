@@ -205,6 +205,8 @@ end;
 %javaFrame = get(hObject,'JavaFrame');
 %javaFrame.setFigureIcon(javax.swing.ImageIcon('icon.jpg'));
 
+movegui(hObject, 'onscreen')
+
 % Update handles structure
 guidata(hObject, handles);
 
