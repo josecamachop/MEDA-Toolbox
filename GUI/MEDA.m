@@ -4,7 +4,6 @@ function varargout = MEDA(varargin)
 %
 % coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es)
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
-% version: 2.0
 % last modification: 31/Jan/15.
 %
 % Copyright (C) 2016  University of Granada, Granada
@@ -78,7 +77,7 @@ function MEDA_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for MEDA
 handles.output = hObject;
-handles.data.version='1.1';
+handles.data.version='1.2';
 %Change icon
 %warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
 %javaFrame = get(hObject,'JavaFrame');

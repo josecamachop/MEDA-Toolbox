@@ -205,6 +205,8 @@ end;
 %javaFrame = get(hObject,'JavaFrame');
 %javaFrame.setFigureIcon(javax.swing.ImageIcon('icon.jpg'));
 
+movegui(hObject, 'onscreen')
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -695,6 +697,10 @@ handles.data.PCs=[1:pc_num];
 %Si la variable handles.data.PCs es distinta de vacía, imprimir en xpcscorePopup,
 %xpcvarPopup, ypcvarPopup y ypcscorePopup los PCs posibles.
 if ~isempty(handles.data.PCs),
+    set(handles.xpcscorePopup, 'Value',1);
+    set(handles.ypcscorePopup, 'Value',1);
+    set(handles.xpcvarPopup, 'Value',1);
+    set(handles.ypcvarPopup, 'Value',1);
     set(handles.xpcscorePopup, 'String',handles.data.PCs);
     set(handles.ypcscorePopup, 'String',handles.data.PCs);
     set(handles.xpcvarPopup, 'String',handles.data.PCs);
@@ -1376,9 +1382,9 @@ end
 
 if ~isempty(handles.data.weightDummy{1,ID}),
     handles.data.weightDummy{1,ID}=handles.data.weightDummy{1,ID}./abs(max(handles.data.weightDummy{1,ID}));
-    omeda_pca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.weightDummy{1,ID}',handles.data.prep,1,handles.data.label_LP);
+    omeda_pca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.weightDummy{1,ID}',handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
 else
-    omeda_pca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.dummy{1,ID}',handles.data.prep,1,handles.data.label_LP);
+    omeda_pca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.dummy{1,ID}',handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
 end
 
 guidata(hObject,handles);
@@ -1849,8 +1855,10 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 size_x = size(handles.data.data_matrix);
-num_var = size_x(2);
-E=leverages_pca(handles.data.data_matrix,max(handles.data.PCs)+1:num_var,handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
+PCs = 1:size_x(2);
+PCs(handles.data.PCs) = [];
+E=leverages_pca(handles.data.data_matrix,PCs,handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
+ylabel('Residuals')
 
 % --- Executes on button press in modelomedaButton.
 function modelomedaButton_Callback(hObject, eventdata, handles)
@@ -1866,7 +1874,7 @@ function modelmedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %E=leverage_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),handles.data.prep,1,handles.data.label_LP,handles.data.classes);
-E=leverages_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),handles.data.prep,1,handles.data.label_LP);
+E=leverages_pca(handles.data.data_matrix,handles.data.PCs,handles.data.prep,1,handles.data.label_LP);
 
 
 % --- Executes on button press in nextButton.
