@@ -54,6 +54,7 @@ function lim = spe_lim(res,p_value)
 routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(res, 1);
+M = size(res, 2);
 
 % Validate dimensions of input data
 assert (isequal(size(p_value), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -66,7 +67,11 @@ assert (p_value>=0 && p_value<1, 'Value Error: 2nd argument must be in (0,1]. Ty
 
 pcs_left = rank(res);
 
-lambda = eig(1/(N-1)*res'*res);
+if N>M
+    lambda = eig(1/(N-1)*res'*res);
+else
+    lambda = eig(1/(N-1)*res*res');
+end
 [kk,ord]=sort(abs(lambda),'descend');
 lambda = lambda(ord);
 
