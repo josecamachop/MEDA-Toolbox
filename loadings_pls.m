@@ -67,10 +67,10 @@ function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 4/Nov/18.
+% last modification: 27/Jun/22
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2022  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -140,8 +140,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must cont
 xcs = preprocess2D(x,prepx);
 ycs = preprocess2D(y,prepy);
 
-[beta,W,P,Q] = kernel_pls(xcs'*xcs,xcs'*ycs,lvs);
-
+[beta,W,P,Q] = simpls(xcs,ycs,lvs); 
 
 %% Show results
 

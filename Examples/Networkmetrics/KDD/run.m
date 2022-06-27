@@ -39,7 +39,7 @@ load kdd
 
 Lmodel = Lmodel_ini; % Initialization
 Lmodel.update = 2; % Change this to 1 for EWMA and 2 for Iterative
-Lmodel.type = 2; % Change this to 1 for PCA and 2 for PLS
+Lmodel.type = 1; % Change this to 1 for PCA and 2 for PLS
 Lmodel.lvs = 1:2; % Number of LVs
 Lmodel.prep = 2; % X-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling 
 Lmodel.prepy = 2; % Y-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling
@@ -90,6 +90,7 @@ else %for PCA
     
     % Score plot
     scores_Lpca(Lmodel);
+    legend(num2str(unique(Lmodel.class)));
     
     % MEDA
     map = meda_Lpca(Lmodel,0.1,111);
