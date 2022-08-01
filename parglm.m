@@ -1,4 +1,4 @@
-function parglmo = parglm(X, F, interactions, prep, n_perm, ordinal)
+function [parglmo,T] = parglm(X, F, interactions, prep, n_perm, ordinal)
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
 % matrices in a crossed experimental design and permutation test for significance. This
@@ -35,6 +35,8 @@ function parglmo = parglm(X, F, interactions, prep, n_perm, ordinal)
 %
 % parglmo (structure): structure with the factor and interaction
 % matrices, p-values and explained variance. 
+%
+% T (table): ANOVA-like output.
 %
 %
 % EXAMPLE OF USE: Random data, two significative factors, with 4 and 3
@@ -74,7 +76,7 @@ function parglmo = parglm(X, F, interactions, prep, n_perm, ordinal)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 18/Apr/22
+% last modification: 01/Aug/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -168,20 +170,21 @@ end
 
 % Degrees of freedom
 
-Tdf = size(X,1)-1;      
-
+Tdf = size(X,1);      
+Rdf = Tdf-1;
 for f = 1 : n_factors
     if ordinal(f)
         df(f) = 1;
     else
         df(f) = size(unique(D(:,parglmo.factors{f}.Dvars),'Rows'),1) -1;
     end
+    Rdf = Rdf-df(f);
 end
-df_int = 0;
+df_int = [];
 for i = 1 : n_interactions
     df_int(i)=(df(interactions(i,1))+1)*(df(interactions(i,2))+1) - 1;
+    Rdf = Rdf-df_int(i);
 end
-Rdf = Tdf - sum(df) - sum(df_int);
 if Rdf < 0
     disp('Warning: degrees of freedom exhausted');
     return
@@ -216,18 +219,6 @@ SSQ_residuals = sum(sum(X_residuals.^2));
 parglmo.effects = 100*([SSQ_inter SSQ_factors(1,:) SSQ_interactions(1,:) SSQ_residuals]./SSQ_X);
 parglmo.residuals = X_residuals;
 
-disp('Percentage each effect contributes to the total sum of squares')
-disp('Overall means')
-disp(parglmo.effects (1))
-disp('Factors')
-disp(parglmo.effects (1 + (1 : n_factors)))
-if n_interactions>0
-    disp('Interactions')
-    disp(parglmo.effects (1 + n_factors + (1 : n_interactions)))
-end
-disp('Residuals')
-disp(parglmo.effects (end))
-
 % Interactions p-values are calculated through permutation of X - Xa - Xa
 % Do the permutations (do this, for now, for two factors)
 for j = 1 : n_perm
@@ -259,10 +250,28 @@ for interaction = 1 : n_interactions
     p_interaction(interaction) = (size(find(F_interactions(2:n_perm + 1, interaction) ...
         >= F_interactions(1, interaction)),1) + 1)/(n_perm);
 end
-disp('p-values factors:')
-disp (p_factor)
-if n_interactions>0
-    disp('p-values intractions')
-    disp(p_interaction)
-end
 parglmo.p = [p_factor p_interaction];
+
+
+%% ANOVA-like output table
+
+name={'Mean'};
+for factor = 1 : n_factors
+    name{end+1} = sprintf('Factor %d',factor);
+end
+for interaction = 1 : n_interactions
+    name{end+1} = sprintf('Interaction %d',interaction);
+end
+name{end+1} = 'Residuals';
+name{end+1} = 'Total';
+      
+SSQ = [SSQ_inter SSQ_factors(1,:) SSQ_interactions(1,:) SSQ_residuals SSQ_X];
+par = [parglmo.effects 100];
+DoF = [1 df df_int Rdf Tdf];
+MSQ = SSQ./DoF;
+F = [nan F_factors(1,:) F_interactions(1,:) nan nan];
+p_value = [nan p_factor p_interaction nan nan];
+
+T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
+
+
