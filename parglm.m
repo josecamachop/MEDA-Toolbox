@@ -1,12 +1,11 @@
-function [parglmo,T] = parglm(X, F, interactions, prep, n_perm, ordinal)
+function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal)
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
-% matrices in a crossed experimental design and permutation test for significance. This
-% approach permutes the raw values, which is sub-optimal in terms of power 
-% according to Andreson and Ter Braak.
+% matrices in a crossed experimental design and permutation test for multivariate 
+% statistical significance. 
 %
-% parglmo = parglm(X, F)   % minimum call
-% parglmo = parglm(X, F, interactions, prep, n_perm, ordinal)   % complete call
+% T = parglm(X, F)   % minimum call
+% [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal)   % complete call
 %
 %
 % INPUTS:
@@ -24,7 +23,9 @@ function [parglmo,T] = parglm(X, F, interactions, prep, n_perm, ordinal)
 %       1: mean preping
 %       2: autoscaling (default)
 %
-% n_perm: [1x1] number of permutations (1000 by default).
+% n_perm: [1x1] number of permutations (1000 by default)
+%
+% ts: [1x1] Use SSQ (0) or the F-value (otherwise, by default) as test statistic  
 %
 % ordinal: [1xF] whether factors are nominal or ordinal
 %       0: nominal
@@ -33,10 +34,10 @@ function [parglmo,T] = parglm(X, F, interactions, prep, n_perm, ordinal)
 %
 % OUTPUTS:
 %
-% parglmo (structure): structure with the factor and interaction
-% matrices, p-values and explained variance. 
+% T (table): ANOVA-like output table
 %
-% T (table): ANOVA-like output.
+% parglmo (structure): structure with the factor and interaction
+% matrices, p-values and explained variance 
 %
 %
 % EXAMPLE OF USE: Random data, two significative factors, with 4 and 3
@@ -55,7 +56,7 @@ function [parglmo,T] = parglm(X, F, interactions, prep, n_perm, ordinal)
 %     end
 % end
 %
-% parglmo = parglm(X, F);
+% T = parglm(X, F)
 %
 %
 % EXAMPLE OF USE: Random data, two factors, with 4 and 3 levels, but only
@@ -72,11 +73,11 @@ function [parglmo,T] = parglm(X, F, interactions, prep, n_perm, ordinal)
 %     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
 %
-% parglmo = parglm(X, F);
+% T = parglm(X, F)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 01/Aug/22
+% last modification: 22/Sep/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -103,11 +104,13 @@ M = size(X, 2);
 if nargin < 3 || isempty(interactions), interactions = []; end;
 if nargin < 4 || isempty(prep), prep = 2; end;
 if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
-if nargin < 6 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
+if nargin < 6 || isempty(ts), ts = 1; end;
+if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -169,7 +172,6 @@ for i = 1 : n_interactions
 end
 
 % Degrees of freedom
-
 Tdf = size(X,1);      
 Rdf = Tdf-1;
 for f = 1 : n_factors
@@ -182,44 +184,42 @@ for f = 1 : n_factors
 end
 df_int = [];
 for i = 1 : n_interactions
-    df_int(i)=(df(interactions(i,1))+1)*(df(interactions(i,2))+1) - 1;
+    df_int(i) = (df(interactions(i,1))+1)*(df(interactions(i,2))+1) - 1;
     Rdf = Rdf-df_int(i);
 end
 if Rdf < 0
     disp('Warning: degrees of freedom exhausted');
     return
-end;
+end
     
 % GLM model calibration with LS, only fixed factors
-
 B = pinv(D'*D)*D'*X;
 X_residuals = X - D*B;
 parglmo.D = D;
 parglmo.B = B;
 
 % Create Effect Matrices
-
 parglmo.inter = D(:,1)*B(1,:);
 SSQ_inter = sum(sum(parglmo.inter.^2));
+SSQ_residuals = sum(sum(X_residuals.^2));
 
 for f = 1 : n_factors
     parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
     SSQ_factors(1,f) = sum(sum(parglmo.factors{f}.matrix.^2));
-    F_factors(1,f) = (sum(sum(parglmo.factors{f}.matrix.^2))/df(f))/(sum(sum((X_residuals).^2))/Rdf);
+    F_factors(1,f) = (SSQ_factors(1,f)/df(f))/(SSQ_residuals/Rdf);
 end
 
 % Interactions
 for i = 1 : n_interactions
     parglmo.interactions{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
     SSQ_interactions(1,i) = sum(sum(parglmo.interactions{i}.matrix.^2));
-    F_interactions(1,i) = (sum(sum(parglmo.interactions{i}.matrix.^2))/df_int(i))/(sum(sum((X_residuals).^2))/Rdf);
+    F_interactions(1,i) = (SSQ_interactions(1,i)/df_int(i))/(SSQ_residuals/Rdf);
 end
 
-SSQ_residuals = sum(sum(X_residuals.^2));
 parglmo.effects = 100*([SSQ_inter SSQ_factors(1,:) SSQ_interactions(1,:) SSQ_residuals]./SSQ_X);
 parglmo.residuals = X_residuals;
 
-% Interactions p-values are calculated through permutation of X - Xa - Xa
+% Interactions p-values are calculated through permutation of raw data
 % Do the permutations (do this, for now, for two factors)
 for j = 1 : n_perm
     
@@ -227,28 +227,42 @@ for j = 1 : n_perm
       
     B = pinv(D'*D)*D'*X(perms, :);
     X_residuals = X(perms, :) - D*B;
+    SSQ_residualsp = sum(sum(X_residuals.^2));
     
     for f = 1 : n_factors
         factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
-        F_factors(1 + j,f) = (sum(sum(factors{f}.matrix.^2))/df(f))/(sum(sum((X_residuals).^2))/Rdf);
+        SSQ_factors(1 + j,f) = sum(sum(factors{f}.matrix.^2));
+        F_factors(1 + j,f) = (SSQ_factors(1 + j,f)/df(f))/(SSQ_residualsp/Rdf);
     end
     
     % Interactions
     for i = 1 : n_interactions
-        interacts{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
-        F_interactions(1 + j,i) = (sum(sum(interacts{i}.matrix.^2))/df_int(i))/(sum(sum((X_residuals).^2))/Rdf);
+        interacts{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);    
+        SSQ_interactions(1 + j,i) = sum(sum(parglmo.interactions{i}.matrix.^2));
+        F_interactions(1 + j,i) = (SSQ_interactions(1 + j,i)/df_int(i))/(SSQ_residualsp/Rdf);
     end
 
 end        % permutations
 
+% Select test statistic
+if ts
+    ts_factors = F_factors;
+    ts_interactions = F_interactions;
+else
+    ts_factors = SSQ_factors;
+    ts_interactions = SSQ_interactions;
+end
+parglmo.ts.SSQ = squeeze(SSQ_factors(1,:));
+parglmo.ts.F = squeeze(F_factors(1,:));
+    
 % Calculate p-values
 % how many ssq's are larger than measurement ssq?
 for factor = 1 : n_factors
-    p_factor(factor) = (size(find(F_factors(2:n_perm + 1, factor) >= F_factors(1, factor)),1) + 1)/(n_perm);
+    p_factor(factor) = (size(find(ts_factors(2:n_perm + 1, factor) >= ts_factors(1, factor)),1) + 1)/(n_perm+1);
 end
 for interaction = 1 : n_interactions
-    p_interaction(interaction) = (size(find(F_interactions(2:n_perm + 1, interaction) ...
-        >= F_interactions(1, interaction)),1) + 1)/(n_perm);
+    p_interaction(interaction) = (size(find(ts_interactions(2:n_perm + 1, interaction) ...
+        >= ts_interactions(1, interaction)),1) + 1)/(n_perm+1);
 end
 parglmo.p = [p_factor p_interaction];
 
