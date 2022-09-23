@@ -1,12 +1,12 @@
-function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
+function [T, parglmo] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, mtc)
 
-% Parallel General Linear Model to obtain multivariate factor and interaction 
-% matrices in a crossed experimental design and permutation test for incremental
-% multivariate statistical significance that allows variable selection. This 
-% is the basis of VASCA (Variable-selection ASCA).
+% Parallel General Linear Model to obtain factor and interaction matrices 
+% in a crossed experimental design and permutation test for univariate 
+% statistical significance through multiple-test correction methods that 
+% allows variable selection
 %
-% T = parglmVS(X, F)   % minimum call
-% [T, parglmoVS] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)   % complete call
+% T = parglmMC(X, F)   % minimum call
+% [T, parglmoMC] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, mtc)   % complete call
 %
 %
 % INPUTS:
@@ -32,16 +32,22 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
 %       0: nominal
 %       1: ordinal
 %
+% mtc: [1x1] Multiple test correction
+%       1: Bonferroni 
+%       2: Holm step-up or Hochberg step-down
+%       3: Benjamini-Hochberg step-down (FDR, by default)
 %
 % OUTPUTS:
 %
 % T (table): ANOVA-like output table
 %
-% parglmoMV (structure): structure with the factor and interaction
+% parglmoMC (structure): structure with the factor and interaction
 % matrices, p-values and explained variance 
 %
 %
 % EXAMPLE OF USE: Random data, three variables with information on the factor:
+% This example takes long to compute, you may reduce the number of
+% variables or permutations.
 %
 % n_obs = 40;
 % n_vars = 400;
@@ -53,14 +59,17 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
 % S = rng; % Use same seed for random generators to improve comparability of results
 % [T, parglmo] = parglm(X,class); % No variables selection 
 % rng(S);
-% [TVS, parglmoVS] = parglmVS(X, class); % With variable selection
+% [TVS, parglmoVS] = parglmVS(X, class); % With multivariate variable selection
+% rng(S);
+% [TMC, parglmoMC] = parglmMC(X, class); % With variable selection through multiple testing correction
 %
 % h = figure; hold on
 % plot([1 n_vars],[parglmo.p parglmo.p],'b-.')
 % plot(parglmoVS.p(parglmoVS.ord_factors),'g-o')
+% plot(parglmoMC.p(parglmoMC.ord_factors),'k-')
 % plot([0,size(X,2)],[0.05 0.05],'r:')
 % plot([0,size(X,2)],[0.01 0.01],'r--')
-% legend('ASCA','VASCA','alpha=0.05','alpha=0.01','Location','southeast')
+% legend('ASCA','VASCA','BH-FDR','alpha=0.05','alpha=0.01','Location','southeast')
 % a=get(h,'CurrentAxes');
 % set(a,'FontSize',14)
 % ylabel('p-values','FontSize',18)
@@ -97,11 +106,13 @@ if nargin < 4 || isempty(prep), prep = 2; end;
 if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
 if nargin < 6 || isempty(ts), ts = 1; end;
 if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
+if nargin < 8 || isempty(mtc), mtc = 3; end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(mtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -182,7 +193,7 @@ if Rdf < 0
     disp('Warning: degrees of freedom exhausted');
     return
 end
-
+    
 % GLM model calibration with LS, only fixed factors
 B = pinv(D'*D)*D'*X;
 X_residuals = X - D*B;
@@ -196,17 +207,17 @@ SSQ_residuals = sum(X_residuals.^2);
 
 for f = 1 : n_factors
     parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
-    SSQ_factors(1,f,:) = sum(parglmo.factors{f}.matrix.^2);
+    SSQ_factors(f,:) = sum(parglmo.factors{f}.matrix.^2);
     F_factors(1,f,:) = squeeze(SSQ_factors(1,f,:)/df(f))./(SSQ_residuals/Rdf)';
 end
 
 % Interactions
 for i = 1 : n_interactions
     parglmo.interactions{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
-    SSQ_interactions(1,i,:) = sum(parglmo.interactions{i}.matrix.^2);
+    SSQ_interactions(i,:) = sum(parglmo.interactions{i}.matrix.^2);
     F_interactions(1,i,:) = squeeze(SSQ_interactions(1,i,:)/df_int(i))./(SSQ_residuals/Rdf)';
 end
-
+    
 if n_interactions
     parglmo.effects = 100*([SSQ_inter' squeeze(SSQ_factors(1,:,:)) squeeze(SSQ_interactions(1,:,:)) SSQ_residuals']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
 else
@@ -215,9 +226,9 @@ end
 parglmo.residuals = X_residuals;
 
 % Permutations
-for j = 1 : n_perm
+for j = 1 : (n_perm * M) % Increase the number of permutations to perform MTC
     
-    perms = randperm(size(X,1)); % permuted data (permute whole rows)
+    perms = randperm(size(X,1)); % permuted data (permute whole data matrix)
     
     B = pinv(D'*D)*D'*X(perms, :);
     X_residuals = X(perms, :) - D*B;
@@ -235,9 +246,9 @@ for j = 1 : n_perm
         SSQ_interactions(1 + j,i,:) = sum(interacts{i}.matrix.^2);
         F_interactions(1 + j,i,:) = squeeze(SSQ_interactions(1 + j,i,:)/df_int(i))./(SSQ_residuals(1+j,:)/Rdf)';
     end
-
-end       
-
+    
+end        
+    
 % Select test statistic to order variables
 if ts
     ts_factors = F_factors;
@@ -246,37 +257,21 @@ else
     ts_factors = SSQ_factors;
     ts_interactions = SSQ_interactions;
 end
-    
-% Order variables by relevance
-ord_factors =  zeros(n_factors,M);
-ord_interactions =  zeros(n_interactions,M);
+
+% Calculate univariate p-values and order variables by relevance
 for factor = 1 : n_factors
-    [~,ord_factors(factor,:)] = sort(ts_factors(1,factor,:),'descend');
     for var = 1 : M
-        F_factors(1,factor,ord_factors(factor,var)) = (sum(SSQ_factors(1,factor,ord_factors(factor,1:var)),3)/df(f))./(sum(SSQ_residuals(1,ord_factors(factor,1:var)),2)/Rdf);
-    end    
-        
-    for j = 1 : n_perm
-        [~,ord] = sort(ts_factors(1 + j,factor,:),'descend');
-        SSQ_factors(1 + j,factor,:) = SSQ_factors(1 + j,factor,ord);
-        for var = 1 : M
-            F_factors(1 + j,factor,var) = (sum(SSQ_factors(1 + j,factor,ord(1:var)),3)/df(f))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
-        end    
+        p_factor(factor,var) = (size(find(ts_factors(2:end,factor,var) ...
+            >= ts_factors(1,factor,var)) ,1) + 1)/(n_perm*M + 1);
     end
+    [~,ord_factors(factor,:)] = sort(p_factor(factor,:),'ascend');
 end
 for interaction = 1 : n_interactions
-    [~,ord_interactions(interaction,:)] = sort(ts_interactions(1,interaction,:),'descend');
     for var = 1 : M
-        F_interactions(1,interaction,ord_interactions(interaction,var)) = (sum(SSQ_interactions(1,interaction,ord_interactions(interaction,1:var)),3)/df(f))./(sum(SSQ_residuals(1,ord_interactions(interaction,1:var)),2)/Rdf);
-    end  
-    
-    for j = 1 : n_perm
-        [~,ord] = sort(ts_interactions(1 + j,interaction,:),'descend');
-        SSQ_interactions(1 + j,interaction,:) = SSQ_interactions(1 + j,interaction,ord);
-        for var = 1 : M
-            F_interactions(1 + j,interaction,var) = (sum(SSQ_factors(1 + j,interaction,ord(1:var)),3)/df(f))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
-        end    
+        p_interaction(interaction,var) = (size(find(SSQ_interactions(2:end,interaction,var) ...
+            >= SSQ_interactions(1,interaction,var)) ,1) + 1)/(n_perm*M + 1);
     end
+    [~,ord_interactions(interaction,:)] = sort(p_interaction(interaction,:),'ascend');
 end
 
 parglmo.ord_factors = ord_factors;
@@ -284,33 +279,39 @@ if n_interactions>0
     parglmo.ord_interactions = ord_interactions;
 end
 
-% Calculate multivariate p-values
-for factor = 1 : n_factors
-    for var = 1 : M
-        if ts
-            p_factor(factor,ord_factors(factor,var)) = (size(find( F_factors(2:end,factor,var) ...
-                >= F_factors(1, factor,ord_factors(factor,var))), 1) + 1)/(n_perm+1);
-        else
-            p_factor(factor,ord_factors(factor,var)) = (size(find( sum(SSQ_factors(2:end,factor,1:var),3) ...
-                >= sum(SSQ_factors(1, factor,ord_factors(factor,1:var)))), 1) + 1)/(n_perm+1);
-        end
-    end
-end
-for interaction = 1 : n_interactions
-    for var = 1 : M
-        if ts
-            p_interaction(interaction,ord_interactions(interaction,var)) = (size(find( F_interactions(2:end,interaction,var) ...
-                >= F_interactions(1, interaction, ord_interactions(interaction,var))), 1) + 1)/(n_perm+1);
-        else
-            p_interaction(interaction,ord_interactions(interaction,var)) = (size(find( sum(SSQ_interactions(2:end,interaction,1:var),3) ...
-                >= sum(SSQ_interactions(1, interaction, ord_interactions(interaction,1:var)))), 1) + 1)/(n_perm+1);
-        end
-    end
-end
-        
 parglmo.p = [p_factor' p_interaction'];
 
-
+% Multiple test correction
+switch mtc
+    case 1 % Bonferroni 
+        p_factor = min(1,p_factor * M); 
+        p_interaction = min(Inf,p_interaction * M); 
+        
+    case 2 % Holm/Hochberg
+        for factor = 1 : n_factors
+            for var = 1 : M 
+                p_factor(factor,ord_factors(factor,var)) = min(1,p_factor(factor,ord_factors(factor,var)) * (M-var+1));
+            end
+        end
+        for interaction = 1 : n_interactions
+            for var = 1 : M
+                p_interaction(interaction,ord_interactions(interaction,var)) = min(1,p_interaction(interaction,ord_interaction(interaction,var)) * (M-var+1));
+            end
+        end
+        
+    case 3 % Benjamini & Hochberg
+        for factor = 1 : n_factors
+            for var = 1 : M
+                p_factor(factor,ord_factors(factor,var)) = min(1,p_factor(factor,ord_factors(factor,var)) * M/var);
+            end
+        end
+        for interaction = 1 : n_interactions
+            for var = 1 : M
+                p_interaction(interaction,ord_interactions(interaction,var)) = min(1,p_interaction(interaction,ord_interaction(interaction,var)) * M/var);
+            end
+        end
+end
+    
 %% ANOVA-like output table
 
 name={'Mean'};
@@ -336,7 +337,3 @@ p_value = [nan mean(p_factor,2) mean(p_interaction,2) nan nan];
 
 T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'});
 
-
- 
-
-    

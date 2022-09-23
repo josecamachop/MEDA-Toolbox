@@ -77,7 +77,7 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 22/Sep/22
+% last modification: 23/Sep/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -219,8 +219,7 @@ end
 parglmo.effects = 100*([SSQ_inter SSQ_factors(1,:) SSQ_interactions(1,:) SSQ_residuals]./SSQ_X);
 parglmo.residuals = X_residuals;
 
-% Interactions p-values are calculated through permutation of raw data
-% Do the permutations (do this, for now, for two factors)
+% Permutations
 for j = 1 : n_perm
     
     perms = randperm(size(X,1)); % permuted data (permute whole data matrix)
@@ -242,7 +241,7 @@ for j = 1 : n_perm
         F_interactions(1 + j,i) = (SSQ_interactions(1 + j,i)/df_int(i))/(SSQ_residualsp/Rdf);
     end
 
-end        % permutations
+end        
 
 % Select test statistic
 if ts
@@ -252,8 +251,6 @@ else
     ts_factors = SSQ_factors;
     ts_interactions = SSQ_interactions;
 end
-parglmo.ts.SSQ = squeeze(SSQ_factors(1,:));
-parglmo.ts.F = squeeze(F_factors(1,:));
     
 % Calculate p-values
 % how many ssq's are larger than measurement ssq?
