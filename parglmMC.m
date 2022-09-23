@@ -45,9 +45,9 @@ function [T, parglmo] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, 
 % matrices, p-values and explained variance 
 %
 %
-% EXAMPLE OF USE: Random data, three variables with information on the factor:
-% This example takes long to compute, you may reduce the number of
-% variables or permutations.
+% EXAMPLE OF USE: Random data, one factor and two levels, three variables 
+% with information on the factor. This example takes long to compute, you  
+% may reduce the number of variables or permutations.
 %
 % n_obs = 40;
 % n_vars = 400;

@@ -41,7 +41,8 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
 % matrices, p-values and explained variance 
 %
 %
-% EXAMPLE OF USE: Random data, three variables with information on the factor:
+% EXAMPLE OF USE: Random data, one factor and two levels, three variables 
+% with information on the factor.
 %
 % n_obs = 40;
 % n_vars = 400;

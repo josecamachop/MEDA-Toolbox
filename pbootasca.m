@@ -29,9 +29,9 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,nboot)
 % pboot: bootstrapped loadings
 %
 %
-% EXAMPLE OF USE: Random data, three variables with information on the factor:
-% This example takes long to compute, you may reduce the number of
-% variables or permutations.
+% EXAMPLE OF USE: Random data, one factor and two levels, three variables 
+% with information on the factor. This example takes long to compute, you  
+% may reduce the number of variables or permutations.
 %
 % n_obs = 40;
 % n_vars = 400;
@@ -62,11 +62,11 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,nboot)
 % xlabel('Variables in selected order','FontSize',18)
 %
 %
-% coded by: Rafa Vitale ()
+% coded by: Rafa Vitale (raffaele.vitale@univ-lille.fr)
 %           José Camacho (josecamacho@ugr.es)
 % last modification: 23/Sep/22
 %
-% Copyright (C) 2022  Raffael Vitale, Universidad de ....
+% Copyright (C) 2022  Raffael Vitale, Lille University
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
 % This program is free software: you can redistribute it and/or modify
