@@ -111,6 +111,7 @@ n_interactions      = size(interactions,1);              % number of interaction
 n_factors           = size(F,2);                         % number of factors
 SSQ_factors         = zeros(n_perm+1,n_factors,M);       % sum of squares for factors
 SSQ_interactions    = zeros(n_perm+1,n_interactions,M);  % sum of squares for interactions
+SSQ_residuals       = zeros(n_perm+1,M);                 % sum of squares for residuals
 F_factors           = zeros(n_perm+1,n_factors,M);       % F-value 
 F_interactions      = zeros(n_perm+1,n_interactions,M);  % F-value 
 p_factor            = zeros(n_factors,M);                % p-values factors
@@ -193,25 +194,25 @@ parglmo.B = B;
 % Create Effect Matrices
 parglmo.inter = D(:,1)*B(1,:);
 SSQ_inter = sum(parglmo.inter.^2);
-SSQ_residuals = sum(X_residuals.^2);
+SSQ_residuals(1,:) = sum(X_residuals.^2);
 
 for f = 1 : n_factors
     parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
     SSQ_factors(1,f,:) = sum(parglmo.factors{f}.matrix.^2);
-    F_factors(1,f,:) = squeeze(SSQ_factors(1,f,:)/df(f))./(SSQ_residuals/Rdf)';
+    F_factors(1,f,:) = squeeze(SSQ_factors(1,f,:)/df(f))./(SSQ_residuals(1,:)/Rdf)';
 end
 
 % Interactions
 for i = 1 : n_interactions
     parglmo.interactions{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
     SSQ_interactions(1,i,:) = sum(parglmo.interactions{i}.matrix.^2);
-    F_interactions(1,i,:) = squeeze(SSQ_interactions(1,i,:)/df_int(i))./(SSQ_residuals/Rdf)';
+    F_interactions(1,i,:) = squeeze(SSQ_interactions(1,i,:)/df_int(i))./(SSQ_residuals(1,:)/Rdf)';
 end
 
 if n_interactions
-    parglmo.effects = 100*([SSQ_inter' squeeze(SSQ_factors(1,:,:)) squeeze(SSQ_interactions(1,:,:)) SSQ_residuals']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
+    parglmo.effects = 100*([SSQ_inter' squeeze(SSQ_factors(1,:,:)) squeeze(SSQ_interactions(1,:,:)) SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
 else
-    parglmo.effects = 100*([SSQ_inter' squeeze(SSQ_factors(1,:,:)) SSQ_residuals']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
+    parglmo.effects = 100*([SSQ_inter' squeeze(SSQ_factors(1,:,:)) SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
 end
 parglmo.residuals = X_residuals;
 
@@ -234,7 +235,7 @@ for j = 1 : n_perm
     for i = 1 : n_interactions
         interacts{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
         SSQ_interactions(1 + j,i,:) = sum(interacts{i}.matrix.^2);
-        F_interactions(1 + j,i,:) = squeeze(SSQ_interactions(1 + j,i,:)/df_int(i))./(SSQ_residuals(1+j,:)/Rdf)';
+        F_interactions(1 + j,i,:) = squeeze(SSQ_interactions(1 + j,i,:)/df_int(i))./(SSQ_residuals(1 + j,:)/Rdf)';
     end
 
 end       
@@ -261,7 +262,7 @@ for factor = 1 : n_factors
         [~,ord] = sort(ts_factors(1 + j,factor,:),'descend');
         SSQ_factors(1 + j,factor,:) = SSQ_factors(1 + j,factor,ord);
         for var = 1 : M
-            F_factors(1 + j,factor,var) = (sum(SSQ_factors(1 + j,factor,ord(1:var)),3)/df(f))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
+            F_factors(1 + j,factor,var) = (sum(SSQ_factors(1 + j,factor,(1:var)),3)/df(f))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
         end    
     end
 end
@@ -275,7 +276,7 @@ for interaction = 1 : n_interactions
         [~,ord] = sort(ts_interactions(1 + j,interaction,:),'descend');
         SSQ_interactions(1 + j,interaction,:) = SSQ_interactions(1 + j,interaction,ord);
         for var = 1 : M
-            F_interactions(1 + j,interaction,var) = (sum(SSQ_factors(1 + j,interaction,ord(1:var)),3)/df(f))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
+            F_interactions(1 + j,interaction,var) = (sum(SSQ_factors(1 + j,interaction,(1:var)),3)/df(f))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
         end    
     end
 end

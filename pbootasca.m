@@ -1,4 +1,4 @@
-function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,nboot)
+function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,nboot,opt)
 
 % Bootstraping in ASCA models.
 %
@@ -20,6 +20,10 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,nboot)
 % nfact: [1x1] factor where bootstrapping is performed
 %
 % nboot: [1x1] number of runs (1000 by default)
+%
+% opt: (str or num) options for data plotting.
+%       0: no plots.
+%       1: plot (default)
 %
 %
 % OUTPUTS:
@@ -46,7 +50,7 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,nboot)
 % [TVS, parglmoVS] = parglmVS(X, class); % With multivariate variable selection
 %
 % ascao = asca(parglmo); % With variable selection through bootstrapping
-% bpvals = pbootasca(X, class, ascao, 1);
+% bpvals = pbootasca(X, class, ascao, 1, 1000, 0);
 % 
 %
 % h = figure; hold on
@@ -91,6 +95,7 @@ assert (nargin >= 4, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(X, 1);
 M = size(X, 2);
 if nargin < 5 || isempty(nboot), nboot = 1000; end;
+if nargin < 6 || isempty(opt), opt = 1; end;
 
 % Validate dimensions of input data
 assert (isequal(size(nfact), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -124,7 +129,12 @@ for j=1:size(pboot,2)
     bpvals(j) = (min(length(find(pboot(:,j)<0)),length(find(pboot(:,j)>=0)))+1)/1001;
 end
 
+%% Plot
 
+if opt, evalboot(p,pboot); end
+
+
+% Orthogonal procrustes
 function [r,yrot]=orth_proc(x,y)
 
 %Computes orthogonal procrustes rotation projecting matrix y onto the
@@ -135,3 +145,36 @@ function [r,yrot]=orth_proc(x,y)
 [u,~,v]=svd(y'*x,0);
 r=u*v';
 yrot=y*r;
+
+
+% Viz
+function evalboot(p,pboot)
+
+% Plots results
+
+for npc=1:size(pboot,3)
+    
+    figure
+    
+    plot_vec(p(:,npc), [], [], {'',sprintf('Loadings PC %d',npc)});
+    hold on
+    
+    for nvar=1:size(p,1)
+        
+        line([nvar nvar],[prctile(squeeze(pboot(:,nvar,npc)),0.5) prctile(squeeze(pboot(:,nvar,npc)),99.5)],'LineWidth',2,'Color','k')
+        line([nvar-.25 nvar+.25],[prctile(squeeze(pboot(:,nvar,npc)),0.5) prctile(squeeze(pboot(:,nvar,npc)),0.5)],'LineWidth',2,'Color','k')
+        line([nvar-.25 nvar+.25],[prctile(squeeze(pboot(:,nvar,npc)),99.5) prctile(squeeze(pboot(:,nvar,npc)),99.5)],'LineWidth',2,'Color','k')
+        
+    end
+        
+%     xlabel('variable ID','FontSize',16,'FontWeight','bold')
+%     ylabel(['PC #',num2str(npc)],'FontSize',16,'FontWeight','bold')
+     axis tight
+     axes=axis;
+     axis([0 size(p,1)+1 axes(3) axes(4)])
+%     box off
+%     set(gca,'FontSize',16,'FontWeight','bold')
+%     set(gcf,'Color','w')
+%     title('loadings plot','FontSize',16,'FontWeight','bold')
+    
+end
