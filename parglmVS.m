@@ -177,7 +177,7 @@ for f = 1 : n_factors
 end
 df_int = [];
 for i = 1 : n_interactions
-    df_int(i) = (df(interactions(i,1))+1)*(df(interactions(i,2))+1) - 1;
+    df_int(i) = (df(interactions(i,1))+1)*(df(interactions(i,2))+1);
     Rdf = Rdf-df_int(i);
 end
 if Rdf < 0
@@ -210,9 +210,9 @@ for i = 1 : n_interactions
 end
 
 if n_interactions
-    parglmo.effects = 100*([SSQ_inter' squeeze(SSQ_factors(1,:,:)) squeeze(SSQ_interactions(1,:,:)) SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
+    parglmo.effects = 100*([SSQ_inter' squeeze(SSQ_factors(1,:,:))' squeeze(SSQ_interactions(1,:,:))' SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
 else
-    parglmo.effects = 100*([SSQ_inter' squeeze(SSQ_factors(1,:,:)) SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
+    parglmo.effects = 100*([SSQ_inter' squeeze(SSQ_factors(1,:,:))' SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
 end
 parglmo.residuals = X_residuals;
 
@@ -326,15 +326,15 @@ name{end+1} = 'Residuals';
 name{end+1} = 'Total';
       
 if n_interactions
-    SSQ = sum([SSQ_inter' squeeze(SSQ_factors(1,:,:)) squeeze(SSQ_interactions(1,:,:)) SSQ_residuals(1,:)' SSQ_X'],1);
+    SSQ = sum([SSQ_inter' squeeze(SSQ_factors(1,:,:))' squeeze(SSQ_interactions(1,:,:))' SSQ_residuals(1,:)' SSQ_X'],1);
 else
-    SSQ = sum([SSQ_inter' squeeze(SSQ_factors(1,:,:)) SSQ_residuals(1,:)' SSQ_X'],1);
+    SSQ = sum([SSQ_inter' squeeze(SSQ_factors(1,:,:))' SSQ_residuals(1,:)' SSQ_X'],1);
 end
 par = [mean(parglmo.effects) 100];
 DoF = [1 df df_int Rdf Tdf];
 MSQ = SSQ./DoF;
 F = [nan mean(F_factors(1,:,:),3) mean(F_interactions(1,:,:),3) nan nan];
-p_value = [nan mean(p_factor,2) mean(p_interaction,2) nan nan];
+p_value = [nan mean(p_factor,2)' mean(p_interaction,2)' nan nan];
 
 T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'});
 

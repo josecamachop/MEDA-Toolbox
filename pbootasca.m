@@ -105,7 +105,7 @@ assert (isequal(size(nboot), [1 1]), 'Dimension Error: 5th argument must be 1-by
 %% Main code
 
 lev = F(:,nfact);
-p = ascao.factors{1}.loads;
+p = ascao.factors{nfact}.loads;
 
 for boot=1:nboot
     
