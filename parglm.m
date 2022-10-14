@@ -184,7 +184,7 @@ for f = 1 : n_factors
 end
 df_int = [];
 for i = 1 : n_interactions
-    df_int(i) = (df(interactions(i,1))+1)*(df(interactions(i,2))+1);
+    df_int(i) = (df(interactions(i,1)))*(df(interactions(i,2)));
     Rdf = Rdf-df_int(i);
 end
 if Rdf < 0
