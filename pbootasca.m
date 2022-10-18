@@ -106,12 +106,14 @@ assert (isequal(size(nboot), [1 1]), 'Dimension Error: 5th argument must be 1-by
 
 lev = F(:,nfact);
 p = ascao.factors{nfact}.loads;
+pboot = zeros([nboot,size(p)]); 
 
 for boot=1:nboot
     
-    for nl=1:max(lev)
+    uF = unique(lev);
+    for n1 = 1:length(uF)
         
-        ind=find(lev==nl);
+        ind=find(lev==uF(n1));
         bootind=ceil(length(ind)*rand(length(ind),1));
         yboot(ind,:)=X(ind(bootind),:);
         
@@ -121,7 +123,6 @@ for boot=1:nboot
     ascao = asca(parglmo); 
     pb = ascao.factors{nfact}.loads; 
     [~,pboot(boot,:,:)]=orth_proc(p,pb);
-    clear yboot
     
 end
 

@@ -4,6 +4,8 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal)
 % matrices in a crossed experimental design and permutation test for multivariate 
 % statistical significance. 
 %
+% Related routines: asca, apca, parglmVS, parglmMC, create_design
+%
 % T = parglm(X, F)   % minimum call
 % [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal)   % complete call
 %
@@ -28,7 +30,7 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal)
 % ts: [1x1] Use SSQ (0) or the F-value (otherwise, by default) as test statistic  
 %
 % ordinal: [1xF] whether factors are nominal or ordinal
-%       0: nominal
+%       0: nominal (default)
 %       1: ordinal
 %
 %
@@ -40,8 +42,53 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal)
 % matrices, p-values and explained variance 
 %
 %
-% EXAMPLE OF USE: Random data, two significative factors, with 4 and 3
-%   levels, and 4 replicates:
+% EXAMPLE OF USE (copy and paste the code in the command line) 
+%   Random data, two factors, with 4 and 3 levels, but only the first one 
+%   is significative, and 4 replicates
+%
+% reps = 4;
+% vars = 400;
+% levels = {[1,2,3,4],[1,2,3]};
+%
+% F = create_design(levels,reps);
+%
+% X = zeros(size(F,1),vars);
+% for i = 1:length(levels{1}),
+%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
+% end
+%
+% table = parglm(X, F)
+%
+%
+% EXAMPLE OF USE (copy and paste the code in the command line)
+%   Random data, two significative factors, with 4 and 3 levels, and 4 
+%   replicates
+%
+% reps = 4;
+% vars = 400;
+% levels = {[1,2,3,4],[1,2,3]};
+%
+% F = create_design(levels,reps);
+%
+% X = zeros(size(F,1),vars);
+% for i = 1:length(levels{1}),
+%     fi{i} = randn(1,vars);
+% end
+% for j = 1:length(levels{2}),
+%     fj{j} = randn(1,vars);
+% end
+% for i = 1:length(levels{1}),
+%     for j = 1:length(levels{2}),
+%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(fi{i} + fj{j},reps,1);
+%     end
+% end
+%
+% table = parglm(X, F, [1 2])
+%
+%
+% EXAMPLE OF USE (copy and paste the code in the command line)
+%   Random data, two factors with 4 and 3 levels, and 4 replicates, with 
+%   significant interaction
 %
 % reps = 4;
 % vars = 400;
@@ -56,28 +103,11 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal)
 %     end
 % end
 %
-% T = parglm(X, F)
-%
-%
-% EXAMPLE OF USE: Random data, two factors, with 4 and 3 levels, but only
-%   the first one is significative, and 4 replicates:
-%
-% reps = 4;
-% vars = 400;
-% levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
-% X = zeros(size(F,1),vars);
-% for i = 1:length(levels{1}),
-%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
-% end
-%
-% T = parglm(X, F)
+% table = parglm(X, F, [1 2])
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 23/Sep/22
+% last modification: 18/Oct/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -228,6 +258,7 @@ for j = 1 : n_perm
     X_residuals = X(perms, :) - D*B;
     SSQ_residualsp = sum(sum(X_residuals.^2));
     
+    % Factors
     for f = 1 : n_factors
         factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
         SSQ_factors(1 + j,f) = sum(sum(factors{f}.matrix.^2));
@@ -237,7 +268,7 @@ for j = 1 : n_perm
     % Interactions
     for i = 1 : n_interactions
         interacts{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);    
-        SSQ_interactions(1 + j,i) = sum(sum(parglmo.interactions{i}.matrix.^2));
+        SSQ_interactions(1 + j,i) = sum(sum(interacts{i}.matrix.^2));
         F_interactions(1 + j,i) = (SSQ_interactions(1 + j,i)/df_int(i))/(SSQ_residualsp/Rdf);
     end
 

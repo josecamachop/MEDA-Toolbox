@@ -5,6 +5,8 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
 % multivariate statistical significance that allows variable selection. This 
 % is the basis of VASCA (Variable-selection ASCA).
 %
+% Related routines: parglm, parglmMC, asca, apca, create_design
+%
 % T = parglmVS(X, F)   % minimum call
 % [T, parglmoVS] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)   % complete call
 %
@@ -41,8 +43,9 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
 % matrices, p-values and explained variance 
 %
 %
-% EXAMPLE OF USE: Random data, one factor and two levels, three variables 
-% with information on the factor.
+% EXAMPLE OF USE (copy and paste the code in the command line)
+% Random data, one factor and two levels, three variables with information 
+% on the factor.
 %
 % n_obs = 40;
 % n_vars = 400;
@@ -69,7 +72,7 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 23/Sep/22
+% last modification: 18/Oct/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -210,9 +213,9 @@ for i = 1 : n_interactions
 end
 
 if n_interactions
-    parglmo.effects = 100*([SSQ_inter' squeeze(SSQ_factors(1,:,:))' squeeze(SSQ_interactions(1,:,:))' SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
+    parglmo.effects = 100*([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) permute(SSQ_interactions(1,:,:),[3 2 1]) SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
 else
-    parglmo.effects = 100*([SSQ_inter' squeeze(SSQ_factors(1,:,:))' SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
+    parglmo.effects = 100*([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
 end
 parglmo.residuals = X_residuals;
 
@@ -225,6 +228,7 @@ for j = 1 : n_perm
     X_residuals = X(perms, :) - D*B;
     SSQ_residuals(1 + j,:) = sum(X_residuals.^2);
     
+    % Factors
     for f = 1 : n_factors
         factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
         SSQ_factors(1 + j,f,:) = sum(factors{f}.matrix.^2);
@@ -326,9 +330,9 @@ name{end+1} = 'Residuals';
 name{end+1} = 'Total';
       
 if n_interactions
-    SSQ = sum([SSQ_inter' squeeze(SSQ_factors(1,:,:))' squeeze(SSQ_interactions(1,:,:))' SSQ_residuals(1,:)' SSQ_X'],1);
+    SSQ = sum([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) permute(SSQ_interactions(1,:,:),[3 2 1]) SSQ_residuals(1,:)' SSQ_X'],1);
 else
-    SSQ = sum([SSQ_inter' squeeze(SSQ_factors(1,:,:))' SSQ_residuals(1,:)' SSQ_X'],1);
+    SSQ = sum([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) SSQ_residuals(1,:)' SSQ_X'],1);
 end
 par = [mean(parglmo.effects) 100];
 DoF = [1 df df_int Rdf Tdf];

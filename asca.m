@@ -8,14 +8,16 @@ function ascao = asca(paranovao)
 % ANOVA–principal component analysis and ANOVA–simultaneous component 
 % analysis: a comparison. Journal of Chemometrics, 2018, 25:561-567.
 %
-% ascao = asca(paranovao)   % complete call
+% Related routines: parglm, paranova, apca, gasca, create_design
+%
+% ascao = asca(parglm)   % complete call
 %
 %
 % INPUTS:
 %
-% paranovao (structure): structure with the factor and interaction
-% matrices, p-values and explained variance. Obtained with parallel anova
-% o parallel general linear model.
+% parglm (structure): structure with the factor and interaction matrices, 
+% p-values and explained variance. Obtained with parallel anova (deprecated) 
+% or parallel general linear model.
 %
 %
 % OUTPUTS:
@@ -24,8 +26,66 @@ function ascao = asca(paranovao)
 % values and projections of the factors and interactions.
 %
 %
-% EXAMPLE OF USE: Random data, two significative factors, with 4 and 3 
-%   levels, and 4 replicates:
+% EXAMPLE OF USE (copy and paste the code in the command line)
+%   Random data, two factors, with 4 and 3 levels, but only the first one 
+%   is significative, and 4 replicates:
+%
+% reps = 4;
+% vars = 400;
+% levels = {[1,2,3,4],[1,2,3]};
+%
+% F = create_design(levels,reps);
+%
+% X = zeros(size(F,1),vars);
+% for i = 1:length(levels{1}),
+%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
+% end
+%
+% [table, parglmo] = parglm(X, F);
+% table
+% 
+% ascao = asca(parglmo);
+%
+% for i=1:2, % Note, the second factor is shown for the sake of illustration
+%   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
+% end
+%
+%
+% EXAMPLE OF USE (copy and paste the code in the command line)
+%   Random data, two significative factors, with 4 and 3 levels, and 4 replicates:
+%
+% reps = 4;
+% vars = 400;
+% levels = {[1,2,3,4],[1,2,3]};
+%
+% F = create_design(levels,reps);
+%
+% X = zeros(size(F,1),vars);
+% for i = 1:length(levels{1}),
+%     fi{i} = randn(1,vars);
+% end
+% for j = 1:length(levels{2}),
+%     fj{j} = randn(1,vars);
+% end
+% for i = 1:length(levels{1}),
+%     for j = 1:length(levels{2}),
+%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(fi{i} + fj{j},reps,1);
+%     end
+% end
+%
+% [table, parglmo] = parglm(X, F, [1 2]);
+% table
+% 
+% ascao = asca(parglmo);
+%
+% for i=1:2,
+%   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
+% end
+%
+%
+% EXAMPLE OF USE (copy and paste the code in the command line)
+%   Random data, two factors with 4 and 3 levels, and 4 replicates, with 
+%   significant interaction:
 %
 % reps = 4;
 % vars = 400;
@@ -40,43 +100,22 @@ function ascao = asca(paranovao)
 %     end
 % end
 %
-% paranovao = parglm(X, F);
-% ascao = asca(paranovao);
+% [table, parglmo] = parglm(X, F, [1 2]);
+% table
+% 
+% ascao = asca(parglmo);
 %
-% for i=1:2,
-%   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
-% end
+% M = ascao.factors{1}.matrix + ascao.factors{2}.matrix + ascao.interactions{1}.matrix;
+% code_levels = F(:,1)*10+F(:,2);
+% scores_pca(M,1:2,X,0,101,[],code_levels);
+% legend(num2str(unique(code_levels)))
 %
-%
-% EXAMPLE OF USE: Random data, two factors, with 4 and 3 levels, but only
-%   the first one is significative, and 4 replicates:
-%
-% reps = 4;
-% vars = 400;
-% levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
-% X = zeros(size(F,1),vars);
-% for i = 1:length(levels{1}),
-%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
-% end
-%
-% paranovao = parglm(X, F);
-% ascao = asca(paranovao);
-%
-% for i=1:2,
-%   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
-% end
-%
-%
-% Related routines: parglm, paranova, apca, gasca, create_design
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 26/Apr/21
+% last modification: 17/Oct/22
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez
+% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2022  Jose Camacho Paez
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -121,7 +160,7 @@ for interaction = 1 : ascao.n_interactions
     xf = ascao.interactions{interaction}.matrix;
     p = pca_pp(xf,1:rank(xf));
     
-    ascao.factors{factor}.var = trace(xf'*xf);
+    ascao.interactions{interaction}.var = trace(xf'*xf);
     ascao.interactions{interaction}.lvs = 1:size(p,2);
     ascao.interactions{interaction}.loads = p;
     ascao.interactions{interaction}.scores = xf*p;
