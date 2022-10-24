@@ -68,10 +68,10 @@ function omeda_vec = omeda_Lpca(Lmodel,test,dummy,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 30/Oct/2016
+% last modification: 21/Oct/2022
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2022  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -97,9 +97,8 @@ check_Lmodel(Lmodel);
 N = Lmodel.nc;
 M = size(Lmodel.XX, 2);
 
-if isempty(test), test = x; end;
 L = size(test, 1);
-if isempty(dummy), dummyones(L,1); end;
+if isempty(dummy), dummy = ones(L,1); end;
 if nargin < 4 || isempty(opt), opt = '100'; end; 
 
 A = length(Lmodel.lvs);

@@ -189,7 +189,8 @@ if Rdf < 0
 end
 
 % GLM model calibration with LS, only fixed factors
-B = pinv(D'*D)*D'*X;
+pD =  pinv(D'*D)*D';
+B = pD*X;
 X_residuals = X - D*B;
 parglmo.D = D;
 parglmo.B = B;
@@ -224,7 +225,7 @@ for j = 1 : n_perm
     
     perms = randperm(size(X,1)); % permuted data (permute whole rows)
     
-    B = pinv(D'*D)*D'*X(perms, :);
+    B = pD*X(perms, :);
     X_residuals = X(perms, :) - D*B;
     SSQ_residuals(1 + j,:) = sum(X_residuals.^2);
     

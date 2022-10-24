@@ -100,10 +100,8 @@ check_Lmodel(Lmodel);
 
 N = Lmodel.nc;
 M = size(Lmodel.XX, 2);
-
-if isempty(test), test = x; end;
 L = size(test, 1);
-if isempty(dummy), dummyones(L,1); end;
+if isempty(dummy), dummy = ones(L,1); end;
 if nargin < 4 || isempty(opt), opt = '100'; end; 
 
 A = length(Lmodel.lvs);

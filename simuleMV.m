@@ -96,7 +96,8 @@ if uselevel,
             disp('Warning: correlation level too low. Resulting matrix may show a higher correlation due to structural constraints.')
         end
         X = real(ADICOV(eye(vars),randn(obs2,vars),vars));
-        COV = corr(X);
+        Xs = preprocess2D(X,2);
+        COV = X'*X/(size(X,1)-1);
         corM = COV + 0.01*eye(vars);
     else
         if obs < vars,
