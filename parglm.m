@@ -107,7 +107,7 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 18/Oct/22
+% last modification: 24/Oct/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -147,10 +147,11 @@ assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1.
                   
 n_interactions      = size(interactions,1);      % number of interactions
 n_factors           = size(F,2);                 % number of factors
-SSQ_factors         = zeros(1,n_factors,1);      % sum of squares for factors
-SSQ_interactions    = zeros(1,n_interactions);   % sum of squares for interactions
-F_factors         = zeros(n_perm + 1,n_factors,1);      % F for factors
-F_interactions    = zeros(n_perm + 1,n_interactions);   % F for interactions
+mtcc                = n_factors + n_interactions;       % correction for the number of tests
+SSQ_factors         = zeros(n_perm*mtcc,n_factors,1);      % sum of squares for factors
+SSQ_interactions    = zeros(n_perm*mtcc,n_interactions);   % sum of squares for interactions
+F_factors         = zeros(n_perm*mtcc + 1,n_factors,1);      % F for factors
+F_interactions    = zeros(n_perm*mtcc + 1,n_interactions);   % F for interactions
 p_factor            = zeros(1, n_factors);       % p-values factors
 p_interaction       = zeros(1, n_interactions);  % p-values interactions
 
@@ -166,6 +167,7 @@ SSQ_X = sum(sum(X.^2));
 
 % Make structure with general 'variables'
 parglmo.data           = X;
+parglmo.prep           = prep;
 parglmo.design         = F;
 parglmo.n_factors      = n_factors;
 parglmo.n_interactions = n_interactions;
@@ -251,7 +253,7 @@ parglmo.effects = 100*([SSQ_inter SSQ_factors(1,:) SSQ_interactions(1,:) SSQ_res
 parglmo.residuals = X_residuals;
 
 % Permutations
-for j = 1 : n_perm
+for j = 1 : n_perm*mtcc
     
     perms = randperm(size(X,1)); % permuted data (permute whole data matrix)
       
@@ -285,15 +287,18 @@ else
 end
     
 % Calculate p-values
-% how many ssq's are larger than measurement ssq?
 for factor = 1 : n_factors
-    p_factor(factor) = (size(find(ts_factors(2:n_perm + 1, factor) >= ts_factors(1, factor)),1) + 1)/(n_perm+1);
+    p_factor(factor) = (size(find(ts_factors(2:(n_perm*mtcc + 1), factor) >= ts_factors(1, factor)),1) + 1)/(n_perm*mtcc+1);
 end
 for interaction = 1 : n_interactions
-    p_interaction(interaction) = (size(find(ts_interactions(2:n_perm + 1, interaction) ...
-        >= ts_interactions(1, interaction)),1) + 1)/(n_perm+1);
+    p_interaction(interaction) = (size(find(ts_interactions(2:(n_perm*mtcc + 1), interaction) ...
+        >= ts_interactions(1, interaction)),1) + 1)/(n_perm*mtcc+1);
 end
 parglmo.p = [p_factor p_interaction];
+
+% Multiple test correction for several factors/interactions
+p_factor = min(1,p_factor * mtcc); 
+p_interaction = min(Inf,p_interaction * mtcc); 
 
 
 %% ANOVA-like output table

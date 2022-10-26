@@ -122,11 +122,12 @@ assert (isequal(size(mtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-1
 
 n_interactions      = size(interactions,1);              % number of interactions
 n_factors           = size(F,2);                         % number of factors
-SSQ_factors         = zeros(n_perm*M+1,n_factors,M);       % sum of squares for factors
-SSQ_interactions    = zeros(n_perm*M+1,n_interactions,M);  % sum of squares for interactions
-SSQ_residuals       = zeros(n_perm*M+1,M);                 % sum of squares for residuals
-F_factors           = zeros(n_perm*M+1,n_factors,M);       % F-value 
-F_interactions      = zeros(n_perm*M+1,n_interactions,M);  % F-value 
+mtcc                = n_factors + n_interactions;        % correction for the number of tests
+SSQ_factors         = zeros(n_perm*M*mtcc+1,n_factors,M);       % sum of squares for factors
+SSQ_interactions    = zeros(n_perm*M*mtcc+1,n_interactions,M);  % sum of squares for interactions
+SSQ_residuals       = zeros(n_perm*M*mtcc+1,M);                 % sum of squares for residuals
+F_factors           = zeros(n_perm*M*mtcc+1,n_factors,M);       % F-value 
+F_interactions      = zeros(n_perm*M*mtcc+1,n_interactions,M);  % F-value 
 p_factor            = zeros(n_factors,M);                % p-values factors
 p_interaction       = zeros(n_interactions,M);           % p-values interactions
 
@@ -142,6 +143,7 @@ SSQ_X = sum(X.^2);
 
 % Make structure with unchanging 'variables'
 parglmo.data           = X;
+parglmo.prep           = prep;
 parglmo.design         = F;
 parglmo.n_factors      = n_factors;
 parglmo.n_interactions = n_interactions;
@@ -231,7 +233,7 @@ end
 parglmo.residuals = X_residuals;
 
 % Permutations
-for j = 1 : (n_perm * M) % Increase the number of permutations to perform MTC
+for j = 1 : (n_perm * M * mtcc) % Increase the number of permutations to perform MTC
     
     perms = randperm(size(X,1)); % permuted data (permute whole data matrix)
     
@@ -268,14 +270,14 @@ end
 for factor = 1 : n_factors
     for var = 1 : M
         p_factor(factor,var) = (size(find(ts_factors(2:end,factor,var) ...
-            >= ts_factors(1,factor,var)) ,1) + 1)/(n_perm*M + 1);
+            >= ts_factors(1,factor,var)) ,1) + 1)/(n_perm*M*mtcc + 1);
     end
     [~,ord_factors(factor,:)] = sort(p_factor(factor,:),'ascend');
 end
 for interaction = 1 : n_interactions
     for var = 1 : M
         p_interaction(interaction,var) = (size(find(ts_interactions(2:end,interaction,var) ...
-            >= ts_interactions(1,interaction,var)) ,1) + 1)/(n_perm*M + 1);
+            >= ts_interactions(1,interaction,var)) ,1) + 1)/(n_perm*M*mtcc + 1);
     end
     [~,ord_interactions(interaction,:)] = sort(p_interaction(interaction,:),'ascend');
 end
@@ -316,6 +318,10 @@ switch mtc
         end
 end
    
+% Multiple test correction for several factors/interactions
+p_factor = min(1,p_factor * mtcc); 
+p_interaction = min(Inf,p_interaction * mtcc);
+
 parglmo.p = [p_factor' p_interaction'];
 
 %% ANOVA-like output table

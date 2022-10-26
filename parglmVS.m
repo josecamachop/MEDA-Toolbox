@@ -112,11 +112,12 @@ assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1.
 
 n_interactions      = size(interactions,1);              % number of interactions
 n_factors           = size(F,2);                         % number of factors
-SSQ_factors         = zeros(n_perm+1,n_factors,M);       % sum of squares for factors
-SSQ_interactions    = zeros(n_perm+1,n_interactions,M);  % sum of squares for interactions
-SSQ_residuals       = zeros(n_perm+1,M);                 % sum of squares for residuals
-F_factors           = zeros(n_perm+1,n_factors,M);       % F-value 
-F_interactions      = zeros(n_perm+1,n_interactions,M);  % F-value 
+mtcc                = n_factors + n_interactions;        % correction for the number of tests
+SSQ_factors         = zeros(n_perm*mtcc+1,n_factors,M);       % sum of squares for factors
+SSQ_interactions    = zeros(n_perm*mtcc+1,n_interactions,M);  % sum of squares for interactions
+SSQ_residuals       = zeros(n_perm*mtcc+1,M);                 % sum of squares for residuals
+F_factors           = zeros(n_perm*mtcc+1,n_factors,M);       % F-value 
+F_interactions      = zeros(n_perm*mtcc+1,n_interactions,M);  % F-value 
 p_factor            = zeros(n_factors,M);                % p-values factors
 p_interaction       = zeros(n_interactions,M);           % p-values interactions
 
@@ -132,6 +133,7 @@ SSQ_X = sum(X.^2);
 
 % Make structure with unchanging 'variables'
 parglmo.data           = X;
+parglmo.prep           = prep;
 parglmo.design         = F;
 parglmo.n_factors      = n_factors;
 parglmo.n_interactions = n_interactions;
@@ -221,7 +223,7 @@ end
 parglmo.residuals = X_residuals;
 
 % Permutations
-for j = 1 : n_perm
+for j = 1 : n_perm*mtcc
     
     perms = randperm(size(X,1)); % permuted data (permute whole rows)
     
@@ -295,11 +297,11 @@ end
 for factor = 1 : n_factors
     for var = 1 : M
         if ts
-            p_factor(factor,ord_factors(factor,var)) = (size(find( F_factors(2:end,factor,var) ...
-                >= F_factors(1, factor,ord_factors(factor,var))), 1) + 1)/(n_perm+1);
+            p_factor(factor,ord_factors(factor,var)) = (size(find( F_factors(2:(n_perm*mtcc + 1),factor,var) ...
+                >= F_factors(1, factor,ord_factors(factor,var))), 1) + 1)/(n_perm*mtcc+1);
         else
-            p_factor(factor,ord_factors(factor,var)) = (size(find( sum(SSQ_factors(2:end,factor,1:var),3) ...
-                >= sum(SSQ_factors(1, factor,ord_factors(factor,1:var)))), 1) + 1)/(n_perm+1);
+            p_factor(factor,ord_factors(factor,var)) = (size(find( sum(SSQ_factors(2:(n_perm*mtcc + 1),factor,1:var),3) ...
+                >= sum(SSQ_factors(1, factor,ord_factors(factor,1:var)))), 1) + 1)/(n_perm*mtcc+1);
         end
     end
 end
@@ -307,14 +309,18 @@ for interaction = 1 : n_interactions
     for var = 1 : M
         if ts
             p_interaction(interaction,ord_interactions(interaction,var)) = (size(find( F_interactions(2:end,interaction,var) ...
-                >= F_interactions(1, interaction, ord_interactions(interaction,var))), 1) + 1)/(n_perm+1);
+                >= F_interactions(1, interaction, ord_interactions(interaction,var))), 1) + 1)/(n_perm*mtcc+1);
         else
             p_interaction(interaction,ord_interactions(interaction,var)) = (size(find( sum(SSQ_interactions(2:end,interaction,1:var),3) ...
-                >= sum(SSQ_interactions(1, interaction, ord_interactions(interaction,1:var)))), 1) + 1)/(n_perm+1);
+                >= sum(SSQ_interactions(1, interaction, ord_interactions(interaction,1:var)))), 1) + 1)/(n_perm*mtcc+1);
         end
     end
 end
         
+% Multiple test correction for several factors/interactions
+p_factor = min(1,p_factor * mtcc); 
+p_interaction = min(Inf,p_interaction * mtcc);
+
 parglmo.p = [p_factor' p_interaction'];
 
 

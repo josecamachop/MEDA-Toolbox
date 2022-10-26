@@ -1,9 +1,9 @@
-function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,nboot,opt)
+function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,nboot,opt,pvalue)
 
 % Bootstraping in ASCA models.
 %
 % bpvals = pbootasca(X,F,ascao,nfact) % minimum call
-% [bpvals,pboot] = pbootasca(X,F,ascao,nfact,nboot) complete
+% [bpvals,pboot] = pbootasca(X,F,ascao,nfact,nboot,pvalue) complete
 %
 %
 % INPUTS:
@@ -24,6 +24,8 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,nboot,opt)
 % opt: (str or num) options for data plotting.
 %       0: no plots.
 %       1: plot (default)
+%
+% pvalue: [1x1] singificance for the intervals to plot (0.01 by default)
 %
 %
 % OUTPUTS:
@@ -68,7 +70,7 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,nboot,opt)
 %
 % coded by: Rafa Vitale (raffaele.vitale@univ-lille.fr)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 23/Sep/22
+% last modification: 26/Oct/22
 %
 % Copyright (C) 2022  Raffael Vitale, Lille University
 % Copyright (C) 2022  José Camacho, Universidad de Granada
@@ -96,6 +98,7 @@ N = size(X, 1);
 M = size(X, 2);
 if nargin < 5 || isempty(nboot), nboot = 1000; end;
 if nargin < 6 || isempty(opt), opt = 1; end;
+if nargin < 7 || isempty(pvalue), pvalue = 0.01; end;
 
 % Validate dimensions of input data
 assert (isequal(size(nfact), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -119,7 +122,7 @@ for boot=1:nboot
         
     end
     
-    [~, parglmo] = parglm(yboot,F); 
+    [~, parglmo] = parglm(yboot,F,[],ascao.prep); 
     ascao = asca(parglmo); 
     pb = ascao.factors{nfact}.loads; 
     [~,pboot(boot,:,:)]=orth_proc(p,pb);
@@ -127,12 +130,12 @@ for boot=1:nboot
 end
 
 for j=1:size(pboot,2)
-    bpvals(j) = (min(length(find(pboot(:,j)<0)),length(find(pboot(:,j)>=0)))+1)/1001;
+    bpvals(j) = (min(length(find(pboot(:,j)<0)),length(find(pboot(:,j)>=0)))+1)/(nboot+1);
 end
 
 %% Plot
 
-if opt, evalboot(p,pboot); end
+if opt, evalboot(p,pboot,pvalue); end
 
 
 % Orthogonal procrustes
@@ -149,7 +152,7 @@ yrot=y*r;
 
 
 % Viz
-function evalboot(p,pboot)
+function evalboot(p,pboot,pvalue)
 
 % Plots results
 
@@ -162,20 +165,22 @@ for npc=1:size(pboot,3)
     
     for nvar=1:size(p,1)
         
-        line([nvar nvar],[prctile(squeeze(pboot(:,nvar,npc)),0.5) prctile(squeeze(pboot(:,nvar,npc)),99.5)],'LineWidth',2,'Color','k')
-        line([nvar-.25 nvar+.25],[prctile(squeeze(pboot(:,nvar,npc)),0.5) prctile(squeeze(pboot(:,nvar,npc)),0.5)],'LineWidth',2,'Color','k')
-        line([nvar-.25 nvar+.25],[prctile(squeeze(pboot(:,nvar,npc)),99.5) prctile(squeeze(pboot(:,nvar,npc)),99.5)],'LineWidth',2,'Color','k')
+        PM = prctile(squeeze(pboot(:,nvar,npc)),100);
+        Pm = prctile(squeeze(pboot(:,nvar,npc)),0);
+        if abs(PM)>abs(Pm)
+            Pm = prctile(squeeze(pboot(:,nvar,npc)),pvalue*100);
+        else
+            PM = prctile(squeeze(pboot(:,nvar,npc)),(1-pvalue)*100);
+        end
+        
+        line([nvar nvar],[Pm PM],'LineWidth',2,'Color','k')
+        line([nvar-.25 nvar+.25],[PM PM],'LineWidth',2,'Color','k')
+        line([nvar-.25 nvar+.25],[Pm Pm],'LineWidth',2,'Color','k')
         
     end
         
-%     xlabel('variable ID','FontSize',16,'FontWeight','bold')
-%     ylabel(['PC #',num2str(npc)],'FontSize',16,'FontWeight','bold')
      axis tight
      axes=axis;
      axis([0 size(p,1)+1 axes(3) axes(4)])
-%     box off
-%     set(gca,'FontSize',16,'FontWeight','bold')
-%     set(gcf,'Color','w')
-%     title('loadings plot','FontSize',16,'FontWeight','bold')
     
 end

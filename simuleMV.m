@@ -97,7 +97,7 @@ if uselevel,
         end
         X = real(ADICOV(eye(vars),randn(obs2,vars),vars));
         Xs = preprocess2D(X,2);
-        COV = X'*X/(size(X,1)-1);
+        COV = Xs'*Xs/(size(X,1)-1);
         corM = COV + 0.01*eye(vars);
     else
         if obs < vars,
