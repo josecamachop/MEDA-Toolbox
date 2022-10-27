@@ -123,11 +123,8 @@ assert (isequal(size(mtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-1
 n_interactions      = size(interactions,1);              % number of interactions
 n_factors           = size(F,2);                         % number of factors
 mtcc                = n_factors + n_interactions;        % correction for the number of tests
-SSQ_factors         = zeros(n_perm*M*mtcc+1,n_factors,M);       % sum of squares for factors
-SSQ_interactions    = zeros(n_perm*M*mtcc+1,n_interactions,M);  % sum of squares for interactions
-SSQ_residuals       = zeros(n_perm*M*mtcc+1,M);                 % sum of squares for residuals
-F_factors           = zeros(n_perm*M*mtcc+1,n_factors,M);       % F-value 
-F_interactions      = zeros(n_perm*M*mtcc+1,n_interactions,M);  % F-value 
+ts_factors         = zeros(n_perm*M+1,n_factors,M);       % sum of squares for factors
+ts_interactions    = zeros(n_perm*M+1,n_interactions,M);  % sum of squares for interactions
 p_factor            = zeros(n_factors,M);                % p-values factors
 p_interaction       = zeros(n_interactions,M);           % p-values interactions
 
@@ -210,74 +207,78 @@ parglmo.B = B;
 % Create Effect Matrices
 parglmo.inter = D(:,1)*B(1,:);
 SSQ_inter = sum(parglmo.inter.^2);
-SSQ_residuals(1,:) = sum(X_residuals.^2);
+SSQ_residuals = sum(X_residuals.^2);
 
 for f = 1 : n_factors
     parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
-    SSQ_factors(1,f,:) = sum(parglmo.factors{f}.matrix.^2);
-    F_factors(1,f,:) = squeeze(SSQ_factors(1,f,:)/df(f))./(SSQ_residuals(1,:)/Rdf)';
+    SSQ_factors(f,:) = sum(parglmo.factors{f}.matrix.^2);
+    F_factors(f,:) = (SSQ_factors(f,:)/df(f))./(SSQ_residuals/Rdf);
 end
 
 % Interactions
 for i = 1 : n_interactions
     parglmo.interactions{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
-    SSQ_interactions(1,i,:) = sum(parglmo.interactions{i}.matrix.^2);
-    F_interactions(1,i,:) = squeeze(SSQ_interactions(1,i,:)/df_int(i))./(SSQ_residuals(1,:)/Rdf)';
+    SSQ_interactions(i,:) = sum(parglmo.interactions{i}.matrix.^2);
+    F_interactions(i,:) = (SSQ_interactions(i,:)/df_int(i))./(SSQ_residuals/Rdf);
 end
     
 if n_interactions
-    parglmo.effects = 100*([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) permute(SSQ_interactions(1,:,:),[3 2 1]) SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
+    parglmo.effects = 100*([SSQ_inter' SSQ_factors' SSQ_interactions' SSQ_residuals']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
 else
-    parglmo.effects = 100*([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
+    parglmo.effects = 100*([SSQ_inter' SSQ_factors' SSQ_residuals']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
 end
 parglmo.residuals = X_residuals;
 
 % Permutations
-for j = 1 : (n_perm * M * mtcc) % Increase the number of permutations to perform MTC
+for j = 1 : (n_perm * M) % Increase the number of permutations to perform MTC
     
     perms = randperm(size(X,1)); % permuted data (permute whole data matrix)
     
     B = pD*X(perms, :);
     X_residuals = X(perms, :) - D*B;
-    SSQ_residuals(1 + j,:) = sum(X_residuals.^2);
+    SSQ_residuals_p = sum(X_residuals.^2);
     
     % Factors
+    SSQ_factors_p = [];
+    F_factors_p = [];
     for f = 1 : n_factors
         factor_matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
-        SSQ_factors(1 + j,f,:) = sum(factor_matrix.^2);
-        F_factors(1 + j,f,:) = squeeze(SSQ_factors(1 + j,f,:)/df(f))./(SSQ_residuals(1 + j,:)/Rdf)';
+        SSQ_factors_p(f,:) = sum(factor_matrix.^2);
+        F_factors_p(f,:) = (SSQ_factors_p(f,:)/df(f))./(SSQ_residuals_p/Rdf);
     end
     
     % Interactions
+    SSQ_interactions_p = [];
+    F_interactions_p = [];
     for i = 1 : n_interactions
         interacts_matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
-        SSQ_interactions(1 + j,i,:) = sum(interacts_matrix.^2);
-        F_interactions(1 + j,i,:) = squeeze(SSQ_interactions(1 + j,i,:)/df_int(i))./(SSQ_residuals(1 + j,:)/Rdf)';
+        SSQ_interactions_p(i,:) = sum(interacts_matrix.^2);
+        F_interactions_p(i,:) = (SSQ_interactions_p(i,:)/df_int(i))./(SSQ_residuals_p/Rdf);
     end
-    
+   
+    % Select test statistic to order variables
+    if ts
+        ts_factors(1 + j,:,:) = F_factors_p;
+        ts_interactions(1 + j,:,:) = F_interactions_p;
+    else
+        ts_factors(1 + j,:,:) = SSQ_factors_p;
+        ts_interactions(1 + j,:,:) = SSQ_interactions_p;
+    end
 end        
-    
-% Select test statistic to order variables
-if ts
-    ts_factors = F_factors;
-    ts_interactions = F_interactions;
-else
-    ts_factors = SSQ_factors;
-    ts_interactions = SSQ_interactions;
-end
+   
 
 % Calculate univariate p-values and order variables by relevance
 for factor = 1 : n_factors
     for var = 1 : M
         p_factor(factor,var) = (size(find(ts_factors(2:end,factor,var) ...
-            >= ts_factors(1,factor,var)) ,1) + 1)/(n_perm*M*mtcc + 1);
+            >= ts_factors(1,factor,var)) ,1) + 1)/(n_perm*M + 1);
     end
     [~,ord_factors(factor,:)] = sort(p_factor(factor,:),'ascend');
 end
 for interaction = 1 : n_interactions
     for var = 1 : M
         p_interaction(interaction,var) = (size(find(ts_interactions(2:end,interaction,var) ...
-            >= ts_interactions(1,interaction,var)) ,1) + 1)/(n_perm*M*mtcc + 1);
+            >= ts_interactions(1,interaction,var)) ,1) + 1)/(n_perm*M + 1);
     end
     [~,ord_interactions(interaction,:)] = sort(p_interaction(interaction,:),'ascend');
 end
@@ -337,14 +338,14 @@ name{end+1} = 'Residuals';
 name{end+1} = 'Total';
       
 if n_interactions
-    SSQ = sum([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) permute(SSQ_interactions(1,:,:),[3 2 1]) SSQ_residuals(1,:)' SSQ_X'],1);
+    SSQ = sum([SSQ_inter' SSQ_factors' SSQ_interactions' SSQ_residuals' SSQ_X'],1);
 else
-    SSQ = sum([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) SSQ_residuals(1,:)' SSQ_X'],1);
+    SSQ = sum([SSQ_inter' SSQ_factors' SSQ_residuals' SSQ_X'],1);
 end
 par = [mean(parglmo.effects) 100];
 DoF = [1 df df_int Rdf Tdf];
 MSQ = SSQ./DoF;
-F = [nan mean(F_factors(1,:,:),3) mean(F_interactions(1,:,:),3) nan nan];
+F = [nan mean(F_factors,2)' mean(F_interactions,2)' nan nan];
 p_value = [nan mean(p_factor,2)' mean(p_interaction,2)' nan nan];
 
 T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'});
