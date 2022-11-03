@@ -209,6 +209,8 @@ parglmo.inter = D(:,1)*B(1,:);
 SSQ_inter = sum(parglmo.inter.^2);
 SSQ_residuals = sum(X_residuals.^2);
 
+SSQ_factors = [];
+F_factors = [];
 for f = 1 : n_factors
     parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
     SSQ_factors(f,:) = sum(parglmo.factors{f}.matrix.^2);
@@ -216,6 +218,8 @@ for f = 1 : n_factors
 end
 
 % Interactions
+SSQ_interactions = [];
+F_interactions = [];
 for i = 1 : n_interactions
     parglmo.interactions{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
     SSQ_interactions(i,:) = sum(parglmo.interactions{i}.matrix.^2);
@@ -229,6 +233,15 @@ else
 end
 parglmo.residuals = X_residuals;
 
+% Select test statistic to order variables
+if ts
+    ts_factors(1,:,:) = F_factors;
+    ts_interactions(1,:,:) = F_interactions;
+else
+    ts_factors(1,:,:) = SSQ_factors;
+    ts_interactions(1,:,:) = SSQ_interactions;
+end
+    
 % Permutations
 for j = 1 : (n_perm * M) % Increase the number of permutations to perform MTC
     

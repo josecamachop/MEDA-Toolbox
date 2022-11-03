@@ -294,11 +294,12 @@ for interaction = 1 : n_interactions
     p_interaction(interaction) = (size(find(ts_interactions(2:(n_perm*mtcc + 1), interaction) ...
         >= ts_interactions(1, interaction)),1) + 1)/(n_perm*mtcc+1);
 end
-parglmo.p = [p_factor p_interaction];
 
 % Multiple test correction for several factors/interactions
 p_factor = min(1,p_factor * mtcc); 
 p_interaction = min(Inf,p_interaction * mtcc); 
+
+parglmo.p = [p_factor p_interaction];
 
 
 %% ANOVA-like output table
