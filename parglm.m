@@ -107,7 +107,7 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 24/Oct/22
+% last modification: 11/Nov/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -287,17 +287,17 @@ else
 end
     
 % Calculate p-values
-for factor = 1 : n_factors
-    p_factor(factor) = (size(find(ts_factors(2:(n_perm*mtcc + 1), factor) >= ts_factors(1, factor)),1) + 1)/(n_perm*mtcc+1);
+for f = 1 : n_factors
+    p_factor(f) = (size(find(ts_factors(2:(n_perm*mtcc + 1), f) >= ts_factors(1, f)),1) + 1)/(n_perm*mtcc+1);
 end
-for interaction = 1 : n_interactions
-    p_interaction(interaction) = (size(find(ts_interactions(2:(n_perm*mtcc + 1), interaction) ...
-        >= ts_interactions(1, interaction)),1) + 1)/(n_perm*mtcc+1);
+for i = 1 : n_interactions
+    p_interaction(i) = (size(find(ts_interactions(2:(n_perm*mtcc + 1), i) ...
+        >= ts_interactions(1, i)),1) + 1)/(n_perm*mtcc+1);
 end
 
 % Multiple test correction for several factors/interactions
 p_factor = min(1,p_factor * mtcc); 
-p_interaction = min(Inf,p_interaction * mtcc); 
+p_interaction = min(1,p_interaction * mtcc); 
 
 parglmo.p = [p_factor p_interaction];
 
@@ -305,11 +305,11 @@ parglmo.p = [p_factor p_interaction];
 %% ANOVA-like output table
 
 name={'Mean'};
-for factor = 1 : n_factors
-    name{end+1} = sprintf('Factor %d',factor);
+for f = 1 : n_factors
+    name{end+1} = sprintf('Factor %d',f);
 end
-for interaction = 1 : n_interactions
-    name{end+1} = sprintf('Interaction %d',interaction);
+for i = 1 : n_interactions
+    name{end+1} = sprintf('Interaction %d',i);
 end
 name{end+1} = 'Residuals';
 name{end+1} = 'Total';

@@ -80,7 +80,7 @@ function [T, parglmo] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, 
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 18/Oct/22
+% last modification: 11/Nov/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -281,19 +281,19 @@ end
    
 
 % Calculate univariate p-values and order variables by relevance
-for factor = 1 : n_factors
+for f = 1 : n_factors
     for var = 1 : M
-        p_factor(factor,var) = (size(find(ts_factors(2:end,factor,var) ...
-            >= ts_factors(1,factor,var)) ,1) + 1)/(n_perm*M + 1);
+        p_factor(f,var) = (size(find(ts_factors(2:end,f,var) ...
+            >= ts_factors(1,f,var)) ,1) + 1)/(n_perm*M + 1);
     end
-    [~,ord_factors(factor,:)] = sort(p_factor(factor,:),'ascend');
+    [~,ord_factors(f,:)] = sort(p_factor(f,:),'ascend');
 end
-for interaction = 1 : n_interactions
+for i = 1 : n_interactions
     for var = 1 : M
-        p_interaction(interaction,var) = (size(find(ts_interactions(2:end,interaction,var) ...
-            >= ts_interactions(1,interaction,var)) ,1) + 1)/(n_perm*M + 1);
+        p_interaction(i,var) = (size(find(ts_interactions(2:end,i,var) ...
+            >= ts_interactions(1,i,var)) ,1) + 1)/(n_perm*M + 1);
     end
-    [~,ord_interactions(interaction,:)] = sort(p_interaction(interaction,:),'ascend');
+    [~,ord_interactions(i,:)] = sort(p_interaction(i,:),'ascend');
 end
 
 parglmo.ord_factors = ord_factors;
@@ -308,26 +308,26 @@ switch mtc
         p_interaction = min(Inf,p_interaction * M); 
         
     case 2 % Holm/Hochberg
-        for factor = 1 : n_factors
+        for f = 1 : n_factors
             for var = 1 : M 
-                p_factor(factor,ord_factors(factor,var)) = min(1,p_factor(factor,ord_factors(factor,var)) * (M-var+1));
+                p_factor(f,ord_factors(f,var)) = min(1,p_factor(f,ord_factors(f,var)) * (M-var+1));
             end
         end
-        for interaction = 1 : n_interactions
+        for i = 1 : n_interactions
             for var = 1 : M
-                p_interaction(interaction,ord_interactions(interaction,var)) = min(1,p_interaction(interaction,ord_interaction(interaction,var)) * (M-var+1));
+                p_interaction(i,ord_interactions(i,var)) = min(1,p_interaction(i,ord_interaction(i,var)) * (M-var+1));
             end
         end
         
     case 3 % Benjamini & Hochberg
-        for factor = 1 : n_factors
+        for f = 1 : n_factors
             for var = 1 : M
-                p_factor(factor,ord_factors(factor,var)) = min(1,p_factor(factor,ord_factors(factor,var)) * M/var);
+                p_factor(f,ord_factors(f,var)) = min(1,p_factor(f,ord_factors(f,var)) * M/var);
             end
         end
-        for interaction = 1 : n_interactions
+        for i = 1 : n_interactions
             for var = 1 : M
-                p_interaction(interaction,ord_interactions(interaction,var)) = min(1,p_interaction(interaction,ord_interaction(interaction,var)) * M/var);
+                p_interaction(i,ord_interactions(i,var)) = min(1,p_interaction(i,ord_interaction(i,var)) * M/var);
             end
         end
 end
@@ -341,11 +341,11 @@ parglmo.p = [p_factor' p_interaction'];
 %% ANOVA-like output table
 
 name={'Mean'};
-for factor = 1 : n_factors
-    name{end+1} = sprintf('Factor %d',factor);
+for f = 1 : n_factors
+    name{end+1} = sprintf('Factor %d',f);
 end
-for interaction = 1 : n_interactions
-    name{end+1} = sprintf('Interaction %d',interaction);
+for i = 1 : n_interactions
+    name{end+1} = sprintf('Interaction %d',i);
 end
 name{end+1} = 'Residuals';
 name{end+1} = 'Total';

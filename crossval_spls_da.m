@@ -189,7 +189,7 @@ for i=1:blocks_r,
     scs = preprocess2Dapp(sample,av,st);
     scs = preprocess2Dapp(scs,mean(m));
 
-    [ccs,PR] = reduce2(ccs,coef);
+    %[ccs,PR] = reduce2(ccs,coef);
     
     if  ~isempty(find(lvs)),
         
@@ -201,7 +201,7 @@ for i=1:blocks_r,
                     model = sparsepls2(ccs, ccs_y, lvs(lv), keepXs(keepX)*ones(size(1:lvs(lv))), O*ones(size(1:lvs(lv))), 500, 1e-10, 1, 0);
                     beta = model.R*model.Q';
                    
-                    srec1(test,lv,keepX,:) = scs*PR*beta;
+                    srec1(test,lv,keepX,:) = scs*beta;%scs*PR*beta;
 					nze(lv,keepX) = nze(lv,keepX) + length(find(beta)); 
                 else
                     srec1(test,lv,keepX,:) = 0;

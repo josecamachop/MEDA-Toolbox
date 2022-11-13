@@ -72,7 +72,7 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 18/Oct/22
+% last modification: 12/Nov/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -259,31 +259,31 @@ end
 % Order variables by relevance
 ord_factors =  zeros(n_factors,M);
 ord_interactions =  zeros(n_interactions,M);
-for factor = 1 : n_factors
-    [~,ord_factors(factor,:)] = sort(ts_factors(1,factor,:),'descend');
+for f = 1 : n_factors
+    [~,ord_factors(f,:)] = sort(ts_factors(1,f,:),'descend');
     for var = 1 : M
-        F_factors(1,factor,ord_factors(factor,var)) = (sum(SSQ_factors(1,factor,ord_factors(factor,1:var)),3)/df(f))./(sum(SSQ_residuals(1,ord_factors(factor,1:var)),2)/Rdf);
+        F_factors(1,f,ord_factors(f,var)) = (sum(SSQ_factors(1,f,ord_factors(f,1:var)),3)/df(f))./(sum(SSQ_residuals(1,ord_factors(f,1:var)),2)/Rdf);
     end    
         
-    for j = 1 : n_perm
-        [~,ord] = sort(ts_factors(1 + j,factor,:),'descend');
-        SSQ_factors(1 + j,factor,:) = SSQ_factors(1 + j,factor,ord);
+    for j = 1 : n_perm*mtcc
+        [~,ord] = sort(ts_factors(1 + j,f,:),'descend');
+        SSQ_factors(1 + j,f,:) = SSQ_factors(1 + j,f,ord);
         for var = 1 : M
-            F_factors(1 + j,factor,var) = (sum(SSQ_factors(1 + j,factor,(1:var)),3)/df(f))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
+            F_factors(1 + j,f,var) = (sum(SSQ_factors(1 + j,f,1:var),3)/df(f))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
         end    
     end
 end
-for interaction = 1 : n_interactions
-    [~,ord_interactions(interaction,:)] = sort(ts_interactions(1,interaction,:),'descend');
+for i = 1 : n_interactions
+    [~,ord_interactions(i,:)] = sort(ts_interactions(1,i,:),'descend');
     for var = 1 : M
-        F_interactions(1,interaction,ord_interactions(interaction,var)) = (sum(SSQ_interactions(1,interaction,ord_interactions(interaction,1:var)),3)/df(f))./(sum(SSQ_residuals(1,ord_interactions(interaction,1:var)),2)/Rdf);
+        F_interactions(1,i,ord_interactions(i,var)) = (sum(SSQ_interactions(1,i,ord_interactions(i,1:var)),3)/df_int(i))./(sum(SSQ_residuals(1,ord_interactions(i,1:var)),2)/Rdf);
     end  
     
-    for j = 1 : n_perm
-        [~,ord] = sort(ts_interactions(1 + j,interaction,:),'descend');
-        SSQ_interactions(1 + j,interaction,:) = SSQ_interactions(1 + j,interaction,ord);
+    for j = 1 : n_perm*mtcc
+        [~,ord] = sort(ts_interactions(1 + j,i,:),'descend');
+        SSQ_interactions(1 + j,i,:) = SSQ_interactions(1 + j,i,ord);
         for var = 1 : M
-            F_interactions(1 + j,interaction,var) = (sum(SSQ_factors(1 + j,interaction,(1:var)),3)/df(f))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
+            F_interactions(1 + j,i,var) = (sum(SSQ_interactions(1 + j,i,1:var),3)/df_int(i))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
         end    
     end
 end
@@ -294,32 +294,32 @@ if n_interactions>0
 end
 
 % Calculate multivariate p-values
-for factor = 1 : n_factors
+for f = 1 : n_factors
     for var = 1 : M
         if ts
-            p_factor(factor,ord_factors(factor,var)) = (size(find( F_factors(2:(n_perm*mtcc + 1),factor,var) ...
-                >= F_factors(1, factor,ord_factors(factor,var))), 1) + 1)/(n_perm*mtcc+1);
+            p_factor(f,ord_factors(f,var)) = (size(find( F_factors(2:(n_perm*mtcc + 1),f,var) ...
+                >= F_factors(1, f,ord_factors(f,var))), 1) + 1)/(n_perm*mtcc+1);
         else
-            p_factor(factor,ord_factors(factor,var)) = (size(find( sum(SSQ_factors(2:(n_perm*mtcc + 1),factor,1:var),3) ...
-                >= sum(SSQ_factors(1, factor,ord_factors(factor,1:var)))), 1) + 1)/(n_perm*mtcc+1);
+            p_factor(f,ord_factors(f,var)) = (size(find( sum(SSQ_factors(2:(n_perm*mtcc + 1),f,1:var),3) ...
+                >= sum(SSQ_factors(1, f,ord_factors(f,1:var)))), 1) + 1)/(n_perm*mtcc+1);
         end
     end
 end
-for interaction = 1 : n_interactions
+for i = 1 : n_interactions
     for var = 1 : M
         if ts
-            p_interaction(interaction,ord_interactions(interaction,var)) = (size(find( F_interactions(2:end,interaction,var) ...
-                >= F_interactions(1, interaction, ord_interactions(interaction,var))), 1) + 1)/(n_perm*mtcc+1);
+            p_interaction(i,ord_interactions(i,var)) = (size(find( F_interactions(2:(n_perm*mtcc + 1),i,var) ...
+                >= F_interactions(1, i, ord_interactions(i,var))), 1) + 1)/(n_perm*mtcc+1);
         else
-            p_interaction(interaction,ord_interactions(interaction,var)) = (size(find( sum(SSQ_interactions(2:end,interaction,1:var),3) ...
-                >= sum(SSQ_interactions(1, interaction, ord_interactions(interaction,1:var)))), 1) + 1)/(n_perm*mtcc+1);
+            p_interaction(i,ord_interactions(i,var)) = (size(find( sum(SSQ_interactions(2:(n_perm*mtcc + 1),i,1:var),3) ...
+                >= sum(SSQ_interactions(1, i, ord_interactions(i,1:var)))), 1) + 1)/(n_perm*mtcc+1);
         end
     end
 end
         
 % Multiple test correction for several factors/interactions
 p_factor = min(1,p_factor * mtcc); 
-p_interaction = min(Inf,p_interaction * mtcc);
+p_interaction = min(1,p_interaction * mtcc);
 
 parglmo.p = [p_factor' p_interaction'];
 
@@ -327,11 +327,11 @@ parglmo.p = [p_factor' p_interaction'];
 %% ANOVA-like output table
 
 name={'Mean'};
-for factor = 1 : n_factors
-    name{end+1} = sprintf('Factor %d',factor);
+for f = 1 : n_factors
+    name{end+1} = sprintf('Factor %d',f);
 end
-for interaction = 1 : n_interactions
-    name{end+1} = sprintf('Interaction %d',interaction);
+for i = 1 : n_interactions
+    name{end+1} = sprintf('Interaction %d',i);
 end
 name{end+1} = 'Residuals';
 name{end+1} = 'Total';

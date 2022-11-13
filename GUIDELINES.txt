@@ -1,7 +1,7 @@
 ﻿MEDA Toolbox for its use in MATLAB. Guidelines of use.
 
 Contact person: José Camacho Páez (josecamacho@ugr.es)
-Last modification of this document: 02/Nov/18
+Last modification of this document: 10/Nov/22
 
 The Multivariate Exploratory Data Analysis (MEDA) Toolbox in Matlab is a set of multivariate analysis tools for the exploration of data sets. 
 There are several alternative tools in the market for that purpose, both commercial and free. The PLS_Toolbox from Eigenvector Inc. 
@@ -43,6 +43,12 @@ An introduction to the exploratory tools in the MEDA toolbox can be found in:
 
 - GASCA ==> Metabolomics. 2018; 14(6): 73.
 
+- XCAN ==> Chemometrics and Intelligent Laboratory Systems, 2020, 203: 104038.
+
+- SDI ==> Chemometrics and Intelligent Laboratory Systems, 2020, 206: 104160.
+
+- VASCA ==> Bioinformatics, 2022 (submitted)
+
 Loading and Score plots in the toolbox are 2D scatter plots in the sub-space of the PCA or PLS model. Residual plots are line/bar plots
 of the squared residuals of the variables/observations. Leverage plots are line/bar plots of the squared scores of the variables/observations.
 
@@ -67,6 +73,12 @@ simuleMV is a simulation engine for multivariate data.
 
 GPLS and GASCA are the GPCA extension to PLS and ASCA, respectively.
 
+XCAN is a contrained version of PCA, that can apply constrains in rows and columns.
+
+SDI is a procedure to find interesting subspaces in a PLS-DA model.
+
+VASCA is a variable-selection version of ASCA.
+
 
 2) Working with the MEDA Toolbox
  
@@ -90,8 +102,8 @@ Please, note that the software is provided "as is" and we do not accept any resp
 suggestions, please contact josecamacho@ugr.es
 
 
-Copyright (C) 2018  Universidad de Granada
-Copyright (C) 2018  José Camacho Páez
+Copyright (C) 2022  Universidad de Granada
+Copyright (C) 2022  José Camacho Páez
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

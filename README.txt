@@ -33,7 +33,7 @@ Items in the folder:
 
 - toolbox routines:
 
-	- projection models: pca_pp.m (PCA), kernel_pls.m (PLS), gia & gpca (GPCA), sparsepls2 (SPLS), gpls, gasca, x-can 
+	- projection models: pca_pp.m (PCA), kernel_pls.m & simpls.m (PLS), parglm & asca & apca (ANOVA+PCA) gia & gpca (GPCA), sparsepls2 (SPLS), gpls, gasca, SDI, parglmVS (VASCA) 
 
 	- exploratory & visualization tools: SVIplot.m (SVI plots), scores_pca.m & scores_pls.m (Socre plots), loadings_pca.m & loadings_pls.m (Loading plots), 
 		meda_pca.m & meda_pls.m (MEDA), omeda_pca.m & omeda_pls.m (oMEDA), mspc_pca.m & mspc_pls.m (MSPC), leverages_pca.m & leverages_pls.m (leverages of variables)
@@ -58,8 +58,8 @@ Items in the folder:
 
 - Examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox.
 
-Copyright (C) 2019  Universidad de Granada
-Copyright (C) 2019  José Camacho Páez
+Copyright (C) 2022  Universidad de Granada
+Copyright (C) 2022  José Camacho Páez
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
