@@ -144,6 +144,9 @@ if nargin < 9 || isempty(classes),
 end
 if nargin < 10 || isempty(blur),    blur    = 1;       end;
 
+% Covert classes from num to str
+if isnumeric(classes), classes = num2str(classes); end
+
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
@@ -212,5 +215,6 @@ if opt(1) == '1',
             end      
         end
     end
+    legend(unique(classes))
 end
         

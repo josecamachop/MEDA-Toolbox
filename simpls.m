@@ -35,10 +35,9 @@ ncomp = max(lvs);
 dy = size(Y,2);
 
 % Preallocate outputs
-outClass = superiorfloat(X,Y);
-Xloadings = zeros(dx,ncomp,outClass);
-Yloadings = zeros(dy,ncomp,outClass);
-Weights = zeros(dx,ncomp,outClass);
+Xloadings = zeros(dx,ncomp);
+Yloadings = zeros(dy,ncomp);
+Weights = zeros(dx,ncomp);
 
 
 % An orthonormal basis for the span of the X loadings, to make the successive
@@ -47,10 +46,11 @@ Weights = zeros(dx,ncomp,outClass);
 V = zeros(dx,ncomp);
 
 Cov = X'*Y;
-for i = 1:ncomp
+for i = 1:ncomp,
     % Find unit length ti=X*ri and ui=Y*ci whose covariance, ri'*X'*Y*ci, is
     % jointly maximized, subject to ti'*tj=0 for j=1:(i-1).
-    [ri,si,ci] = svd(Cov,'econ'); ri = ri(:,1); ci = ci(:,1); si = si(1);
+    [ri,si,ci] = svd(Cov,'econ'); 
+    ri = ri(:,1); ci = ci(:,1); si = si(1);
     ti = X*ri;
     normti = norm(ti); ti = ti ./ normti; % ti'*ti == 1
     Xloadings(:,i) = X'*ti;
@@ -63,8 +63,8 @@ for i = 1:ncomp
     % Update the orthonormal basis with modified Gram Schmidt (more stable),
     % repeated twice (ditto).
     vi = Xloadings(:,i);
-    for repeat = 1:2
-        for j = 1:i-1
+    for repeat = 1:2,
+        for j = 1:i-1,
             vj = V(:,j);
             vi = vi - (vj'*vi)*vj;
         end

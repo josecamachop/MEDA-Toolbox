@@ -952,13 +952,16 @@ end
 handles.data.sp_ID_figures=new_sp_ID_figures;%Vector actualizado con los identificadores de los Score Plots abiertos 
 handles.data.sp_matrix=new_sp_matrix;
 
-if isempty(handles.data.label) && isempty(handles.data.classes),
+if isempty(handles.data.label) && isempty(handles.data.classes)
     [T,TT]=scores_pca(handles.data.data_matrix,[handles.data.PC1 handles.data.PC2],[],handles.data.prep,1);
-else if ~isempty(handles.data.label) && isempty(handles.data.classes),
+else
+    if ~isempty(handles.data.label) && isempty(handles.data.classes)
         [T,TT]=scores_pca(handles.data.data_matrix,[handles.data.PC1 handles.data.PC2],[],handles.data.prep,1,handles.data.label);
-    else if isempty(handles.data.label) && ~isempty(handles.data.classes),
+    else
+        if isempty(handles.data.label) && ~isempty(handles.data.classes)
             [T,TT]=scores_pca(handles.data.data_matrix,[handles.data.PC1 handles.data.PC2],[],handles.data.prep,1,[],handles.data.classes);
-        else [T,TT]=scores_pca(handles.data.data_matrix,[handles.data.PC1 handles.data.PC2],[],handles.data.prep,1,handles.data.label,handles.data.classes);
+        else
+            [T,TT]=scores_pca(handles.data.data_matrix,[handles.data.PC1 handles.data.PC2],[],handles.data.prep,1,handles.data.label,handles.data.classes);
         end
     end
 end

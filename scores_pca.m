@@ -74,10 +74,10 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes,blur)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 4/Nov/18.
+% last modification: 15/Nov/22
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2022  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -133,6 +133,9 @@ if nargin < 7 || isempty(classes),
 end
 if nargin < 8 || isempty(blur),    blur    = 1;       end;
 
+% Covert classes from num to str
+if isnumeric(classes), classes = num2str(classes); end
+    
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
@@ -194,5 +197,6 @@ if opt(1) == '1',
             end      
         end
     end
+    legend(unique(classes))
 end
         

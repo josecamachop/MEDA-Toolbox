@@ -6,8 +6,8 @@ function varargout = PLS(varargin)
 %loading_pls.m, meda_pls.m, omeda_pls.m, scores_pls.m,
 %sqresiduals_pls.m and var_pls.m
 %
-% PCA % minimum call
-% PCA(x,y,lvs,prepX,prepY) % complete call
+% PLS % minimum call
+% PLS(x,y,lvs,prepX,prepY) % complete call
 %
 %
 % INPUTS:
@@ -1116,13 +1116,16 @@ end
 handles.data.sp_ID_figures=new_sp_ID_figures;%Identificadores de los Score Plots abiertos actualizado
 handles.data.sp_matrix=new_sp_matrix;
 
-if isempty(handles.data.label) && isempty(handles.data.classes),
+if isempty(handles.data.label) && isempty(handles.data.classes)
     [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1);
-else if ~isempty(handles.data.label) && isempty(handles.data.classes),
+else
+    if ~isempty(handles.data.label) && isempty(handles.data.classes)
         [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1,handles.data.label);
-    else if isempty(handles.data.label) && ~isempty(handles.data.classes),
+    else
+        if isempty(handles.data.label) && ~isempty(handles.data.classes)
             [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1,[],handles.data.classes);
-        else [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1,handles.data.label,handles.data.classes);
+        else
+            [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1,handles.data.label,handles.data.classes);
         end
     end
 end
