@@ -202,7 +202,5 @@ if opt(1) == '1',
             end      
         end
     end
-    uc =  unique(classes,'stable');
-    if length(uc)>1, legend(uc); end
 end
         
