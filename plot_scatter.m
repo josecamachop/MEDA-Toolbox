@@ -74,10 +74,10 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 11/May/2021
+% last modification: 17/Nov/2022
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez
+% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2022  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -120,9 +120,10 @@ if size(lcont,1) == 1, lcont = lcont'; end;
 if size(mult,1) == 1, mult = mult'; end;
 if size(maxv,2) == 1, maxv = maxv'; end;
 
-% Convert int arrays to str
+% Convert num arrays to str
 if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
 if isnumeric(opt), opt=num2str(opt); end
+if ~isempty(classes) && isnumeric(classes), classes=num2str(classes); end
 
 % Complete opt
 while length(opt)<3, opt = strcat(opt,'0'); end
@@ -153,21 +154,21 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must cont
 fig_h = figure;
 hold on;
 
-% Preprocess classes to force them start with 1, 2...n,
-unique_classes = unique(classes);
+% Get ordering of classes
+unique_classes = unique(classes,'stable');
 if iscell(classes)
-     normal_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
+     ord_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
 else
-     normal_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
+     ord_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
 end
-unique_classes = unique(normal_classes);
+unique_ord_classes = unique(ord_classes);
 
 % Define mult bins, markers, colors and sizes 
 bins = [0 1 maxv Inf];
 markers = ['^','v','d','o','s'];
 
-color_list = hsv(length(unique_classes));
-colors = color_list(normal_classes, :);
+color_list = hsv(length(unique(ord_classes)));
+colors = color_list(ord_classes, :);
 
 sizes = zeros(size(mult));
 for i=1:length(bins)-1
@@ -176,42 +177,42 @@ end
 
 switch opt
     case '000',  % 2D plot, No multiplicity info, filled marks
-        for i=1:length(unique_classes)
-            ind = find(normal_classes == unique_classes(i));
-            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'filled','DisplayName',num2str(unique_classes(i)));
+        for i=1:length(unique_ord_classes)
+            ind = find(ord_classes == unique_ord_classes(i));
+            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'filled','DisplayName',unique_classes{i});
         end
 
     case '010',  % 2D plot, No multiplicity info, empty marks
-        for i=1:length(unique_classes)
-            ind = find(normal_classes == unique_classes(i));
-            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'DisplayName',num2str(unique_classes(i)));
+        for i=1:length(unique_ord_classes)
+            ind = find(ord_classes == unique_ord_classes(i));
+            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'DisplayName',unique_classes{i});
         end
     
     case '100',  % 2D plot, Multiplicity in size
-        for i=1:length(unique_classes)
-            ind = find(normal_classes == unique_classes(i));
-            scatter(bdata(ind,1), bdata(ind,2),sizes(ind), colors(ind,:),'filled','DisplayName',num2str(unique_classes(i)));
+        for i=1:length(unique_ord_classes)
+            ind = find(ord_classes == unique_ord_classes(i));
+            scatter(bdata(ind,1), bdata(ind,2),sizes(ind), colors(ind,:),'filled','DisplayName',unique_classes{i});
         end
     
     case '101',  % 2D plot, Multiplicity in markers
-        for i=1:length(unique_classes)
+        for i=1:length(unique_ord_classes)
             for j=1:length(bins)-1
-                ind = find(normal_classes==unique_classes(i) & mult<=bins(j+1) & mult>bins(j));
-                disp_name = strcat(num2str(unique_classes(i)), ' (mult: > ', num2str(bins(j)), ')');
+                ind = find(ord_classes == unique_ord_classes(i) & mult<=bins(j+1) & mult>bins(j));
+                disp_name = strcat(num2str(unique_ord_classes(i)), ' (mult: > ', num2str(bins(j)), ')');
                 scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:), 'filled', markers(j), 'DisplayName', disp_name);
             end
         end
     
     case '110',  % 3D plot, Multiplicity in Z-axis
-        for i=1:length(unique_classes)
-            ind = find(normal_classes == unique_classes(i));
-            scatter3(bdata(ind,1), bdata(ind,2), mult(ind), [], colors(ind,:), 'filled', 'DisplayName',num2str(unique_classes(i)));
+        for i=1:length(unique_ord_classes)
+            ind = find(ord_classes == unique_ord_classes(i));
+            scatter3(bdata(ind,1), bdata(ind,2), mult(ind), [], colors(ind,:), 'filled', 'DisplayName',unique_classes{i});
         end
     
     case '111',  % 3D plot, Multiplicity in size, classes in Z-axis
-        for i=1:length(unique_classes)
-            ind = find(normal_classes == unique_classes(i));
-            scatter3(bdata(ind,1), bdata(ind,2), normal_classes(ind), sizes(ind), colors(ind,:), 'filled', 'DisplayName',num2str(unique_classes(i)));
+        for i=1:length(unique_ord_classes)
+            ind = find(ord_classes == unique_ord_classes(i));
+            scatter3(bdata(ind,1), bdata(ind,2), classes(ind), sizes(ind), colors(ind,:), 'filled', 'DisplayName',unique_classes{i});
         end
 end
 
@@ -289,7 +290,7 @@ if ~isempty(elabel)
                 case '110'
                     text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
                 case '111'
-                    text(posx, posy, normal_classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
+                    text(posx, posy, classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
                 otherwise
                     text(posx, posy, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
             end

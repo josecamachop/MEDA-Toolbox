@@ -52,10 +52,10 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 11/May/2021
+% last modification: 17/Nov/2022
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez
+% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2022  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -98,9 +98,9 @@ if size(vlabel,1)  == 1, vlabel = vlabel'; end;
 if size(mult,1) == 1, mult = mult'; end;
 if size(maxv,2) == 1, maxv = maxv'; end;
 
-% Convert int arrays to str
-
+% Convert num arrays to str
 if ~isempty(vlabel) && isnumeric(vlabel), vlabel=num2str(vlabel); end
+if ~isempty(classes) && isnumeric(classes), classes=num2str(classes); end
 
 % Convert char arrays to cell
 if ischar(elabel),  elabel = cellstr(elabel); end;
@@ -137,12 +137,13 @@ fig_h = figure;
 hold on;
 
 % Preprocess classes to force them start with 1, 2...n,
-unique_classes = unique(classes);
+unique_classes = unique(classes,'stable');
 if iscell(classes)
-    classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
+    ord_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
 else
-    classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
+    ord_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
 end
+unique_ord_classes = unique(ord_classes);
 
 % Plot vectors
 
@@ -164,7 +165,6 @@ for j=1:length(bins)-1,
 end
 
 if ~isempty(classes)
-    unique_classes = unique(classes);
     color_list = hsv(length(unique_classes));
     if opt == '0',
         if isnumeric(elabel) && length(elabel)==length(unique(elabel))
@@ -174,7 +174,7 @@ if ~isempty(classes)
         end
     end  
     for i=1:length(unique_classes)
-        ind = classes == unique_classes(i);
+        ind = ord_classes == unique_ord_classes(i);
         if isnumeric(elabel) && length(elabel)==length(unique(elabel))
             vind = elabel(find(ind));
         else
@@ -183,9 +183,9 @@ if ~isempty(classes)
             
         
         if opt == '0',
-            plot(vind, vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', color_list(i,:), 'DisplayName', num2str(unique_classes(i)));
+            plot(vind, vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', color_list(i,:), 'DisplayName', unique_classes{i});
         else 
-           bar([0;vind;max(vind)+1], [0;vec(ind,:);0], 0.8, 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
+           bar([0;vind;max(vind)+1], [0;vec(ind,:);0], 0.8, 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', unique_classes{i});
         end
     end 
 else

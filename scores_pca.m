@@ -133,14 +133,6 @@ if nargin < 7 || isempty(classes),
 end
 if nargin < 8 || isempty(blur),    blur    = 1;       end;
 
-% Covert classes from num to str
-if isnumeric(classes), 
-    for i = 1:length(classes),
-        classesb{i} = num2str(classes(i)); 
-    end
-    classes = classesb;
-end
-
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
