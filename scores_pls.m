@@ -83,10 +83,10 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 8/Apr/20
+% last modification: 17/Nov/22
 %
-% Copyright (C) 2020  University of Granada, Granada
-% Copyright (C) 2020  Jose Camacho Paez
+% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2022  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -145,7 +145,12 @@ end
 if nargin < 10 || isempty(blur),    blur    = 1;       end;
 
 % Covert classes from num to str
-if isnumeric(classes), classes = num2str(classes); end
+if isnumeric(classes), 
+    for i = 1:length(classes),
+        classesb{i} = num2str(classes(i)); 
+    end
+    classes = classesb;
+end
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -215,6 +220,7 @@ if opt(1) == '1',
             end      
         end
     end
-    legend(unique(classes))
+    uc =  unique(classes,'stable');
+    if length(uc)>1, legend(uc); end
 end
         

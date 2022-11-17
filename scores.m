@@ -83,10 +83,10 @@ function [T,TT] = scores(model,test,opt,tit,label,classes,blur)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 6/Apr/2021
+% last modification: 17/Nov/22
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez, Alejandro Perez Villegas
+% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2022  Jose Camacho Paez, Alejandro Perez Villegas
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -140,6 +140,14 @@ if nargin < 6 || isempty(classes),
     end
 end
 if nargin < 7 || isempty(blur),    blur    = 1;       end;
+
+% Covert classes from num to str
+if isnumeric(classes), 
+    for i = 1:length(classes),
+        classesb{i} = num2str(classes(i)); 
+    end
+    classes = classesb;
+end
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -196,5 +204,7 @@ if opt(1) == '1',
             end      
         end
     end
+    uc =  unique(classes,'stable');
+    if length(uc)>1, legend(uc); end
 end
         

@@ -1,4 +1,4 @@
-function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
+function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, fmtc)
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
 % matrices in a crossed experimental design and permutation test for incremental
@@ -8,7 +8,7 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
 % Related routines: parglm, parglmMC, asca, apca, create_design
 %
 % T = parglmVS(X, F)   % minimum call
-% [T, parglmoVS] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)   % complete call
+% [T, parglmoVS] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, fmtc)   % complete call
 %
 %
 % INPUTS:
@@ -33,6 +33,11 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
 % ordinal: [1xF] whether factors are nominal or ordinal
 %       0: nominal
 %       1: ordinal
+% 
+% fmtc: [1x1] whether to correct for multiple-tesis when multifactorial
+% analysis or not.
+%       0: do not correct (default)
+%       1: correct
 %
 %
 % OUTPUTS:
@@ -72,7 +77,7 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 12/Nov/22
+% last modification: 16/Nov/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -101,18 +106,24 @@ if nargin < 4 || isempty(prep), prep = 2; end;
 if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
 if nargin < 6 || isempty(ts), ts = 1; end;
 if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
+if nargin < 8 || isempty(fmtc), fmtc = 0; end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(fmtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
 n_interactions      = size(interactions,1);              % number of interactions
 n_factors           = size(F,2);                         % number of factors
-mtcc                = n_factors + n_interactions;        % correction for the number of tests
+if fmtc,
+    mtcc                = n_factors + n_interactions;        % correction for the number of tests
+else,
+    mtcc = 1;
+end
 SSQ_factors         = zeros(n_perm*mtcc+1,n_factors,M);       % sum of squares for factors
 SSQ_interactions    = zeros(n_perm*mtcc+1,n_interactions,M);  % sum of squares for interactions
 SSQ_residuals       = zeros(n_perm*mtcc+1,M);                 % sum of squares for residuals

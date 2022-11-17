@@ -1,4 +1,4 @@
-function [T, parglmo] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, mtc)
+function [T, parglmo] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, mtc, fmtc)
 
 % Parallel General Linear Model to obtain factor and interaction matrices 
 % in a crossed experimental design and permutation test for univariate 
@@ -8,7 +8,7 @@ function [T, parglmo] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, 
 % Related routines: parglm, parglmVS, asca, apca, create_design
 %
 % T = parglmMC(X, F)   % minimum call
-% [T, parglmoMC] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, mtc)   % complete call
+% [T, parglmoMC] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, mtc, fmtc)   % complete call
 %
 %
 % INPUTS:
@@ -38,6 +38,11 @@ function [T, parglmo] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, 
 %       1: Bonferroni 
 %       2: Holm step-up or Hochberg step-down
 %       3: Benjamini-Hochberg step-down (FDR, by default)
+% 
+% fmtc: [1x1] whether to correct for multiple-tesis when multifactorial
+% analysis or not.
+%       0: do not correct (default)
+%       1: correct
 %
 % OUTPUTS:
 %
@@ -80,7 +85,7 @@ function [T, parglmo] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, 
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 11/Nov/22
+% last modification: 16/Nov/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -110,19 +115,25 @@ if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
 if nargin < 6 || isempty(ts), ts = 1; end;
 if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
 if nargin < 8 || isempty(mtc), mtc = 3; end;
+if nargin < 9 || isempty(fmtc), fmtc = 0; end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(mtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(fmtc), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
 n_interactions      = size(interactions,1);              % number of interactions
 n_factors           = size(F,2);                         % number of factors
-mtcc                = n_factors + n_interactions;        % correction for the number of tests
+if fmtc,
+    mtcc                = n_factors + n_interactions;        % correction for the number of tests
+else,
+    mtcc = 1;
+end
 ts_factors         = zeros(n_perm*M+1,n_factors,M);       % sum of squares for factors
 ts_interactions    = zeros(n_perm*M+1,n_interactions,M);  % sum of squares for interactions
 p_factor            = zeros(n_factors,M);                % p-values factors
