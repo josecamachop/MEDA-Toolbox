@@ -311,55 +311,58 @@ end
 parglmo.p = [p_factor' p_interaction'];
 
 % Multiple test correction
-switch mtc,
+switch mtc
     
-    case 1 % Bonferroni 
-        if fmtc,
-            parglmo.p = min(1,parglmo.p * M * mtcc); 
-        else,
-            parglmo.p = min(1,parglmo.p * M); 
+    case 1 % Bonferroni
+        if fmtc
+            parglmo.q = min(1,parglmo.p * M * mtcc);
+        else
+            parglmo.q = min(1,parglmo.p * M);
         end
         
     case 2 % Holm/Hochberg
         
-        if fmtc,
+        if fmtc
+            parglmo.q = parglmo.p;
             [~,indx] = sort(parglmo.p(:),'ascend');
-            for ind = 1 : length(indx) 
-                parglmo.p(indx(ind)) = min(1,parglmo.p(indx(ind)) * ((M*mtcc)-ind+1));
+            for ind = 1 : length(indx)
+                parglmo.q(indx(ind)) = min(1,parglmo.p(indx(ind)) * ((M*mtcc)-ind+1));
             end
-        else,        
-            for f = 1 : n_factors,
-                for var = 1 : M ,
+        else
+            for f = 1 : n_factors
+                for var = 1 : M
                     p_factor(f,ord_factors(f,var)) = min(1,p_factor(f,ord_factors(f,var)) * (M-var+1));
                 end
             end
-            for i = 1 : n_interactions,
-                for var = 1 : M,
+            for i = 1 : n_interactions
+                for var = 1 : M
                     p_interaction(i,ord_interactions(i,var)) = min(1,p_interaction(i,ord_interaction(i,var)) * (M-var+1));
                 end
             end
-            parglmo.p = [p_factor' p_interaction'];
+            parglmo.q = [p_factor' p_interaction'];
         end
         
     case 3 % Benjamini & Hochberg
-                
-        if fmtc,
+        
+        if fmtc
+            parglmo.q = parglmo.p;
             [~,indx] = sort(parglmo.p(:),'ascend');
-            for ind = 1 : length(indx) 
-                parglmo.p(indx(ind)) = min(1,parglmo.p(indx(ind)) * (M*mtcc)/ind);
+            parglmo.q(indx(end)) = parglmo.p(indx(end));
+            for ind = length(indx)-1 : -1 : 1
+                parglmo.q(indx(ind)) = min([1,parglmo.p(indx(ind)) * (M*mtcc)/ind,parglmo.q(indx(ind+1))]);
             end
-        else,
-            for f = 1 : n_factors,
-                for var = 1 : M,
-                    p_factor(f,ord_factors(f,var)) = min(1,p_factor(f,ord_factors(f,var)) * M/var);
+        else
+            for f = 1 : n_factors
+                for var = M-1 : -1 : 1
+                    p_factor(f,ord_factors(f,var)) = min([1,p_factor(f,ord_factors(f,var)) * M/var,p_factor(f,ord_factors(f,var+1))]);
                 end
             end
-            for i = 1 : n_interactions,
-                for var = 1 : M,
-                    p_interaction(i,ord_interactions(i,var)) = min(1,p_interaction(i,ord_interaction(i,var)) * M/var);
+            for i = 1 : n_interactions
+                for var = M-1 : -1 : 1
+                    p_interaction(i,ord_interactions(i,var)) = min([1,p_interaction(i,ord_interaction(i,var)) * M/var,p_interaction(i,ord_interactions(i,var+1))]);
                 end
             end
-            parglmo.p = [p_factor' p_interaction'];
+            parglmo.q = [p_factor' p_interaction'];
         end
 end
 
@@ -387,5 +390,10 @@ MSQ = SSQ./DoF;
 F = [nan mean(F_factors,2)' mean(F_interactions,2)' nan nan];
 p_value = [nan mean(parglmo.p) nan nan];
 
-T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'});
+if mtcc > 1 && fmtc
+    q_value = [nan mean(parglmo.q) nan nan];
+    T = table(name', SSQ', par', DoF', MSQ', F', p_value', q_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue','AvCorrectedPvalue'});
+else
+    T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'});
+end
 

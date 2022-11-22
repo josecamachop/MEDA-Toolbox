@@ -34,7 +34,7 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 %       1: ordinal
 % 
 % fmtc: [1x1] correct for multiple-tesis when multifactorial (multi-way)
-% analysis.
+% analysis
 %       0: do not correct
 %       1: Bonferroni 
 %       2: Holm step-up or Hochberg step-down
@@ -156,9 +156,9 @@ assert (isequal(size(fmtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-
                   
 n_interactions      = size(interactions,1);      % number of interactions
 n_factors           = size(F,2);                 % number of factors
-if fmtc,
+if fmtc
     mtcc                = n_factors + n_interactions;        % correction for the number of tests
-else,
+else
     mtcc = 1;
 end
 SSQ_factors         = zeros(n_perm*mtcc,n_factors,1);      % sum of squares for factors
@@ -309,22 +309,25 @@ for i = 1 : n_interactions
 end
 
 % Multiple test correction for several factors/interactions
-parglmo.p = [p_factor p_interaction];
-switch fmtc
-    case 1 % Bonferroni 
-        parglmo.p = min(1,parglmo.p * mtcc); 
-        
-    case 2 % Holm/Hochberg
-        [~,indx] = sort(parglmo.p,'ascend');
-        for ind = 1 : mtcc 
-            parglmo.p(indx(ind)) = min(1,parglmo.p(indx(ind)) * (mtcc-ind+1));
-        end
-        
-    case 3 % Benjamini & Hochberg
-        [~,indx] = sort(parglmo.p,'ascend');
-        for ind = 1 : mtcc 
-            parglmo.p(indx(ind)) = min(1,parglmo.p(indx(ind)) * mtcc/ind);
-        end
+parglmo.p = [p_factor p_interaction]; 
+if mtcc > 1
+    switch fmtc
+        case 1 % Bonferroni 
+            parglmo.q = min(1,parglmo.p * mtcc); 
+
+        case 2 % Holm/Hochberg
+            [~,indx] = sort(parglmo.p,'ascend');
+            for ind = 1 : mtcc 
+                parglmo.q(indx(ind)) = min(1,parglmo.p(indx(ind)) * (mtcc-ind+1));
+            end
+
+        case 3 % Benjamini & Hochberg
+            [~,indx] = sort(parglmo.p,'ascend');
+            parglmo.q(indx(mtcc)) = parglmo.p(indx(mtcc));
+            for ind = mtcc-1 : -1 : 1 
+                parglmo.q(indx(ind)) = min([1,parglmo.p(indx(ind)) * mtcc/ind,parglmo.q(indx(ind+1))]);
+            end
+    end
 end
 
 
@@ -347,6 +350,10 @@ MSQ = SSQ./DoF;
 F = [nan F_factors(1,:) F_interactions(1,:) nan nan];
 p_value = [nan parglmo.p nan nan];
 
-T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
-
+if mtcc > 1 && fmtc
+    q_value = [nan parglmo.q nan nan];
+    T = table(name', SSQ', par', DoF', MSQ', F', p_value', q_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue','CorrectedPvalue'});
+else
+    T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
+end
 
