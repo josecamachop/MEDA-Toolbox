@@ -36,10 +36,11 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, 
 % 
 % fmtc: [1x1] correct for multiple-tesis when multifactorial (multi-way)
 % analysis.
-%       0: do not correct
+%       0: do not correct (by default)
 %       1: Bonferroni 
 %       2: Holm step-up or Hochberg step-down
-%       3: Benjamini-Hochberg step-down (FDR, by default)
+%       3: Benjamini-Hochberg step-down (FDR)
+%       4: Q-value from Benjamini-Hochberg step-down
 %
 %
 % OUTPUTS:
@@ -47,7 +48,7 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, 
 % T (table): ANOVA-like output table
 %
 % parglmoMV (structure): structure with the factor and interaction
-% matrices, p-values and explained variance 
+% matrices, p-values (corrected, depending on fmtc) and explained variance 
 %
 %
 % EXAMPLE OF USE (copy and paste the code in the command line)
@@ -79,7 +80,7 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, 
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 21/Nov/22
+% last modification: 23/Nov/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -108,7 +109,7 @@ if nargin < 4 || isempty(prep), prep = 2; end;
 if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
 if nargin < 6 || isempty(ts), ts = 1; end;
 if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
-if nargin < 8 || isempty(fmtc), fmtc = 3; end;
+if nargin < 8 || isempty(fmtc), fmtc = 0; end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -335,21 +336,30 @@ parglmo.p = [p_factor' p_interaction'];
 if mtcc > 1
     switch fmtc
         case 1 % Bonferroni 
-            parglmo.q = min(1,parglmo.p * mtcc); 
+            parglmo.p = min(1,parglmo.p * mtcc); 
 
         case 2 % Holm/Hochberg
             [~,indx] = sort(min(parglmo.p),'ascend');
             for ind = 1 : mtcc 
-                parglmo.q(:,indx(ind)) = min(1,parglmo.p(:,indx(ind)) * (mtcc-ind+1));
+                parglmo.p(:,indx(ind)) = min(1,parglmo.p(:,indx(ind)) * (mtcc-ind+1));
             end
 
         case 3 % Benjamini & Hochberg
             [mv,indmv] = min(parglmo.p);
             [~,indx] = sort(mv,'ascend');
-            parglmo.q(:,indx(mtcc)) = parglmo.p(:,indx(mtcc));
+            parglmo.p(:,indx(mtcc)) = parglmo.p(:,indx(mtcc));
             for ind = mtcc-1 : -1 : 1 
-                parglmo.q(indmv(indx(ind)),indx(ind)) = min(1,min(parglmo.p(indmv(indx(ind)),indx(ind)) * mtcc/ind,parglmo.q(indmv(indx(ind+1)),indx(ind+1))));
-                parglmo.q(:,indx(ind)) = parglmo.p(:,indx(ind))*parglmo.q(indmv(indx(ind)),indx(ind))/parglmo.p(indmv(indx(ind)),indx(ind));
+                parglmo.p(indmv(indx(ind)),indx(ind)) = min(1,parglmo.p(indmv(indx(ind)),indx(ind)) * mtcc/ind,parglmo.p(indmv(indx(ind+1))));
+                parglmo.p(:,indx(ind)) = parglmo.p(:,indx(ind))*parglmo.p(indmv(indx(ind)),indx(ind))/parglmo.p(indmv(indx(ind)),indx(ind));
+            end
+
+        case 4 % Q-value from Benjamini & Hochberg
+            [mv,indmv] = min(parglmo.p);
+            [~,indx] = sort(mv,'ascend');
+            parglmo.p(:,indx(mtcc)) = parglmo.p(:,indx(mtcc));
+            for ind = mtcc-1 : -1 : 1 
+                parglmo.p(indmv(indx(ind)),indx(ind)) = min(1,min(parglmo.p(indmv(indx(ind)),indx(ind)) * mtcc/ind,parglmo.p(indmv(indx(ind+1)),indx(ind+1))));
+                parglmo.p(:,indx(ind)) = parglmo.p(:,indx(ind))*parglmo.p(indmv(indx(ind)),indx(ind))/parglmo.p(indmv(indx(ind)),indx(ind));
             end
     end
 end
@@ -378,12 +388,8 @@ MSQ = SSQ./DoF;
 F = [nan mean(F_factors(1,:,:),3) mean(F_interactions(1,:,:),3) nan nan];
 p_value = [nan mean(parglmo.p) nan nan];
 
-if mtcc > 1 && fmtc
-    q_value = [nan mean(parglmo.q) nan nan];
-    T = table(name', SSQ', par', DoF', MSQ', F', p_value', q_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue','AvCorrectedPvalue'});
-else
-    T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'});
-end
+T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'});
+
 
 
  
