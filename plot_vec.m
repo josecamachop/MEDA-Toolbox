@@ -238,8 +238,15 @@ if ~isempty(elabel) & ~isnumeric(elabel),
         set(axes_h,'XTick',vals);
         set(axes_h,'XTickLabel',elabel(vals));
     else
-        set(axes_h,'XTickMode','auto');
-        set(axes_h, 'FontSize', 14);
+        vals = 1:N;
+        %Credit to: https://octave.discourse.group/t/how-is-it-possible-to-rotate-the-xticklabels-in-octave/831
+        %Xticklabelrotation functionality is not available in Octave.
+        xtl = elabel(vals);
+        xt = vals;
+        for ii = 1:numel(xtl)
+          text(xt(ii),min(vec),xtl{ii},'rotation',45,'horizontalalignment','right')
+        end
+        xticklabels([]);
     end
 end
 
