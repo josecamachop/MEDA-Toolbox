@@ -1,4 +1,4 @@
-function [T, Tvar, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fmtc)
+function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fmtc)
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
 % matrices in a crossed experimental design and permutation test for multivariate 
@@ -359,7 +359,9 @@ F = [nan F_factors(1,:) F_interactions(1,:) nan nan];
 p_value = [nan parglmo.p nan nan];
 
 %T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
-T = [name'; SSQ'; par'; DoF'; MSQ'; F'; p_value'];
-Tvar = {'Source', 'SumSq', 'PercSumSq', 'df', 'MeanSq', 'F', 'Pvalue'};
+T.mat = [SSQ', par', DoF', MSQ', F', p_value'];
+T.var = {'SumSq', 'PercSumSq', 'df', 'MeanSq', 'F', 'Pvalue'};
+T.source = name';
+
 
 
