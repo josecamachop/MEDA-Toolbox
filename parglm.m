@@ -1,4 +1,4 @@
-function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fmtc)
+function [T, Tvar, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fmtc)
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
 % matrices in a crossed experimental design and permutation test for multivariate 
@@ -114,10 +114,10 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 % table = parglm(X, F, [1 2])
 %
 %
-% coded by: José Camacho (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho (josecamacho@ugr.es)
 % last modification: 23/Nov/22
 %
-% Copyright (C) 2022  José Camacho, Universidad de Granada
+% Copyright (C) 2022  JosÃ© Camacho, Universidad de Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -224,7 +224,7 @@ for f = 1 : n_factors
     if ordinal(f)
         df(f) = 1;
     else
-        df(f) = size(unique(D(:,parglmo.factors{f}.Dvars),'Rows'),1) -1;
+        df(f) = size(unique(D(:,parglmo.factors{f}.Dvars),'rows'),1) -1;
     end
     Rdf = Rdf-df(f);
 end
@@ -358,6 +358,8 @@ MSQ = SSQ./DoF;
 F = [nan F_factors(1,:) F_interactions(1,:) nan nan];
 p_value = [nan parglmo.p nan nan];
 
-T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
+%T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
+T = [name'; SSQ'; par'; DoF'; MSQ'; F'; p_value'];
+Tvar = {'Source', 'SumSq', 'PercSumSq', 'df', 'MeanSq', 'F', 'Pvalue'};
 
 
