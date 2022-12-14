@@ -1,4 +1,4 @@
-function ascao = asca(paranovao)
+function ascao = asca(parglmo)
 
 % ASCA is a data analysis algorithm for designed experiments. It does a 
 % principal component analysis on the level averages of each experimental 
@@ -15,7 +15,7 @@ function ascao = asca(paranovao)
 %
 % INPUTS:
 %
-% parglm (structure): structure with the factor and interaction matrices, 
+% parglmo (structure): structure with the factor and interaction matrices, 
 % p-values and explained variance. Obtained with parallel anova (deprecated) 
 % or parallel general linear model.
 %
@@ -112,7 +112,7 @@ function ascao = asca(paranovao)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 17/Oct/22
+% last modification: 02/Dec/22
 %
 % Copyright (C) 2022  University of Granada, Granada
 % Copyright (C) 2022  Jose Camacho Paez
@@ -139,7 +139,7 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 
 %% Main code
 
-ascao = paranovao;
+ascao = parglmo;
 
 %Do PCA on level averages for each factor
 for factor = 1 : ascao.n_factors

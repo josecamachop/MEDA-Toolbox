@@ -38,7 +38,7 @@ function [T, parglmo] = parglmMC(X, F, interactions, prep, n_perm, ts, ordinal, 
 %       1: Bonferroni 
 %       2: Holm step-up or Hochberg step-down
 %       3: Benjamini-Hochberg step-down (FDR, by default)
-%       4: Q-value from Benjamini-Hochberg step-down
+%       -pi0: Q-value assuming 0<pi0<=1 the ratio of null variables   
 % 
 % fmtc: [1x1] correct for multiple-tesis when multifactorial (multi-way)
 % analysis.
@@ -349,7 +349,6 @@ switch mtc
         if fmtc
             parglmo.p = parglmo.p;
             [~,indx] = sort(parglmo.p(:),'ascend');
-            parglmo.p(indx(end)) = parglmo.p(indx(end));
             for ind = length(indx)-1 : -1 : 1
                 parglmo.p(indx(ind)) = min([1,parglmo.p(indx(ind)) * (M*mtcc)/ind]);
             end
@@ -367,29 +366,33 @@ switch mtc
             parglmo.p = [p_factor' p_interaction'];
         end
         
-      case 4 % Q-value from Benjamini & Hochberg
-        
-        if fmtc
-            parglmo.p = parglmo.p;
-            [~,indx] = sort(parglmo.p(:),'ascend');
-            parglmo.p(indx(end)) = parglmo.p(indx(end));
-            for ind = length(indx)-1 : -1 : 1
-                parglmo.p(indx(ind)) = min([1,parglmo.p(indx(ind)) * (M*mtcc)/ind,parglmo.p(indx(ind+1))]);
-            end
-        else
-            for f = 1 : n_factors
-                for var = M-1 : -1 : 1
-                    p_factor(f,ord_factors(f,var)) = min([1,p_factor(f,ord_factors(f,var)) * M/var,p_factor(f,ord_factors(f,var+1))]);
-                end
-            end
-            for i = 1 : n_interactions
-                for var = M-1 : -1 : 1
-                    p_interaction(i,ord_interactions(i,var)) = min([1,p_interaction(i,ord_interaction(i,var)) * M/var,p_interaction(i,ord_interactions(i,var+1))]);
-                end
-            end
-            parglmo.p = [p_factor' p_interaction'];
-        end
 end
+
+if mtc <0 % Q-value     
+    if fmtc
+        parglmo.p = parglmo.p;
+        [~,indx] = sort(parglmo.p(:),'ascend');
+        parglmo.p(indx(end)) = parglmo.p(indx(end))*(-mtc);
+        for ind = length(indx)-1 : -1 : 1
+            parglmo.p(indx(ind)) = min([1,parglmo.p(indx(ind)) * (-mtc*M*mtcc)/ind,parglmo.p(indx(ind+1))]);
+        end
+    else
+        for f = 1 : n_factors
+            p_factor(f,ord_factors(f,M)) = p_factor(f,ord_factors(f,M))*(-mtc);
+            for var = M-1 : -1 : 1
+                p_factor(f,ord_factors(f,var)) = min([1,p_factor(f,ord_factors(f,var)) * (-mtc) * M/var,p_factor(f,ord_factors(f,var+1))]);
+            end
+        end
+        for i = 1 : n_interactions
+            p_interaction(i,ord_interactions(i,M)) = p_interaction(i,ord_interactions(i,M))*(-mtc);
+            for var = M-1 : -1 : 1
+                p_interaction(i,ord_interactions(i,var)) = min([1,p_interaction(i,ord_interaction(i,var)) * (-mtc) * M/var,p_interaction(i,ord_interactions(i,var+1))]);
+            end
+        end
+        parglmo.p = [p_factor' p_interaction'];
+    end
+end
+
 
 
 %% ANOVA-like output table
