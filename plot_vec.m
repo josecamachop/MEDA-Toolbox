@@ -99,6 +99,7 @@ if size(mult,1) == 1, mult = mult'; end;
 if size(maxv,2) == 1, maxv = maxv'; end;
 
 % Convert num arrays to str
+if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
 if ~isempty(vlabel) && isnumeric(vlabel), vlabel=num2str(vlabel); end
 if ~isempty(classes) && isnumeric(classes), classes=num2str(classes); end
 
