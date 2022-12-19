@@ -1,4 +1,21 @@
 function table2latex(T,fileName)
+
+% table2latex(T, "table.tex");
+% Function to convert the table structure that is output from the MEDA toolbox to a latex markup for publication.
+% Works with the Octave table structure, but assumes that the input is an Octave table structure if Octave is being used.
+% Michael Sorochan Armstrong, 2022-12-19
+%
+% Create exception for edge case where Matlab is being used, but there is an Octave table structure.
+
+isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
+
+if ~isOctave
+  T2.source = table2cell(T(:,'Source'));
+  T2.var = T.Properties.VariableNames;
+  T2.mat = table2array(T(:,2:end))
+  T = T2;
+end
+
   fid = fopen (fileName, "w");
   fprintf(fid,"\\begin{table} \n");
   numCol = size(T.var,2) + 1;
