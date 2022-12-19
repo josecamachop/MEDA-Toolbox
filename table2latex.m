@@ -5,32 +5,28 @@ function table2latex(T,fileName)
   fprintf(fid,"\\begin{tabular}{");
   fprintf(fid,repmat('l',[1 numCol]));
   fprintf(fid,"}\n");
-  %fprintf("\hline \n");
-  for ii = 1:size(T.mat,1)
-    for jj = 1:size(T.mat,2)
+  for ii = 1:size(T.mat,1)+1
+    for jj = 1:size(T.mat,2)+1
       if jj == 1 && ii == 1
         fprintf(fid, " &");
         fprintf(fid, " ");
       elseif jj == 1
         fprintf(fid,strcat(T.source{ii-1,1}," &"));
         fprintf(fid," ");
-      end
-
-      if ii == 1 && jj == size(T.mat,2)
-        fprintf(fid, T.var{1,jj});
+      elseif ii == 1 && jj == size(T.mat,2)+1
+        fprintf(fid, T.var{1,jj-1});
         fprintf(fid," ");
       elseif ii == 1
-        fprintf(fid, strcat(T.var{1,jj}," &"));
+        fprintf(fid, strcat(T.var{1,jj-1}," &"));
         fprintf(fid," ");
-      elseif jj == size(T.mat,2)
-        fprintf(fid, num2str(T.mat(ii,jj)));
+      elseif jj == size(T.mat,2)+1
+        fprintf(fid, num2str(T.mat(ii-1,jj-1)));
         fprintf(fid," ");
       else
-        fprintf(fid,strcat(num2str(T.mat(ii,jj))," &"));
+        fprintf(fid,strcat(num2str(T.mat(ii-1,jj-1))," &"));
         fprintf(fid," ");
       end
     end
-
     if ii == 1
       fprintf(fid,"\\\\ \n");
       fprintf(fid," \\hline \n");
@@ -42,13 +38,3 @@ function table2latex(T,fileName)
   fprintf(fid,"\\end{table} \n");
   fclose(fid);
 end
-
-
-
-
-
-
-
-
-
-
