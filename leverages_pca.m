@@ -1,5 +1,5 @@
 
-function L = leverages_pca(x,pcs,prep,opt,label,classes)
+function [L,E] = leverages_pca(x,pcs,prep,opt,label,classes)
 
 % Compute and plot the leverages of variables in the PCA model
 %
@@ -32,6 +32,8 @@ function L = leverages_pca(x,pcs,prep,opt,label,classes)
 %
 % L: [Mx1] leverages of the variables
 %
+% E: [Mx1] residuals of the variables
+%
 %
 % EXAMPLE OF USE: Random scores
 %
@@ -40,10 +42,10 @@ function L = leverages_pca(x,pcs,prep,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 09/Dec/2022
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2022  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -102,10 +104,10 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must cont
 %% Main code
 
 xcs = preprocess2D(x,prep);
-P = pca_pp(xcs,pcs);
+[P,T] = pca_pp(xcs,pcs);
 
 L = diag(P*P');
-
+E = sum((xcs-T*P')^2);
 
 %% Show results
 

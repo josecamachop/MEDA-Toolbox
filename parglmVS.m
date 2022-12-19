@@ -80,7 +80,7 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, 
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 23/Nov/22
+% last modification: 14/Dec/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
 %
@@ -190,7 +190,7 @@ for f = 1 : n_factors
     if ordinal(f)
         df(f) = 1;
     else
-        df(f) = size(unique(D(:,parglmo.factors{f}.Dvars),'Rows'),1) -1;
+        df(f) = size(unique(D(:,parglmo.factors{f}.Dvars),'rows'),1) -1;
     end
     Rdf = Rdf-df(f);
 end
@@ -388,9 +388,13 @@ MSQ = SSQ./DoF;
 F = [nan mean(F_factors(1,:,:),3) mean(F_interactions(1,:,:),3) nan nan];
 p_value = [nan mean(parglmo.p) nan nan];
 
-T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'});
-
-
+isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
+if isOctave
+    T.data = [name'; SSQ'; par'; DoF'; MSQ'; F'; p_value'];
+    T.labels = {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'};
+else
+    T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'});
+end
 
  
 
