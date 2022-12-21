@@ -114,10 +114,15 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 % table = parglm(X, F, [1 2])
 %
 %
-% coded by: Jos� Camacho (josecamacho@ugr.es)
-% last modification: 23/Nov/22
+mdarmstr-paraglm-octave_compatibility
+% coded by: José Camacho (josecamacho@ugr.es)
+% last modification: 14/Dec/22
+
+% coded by: José Camacho (josecamacho@ugr.es)
+% last modification: 14/Dec/22
+master
 %
-% Copyright (C) 2022  Jos� Camacho, Universidad de Granada
+% Copyright (C) 2022  JosÃ© Camacho, Universidad de Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -224,7 +229,7 @@ for f = 1 : n_factors
     if ordinal(f)
         df(f) = 1;
     else
-        df(f) = size(unique(D(:,parglmo.factors{f}.Dvars),'Rows'),1) -1;
+        df(f) = size(unique(D(:,parglmo.factors{f}.Dvars),'rows'),1) -1;
     end
     Rdf = Rdf-df(f);
 end
@@ -358,6 +363,23 @@ MSQ = SSQ./DoF;
 F = [nan F_factors(1,:) F_interactions(1,:) nan nan];
 p_value = [nan parglmo.p nan nan];
 
-T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
+mdarmstr-paraglm-octave_compatibility
+%T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
+isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
+if isOctave
+  T.mat = [SSQ', par', DoF', MSQ', F', p_value'];
+  T.var = {'SumSq', 'PercSumSq', 'df', 'MeanSq', 'F', 'Pvalue'};
+  T.source = name';
+else
+  T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
+end
 
+isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
+if isOctave
+    T.data = [name'; SSQ'; par'; DoF'; MSQ'; F'; p_value'];
+    T.labels = {'Source', 'SumSq', 'PercSumSq', 'df', 'MeanSq', 'F', 'Pvalue'};
+else
+    T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
+end
+master
 

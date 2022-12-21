@@ -100,9 +100,14 @@ if nargin < 5 || isempty(nboot), nboot = 1000; end;
 if nargin < 6 || isempty(opt), opt = 1; end;
 if nargin < 7 || isempty(pvalue), pvalue = 0.01; end;
 
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
 % Validate dimensions of input data
 assert (isequal(size(nfact), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(nboot), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pvalue), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -135,7 +140,7 @@ end
 
 %% Plot
 
-if opt, evalboot(p,pboot,pvalue); end
+if opt ~= '0', evalboot(p,pboot,pvalue); end
 
 
 % Orthogonal procrustes

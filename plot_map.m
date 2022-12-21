@@ -30,10 +30,10 @@ function fig_h = plot_map(map,label,int,ind)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 08/Apr/20
+% last modification: 14/Dic/20
 %
-% Copyright (C) 2020  University of Granada, Granada
-% Copyright (C) 2020  Jose Camacho Paez, Alejandro Perez Villegas
+% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2022  Jose Camacho Paez, Alejandro Perez Villegas
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -62,14 +62,14 @@ if nargin < 4 || isempty(ind), ind = [0:.2:0.79 0.8:0.04:1]'; end;
 if size(label,1)  == 1, label = label'; end;
 
 % Convert int arrays to str
-if ~isempty(label) && isnumeric(label),
+if ~isempty(label) && isnumeric(label)
     vecn = label; 
     veci = 1:length(vecn);
-    if length(label)>2, 
+    if length(label)>2 
         max_lab = 30; % limit the number of labels displayed
         ini = 2;
         stepN = [];
-        while isempty(stepN),
+        while isempty(stepN)
             lenv = length(vecn(ini:end));
             div = 1:(lenv-1);
             div = div(rem(lenv,div)==0);
@@ -79,7 +79,7 @@ if ~isempty(label) && isnumeric(label),
         veci = 1:(lenv+ini-2);
         veci = veci(round([1 (ini-2+stepN):stepN:end]));
     end
-    for i=veci,
+    for i=veci
         labele{i} = num2str(vecn(i));
     end
     label=labele'; 
@@ -101,30 +101,52 @@ end
 % Label font size
 axes_h = get(sur_h,'Parent');
 if ~isempty(label)
-    label_length = max(cellfun('length', label));
-    label_size = 300/(length(find(~cellfun('isempty', label)))*label_length);
-    set(axes_h, 'FontSize', max(min(18,round(label_size)), 14));
+    lablength = cellfun('length', label);
+    label_length = max(lablength(1:end-1)+lablength(2:end))/2;
+    label_sizeH = 5/label_length;
+    label_sizeV = 5;
+    set(axes_h, 'FontSize', max(min(14,round(label_sizeH)), 10));
 end
 
 % Set axis properties
 set(axes_h,'Box','on');
 set(axes_h,'XAxisLocation','top');
 set(axes_h,'YDir','reverse');
-if ~isempty(label)
-    stepY = ceil(0.05*M/label_size);
-    stepX = ceil(0.2*M/label_size);
-    if stepX==1,
-        set(axes_h,'XTick',(1:M)+0.5);
-        set(axes_h,'XTickLabel',label);
-    else
-        set(axes_h,'XTickLabel','');
+if ~isempty(label) 
+    
+    MaxRot = 60;
+    if 0.05*M<label_sizeH % labels do not need to be rotated
+        vals = 1:M;
+        set(axes_h,'XTick',vals + 0.5);
+        set(axes_h,'XTickLabel',label(vals));
+    elseif 0.05*M<label_sizeV % labels are rotated
+        vals = 1:M;
+        set(axes_h,'XTick',vals + 0.5);
+        set(axes_h,'XTickLabel',label(vals));
+        set(axes_h,'XTickLabelRotation',ceil(MaxRot*0.05*M/label_sizeV));
+    else % labels are reduced
+        set(axes_h,'XTickMode','auto');
+        ind1 = get(axes_h,'XTick');
+        ind2 = find(ind1>0&ind1<=length(label));
+        set(axes_h,'XTick',ind1(ind2) + 0.5);
+        set(axes_h,'XTickLabel',label(ind1(ind2)));
+        set(axes_h,'XTickLabelRotation',MaxRot);
+        set(axes_h, 'FontSize', 14);
     end
-    if stepY==1,
-        set(axes_h,'YTick',(1:M)+0.5);
-        set(axes_h,'YTickLabel',label);
-    else
+    
+    if 0.05*M<label_sizeV % labels do not need to be rotated
+        vals = 1:M;
+        set(axes_h,'YTick',vals + 0.5);
+        set(axes_h,'YTickLabel',label(vals));
+    else % labels are reduced
         set(axes_h,'YTickMode','auto');
+        ind1 = get(axes_h,'YTick');
+        ind2 = find(ind1>0&ind1<=length(label));
+        set(axes_h,'YTick',ind1(ind2) + 0.5);
+        set(axes_h,'YTickLabel',label(ind1(ind2)));
+        set(axes_h,'FontSize', 14);
     end
+
 end
 
 % Resize axes position
