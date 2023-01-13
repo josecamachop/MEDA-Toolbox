@@ -363,7 +363,6 @@ MSQ = SSQ./DoF;
 F = [nan F_factors(1,:) F_interactions(1,:) nan nan];
 p_value = [nan parglmo.p nan nan];
 
-mdarmstr-paraglm-octave_compatibility
 %T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
 isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
 if isOctave
@@ -374,12 +373,4 @@ else
   T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
 end
 
-isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
-if isOctave
-    T.data = [name'; SSQ'; par'; DoF'; MSQ'; F'; p_value'];
-    T.labels = {'Source', 'SumSq', 'PercSumSq', 'df', 'MeanSq', 'F', 'Pvalue'};
-else
-    T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
-end
-master
 
