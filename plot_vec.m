@@ -261,10 +261,27 @@ if ~isempty(elabel)
   lablength = cellfun('length', elabel);
   label_length = max(lablength(1:end-1)+lablength(2:end))/2;
   label_sizeH = label_length;
-  font_size = max(min(14,round(label_sizeH)), 10) * 0.8
-  for ii = 1:length(vec)
-    text(ii,mean([0,vec(ii)])*0.8,elabel{ii},'rotation',90,'horizontalalignment','left','FontSize',font_size);
-  end
+
+  %Differential vector to find space
+  ons = zeros(N,1);
+  ons(2:end) = diff(vec(:,1));
+
+  vecmtrx = [ons, vec(:,1)];
+  [U,~,~] = svds(vecmtrx - mean(vecmtrx),1);
+  top_labels = round((1-abs(25-N)/N)*N); %Assuming that we can fit all labels iff 25 elements
+  [~,Idx] = sort(U.^2,'descend');
+  Idx_top = Idx(1:top_labels);
+
+  font_size = min(75/(N - 25) + 11, 16) %Expected number of elements = 25; between font sizes 12 and 16
+
+    for ii = 1:length(Idx_top)
+      if vec(Idx_top(ii)) > 0
+        text(Idx_top(ii),mean([0,vec(Idx_top(ii))])*0.5,elabel{Idx_top(ii)},'rotation',90,'horizontalalignment','left','FontSize',font_size);
+      else
+        text(Idx_top(ii),mean([0,vec(Idx_top(ii))])*0.5,elabel{Idx_top(ii)},'rotation',90,'horizontalalignment','right','FontSize',font_size);
+      end
+    end
+
 end
 
 if ~isempty(xylabel)
