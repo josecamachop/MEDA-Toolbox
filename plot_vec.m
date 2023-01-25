@@ -257,28 +257,34 @@ axes_h = axes_h(i);
 %end
 
 %MDSA 20230120 - trying to find a general solution to the text labels.
-if ~isempty(elabel)
-  lablength = cellfun('length', elabel);
-  label_length = max(lablength(1:end-1)+lablength(2:end))/2;
-  label_sizeH = label_length;
+if ~isempty(elabel) && N > 25
 
-  %Differential vector to find space
-  ons = zeros(N,1);
-  ons(2:end) = diff(vec(:,1));
+  %Differential vectors to find space in the plot for labels
+  ons1 = zeros(N,1);
+  ons2 = zeros(N,1);
+  ons3 = zeros(N,1);
+  onsdiff = zeros(N,3);
 
-  vecmtrx = [ons, vec(:,1)];
-  [U,~,~] = svds(vecmtrx - mean(vecmtrx),1);
+  for ii = 2:N-1, [~,min_idx] = min(abs([vec(ii,1) - vec(ii+1,1),vec(ii,1) - vec(ii-1,1)])); ons1(ii) = [vec(ii,1) - vec(ii+1,1),vec(ii,1) - vec(ii-1,1)](min_idx); end
+  for ii = 3:N-2, [~,min_idx] = min(abs([vec(ii,1) - vec(ii+2,1),vec(ii,1) - vec(ii-2,1)])); ons2(ii) = [vec(ii,1) - vec(ii+2,1),vec(ii,1) - vec(ii-2,1)](min_idx); end
+  for ii = 4:N-3, [~,min_idx] = min(abs([vec(ii,1) - vec(ii+3,1),vec(ii,1) - vec(ii-3,1)])); ons3(ii) = [vec(ii,1) - vec(ii+3,1),vec(ii,1) - vec(ii-3,1)](min_idx); end
+
+  for ii = 1:N, [~,min_idx] = min([abs(ons1(ii)),abs(ons2(ii)),abs(ons3(ii))]); onsdiff(ii,min_idx) = [ons1(ii),ons2(ii),ons3(ii)](min_idx); end
+
+  vecmtrx = [onsdiff, vec(:,1)];
+  vecmtrx([1,end],:) = 0; %For large numbers of entries, labels on the edges look bad.
+  [U,~,~] = svds((vecmtrx - mean(vecmtrx))./std(vecmtrx),1);
   top_labels = round((1-abs(25-N)/N)*N); %Assuming that we can fit all labels iff 25 elements
   [~,Idx] = sort(U.^2,'descend');
   Idx_top = Idx(1:top_labels);
 
-  font_size = min(75/(N - 25) + 11, 16) %Expected number of elements = 25; between font sizes 12 and 16
+  font_size = min(75/(N - 25) + 10, 16); %Expected number of elements = 25; between font sizes 11 and 16
 
     for ii = 1:length(Idx_top)
       if vec(Idx_top(ii)) > 0
-        text(Idx_top(ii),mean([0,vec(Idx_top(ii))])*0.5,elabel{Idx_top(ii)},'rotation',90,'horizontalalignment','left','FontSize',font_size);
+        text(Idx_top(ii),mean([0,0.75*vec(Idx_top(ii))]),elabel{Idx_top(ii)},'rotation',90,'horizontalalignment','left','FontSize',font_size);
       else
-        text(Idx_top(ii),mean([0,vec(Idx_top(ii))])*0.5,elabel{Idx_top(ii)},'rotation',90,'horizontalalignment','right','FontSize',font_size);
+        text(Idx_top(ii),mean([0,0.75*vec(Idx_top(ii))]),elabel{Idx_top(ii)},'rotation',90,'horizontalalignment','right','FontSize',font_size);
       end
     end
 
