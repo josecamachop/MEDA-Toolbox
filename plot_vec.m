@@ -5,7 +5,6 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 % plot_vec(vec) % minimum call
 % plot_vecplot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv) % complete call
 %
-%
 % INPUTS:
 %
 % vec: [NxM] vector/s to plot.
@@ -52,7 +51,8 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 14/Dec/2022
+%           Michael Sorochan Armstrong (mdarmstr@ugr.es)
+% last modification: 26/Jan/2023 - improved spacing of text labels.
 %
 % Copyright (C) 2022  University of Granada, Granada
 % Copyright (C) 2022  Jose Camacho Paez
@@ -227,34 +227,6 @@ for i=1:length(axes_h)
     end
 end
 axes_h = axes_h(i);
-
-% Set ticks and labels
-%if ~isempty(elabel)
-%    lablength = cellfun('length', elabel);
-%    label_length = max(lablength(1:end-1)+lablength(2:end))/2;
-%    label_sizeH = 5/label_length;
-%    label_sizeV = 5;
-%    MaxRot = 60;
-%    set(axes_h, 'FontSize', max(min(14,round(label_sizeH)), 10));
-%    if 0.2*N<label_sizeH % labels do not need to be rotated
-%        vals = 1:N;
-%        set(axes_h,'XTick',vals);
-%        set(axes_h,'XTickLabel',elabel(vals));
-%    elseif 0.2*N<label_sizeV % labels are rotated
-%        vals = 1:N;
-%        set(axes_h,'XTick',vals);
-%        set(axes_h,'XTickLabel',elabel(vals));
-%        set(axes_h,'XTickLabelRotation',ceil(MaxRot*0.2*N/label_sizeV)); %XTickLabelRotation is not avaialble in Octave
-%    else % labels are reduced
-%        set(axes_h,'XTickMode','auto');
-%        ind = get(axes_h,'XTick');
-%        ind2 = find(ind>0&ind<=length(elabel));
-%        set(axes_h,'XTick',ind(ind2));
-%        set(axes_h,'XTickLabel',elabel(ind(ind2)));
-%        set(axes_h,'XTickLabelRotation',MaxRot);
-%        set(axes_h, 'FontSize', 14);
-%    end
-%end
 
 %MDSA 20230120 - trying to find a general solution to the text labels.
 if ~isempty(elabel) && N > 25
