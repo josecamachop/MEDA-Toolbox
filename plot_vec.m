@@ -250,16 +250,18 @@ if ~isempty(elabel) && N > 25
   [~,Idx] = sort(U.^2,'descend');
   Idx_top = Idx(1:top_labels);
 
-  font_size = min(75/(N - 25) + 10, 16); %Expected number of elements = 25; between font sizes 11 and 16
+else
+  Idx_top = 1:N;
+end
 
-    for ii = 1:length(Idx_top)
-      if vec(Idx_top(ii)) > 0
+font_size = min(75/(N - 25) + 10, 16); %Expected number of elements = 25; between font sizes 11 and 16
+
+for ii = 1:length(Idx_top)
+  if vec(Idx_top(ii)) > 0
         text(Idx_top(ii),mean([0,0.75*vec(Idx_top(ii))]),elabel{Idx_top(ii)},'rotation',90,'horizontalalignment','left','FontSize',font_size);
-      else
+  else
         text(Idx_top(ii),mean([0,0.75*vec(Idx_top(ii))]),elabel{Idx_top(ii)},'rotation',90,'horizontalalignment','right','FontSize',font_size);
-      end
-    end
-
+  end
 end
 
 if ~isempty(xylabel)
