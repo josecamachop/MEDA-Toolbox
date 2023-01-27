@@ -251,7 +251,7 @@ SSQ_residuals = sum(sum(X_residuals.^2));
 
 for f = 1 : n_factors
     parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
-    SSQ_factors(1,f) = sum(sum(parglmo.factors{f}.matrix.^2));
+    SSQ_factors(1,f) = sum(sum(parglmo.factors{f}.matrix.^2)); % Note: we are not using Type III sum of squares, and probably we should, although we did not find any difference in our experiments 
     F_factors(1,f) = (SSQ_factors(1,f)/df(f))/(SSQ_residuals/Rdf);
 end
 
