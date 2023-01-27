@@ -1,4 +1,3 @@
-
 function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,blur)
 
 % Scatter plot.
@@ -10,11 +9,11 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %
 % INPUTS:
 %
-% bdata: (Nx2) bidimensional data to plot. 
+% bdata: (Nx2) bidimensional data to plot.
 %
 % elabel: [Nx1] name of the elements (numbers are used by default)
 %
-% classes: [Nx1, str(N), {N}] groups for different visualization (a single 
+% classes: [Nx1, str(N), {N}] groups for different visualization (a single
 %   group by default)
 %
 % xylabel: {2} xlabel and ylabel (nothing by default)
@@ -32,9 +31,9 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %           00: plot multiplicity info in the size of the markers.
 %           01: plot multiplicity info in the form of the markers.
 %           10: plot multiplicity information in the Z axis.
-%           11: plot multiplicity info in the size of the markers and 
+%           11: plot multiplicity info in the size of the markers and
 %               classes in Z-axis
-%           
+%
 %   By deafult, opt = '00'. If less digits are specified, least significant
 %   digits are set to 0, i.e. opt = 1 means a=1, b=00.
 %
@@ -45,7 +44,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %       maxv(1): maximum threshold for marker 'o' for opt = 2 (50 by default)
 %       maxv(1): maximum threshold for marker 's' for opt = 2 (100 by default)
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+% blur: [1x1] avoid blur when adding labels. The higher, the more labels
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
 %
@@ -78,20 +77,20 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %
 % Copyright (C) 2022  University of Granada, Granada
 % Copyright (C) 2022  Jose Camacho Paez
-% 
+%
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
 % the Free Software Foundation, either version 3 of the License, or
 % (at your option) any later version.
-% 
+%
 % This program is distributed in the hope that it will be useful,
 % but WITHOUT ANY WARRANTY; without even the implied warranty of
 % MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 % GNU General Public License for more details.
-% 
+%
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 %
 
 %% Parameters checking
@@ -134,7 +133,7 @@ if ischar(classes), classes = cellstr(classes); end;
 if ischar(xylabel),  xylabel = cellstr(xylabel); end;
 
 % Validate dimensions of input data
-assert(size(bdata,2) == 2, 'Dimension Error: 1st argument must be N-by-2. Type ''help %s'' for more info.', routine(1).name); 
+assert(size(bdata,2) == 2, 'Dimension Error: 1st argument must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
@@ -163,7 +162,7 @@ else
 end
 unique_ord_classes = unique(ord_classes);
 
-% Define mult bins, markers, colors and sizes 
+% Define mult bins, markers, colors and sizes
 bins = [0 1 maxv Inf];
 markers = ['^','v','d','o','s'];
 
@@ -187,13 +186,13 @@ switch opt
             ind = find(ord_classes == unique_ord_classes(i));
             scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'DisplayName',unique_classes{i});
         end
-    
+
     case '100',  % 2D plot, Multiplicity in size
         for i=1:length(unique_ord_classes)
             ind = find(ord_classes == unique_ord_classes(i));
             scatter(bdata(ind,1), bdata(ind,2),sizes(ind), colors(ind,:),'filled','DisplayName',unique_classes{i});
         end
-    
+
     case '101',  % 2D plot, Multiplicity in markers
         for i=1:length(unique_ord_classes)
             for j=1:length(bins)-1
@@ -202,13 +201,13 @@ switch opt
                 scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:), 'filled', markers(j), 'DisplayName', disp_name);
             end
         end
-    
+
     case '110',  % 3D plot, Multiplicity in Z-axis
         for i=1:length(unique_ord_classes)
             ind = find(ord_classes == unique_ord_classes(i));
             scatter3(bdata(ind,1), bdata(ind,2), mult(ind), [], colors(ind,:), 'filled', 'DisplayName',unique_classes{i});
         end
-    
+
     case '111',  % 3D plot, Multiplicity in size, classes in Z-axis
         for i=1:length(unique_ord_classes)
             ind = find(ord_classes == unique_ord_classes(i));
@@ -216,7 +215,7 @@ switch opt
         end
 end
 
-% Plot labels    
+% Plot labels
 ax = axis;
 f = 5;
 deltax = (ax(2)-ax(1))/100;
@@ -225,7 +224,7 @@ if ~isempty(elabel)
     for i=1:N
         suffx = length(char(strtrim(elabel(i,1))));
         ind = [1:(i-1) (i+1):size(bdata,1)];
-        
+
         dx = (bdata(ind,1)-bdata(i,1))/deltax;
         dxM = dx;
         dxM(dxM<0) = Inf;
@@ -236,9 +235,9 @@ if ~isempty(elabel)
         dyM(dyM<0) = Inf;
         dym = dy;
         dym(dym>0) = Inf;
-        
+
         % Labels in any direction: not used
-        
+
 %         d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
 %         if length(find(d > 10/blur))>1 || isempty(ind),
 %             quad = find(d==max(d),1);
@@ -256,10 +255,10 @@ if ~isempty(elabel)
 %                     posx = bdata(i,1)-deltax-suffx/2;
 %                     posy = bdata(i,2)-6*deltay;
 %             end
-% 
-% 
+%
+%
 %         % Labels only to the right: used
-%         
+%
         d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
         if (length(find(d > 10/blur))>1 && length(find(d(1:2) > 10/blur))>0)|| isempty(ind),
             quad = find(d(1:2)==max(d(1:2)),1);
@@ -277,15 +276,15 @@ if ~isempty(elabel)
                     posx = bdata(i,1)-deltax-suffx/2;
                     posy = bdata(i,2)-6*deltay;
             end
-            
+
 %         % Labels only to upper right: not used
-%         
+%
 %         d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
 %         if (length(find(d > 10/blur))>1 && d(1) > 10/blur)|| isempty(ind),
 %             posx = bdata(i,1)+deltax;
 %             posy = bdata(i,2)+deltay;
-            
-            
+
+
             switch opt
                 case '110'
                     text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
@@ -319,11 +318,11 @@ if ~isempty(lcont) % Plot control limits
         for i=1:length(lcont{2}),
             plot(ax(1:2),[lcont{2}(i) lcont{2}(i)], 'r--','LineWidth',2, 'HandleVisibility', 'off');
         end
-    end    
+    end
 else % Plot origin lines
     plot([0 0], ax(3:4), 'k--', 'HandleVisibility', 'off');
     plot(ax(1:2), [0 0], 'k--', 'HandleVisibility', 'off');
-end    
+end
 axis(ax)
 
 % Set axis labels
@@ -343,5 +342,5 @@ legend off
 box on
 hold off
 
-    
-  
+
+
