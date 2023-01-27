@@ -272,8 +272,13 @@ axis tight;
 ax = axis;
 axis auto;
 ax2 = axis;
-axis([ax(1:2) ax2(3:4)]);
 
 %legend off
 box on;
 hold off;
+if ~isempty(elabel) && min(vec) < 0
+  axis([ax(1:2), 1.25.*max(abs(ax2(3:4))).*sign(ax2(3:4))]);
+else
+end
+
+
