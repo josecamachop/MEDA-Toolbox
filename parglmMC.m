@@ -338,7 +338,7 @@ switch mtc
             end
             for i = 1 : n_interactions
                 for var = 1 : M
-                    p_interaction(i,ord_interactions(i,var)) = min(1,p_interaction(i,ord_interaction(i,var)) * (M-var+1));
+                    p_interaction(i,ord_interactions(i,var)) = min(1,p_interaction(i,ord_interactions(i,var)) * (M-var+1));
                 end
             end
             parglmo.p = [p_factor' p_interaction'];
@@ -360,7 +360,7 @@ switch mtc
             end
             for i = 1 : n_interactions
                 for var = M-1 : -1 : 1
-                    p_interaction(i,ord_interactions(i,var)) = min([1,p_interaction(i,ord_interaction(i,var)) * M/var]);
+                    p_interaction(i,ord_interactions(i,var)) = min([1,p_interaction(i,ord_interactions(i,var)) * M/var]);
                 end
             end
             parglmo.p = [p_factor' p_interaction'];
