@@ -68,21 +68,20 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, 
 % [TVS, parglmoVS] = parglmVS(X, class); % With variable selection
 %
 % h = figure; hold on
-% plot([1 n_vars],[parglmo.p parglmo.p],'b-.')
-% plot(parglmoVS.p(parglmoVS.ord_factors),'g-o')
-% plot([0,size(X,2)],[0.05 0.05],'r:')
-% plot([0,size(X,2)],[0.01 0.01],'r--')
-% legend('ASCA','VASCA','alpha=0.05','alpha=0.01','Location','southeast')
+% plot([1 n_vars],-log10([parglmo.p parglmo.p]),'b-.')
+% plot(-log10(parglmoVS.p(parglmoVS.ord_factors)),'g-o')
+% plot([0,size(X,2)],-log10([0.01 0.01]),'r--')
+% legend('ASCA','VASCA','alpha=0.01','Location','southeast')
 % a=get(h,'CurrentAxes');
 % set(a,'FontSize',14)
-% ylabel('p-values','FontSize',18)
-% xlabel('Variables in selected order','FontSize',18)
+% ylabel('-log10(p-values)','FontSize',18)
+% xlabel('Responses in selected order','FontSize',18)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 14/Dec/22
+% last modification: 20/Feb/23
 %
-% Copyright (C) 2022  José Camacho, Universidad de Granada
+% Copyright (C) 2023  José Camacho, Universidad de Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -385,15 +384,15 @@ end
 par = [mean(parglmo.effects) 100];
 DoF = [1 df df_int Rdf Tdf];
 MSQ = SSQ./DoF;
-F = [nan mean(F_factors(1,:,:),3) mean(F_interactions(1,:,:),3) nan nan];
-p_value = [nan mean(parglmo.p) nan nan];
+F = [nan max(F_factors(1,:,:),[],3) max(F_interactions(1,:,:),[],3) nan nan];
+p_value = [nan min(parglmo.p) nan nan];
 
 isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
 if isOctave
     T.data = [name'; SSQ'; par'; DoF'; MSQ'; F'; p_value'];
-    T.labels = {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'};
+    T.labels = {'Source','SumSq','AvPercSumSq','df','MeanSq','MaxF','minPvalue'};
 else
-    T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','AvF','AvPvalue'});
+    T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','MaxF','minPvalue'});
 end
 
  

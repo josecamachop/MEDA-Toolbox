@@ -48,6 +48,7 @@ function ascao = asca(parglmo)
 %
 % for i=1:2, % Note, the second factor is shown for the sake of illustration
 %   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
+%   loadings(ascao.factors{i},[],sprintf('Factor %d',i));
 % end
 %
 %
@@ -80,6 +81,7 @@ function ascao = asca(parglmo)
 %
 % for i=1:2,
 %   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
+%   loadings(ascao.factors{i},[],sprintf('Factor %d',i));
 % end
 %
 %
@@ -109,6 +111,8 @@ function ascao = asca(parglmo)
 % code_levels = F(:,1)*10+F(:,2);
 % scores_pca(M,1:2,X,0,101,[],code_levels);
 % legend(num2str(unique(code_levels)))
+%
+% loadings_pca(M,1:2);
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
