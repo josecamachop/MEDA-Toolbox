@@ -83,10 +83,9 @@ function [T,TT] = scores(model,test,opt,tit,label,classes,blur)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 17/Nov/22
+% last modification: 20/Feb/23
 %
-% Copyright (C) 2022  University of Granada, Granada
-% Copyright (C) 2022  Jose Camacho Paez, Alejandro Perez Villegas
+% Copyright (C) 2023  José Camacho, Universidad de Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -161,11 +160,11 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must cont
 
 T = model.scores;
 
-if isfield(model,'scoresV'),
+if isfield(model,'scoresV')
     T = model.scoresV;
 end
 
-if ~isempty(test),
+if ~isempty(test)
     testcs = preprocess2Dapp(test,model.av,model.sc);
     TT = testcs*model.loads;
 else

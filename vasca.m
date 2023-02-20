@@ -41,11 +41,9 @@ function vascao = vasca(parglmoVS,siglev)
 %
 % vascao = vasca(parglmoVS);
 %
-% for i=1:2, % Note, the second factor is shown for the sake of illustration
-%    if vascao.factors{i}.stasig
-%       scores(vascao.factors{i},[],[],sprintf('Factor %d',i),[],vascao.design(:,i));
-%       loadings(vascao.factors{i},[],sprintf('Factor %d',i));
-%    end
+% if vascao.factors{1}.stasig
+%    scores(vascao.factors{1},[],[],sprintf('Factor %d',1),[],vascao.design(:,1));
+%    loadings(vascao.factors{1},[],sprintf('Factor %d',1));
 % end
 %
 %
