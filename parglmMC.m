@@ -414,7 +414,7 @@ end
 par = [mean(parglmo.effects) 100];
 DoF = [1 df df_int Rdf Tdf];
 MSQ = SSQ./DoF;
-F = [nan max(F_factors(1,:,:),[],3) max(F_interactions(1,:,:),[],3) nan nan];
+F = [nan max(F_factors,[],2)' max(F_interactions,[],2)' nan nan];
 p_value = [nan min(parglmo.p) nan nan];
 
 isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
