@@ -381,7 +381,7 @@ if n_interactions
 else
     SSQ = sum([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) SSQ_residuals(1,:)' SSQ_X'],1);
 end
-par = [mean(parglmo.effects) 100];
+par = [mean(parglmo.effects,1) 100];
 DoF = [1 df df_int Rdf Tdf];
 MSQ = SSQ./DoF;
 F = [nan max(F_factors(1,:,:),[],3) max(F_interactions(1,:,:),[],3) nan nan];
