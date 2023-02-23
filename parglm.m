@@ -113,7 +113,7 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 %
 % table = parglm(X, F, [1 2])
 %
-% coded by: José Camacho (josecamacho@ugr.es)
+% coded by: Jos� Camacho (josecamacho@ugr.es)
 % last modification: 14/Dec/22
 %
 % Copyright (C) 2022  José Camacho, Universidad de Granada
