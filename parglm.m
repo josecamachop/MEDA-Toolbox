@@ -1,4 +1,4 @@
-function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fmtc)
+function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fmtc, coding)
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
 % matrices in a crossed experimental design and permutation test for multivariate 
@@ -7,7 +7,7 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 % Related routines: asca, apca, parglmVS, parglmMC, create_design
 %
 % T = parglm(X, F)   % minimum call
-% [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fmtc)   % complete call
+% [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fmtc, coding)   % complete call
 %
 %
 % INPUTS:
@@ -40,6 +40,10 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 %       2: Holm step-up or Hochberg step-down
 %       3: Benjamini-Hochberg step-down (FDR)
 %       4: Q-value from Benjamini-Hochberg step-down
+%
+% coding: [1x1] type of coding
+%       0: sum/deviation coding (default)
+%       1: reference coding (reference is the last level)
 %
 %
 % OUTPUTS:
@@ -114,9 +118,9 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 % table = parglm(X, F, [1 2])
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 14/Dec/22
+% last modification: 8/Mar/23
 %
-% Copyright (C) 2022  JosÃ© Camacho, Universidad de Granada
+% Copyright (C) 2022  Universidad de Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -144,12 +148,14 @@ if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
 if nargin < 6 || isempty(ts), ts = 1; end;
 if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
 if nargin < 8 || isempty(fmtc), fmtc = 0; end;
+if nargin < 9 || isempty(coding), coding = 0; end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(fmtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(coding), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -201,7 +207,11 @@ for f = 1 : n_factors
             D(find(F(:,f)==uF(i)),n+i) = 1;
         end
         parglmo.factors{f}.Dvars = n+(1:length(uF)-1);
-        D(find(F(:,f)==uF(end)),parglmo.factors{f}.Dvars) = -1;
+        if coding == 1
+            D(find(F(:,f)==uF(end)),parglmo.factors{f}.Dvars) = 0;
+        else
+            D(find(F(:,f)==uF(end)),parglmo.factors{f}.Dvars) = -1;
+        end
         n = n + length(uF) - 1;
     end
 end
