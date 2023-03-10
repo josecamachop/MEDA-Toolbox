@@ -41,7 +41,7 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 %       3: Benjamini-Hochberg step-down (FDR)
 %       4: Q-value from Benjamini-Hochberg step-down
 %
-% coding: [1x1] type of coding
+% coding: [1xF] type of coding of factors
 %       0: sum/deviation coding (default)
 %       1: reference coding (reference is the last level)
 %
@@ -118,7 +118,7 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 % table = parglm(X, F, [1 2])
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 8/Mar/23
+% last modification: 10/Mar/23
 %
 % Copyright (C) 2022  Universidad de Granada
 %
@@ -148,14 +148,15 @@ if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
 if nargin < 6 || isempty(ts), ts = 1; end;
 if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
 if nargin < 8 || isempty(fmtc), fmtc = 0; end;
-if nargin < 9 || isempty(coding), coding = 0; end;
+if nargin < 9 || isempty(coding), coding = zeros(1,size(F,2)); end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(ordinal), [1 size(F,2)]), 'Dimension Error: 7th argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(fmtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(coding), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: 9th argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -203,14 +204,14 @@ for f = 1 : n_factors
     else
         uF = unique(F(:,f));
         paranovao.n_levels(f) = length(uF);
-        for i = 1:length(uF)-1
-            D(find(F(:,f)==uF(i)),n+i) = 1;
+        for i = 2:length(uF)
+            D(find(F(:,f)==uF(i)),n+i-1) = 1;
         end
         parglmo.factors{f}.Dvars = n+(1:length(uF)-1);
-        if coding == 1
-            D(find(F(:,f)==uF(end)),parglmo.factors{f}.Dvars) = 0;
+        if coding(f) == 1
+            D(find(F(:,f)==uF(1)),parglmo.factors{f}.Dvars) = 0;
         else
-            D(find(F(:,f)==uF(end)),parglmo.factors{f}.Dvars) = -1;
+            D(find(F(:,f)==uF(1)),parglmo.factors{f}.Dvars) = -1;
         end
         n = n + length(uF) - 1;
     end
