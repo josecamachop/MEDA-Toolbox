@@ -5,7 +5,7 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes,blur)
 % Compute and plot scores in PCA
 %
 % T = scores_pca(x) % minimum call
-% [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes) % complete call
+% [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes,blur) % complete call
 %
 % INPUTS:
 %
