@@ -1,11 +1,10 @@
 
-function [T,TT] = scores(model,test,opt,tit,label,classes,blur)
-
+function fig_h = scores(model,test,opt,tit,label,classes,blur)
 
 % Compute and plot scores.
 %
-% T = scores(model) % minimum call
-% [T,TT] = scores(model,test,opt,tit,label,classes) % complete call
+% fig_h = scores(model) % minimum call
+% fig_h = scores(model,test,opt,tit,label,classes) % complete call
 %
 % INPUTS:
 %
@@ -23,17 +22,18 @@ function [T,TT] = scores(model,test,opt,tit,label,classes,blur)
 %
 % opt: (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
-%           0: no plots
-%           1: plot scores
+%           0: scatter plot of pairs of LVs 
+%           1: bar plot of each single LV
 %       b:
-%           0: scatter plot of pairs of PCs 
-%           1: bar plot of each single PC
-%       c:
 %           0: plot calibration and test data
 %           1: plot only test data 
-%   By deafult, opt = '100'. If less than 3 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
-%   If a=0, then b and c are ignored.
+%       c:
+%           0: plot for categorical classes (consistent with a legend)
+%           1: plot for numerical classes (consistent with a colorbar) 
+%
+%   By deafult, opt = '1000'. If less than 4 digits are specified, least 
+%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0 and 
+%   d=0. If a=0, then b, c  and d are ignored.
 %
 % tit: (str) title for the plots. Empty by default;
 %
@@ -44,14 +44,12 @@ function [T,TT] = scores(model,test,opt,tit,label,classes,blur)
 %   visualization (a single group by default per calibration and test)
 %
 % blur: [1x1] avoid blur when adding labels. The higher, the more labels 
-%   are printer (the higher blur). Inf shows all the labels (1 by default).
+%   are printer (the higher blur). Inf shows all the labels (1 by default)
 %
 %
 % OUTPUTS:
 %
-% T: [NxA] calibration scores
-%
-% TT: [NxA] test scores
+% fig_h: set of figure handles
 %
 %
 % EXAMPLE OF USE: Random scores
@@ -60,9 +58,10 @@ function [T,TT] = scores(model,test,opt,tit,label,classes,blur)
 %
 % model.lvs = 1:3;
 % [Xcs,model.av,model.sc] = preprocess2D(X);
+% model.var = trace(Xcs'*Xcs);
 % [model.loads,model.scores] = pca_pp(Xcs,model.lvs);
 %
-% T = scores(model);
+% scores(model);
 %
 %
 % EXAMPLE OF USE: Calibration and Test, both line and scatter plots
@@ -73,6 +72,7 @@ function [T,TT] = scores(model,test,opt,tit,label,classes,blur)
 %
 % model.lvs = 1:2;
 % [Xcs,model.av,model.sc] = preprocess2D(X);
+% model.var = trace(Xcs'*Xcs);
 % [model.loads,model.scores] = pca_pp(Xcs,model.lvs);
 %
 % n_obst = 10;
@@ -82,10 +82,9 @@ function [T,TT] = scores(model,test,opt,tit,label,classes,blur)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-%           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 20/Feb/23
+% last modification: 21/Apr/2023
 %
-% Copyright (C) 2023  José Camacho, Universidad de Granada
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -109,30 +108,31 @@ N = size(model.scores, 1);
 [M,A] = size(model.loads);
 if nargin < 2, test = []; end;
 L = size(test, 1);
-if nargin < 3 || isempty(opt), opt = '100'; end; 
+if nargin < 3 || isempty(opt), opt = 0; end; 
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
 
 % Complete opt
-if length(opt)<2, opt = strcat(opt,'00'); end
-if length(opt)<3, opt = strcat(opt,'0'); end
-if opt(3) == 1 || opt(3) == '1',
+while length(opt)<3, opt = strcat(opt,'0'); end
+
+if opt(3) == '0', opt(3) = '1'; else,  opt(3) = '0'; end
+if opt(2) == 1 || opt(2) == '1'
     K = L;
 else
     K = N+L;
 end
 
 if nargin < 4, tit = ''; end 
-if nargin < 5 || isempty(label), 
-    if opt(3) == 1 || opt(3) == '1',
+if nargin < 5 || isempty(label) 
+    if opt(2) == 1 || opt(2) == '1'
         label = 1:L;
     else
         label = [1:N 1:L]; 
     end
 end
-if nargin < 6 || isempty(classes),
-    if opt(3) == 1 || opt(3) == '1', 
+if nargin < 6 || isempty(classes)
+    if opt(2) == 1 || opt(2) == '1' 
         classes = ones(L,1); 
     else
         classes = [ones(N,1);2*ones(L,1)];  
@@ -174,25 +174,22 @@ end
 
 %% Show results
 
-if opt(1) == '1',
-    
-     if opt(3) == '0'
-        Tt = [T;TT];
-    else
-        Tt = TT;
+if opt(2) == '0'
+    Tt = [T;TT];
+else
+    Tt = TT;
+end
+
+if length(model.lvs) == 1 || opt(1) == '1'
+    for i=1:length(model.lvs)
+        plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var)});
+        title(tit);
     end
-    
-    if length(model.lvs) == 1 || opt(2) == '1',
-        for i=1:length(model.lvs),
-            plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var)});
+else
+    for i=1:length(model.lvs)-1
+        for j=i+1:length(model.lvs)
+            plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var),sprintf('Scores PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}',[],opt(3),[],[],blur);
             title(tit);
-        end
-    else
-        for i=1:length(model.lvs)-1,
-            for j=i+1:length(model.lvs),
-                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('Scores PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}',[],[],[],[],blur);
-                title(tit);
-            end      
         end
     end
 end

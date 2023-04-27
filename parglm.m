@@ -118,9 +118,9 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 % table = parglm(X, F, [1 2])
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 10/Mar/23
+% last modification: 12/Apr/23
 %
-% Copyright (C) 2022  Universidad de Granada
+% Copyright (C) 2023  Universidad de Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -247,7 +247,25 @@ if Rdf < 0
     disp('Warning: degrees of freedom exhausted');
     return
 end
-    
+
+% Handle missing data using unconditional mean replacement 
+[r,c]=find(isnan(X));
+Xnan = X;
+ru = unique(r);
+for i=1:length(ru)
+    ind = find(r==ru(i));
+    ind2 = find(sum((D-ones(size(D,1),1)*D(r(ind(1)),:)).^2,2)==0);
+    rc = unique(c(ind));
+    for j=1:length(rc)
+        ind3 = find(c(ind)==rc(j));
+        if length(ind2)>length(ind3)
+            X(r(ind(1)),c(ind(ind3))) = nanmean(X(ind2,c(ind(ind3)))); % use the mean of the cell, suggested if possible
+        else
+            X(r(ind(1)),c(ind(ind3))) = nanmean(X(:,c(ind(ind3)))); % use the global mean
+        end
+    end
+end
+
 % GLM model calibration with LS, only fixed factors
 pD =  pinv(D'*D)*D';
 B = pD*X;

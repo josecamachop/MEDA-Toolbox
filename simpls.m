@@ -1,5 +1,5 @@
 %SIMPLS Basic SIMPLS.  Performs no error checking.
-function [beta,W,P,Q,R] = simpls(X,Y,lvs)
+function [beta,W,P,Q,R,model] = simpls(X,Y,lvs)
 
 %% Arguments checking
 
@@ -87,4 +87,17 @@ W = Weights(:,lvs);
 P = Xloadings(:,lvs);
 Q = Yloadings(:,lvs);
 R = R(:,lvs);
+for i=1:size(R,2)
+    R(:,i) = R(:,i)/norm(R(:,i));
+end
+T = X*R;
 beta=R*Q';
+
+
+model.var = trace(X'*X);
+model.lvs = 1:size(P,2);
+model.loads = P;
+model.yloads = Q;
+model.weights = W;
+model.scores = T;
+        

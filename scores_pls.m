@@ -28,7 +28,7 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% opt: (str or num) options for data plotting: binary code of the form 'abcd' for:
 %       a:
 %           0: no plots
 %           1: plot scores
@@ -38,9 +38,13 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
 %       c:
 %           0: plot calibration and test data
 %           1: plot only test data 
-%   By deafult, opt = '100'. If less than 3 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
-%   If a=0, then b and c are ignored.
+%       d:
+%           0: plot for categorical classes (consistent with a legend)
+%           1: plot for numerical classes (consistent with a colorbar)
+%
+%   By deafult, opt = '1000'. If less than 4 digits are specified, least 
+%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0 and 
+%   d=0. If a=0, then b, c  and d are ignored.
 %
 % label: [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
 %   are used by default)
@@ -83,10 +87,9 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 17/Nov/22
+% last modification: 21/Apr/2023
 %
-% Copyright (C) 2022  University of Granada, Granada
-% Copyright (C) 2022  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -120,23 +123,24 @@ if nargin < 7 || isempty(opt), opt = '100'; end;
 if isnumeric(opt), opt=num2str(opt); end
 
 % Complete opt
-if length(opt)<2, opt = strcat(opt,'00'); end
-if length(opt)<3, opt = strcat(opt,'0'); end
-if opt(3) == 1 || opt(3) == '1',
+while length(opt)<4, opt = strcat(opt,'0'); end
+
+if opt(4) == '0', opt(4) = '1'; else,  opt(4) = '0'; end
+if opt(3) == 1 || opt(3) == '1'
     K = L;
 else
     K = N+L;
 end
 
-if nargin < 8 || isempty(label), 
-    if opt(3) == 1 || opt(3) == '1',
+if nargin < 8 || isempty(label) 
+    if opt(3) == 1 || opt(3) == '1'
         label = 1:L;
     else
         label = [1:N 1:L]; 
     end
 end
-if nargin < 9 || isempty(classes),
-    if opt(3) == 1 || opt(3) == '1', 
+if nargin < 9 || isempty(classes)
+    if opt(3) == 1 || opt(3) == '1' 
         classes = ones(L,1); 
     else
         classes = [ones(N,1);2*ones(L,1)];  
@@ -162,7 +166,7 @@ assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 4th argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 7th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==4, 'Dimension Error: 7th argument must be a string or num of 4 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: 8th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: 9th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 10th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
@@ -178,12 +182,12 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must cont
 ycs = preprocess2D(y,prepy);
 
 [beta,W,P,Q,R] = simpls(xcs,ycs,lvs); % Change SIMPLS to normalize loadings
-for i=1:size(R,2),
+for i=1:size(R,2)
     R(:,i) = R(:,i)/norm(R(:,i));
 end
 T = xcs*R;
 
-if ~isempty(test),
+if ~isempty(test)
     testcs = preprocess2Dapp(test,m,sd);
     TT = testcs*R;
 else
@@ -193,7 +197,7 @@ end
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
      if opt(3) == '0'
         Tt = [T;TT];
@@ -201,14 +205,14 @@ if opt(1) == '1',
         Tt = TT;
      end
     
-    if length(lvs) == 1 || opt(2) == '1',
-        for i=1:length(lvs),
+    if length(lvs) == 1 || opt(2) == '1'
+        for i=1:length(lvs)
             plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
         end
     else
-        for i=1:length(lvs)-1,
-            for j=i+1:length(lvs),
-                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores LV %d (%.0f%%)',lvs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}',[],[],[],[],blur);
+        for i=1:length(lvs)-1
+            for j=i+1:length(lvs)
+                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores LV %d (%.0f%%)',lvs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}',[],opt(4),[],[],blur);
             end      
         end
     end
