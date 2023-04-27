@@ -3,8 +3,8 @@ function fig_h =loadings(model,opt,tit,label,classes,blur)
 
 % Compute and plot loadings.
 %
-% fig_h =loadings_pca(model) % minimum call
-% fig_h =loadings_pca(model,opt,tit,label,classes,blur) % complete call
+% fig_h =loadings(model) % minimum call
+% fig_h =loadings(model,opt,tit,label,classes,blur) % complete call
 %
 % INPUTS:
 %
@@ -14,9 +14,16 @@ function fig_h =loadings(model,opt,tit,label,classes,blur)
 %   loads: [MxA] model parameters.
 %   scores: [NxA] data scores. 
 %
-% opt: [1X1]
-%       0: scatter plot of pairs of PCs (by default)
-%       1: bar plot of each single PC
+% opt: (str) options for data plotting: binary code of the form 'ab' for:
+%       a:
+%           0: scatter plot of pairs of LVs 
+%           1: bar plot of each single LV
+%       b:
+%           0: plot for categorical classes (consistent with a legend)
+%           1: plot for numerical classes (consistent with a colorbar) 
+%
+%   By deafult, opt = '00'. If less than 2 digits are specified, the least 
+%   significant digit is set to 0, i.e. opt = 1 means a=1, b=0.
 %
 % tit: (str) title for the plots. Empty by default;
 %
@@ -43,7 +50,7 @@ function fig_h =loadings(model,opt,tit,label,classes,blur)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/Apr/2023
+% last modification: 27/Apr/2023
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -69,6 +76,14 @@ N = size(model.scores, 1);
 M = size(model.loads, 1);
 
 if nargin < 2 || isempty(opt), opt = 0; end; 
+
+% Convert int arrays to str
+if isnumeric(opt), opt=num2str(opt); end
+
+% Complete opt
+while length(opt)<2, opt = strcat(opt,'0'); end
+if opt(2) == '0', opt(2) = '1'; else,  opt(2) = '0'; end
+
 if nargin < 3, tit = ''; end 
 if nargin < 4 || isempty(label), label = 1:M; end
 if nargin < 5 || isempty(classes), classes = ones(M,1); end
@@ -79,13 +94,13 @@ if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
 
 % Validate dimensions of input data
-assert (length(opt)==1, 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==2, 'Dimension Error: 2nd argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: 4th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [M 1]), 'Dimension Error: 5th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
-assert (isempty(find(opt~=0 & opt~=1)), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -96,7 +111,7 @@ P = model.loads;
 %% Show results
 
 fig_h = [];
-if length(model.lvs) == 1 || opt
+if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
         fig_h = [fig_h plot_vec(P(:,i), label, classes, {'',sprintf('Loadings PC %d',model.lvs(i))})];
         title(tit);
@@ -104,7 +119,7 @@ if length(model.lvs) == 1 || opt
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            fig_h = [fig_h plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d',model.lvs(i)),sprintf('Loadings PC %d',model.lvs(j))}',[],[],[],[],blur)];
+            fig_h = [fig_h plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d',model.lvs(i)),sprintf('Loadings PC %d',model.lvs(j))}',[],opt(2),[],[],blur)];
             title(tit);
         end
     end

@@ -4,7 +4,7 @@ function fig_h = biplot(model,opt,tit,label,classes,vlabel,blur)
 % Compute and plot scores and loadings of a model.
 %
 % fig_h = biplot(model) % minimum call
-% fig_h = biplot(model,opt,tit,label,classes,vlabel,blur) % complete call
+% fig_h = biplot(model,opt,tit,label,classes,vlabel,blur,arrows) % complete call
 %
 % INPUTS:
 %
@@ -48,7 +48,7 @@ function fig_h = biplot(model,opt,tit,label,classes,vlabel,blur)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/Apr/2023
+% last modification: 27/Apr/2023
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 

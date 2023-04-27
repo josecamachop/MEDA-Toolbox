@@ -2,7 +2,8 @@
 function P = loadings_pca(x,pcs,prep,opt,label,classes,blur)
 
 
-% Compute and plot loadings in PCA
+% Compute and plot loadings in PCA. This routine is deprecated and superseded 
+% by loadings.m (please, use the latter)
 %
 % P = loadings_pca(x) % minimum call
 % P = loadings_pca(x,pcs,prep,opt,label,classes,blur) % complete call

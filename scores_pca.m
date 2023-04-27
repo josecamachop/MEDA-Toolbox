@@ -2,7 +2,8 @@
 function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes,blur)
 
 
-% Compute and plot scores in PCA
+% Compute and plot scores in PCA. This routine is deprecated and superseded 
+% by scores.m (please, use the latter)
 %
 % T = scores_pca(x) % minimum call
 % [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes,blur) % complete call

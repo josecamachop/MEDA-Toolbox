@@ -1,7 +1,8 @@
 
 function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
 
-% Compute and plot scores in PLS.
+% Compute and plot scores in PLS. This routine is deprecated and superseded 
+% by scores.m (please, use the latter)
 %
 % T = scores_pls(x,y) % minimum call
 % [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes) % complete call

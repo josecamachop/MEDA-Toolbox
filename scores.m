@@ -4,7 +4,7 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 % Compute and plot scores.
 %
 % fig_h = scores(model) % minimum call
-% fig_h = scores(model,test,opt,tit,label,classes) % complete call
+% fig_h = scores(model,test,opt,tit,label,classes,blur) % complete call
 %
 % INPUTS:
 %
@@ -20,7 +20,7 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 % test: [LxM] data set with the observations to be visualized in the model
 %   space. By default, model.scores are plotted.
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% opt: (str) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: scatter plot of pairs of LVs 
 %           1: bar plot of each single LV
@@ -31,9 +31,8 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 %           0: plot for categorical classes (consistent with a legend)
 %           1: plot for numerical classes (consistent with a colorbar) 
 %
-%   By deafult, opt = '1000'. If less than 4 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0 and 
-%   d=0. If a=0, then b, c  and d are ignored.
+%   By deafult, opt = '000'. If less than 3 digits are specified, least 
+%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, and c=0.
 %
 % tit: (str) title for the plots. Empty by default;
 %
@@ -82,7 +81,7 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/Apr/2023
+% last modification: 27/Apr/2023
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -180,15 +179,16 @@ else
     Tt = TT;
 end
 
+fig_h = [];
 if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
-        plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var)});
+        fig_h = [fig_h plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var)})];
         title(tit);
     end
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var),sprintf('Scores PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}',[],opt(3),[],[],blur);
+            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var),sprintf('Scores PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}',[],opt(3),[],[],blur)];
             title(tit);
         end
     end

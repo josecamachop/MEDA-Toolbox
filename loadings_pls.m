@@ -1,7 +1,8 @@
 
 function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur)
 
-% Compute and plot loadings in PLS
+% Compute and plot loadings in PLS. This routine is deprecated and superseded 
+% by loadings.m (please, use the latter)
 %
 % P = loadings_pls(x,y) % minimum call
 % [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur) % complete call
