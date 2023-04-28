@@ -2,7 +2,7 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
 % matrices in a crossed experimental design and permutation test for multivariate 
-% statistical significance. 
+% statistical significance. Missing data is considered.
 %
 % Related routines: asca, apca, parglmVS, parglmMC, create_design
 %
@@ -118,7 +118,7 @@ function [T, parglmo] = parglm(X, F, interactions, prep, n_perm, ts, ordinal, fm
 % table = parglm(X, F, [1 2])
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 12/Apr/23
+% last modification: 28/Apr/23
 %
 % Copyright (C) 2023  Universidad de Granada
 %
@@ -248,23 +248,24 @@ if Rdf < 0
     return
 end
 
-% Handle missing data using unconditional mean replacement 
+% Handle missing data 
 [r,c]=find(isnan(X));
 Xnan = X;
 ru = unique(r);
 for i=1:length(ru)
     ind = find(r==ru(i));
     ind2 = find(sum((D-ones(size(D,1),1)*D(r(ind(1)),:)).^2,2)==0);
-    rc = unique(c(ind));
-    for j=1:length(rc)
-        ind3 = find(c(ind)==rc(j));
+    for j=1:length(c(ind))
+        ind3 = find(isnan(X(ind2,c(ind(j)))));
         if length(ind2)>length(ind3)
-            X(r(ind(1)),c(ind(ind3))) = nanmean(X(ind2,c(ind(ind3)))); % use the mean of the cell, suggested if possible
+            X(r(ind(j)),c(ind(j))) = nanmean(X(ind2,c(ind(j)))); % use conditional mean replacement
         else
-            X(r(ind(1)),c(ind(ind3))) = nanmean(X(:,c(ind(ind3)))); % use the global mean
+            X(r(ind(j)),c(ind(j))) = nanmean(X(:,c(ind(j)))); % use unconditional mean replacement if CMR not possible
         end
     end
 end
+parglmo.data = X;
+parglmo.Xnan = Xnan;
 
 % GLM model calibration with LS, only fixed factors
 pD =  pinv(D'*D)*D';
@@ -298,9 +299,25 @@ parglmo.residuals = X_residuals;
 for j = 1 : n_perm*mtcc
     
     perms = randperm(size(X,1)); % permuted data (permute whole data matrix)
+    
+    X = Xnan(perms, :);
+    [r,c]=find(isnan(X));
+    ru = unique(r);
+    for i=1:length(ru)
+        ind = find(r==ru(i));
+        ind2 = find(sum((D-ones(size(D,1),1)*D(r(ind(1)),:)).^2,2)==0);
+        for f=1:length(c(ind))
+            ind3 = find(isnan(X(ind2,c(ind(f)))));
+            if length(ind2)>length(ind3)
+                X(r(ind(f)),c(ind(f))) = nanmean(X(ind2,c(ind(f)))); % use conditional mean replacement
+            else
+                X(r(ind(f)),c(ind(f))) = nanmean(X(:,c(ind(f)))); % use unconditional mean replacement if CMR not possible
+            end
+        end
+    end
       
-    B = pD*X(perms, :);
-    X_residuals = X(perms, :) - D*B;
+    B = pD*X;
+    X_residuals = X - D*B;
     SSQ_residualsp = sum(sum(X_residuals.^2));
     
     % Factors

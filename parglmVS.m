@@ -3,12 +3,12 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
 % matrices in a crossed experimental design and permutation test for incremental
 % multivariate statistical significance that allows variable selection. This 
-% is the basis of VASCA (Variable-selection ASCA).
+% is the basis of VASCA (Variable-selection ASCA). Missing data is considered.
 %
 % Related routines: parglm, parglmMC, asca, apca, create_design
 %
 % T = parglmVS(X, F)   % minimum call
-% [T, parglmoVS] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, fmtc)   % complete call
+% [T, parglmoVS] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, fmtc, coding)   % complete call
 %
 %
 % INPUTS:
@@ -41,6 +41,10 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, 
 %       2: Holm step-up or Hochberg step-down
 %       3: Benjamini-Hochberg step-down (FDR)
 %       4: Q-value from Benjamini-Hochberg step-down
+%
+% coding: [1xF] type of coding of factors
+%       0: sum/deviation coding (default)
+%       1: reference coding (reference is the last level)
 %
 %
 % OUTPUTS:
@@ -79,9 +83,9 @@ function [T, parglmo] = parglmVS(X, F, interactions, prep, n_perm, ts, ordinal, 
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 20/Feb/23
+% last modification: 28/Apr/23
 %
-% Copyright (C) 2023  José Camacho, Universidad de Granada
+% Copyright (C) 2023  Universidad de Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -109,13 +113,14 @@ if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
 if nargin < 6 || isempty(ts), ts = 1; end;
 if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
 if nargin < 8 || isempty(fmtc), fmtc = 0; end;
+if nargin < 9 || isempty(coding), coding = zeros(1,size(F,2)); end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(fmtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-
+assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: 9th argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 
 %% Main code
 
@@ -162,12 +167,16 @@ for f = 1 : n_factors
         n = n + 1;
     else
         uF = unique(F(:,f));
-        parglmo.n_levels(f) = length(uF);
-        for i = 1:length(uF)-1
-            D(find(F(:,f)==uF(i)),n+i) = 1;
+        paranovao.n_levels(f) = length(uF);
+        for i = 2:length(uF)
+            D(find(F(:,f)==uF(i)),n+i-1) = 1;
         end
         parglmo.factors{f}.Dvars = n+(1:length(uF)-1);
-        D(find(F(:,f)==uF(end)),parglmo.factors{f}.Dvars) = -1;
+        if coding(f) == 1
+            D(find(F(:,f)==uF(1)),parglmo.factors{f}.Dvars) = 0;
+        else
+            D(find(F(:,f)==uF(1)),parglmo.factors{f}.Dvars) = -1;
+        end
         n = n + length(uF) - 1;
     end
 end
@@ -202,6 +211,25 @@ if Rdf < 0
     disp('Warning: degrees of freedom exhausted');
     return
 end
+
+% Handle missing data 
+[r,c]=find(isnan(X));
+Xnan = X;
+ru = unique(r);
+for i=1:length(ru)
+    ind = find(r==ru(i));
+    ind2 = find(sum((D-ones(size(D,1),1)*D(r(ind(1)),:)).^2,2)==0);
+    for j=1:length(c(ind))
+        ind3 = find(isnan(X(ind2,c(ind(j)))));
+        if length(ind2)>length(ind3)
+            X(r(ind(j)),c(ind(j))) = nanmean(X(ind2,c(ind(j)))); % use conditional mean replacement
+        else
+            X(r(ind(j)),c(ind(j))) = nanmean(X(:,c(ind(j)))); % use unconditional mean replacement if CMR not possible
+        end
+    end
+end
+parglmo.data = X;
+parglmo.Xnan = Xnan;
 
 % GLM model calibration with LS, only fixed factors
 pD =  pinv(D'*D)*D';
@@ -240,8 +268,24 @@ for j = 1 : n_perm*mtcc
     
     perms = randperm(size(X,1)); % permuted data (permute whole rows)
     
-    B = pD*X(perms, :);
-    X_residuals = X(perms, :) - D*B;
+    X = Xnan(perms, :);
+    [r,c]=find(isnan(X));
+    ru = unique(r);
+    for i=1:length(ru)
+        ind = find(r==ru(i));
+        ind2 = find(sum((D-ones(size(D,1),1)*D(r(ind(1)),:)).^2,2)==0);
+        for f=1:length(c(ind))
+            ind3 = find(isnan(X(ind2,c(ind(f)))));
+            if length(ind2)>length(ind3)
+                X(r(ind(f)),c(ind(f))) = nanmean(X(ind2,c(ind(f)))); % use conditional mean replacement
+            else
+                X(r(ind(f)),c(ind(f))) = nanmean(X(:,c(ind(f)))); % use unconditional mean replacement if CMR not possible
+            end
+        end
+    end
+      
+    B = pD*X;
+    X_residuals = X - D*B;
     SSQ_residuals(1 + j,:) = sum(X_residuals.^2);
     
     % Factors
