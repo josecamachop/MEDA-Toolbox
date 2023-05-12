@@ -13,14 +13,15 @@ function [T,TT,fig_h] = scores_Lpca(Lmodel,test,opt,label,classes)
 %
 % Lmodel: (struct Lmodel) model with the information to compute the PCA
 %   model:
-%       Lmodel.XX: (MxM) X-block cross-product matrix.
-%       Lmodel.lvs: [1x1] number of PCs. 
+%       Lmodel.XX: (MxM) X-block cross-product matrix
+%       Lmodel.lvs: [1x1] number of PCs
+%       Lmodel.LVvar: [1xA] variance of PCs
 %       Lmodel.centr: (LxM) centroids of the clusters of observations
-%       Lmodel.multr: (Lx1) multiplicity of each cluster.
-%       Lmodel.class: (Lx1) class associated to each cluster.
-%       Lmodel.av: [1xM] sample average according to the preprocessing method.
-%       Lmodel.sc: [1xM] sample scale according to the preprocessing method.
-%       Lmodel.weight: [1xM] weight applied after the preprocessing method.
+%       Lmodel.multr: (Lx1) multiplicity of each cluster
+%       Lmodel.class: (Lx1) class associated to each cluster
+%       Lmodel.av: [1xM] sample average according to the preprocessing method
+%       Lmodel.sc: [1xM] sample scale according to the preprocessing method
+%       Lmodel.weight: [1xM] weight applied after the preprocessing method
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -198,7 +199,7 @@ end
 %% Show results
 
 fig_h = [];
-if opt(1) == '1',
+if opt(1) == '1'
      
     if opt(3) == '0'
         ttt = [T;TT];
@@ -214,14 +215,14 @@ if opt(1) == '1',
     m = max(1,M/100);
     int = 10^((log10(M)-log10(m))/2 + log10(m));
     markers = [m,int,M];
-    if length(Lmodel.lvs) == 1 || opt(2) == '1',
+    if length(Lmodel.lvs) == 1 || opt(2) == '1'
         for i=1:length(Lmodel.lvs)
             fig_h(i) = plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1)))}, [], [], [], mult, markers);
         end
     else
         h = 1;
-        for i=1:length(Lmodel.lvs)-1,
-            for j=i+1:length(Lmodel.lvs),
+        for i=1:length(Lmodel.lvs)-1
+            for j=i+1:length(Lmodel.lvs)
                 fig_h(h) = plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat('1',opt(4:5)), mult, markers, 0.1);
                 h = h+1;
             end
