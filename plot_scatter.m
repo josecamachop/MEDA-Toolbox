@@ -69,8 +69,9 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 % EXAMPLE OF USE: with labels, multilicity and classes in elements:
 %
 % X = randn(5,2);
-% for opt = [10 1100 1101 1110 1111],
-%   plot_scatter(X,{'one','two','three','four','five'},[1 1 1 2 2],{'Y','X'},[],opt,[1 20 50 100 1000]);
+% opts = {'10' '1100' '1101' '1110' '1111'};
+% for o = 1:length(opts),
+%   plot_scatter(X,{'one','two','three','four','five'},[1 1 1 2 2],{'Y','X'},[],opts{o},[1 20 50 100 1000]);
 % end
 %
 %
@@ -78,7 +79,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %           Alejandro Perez Villegas (alextoni@gmail.com)
 % last modification: 21/Apr/2023
 %
-% Copyright (C) 2022  University of Granada, Granada
+% Copyright (C) 2023  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

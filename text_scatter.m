@@ -110,6 +110,15 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must cont
 
 %% Main code
 
+% Get ordering of classes
+unique_classes = unique(classes,'stable');
+if iscell(classes)
+     ord_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
+else
+     ord_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
+end
+unique_ord_classes = unique(ord_classes);
+
 ax = axis;
 deltax = (ax(2)-ax(1))/100;
 deltay = (ax(4)-ax(3))/100;
@@ -187,7 +196,7 @@ if ~isempty(elabel)
                 case '110'
                     text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
                 case '111'
-                    text(posx, posy, classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
+                    text(posx, posy, ord_classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
                 otherwise
                     text(posx, posy, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
             end
