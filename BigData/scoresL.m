@@ -84,7 +84,7 @@ function fig_h = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/May/2023
+% last modification: 16/May/2023
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -126,17 +126,35 @@ end
 
 if nargin < 4, tit = ''; end 
 if nargin < 5 || isempty(label) 
-    if opt(2) == 1 || opt(2) == '1'
-        label = 1:L;
+    if isempty(Lmodel.obs_l)
+        if opt(2) == 1 || opt(2) == '1'
+            label = 1:L;
+        else
+            label = [1:N 1:L]; 
+        end
     else
-        label = [1:N 1:L]; 
+        if opt(2) == 1 || opt(2) == '1'
+            label = Lmodel.obs_l;
+        else
+            label = Lmodel.obs_l;
+            for i=1:L, label{end+1} = sprintf('test%i',i); end
+        end
     end
 end
 if nargin < 6 || isempty(classes)
-    if opt(2) == 1 || opt(2) == '1' 
-        classes = ones(L,1); 
+    if isempty(Lmodel.class)
+        if opt(2) == 1 || opt(2) == '1' 
+            classes = ones(L,1); 
+        else
+            classes = [ones(N,1);2*ones(L,1)];  
+        end
     else
-        classes = [ones(N,1);2*ones(L,1)];  
+        if opt(2) == 1 || opt(2) == '1' 
+            classes = Lmodel.class; 
+        else
+            classes = Lmodel.class;
+            classes(end+1:end+L) = max(Lmodel.class)+1;
+        end
     end
 end
 if nargin < 7 || isempty(blur),    blur    = 1;       end;

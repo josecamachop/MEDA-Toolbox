@@ -266,7 +266,7 @@ if opt(1) == '1',
     end
     
     if opt(2) == '0',
-        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 1, mult);
+        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 11, mult);
     else
         plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd, 0, mult);
         plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq, 0, mult);
