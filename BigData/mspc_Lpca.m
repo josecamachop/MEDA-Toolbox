@@ -128,16 +128,16 @@ if isnumeric(opt), opt=num2str(opt); end
 % Complete opt
 if length(opt)<2, opt = strcat(opt,'00'); end
 if length(opt)<3, opt = strcat(opt,'0'); end
-if opt(3) == '1',
+if opt(3) == '1'
     K = L;
 else
     K = N+L;
 end
 
-if nargin < 4 || isempty(label), 
-    if  opt(3) == '1',
+if nargin < 4 || isempty(label)
+    if  opt(3) == '1'
         label = cellstr(num2str((1:L)'));
-    elseif isempty(Lmodel.obs_l),
+    elseif isempty(Lmodel.obs_l)
         label = cellstr(num2str([1:N 1:L]'));
     else
         if L
@@ -148,8 +148,8 @@ if nargin < 4 || isempty(label),
         end
     end
 else
-    if  opt(3) == '0',
-        if isempty(Lmodel.obs_l),
+    if  opt(3) == '0'
+        if isempty(Lmodel.obs_l)
             lb1 = cellstr(num2str((1:N)'));
             label = {lb1{:} label{:}};
         else
@@ -158,25 +158,25 @@ else
     end
 end
 
-if nargin < 5 || isempty(classes),
-    if opt(3) == '1', 
+if nargin < 5 || isempty(classes)
+    if opt(3) == '1' 
         classes = ones(L,1); 
     else
         classes = [Lmodel.class;2*ones(L,1)];  
     end
-elseif opt(3) == '0' && length(classes)==L,
+elseif opt(3) == '0' && length(classes)==L
         classes = [Lmodel.class;2*classes];
 end
 
-if nargin < 6 || isempty(p_valueD),
-    if opt(2) == 0 || opt(2) == '0',
+if nargin < 6 || isempty(p_valueD)
+    if opt(2) == 0 || opt(2) == '0'
         p_valueD = 0.01; 
     else
         p_valueD = [0.01 0.05]; 
     end
 end;
-if nargin < 7 || isempty(p_valueQ), 
-    if opt(2) == 0 || opt(2) == '0',
+if nargin < 7 || isempty(p_valueQ) 
+    if opt(2) == 0 || opt(2) == '0'
         p_valueQ = 0.01; 
     else
         p_valueQ = [0.01 0.05]; 
@@ -211,8 +211,8 @@ if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<=0 | p_valueQ>1)), 'Value E
 
 %% Main code
 
-[P,sdT] = Lpca(Lmodel);
-iTT = diag(1./(sdT.^2));
+[P,~,Lmodel] = Lpca(Lmodel);
+iTT = diag((Lmodel.N-1)./Lmodel.LVvar(Lmodel.lvs));
 
 [Dst,Qst] = mspc(Lmodel.centr,iTT,P);
 
@@ -224,10 +224,10 @@ else
     Qstt = [];
 end
 
-if limtype==0,
+if limtype==0
     UCLd = [];
-    for i=1:Ld,
-        if isempty(test),
+    for i=1:Ld
+        if isempty(test)
             UCLd(i) = hot_lim(A,N,p_valueD(i),1);
         else
             UCLd(i) = hot_lim(A,N,p_valueD(i),2);
@@ -236,24 +236,24 @@ if limtype==0,
     
     E = Lmodel.centr - Lmodel.centr*P*P'; 
     UCLq = [];   
-    for i=1:Lq,
+    for i=1:Lq
         UCLq(i) = spe_lim(E,p_valueQ(i));
     end
 else
     UCLd = [];   
-    for i=1:Ld,
+    for i=1:Ld
         UCLd(i) = prctile(repelem(Dst,Lmodel.multr),100*(1-p_valueD(i)));
     end
     
     UCLq = [];   
-    for i=1:Lq,
+    for i=1:Lq
         UCLq(i) = prctile(repelem(Qst,Lmodel.multr),100*(1-p_valueQ(i)));
     end
 end
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
      
     if opt(3) == '0'
         Dsttt = [Dst;Dstt];
@@ -265,7 +265,7 @@ if opt(1) == '1',
         mult = ones(size(Dstt));
     end
     
-    if opt(2) == '0',
+    if opt(2) == '0'
         plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 11, mult);
     else
         plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd, 0, mult);
