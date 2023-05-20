@@ -68,10 +68,9 @@ function [meda_map,ind,ord] = meda_pls(x,y,lvs,prepx,prepy,thres,opt,label,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 26/May/17
+% last modification: 19/May/23
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -149,7 +148,7 @@ label = label(vars);
 x2 = preprocess2D(x,prepx);
 y2 = preprocess2D(y,prepy);
 
-[beta,W,P,Q,R] = kernel_pls(x2'*x2,x2'*y2,lvs);
+[beta,W,P,Q,R] = simpls(x2,y2,lvs);
 
 meda_map = meda(x2'*x2,R,P);
 
@@ -160,7 +159,7 @@ else
     ind = 1:length(vars);
 end
 
-if opt(2) == '1',
+if opt(2) == '1'
     [map, ord] = seriation(meda_map(ind,ind));
 else
     ord = 1:length(vars);
@@ -169,11 +168,11 @@ end
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
     map = meda_map;
 
-    if opt(3) == '1',
+    if opt(3) == '1'
         ind2 = ind;
     else
         ind2 = 1:length(vars);
@@ -182,7 +181,7 @@ if opt(1) == '1',
     map = map(ind2,ind2);
     label = label(ind2);
     
-    if opt(2) == '1',
+    if opt(2) == '1'
         ord2 = ord;
     else
         ord2 = 1:length(vars);

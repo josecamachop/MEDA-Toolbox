@@ -123,7 +123,7 @@ assert (blocks_r<=N, 'Value Error: 4th argument must be at most N. Type ''help %
 
 %% Main code
 
-for j=1:rep,
+for j=1:rep
     % Cross-validation
     
     y1 = find(y==1);
@@ -137,7 +137,7 @@ for j=1:rep,
     [a,r_indn1]=sort(rows);
     elem_rn1=length(yn1)/blocks_r;
     
-    for i=1:blocks_r,
+    for i=1:blocks_r
         
         ind_i1 = r_ind1(round((i-1)*elem_r1+1):round(i*elem_r1)); % Sample selection
         i2 = ones(length(y1),1);
@@ -174,7 +174,7 @@ for j=1:rep,
         idx=find(AUCt==max(AUCt),1);
         lvso(j,i) = lvs(idx);
         
-        if lvso(j,i)~=0,
+        if lvso(j,i)~=0
             
             X = ccs;
             Y = ccs_y;

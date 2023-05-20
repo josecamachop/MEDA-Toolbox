@@ -48,9 +48,9 @@ function vascao = vasca(parglmoVS,siglev)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 20/Feb/23
+% last modification: 19/May/23
 %
-% Copyright (C) 2023  José Camacho, Universidad de Granada
+% Copyright (C) 2023  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -117,3 +117,4 @@ for interaction = 1 : vascao.n_interactions
     end
 end
 
+vascao.type = 'VASCA'

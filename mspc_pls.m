@@ -98,10 +98,9 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,lvs,test,prepx,prepy,opt,l
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 19/May/2023
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -136,35 +135,35 @@ if isnumeric(opt), opt=num2str(opt); end
 % Complete opt
 if length(opt)<2, opt = strcat(opt,'00'); end
 if length(opt)<3, opt = strcat(opt,'0'); end
-if opt(3) == 1 || opt(3) == '1',
+if opt(3) == 1 || opt(3) == '1'
     K = L;
 else
     K = N+L;
 end
 
-if nargin < 8 || isempty(label), 
-    if opt(3) == 1 || opt(3) == '1',
+if nargin < 8 || isempty(label) 
+    if opt(3) == 1 || opt(3) == '1'
         label = 1:L;
     else
         label = [1:N 1:L]; 
     end
 end
-if nargin < 9 || isempty(classes),
-    if opt(3) == 1 || opt(3) == '1', 
+if nargin < 9 || isempty(classes)
+    if opt(3) == 1 || opt(3) == '1' 
         classes = ones(L,1); 
     else
         classes = [ones(N,1);2*ones(L,1)];  
     end
 end
-if nargin < 10 || isempty(p_valueD), 
-    if opt(2) == 0 || opt(2) == '0',
+if nargin < 10 || isempty(p_valueD) 
+    if opt(2) == 0 || opt(2) == '0'
         p_valueD = 0.01; 
     else
         p_valueD = [0.01 0.05]; 
     end
 end;
-if nargin < 11 || isempty(p_valueQ), 
-    if opt(2) == 0 || opt(2) == '0',
+if nargin < 11 || isempty(p_valueQ) 
+    if opt(2) == 0 || opt(2) == '0'
         p_valueQ = 0.01; 
     else
         p_valueQ = [0.01 0.05]; 
@@ -212,7 +211,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must cont
 [xcs,m,sc] = preprocess2D(x,prepx);
 ycs = preprocess2D(y,prepy);
 
-[beta,W,P,Q,R] = kernel_pls(xcs'*xcs,xcs'*ycs,lvs);
+[beta,W,P,Q,R] = simpls(xcs,ycs,lvs);
 T = xcs*R;
 
 [Dst,Qst] = mspc(xcs,inv(cov(T)),R,P);
@@ -225,10 +224,10 @@ else
     Qstt = [];
 end
 
-if limtype==0,
+if limtype==0
     UCLd = [];
-    for i=1:Ld,
-        if isempty(test),
+    for i=1:Ld
+        if isempty(test)
             UCLd(i) = hot_lim(A,N,p_valueD(i),1);
         else
             UCLd(i) = hot_lim(A,N,p_valueD(i),2);
@@ -237,24 +236,24 @@ if limtype==0,
     
     E = xcs - T*P'; 
     UCLq = [];   
-    for i=1:Lq,
+    for i=1:Lq
         UCLq(i) = spe_lim(E,p_valueQ(i));
     end
 else
     UCLd = [];   
-    for i=1:Ld,
+    for i=1:Ld
         UCLd(i) = prctile(Dst,100*(1-p_valueD(i)));
     end
     
     UCLq = [];   
-    for i=1:Lq,
+    for i=1:Lq
         UCLq(i) = prctile(Qst,100*(1-p_valueQ(i)));
     end
 end
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
     if opt(3) == '0'
         Dsttt = [Dst;Dstt];
@@ -264,7 +263,7 @@ if opt(1) == '1',
         Qsttt = Qstt;
     end
     
-    if opt(2) == '0',
+    if opt(2) == '0'
         plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq});
     else
         plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd);

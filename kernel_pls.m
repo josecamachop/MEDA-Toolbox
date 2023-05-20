@@ -1,4 +1,4 @@
-function [beta,W,P,Q,R] = kernel_pls(XX,XY,lvs)
+function [beta,W,P,Q,R,model] = kernel_pls(XX,XY,lvs)
 
 % Kernel algorithm for Partial Least Squares. References:
 % F. Lindgren, P. Geladi and S. Wold, J. Chemometrics, 7, 45 (1993).
@@ -7,7 +7,7 @@ function [beta,W,P,Q,R] = kernel_pls(XX,XY,lvs)
 % code is almost copy-and-paste from the last reference.
 %
 % beta = kernel_pls(XX,XY)     % minimum call
-% [beta,W,P,Q,R] = kernel_pls(XX,XY,lvs)     % complete call
+% [beta,W,P,Q,R,model] = kernel_pls(XX,XY,lvs)     % complete call
 %
 %
 % INPUTS:
@@ -32,6 +32,8 @@ function [beta,W,P,Q,R] = kernel_pls(XX,XY,lvs)
 %
 % R: [MxA] matrix of modified weights: W*inv(P'*W)
 %
+% model: structure that contains model information
+%
 %
 % EXAMPLE OF USE: Random data with structural relationship
 %
@@ -44,10 +46,9 @@ function [beta,W,P,Q,R] = kernel_pls(XX,XY,lvs)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 07/Apr/16.
+% last modification: 19/May/23
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -97,7 +98,7 @@ P=[];
 Q=[];
 R=[];
 for i=1:max(lvs), % A=number of PLS components to be computed
-    if O==1, % if there is a single response variable, compute the
+    if O==1 % if there is a single response variable, compute the
         w=XY; % X-weights as shown here
     else % else
         [C,D]=eig(XY'*XY); % ?rst compute the eigenvectors of YTXXTX
@@ -106,7 +107,7 @@ for i=1:max(lvs), % A=number of PLS components to be computed
     end
     w=w/sqrt(w'*w); % normalize w to unity
     r=w; % loop to compute ri
-    for j=1:i-1,
+    for j=1:i-1
         r=r-(P(:,j)'*w)*R(:,j);
     end
     tt=(r'*XX*r); % compute tTt
@@ -125,3 +126,10 @@ P = P(:,lvs);
 Q = Q(:,lvs);
 R = R(:,lvs);
 beta=R*Q';
+
+model.var = trace(XX);
+model.lvs = 1:size(P,2);
+model.loads = P;
+model.yloads = Q;
+model.weights = W;
+model.type = 'PLS';

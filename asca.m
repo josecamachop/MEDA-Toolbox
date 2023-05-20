@@ -116,10 +116,9 @@ function ascao = asca(parglmo)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 23/Feb/23
+% last modification: 19/May/23
 %
 % Copyright (C) 2023  University of Granada, Granada
-% Copyright (C) 2023  Jose Camacho Paez
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -170,4 +169,6 @@ for interaction = 1 : ascao.n_interactions
     ascao.interactions{interaction}.scores = xf*p;
     ascao.interactions{interaction}.scoresV = (xf+ascao.residuals)*p;
 end
+
+ascao.type = 'ASCA'
 

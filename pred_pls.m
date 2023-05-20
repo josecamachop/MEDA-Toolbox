@@ -78,10 +78,9 @@ function [ypred,testypred] = pred_pls(x,y,lvs,test,prepx,prepy,opt,label,classes
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 19/May/2023
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -118,21 +117,21 @@ if isnumeric(opt), opt=num2str(opt); end
 % Complete opt
 if length(opt)<2, opt = strcat(opt,'00'); end
 if length(opt)<3, opt = strcat(opt,'0'); end
-if opt(3) == 1 || opt(3) == '1',
+if opt(3) == 1 || opt(3) == '1'
     K = L;
 else
     K = N+L;
 end
 
-if nargin < 8 || isempty(label), 
-    if opt(3) == 1 || opt(3) == '1',
+if nargin < 8 || isempty(label) 
+    if opt(3) == 1 || opt(3) == '1'
         label = 1:L;
     else
         label = [1:N 1:L]; 
     end
 end
-if nargin < 9 || isempty(classes),
-    if opt(3) == 1 || opt(3) == '1', 
+if nargin < 9 || isempty(classes)
+    if opt(3) == 1 || opt(3) == '1' 
         classes = ones(L,1); 
     else
         classes = [ones(N,1);2*ones(L,1)];  
@@ -171,10 +170,10 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must cont
 [xcs,m,sd] = preprocess2D(x,prepx);
 [ycs,my,sdy] = preprocess2D(y,prepy);
 
-beta = kernel_pls(xcs'*xcs,xcs'*ycs,lvs);
+beta = simpls(xcs,ycs,lvs);
 ypred = (xcs*beta).*(ones(N,1)*sdy) + (ones(N,1)*my);
 
-if ~isempty(test),
+if ~isempty(test)
     testcs = preprocess2Dapp(test,m,sd);
     testypred = (testcs*beta).*(ones(L,1)*sdy) + (ones(L,1)*my);
 else
@@ -184,7 +183,7 @@ end
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
      if opt(3) == '0'
         predt = [ypred;testypred];
@@ -194,12 +193,12 @@ if opt(1) == '1',
         yt = testypred;
      end
     
-    if opt(2) == '1',
-        for i=1:O,
+    if opt(2) == '1'
+        for i=1:O
             plot_vec(predt(:,i), label, classes, {'',sprintf('Prediction Y-var %d',i)});
         end
     else
-        for i=1:O,
+        for i=1:O
             fig_h = plot_scatter([yt(:,i),predt(:,i)], label, classes, {sprintf('Real Y-var %d',i),sprintf('Prediction Y-var %d',i)}');
             v = [yt(:,i);predt(:,i)];
             hold on

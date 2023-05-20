@@ -98,10 +98,9 @@ function gascao = gasca(paranovao_st)
 % Related routines: parglm, paranova, asca, apca, create_design 
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 26/Apr/21
+% last modification: 19/May/23
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -136,7 +135,7 @@ for factor = 1 : gascao.n_factors
     gascao.factors{factor}.var = trace(xf'*xf);
     gascao.factors{factor}.lvs = 1:size(p,2);
     gascao.factors{factor}.loads = p;
-    ascao.factors{factor}.scores = xf*p;
+    gascao.factors{factor}.scores = xf*p;
     gascao.factors{factor}.scoresV = (xf+gascao.residuals)*p;
 end
 
@@ -149,7 +148,8 @@ for interaction = 1 : gascao.n_interactions
     gascao.factors{factor}.var = trace(xf'*xf);
     gascao.interactions{interaction}.lvs = 1:size(p,2);
     gascao.interactions{interaction}.loads = p;
-    ascao.interactions{interaction}.scores = xf*p;
+    gascao.interactions{interaction}.scores = xf*p;
     gascao.interactions{interaction}.scoresV = (xf+gascao.residuals)*p;
 end
 
+gascao.type = 'GASCA'

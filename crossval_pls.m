@@ -49,10 +49,9 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 19/May/2023
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -121,7 +120,7 @@ elem_r=N/blocks_r;
 
 % Cross-validation
         
-for i=1:blocks_r,
+for i=1:blocks_r
     
     ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
     i2 = ones(N,1);
@@ -137,11 +136,11 @@ for i=1:blocks_r,
     scs = preprocess2Dapp(sample,av,st);
     scs_y = preprocess2Dapp(sample_y,av_y,st_y);
     
-    [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,0:max(lvs));
+    [beta,W,P,Q,R] = simpls(ccs,ccs_y,0:max(lvs));
     
     for lv=1:length(lvs),
     
-        if lvs(lv) > 0,
+        if lvs(lv) > 0
             beta = R(:,1:min(lvs(lv),end))*Q(:,1:min(lvs(lv),end))';
             srec = scs*beta;
             
@@ -160,7 +159,7 @@ cumpress = sum(press,2);
 
 %% Show results
 
-if opt == '1', 
+if opt == '1' 
     fig_h = plot_vec(cumpress,lvs,[],{'#LVs','PRESS'},[],0); 
 end
 

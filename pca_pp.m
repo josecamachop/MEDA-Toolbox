@@ -102,6 +102,7 @@ model.var = trace(XX);
 model.lvs = 1:size(p,2);
 model.loads = p;
 model.scores = t;
+model.type = 'PCA';
         
 
 

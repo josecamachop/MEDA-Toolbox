@@ -109,10 +109,9 @@ function apcao = apca(paranovao)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 17/Oct/22
+% last modification: 19/May/23
 %
-% Copyright (C) 2022  University of Granada, Granada
-% Copyright (C) 2022  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -162,3 +161,4 @@ for interaction = 1 : apcao.n_interactions
     apcao.interactions{interaction}.scores = t;
 end
 
+apcao.type = 'APCA'

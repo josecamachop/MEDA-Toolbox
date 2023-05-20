@@ -145,9 +145,9 @@ ycs = preprocess2D(y,prepy);
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
-    if opt(3) == '0',
+    if opt(3) == '0'
         Pt = W;
         text = 'Weights';
     else
@@ -155,7 +155,7 @@ if opt(1) == '1',
         text = 'X-block loadings';
     end
     
-    if length(lvs) == 1 || opt(2) == '1',
+    if length(lvs) == 1 || opt(2) == '1'
         for i=1:length(lvs),
             plot_vec(Pt(:,i), label, classes, {'',sprintf('%s LV %d',text,lvs(i))});
         end

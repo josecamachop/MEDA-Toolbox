@@ -81,7 +81,7 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 27/Apr/2023
+% last modification: 19/May/2023
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -179,16 +179,24 @@ else
     Tt = TT;
 end
 
+if ~isfield(model,'type') || strcmp(model.type,'PCA')
+    dim = 'PC';
+elseif strcmp(model.type,'PLS')
+    dim = 'LV';
+else
+    dim = 'PC';
+end
+
 fig_h = [];
 if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
-        fig_h = [fig_h plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var)})];
+        fig_h = [fig_h plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var)})];
         title(tit);
     end
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var),sprintf('Scores PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}',[],opt(3),[],[],blur)];
+            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}',[],opt(3),[],[],blur)];
             title(tit);
         end
     end

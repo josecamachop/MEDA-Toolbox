@@ -50,7 +50,7 @@ function fig_h =loadings(model,opt,tit,label,classes,blur)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 27/Apr/2023
+% last modification: 19/May/2023
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -110,16 +110,24 @@ P = model.loads;
 
 %% Show results
 
+if ~isfield(model,'type') || strcmp(model.type,'PCA')
+    dim = 'PC';
+elseif strcmp(model.type,'PLS')
+    dim = 'LV'
+else
+    dim = 'PC';
+end
+
 fig_h = [];
 if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
-        fig_h = [fig_h plot_vec(P(:,i), label, classes, {'',sprintf('Loadings PC %d',model.lvs(i))})];
+        fig_h = [fig_h plot_vec(P(:,i), label, classes, {'',sprintf('Loadings %s %d',dim,model.lvs(i))})];
         title(tit);
     end
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            fig_h = [fig_h plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d',model.lvs(i)),sprintf('Loadings PC %d',model.lvs(j))}',[],opt(2),[],[],blur)];
+            fig_h = [fig_h plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings %s %d',dim,model.lvs(i)),sprintf('Loadings %s %d',dim,model.lvs(j))}',[],opt(2),[],[],blur)];
             title(tit);
         end
     end

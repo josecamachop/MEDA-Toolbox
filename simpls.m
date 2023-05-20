@@ -1,5 +1,65 @@
-%SIMPLS Basic SIMPLS.  Performs no error checking.
 function [beta,W,P,Q,R,model] = simpls(X,Y,lvs)
+
+% Simpls algorithm for Partial Least Squares. De Jong, Sijmen. "SIMPLS: an 
+% alternative approach to partial least squares regression." Chemometrics 
+% and intelligent laboratory systems 18.3 (1993): 251-263.
+%
+% beta = simpls(xcs,ycs)     % minimum call
+% [beta,W,P,Q,R,model] = simpls(xcs,ycs,lvs)     % complete call
+%
+%
+% INPUTS:
+%
+% xcs: [NxM] preprocessed billinear data set 
+%
+% ycs: [NxO] preprocessed billinear data set of responses
+%
+% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+%   first two LVs). By default, lvs = 0:size(XX)
+%
+%
+% OUTPUTS:
+%
+% beta: [MxO] matrix of regression coefficients: W*inv(P'*W)*Q'
+%
+% W: [MxA] matrix of weights
+%
+% P: [MxA] matrix of x-loadings
+%
+% Q: [OxA] matrix of y-loadings
+%
+% R: [MxA] matrix of modified weights: W*inv(P'*W)
+%
+% model: structure that contains model information
+%
+%
+% EXAMPLE OF USE: Random data with structural relationship
+%
+% X = simuleMV(20,10,8);
+% Y = 0.1*randn(20,2) + X(:,1:2);
+% Xcs = preprocess2D(X,2);
+% Ycs = preprocess2D(Y,2);
+% lvs = 1:10;
+% [beta,W,P,Q,R] = simpls(Xcs,Ycs,lvs);
+%
+%
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 19/May/23
+%
+% Copyright (C) 2023  University of Granada, Granada
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %% Arguments checking
 
@@ -46,7 +106,7 @@ Weights = zeros(dx,ncomp);
 V = zeros(dx,ncomp);
 
 Cov = X'*Y;
-for i = 1:ncomp,
+for i = 1:ncomp
     % Find unit length ti=X*ri and ui=Y*ci whose covariance, ri'*X'*Y*ci, is
     % jointly maximized, subject to ti'*tj=0 for j=1:(i-1).
     [ri,si,ci] = svd(Cov,'econ'); 
@@ -63,8 +123,8 @@ for i = 1:ncomp,
     % Update the orthonormal basis with modified Gram Schmidt (more stable),
     % repeated twice (ditto).
     vi = Xloadings(:,i);
-    for repeat = 1:2,
-        for j = 1:i-1,
+    for repeat = 1:2
+        for j = 1:i-1
             vj = V(:,j);
             vi = vi - (vj'*vi)*vj;
         end
@@ -83,21 +143,26 @@ end
 
 % Postprocessing
 R = Weights*inv(Xloadings'*Weights);
+R = R(:,lvs);
 W = Weights(:,lvs);
 P = Xloadings(:,lvs);
 Q = Yloadings(:,lvs);
-R = R(:,lvs);
+beta=R*Q';
+
 for i=1:size(R,2)
+    P(:,i) = P(:,i)*norm(R(:,i));
+    Q(:,i) = Q(:,i)*norm(R(:,i));
+    W(:,i) = W(:,i)/norm(R(:,i));
     R(:,i) = R(:,i)/norm(R(:,i));
 end
 T = X*R;
-beta=R*Q';
 
 
-model.var = trace(X'*X);
+model.var = sum(sum(X.^2));
 model.lvs = 1:size(P,2);
 model.loads = P;
 model.yloads = Q;
 model.weights = W;
 model.scores = T;
+model.type = 'PLS';
         
