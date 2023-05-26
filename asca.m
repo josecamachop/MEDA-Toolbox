@@ -74,7 +74,7 @@ function ascao = asca(parglmo)
 %     end
 % end
 %
-% [table, parglmo] = parglm(X, F, [1 2]);
+% [table, parglmo] = parglm(X, F, {[1 2]});
 % table
 % 
 % ascao = asca(parglmo);
@@ -102,7 +102,7 @@ function ascao = asca(parglmo)
 %     end
 % end
 %
-% [table, parglmo] = parglm(X, F, [1 2]);
+% [table, parglmo] = parglm(X, F, {[1 2]});
 % table
 % 
 % ascao = asca(parglmo);
