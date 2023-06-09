@@ -414,7 +414,6 @@ switch mtc
     case 3 % Benjamini & Hochberg
         
         if fmtc
-            parglmo.p = parglmo.p;
             [~,indx] = sort(parglmo.p(:),'ascend');
             for ind = length(indx)-1 : -1 : 1
                 parglmo.p(indx(ind)) = min([1,parglmo.p(indx(ind)) * (M*mtcc)/ind]);

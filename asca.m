@@ -170,5 +170,5 @@ for interaction = 1 : ascao.n_interactions
     ascao.interactions{interaction}.scoresV = (xf+ascao.residuals)*p;
 end
 
-ascao.type = 'ASCA'
+ascao.type = 'ASCA';
 
