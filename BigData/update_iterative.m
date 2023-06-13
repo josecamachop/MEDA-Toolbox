@@ -68,10 +68,9 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Jan/21
+% last modification: 13/Jun/23
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -92,7 +91,7 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 if nargin < 2 || isempty(path), path = ''; end;
-if nargin < 3 || isempty(Lmodel), 
+if nargin < 3 || isempty(Lmodel) 
     Lmodel = Lmodel_ini; 
     Lmodel.type = 1;
     Lmodel.lvs = 0;
@@ -118,7 +117,7 @@ assert (isempty(find(debug~=0 & debug~=1 & debug~=2)), 'Value Error: 6th argumen
 
 Lmodel.update = 2; 
 
-if files,
+if files
   if ispc
 	  [status,result] = system(['del ' Lmodel.path 'MEDA*.txt']); % delete previous files
   else
@@ -130,9 +129,9 @@ end
 
 % compute mean
 
-if Lmodel.type==1,
+if Lmodel.type==1
     
-    for t=1:length(list),
+    for t=1:length(list)
         
         if isstruct(list(t))
             x = list(t).x;
@@ -151,11 +150,11 @@ if Lmodel.type==1,
         
     end
         
-elseif Lmodel.type==2,
+elseif Lmodel.type==2
     
     if debug, disp('mean centering X and Y blocks...........................................'), end;
     
-    for t=1:length(list),
+    for t=1:length(list)
         
         if isstruct(list(t))
             x = list(t).x;
@@ -189,11 +188,11 @@ end
 
 N = 0;
     
-if (Lmodel.type==1 && Lmodel.prep == 2) || (Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy < 2), 
+if (Lmodel.type==1 && Lmodel.prep == 2) || (Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy < 2) 
     
     if debug, disp('scaling X block..................................................'), end;
         
-    for t=1:length(list),
+    for t=1:length(list)
         
         if isstruct(list(t))
             x = list(t).x;
@@ -211,11 +210,11 @@ if (Lmodel.type==1 && Lmodel.prep == 2) || (Lmodel.type==2 && Lmodel.prep == 2 &
         
     end
     
-elseif Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy == 2,
+elseif Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy == 2
     
     if debug, disp('scaling X and Y blocks..................................................'), end;
     
-    for t=1:length(list),
+    for t=1:length(list)
         
         if isstruct(list(t))
             x = list(t).x;
@@ -245,11 +244,11 @@ end
 % compute cross-product matrices
 
 Lmodel.XX = zeros(size(x,2));
-if Lmodel.type==1, 
+if Lmodel.type==1 
     
     if debug, disp('computing XX ....................................................'), end;
         
-    for t=1:length(list),
+    for t=1:length(list)
         
         if isstruct(list(t))
             x = list(t).x;
@@ -257,7 +256,7 @@ if Lmodel.type==1,
             load([path list{t}],'x')
         end
         
-        if ~isempty(find(isnan(x))), 
+        if ~isempty(find(isnan(x))) 
                 if debug, disp(sprintf('Found nans in file %d',t)), end;
         end;
         
@@ -271,14 +270,14 @@ if Lmodel.type==1,
         
     end
     
-elseif Lmodel.type==2,
+elseif Lmodel.type==2
     
     Lmodel.XY = zeros(size(x,2),size(y,2));
     Lmodel.YY = zeros(size(y,2),size(y,2));
     
     if debug, disp('computing XX, XY .......................................................'), end;
     
-    for t=1:length(list),
+    for t=1:length(list)
         
         if isstruct(list(t))
             x = list(t).x;
@@ -308,11 +307,11 @@ end
 
 % compute model
 Lmodel.centr = ones(size(Lmodel.centr,1),size(Lmodel.XX,1));
-if Lmodel.type==1, 
+if Lmodel.type==1 
     
     if debug, disp('computing PCA model..............................................'), end;
     
-    if ~Lmodel.lvs,
+    if ~Lmodel.lvs
         Lmodel.lvs = 1:rank(Lmodel.XX);
         var_Lpca(Lmodel);
         Lmodel.lvs = input('Select the PCs to include in the model: ');
@@ -322,13 +321,13 @@ if Lmodel.type==1,
     P = Lpca(Lmodel);
     Lmodel.mat = P;
     
-elseif Lmodel.type==2,
+elseif Lmodel.type==2
        
-    if rank(Lmodel.XY)>0,
+    if rank(Lmodel.XY)>0
         
         if debug, disp('computing PLS model.....................................................'), end;
             
-        if ~Lmodel.lvs,
+        if ~Lmodel.lvs
             Lmodel.lvs = 1:rank(Lmodel.XX);
             var_Lpls(Lmodel);
             Lmodel.lvs = input('Select the LVs to include in the model: ');
@@ -343,7 +342,7 @@ elseif Lmodel.type==2,
         
         if debug, disp('computing PCA model..............................................'), end;
         
-        if ~Lmodel.lvs,
+        if ~Lmodel.lvs
             Lmodel.lvs = 1:rank(Lmodel.XX);
             var_Lpca(Lmodel);
             Lmodel.lvs = input('Select the PCs to include in the model: ');
@@ -362,7 +361,7 @@ if debug, disp('computing maximum and minimum ..................................
 
 mini = Inf(1,size(Lmodel.mat,2));
 maxi = -Inf(1,size(Lmodel.mat,2));
-for t=1:length(list),
+for t=1:length(list)
     
     if isstruct(list(t))
         x = list(t).x;
@@ -395,7 +394,7 @@ Lmodel.mini = mini;
 % clustering
 
 Lmodel.index_fich={};
-for t=1:length(list),
+for t=1:length(list)
     
     if debug, disp(sprintf('clustering: packet %d...........................................', t)), end;
     
@@ -409,8 +408,9 @@ for t=1:length(list),
         end
         if ismember('obs_l', vars)
             obs_l = list(t).obs_l;
+            if isnumeric(obs_l), obs_l = cellstr(num2str(obs_l)); end
         else
-            obs_l = cellstr(num2str((1:size(x,1))'));{};
+            obs_l = cellstr(num2str((1:size(x,1))'));
         end
     else
         load([path list{t}],'x')
@@ -422,6 +422,7 @@ for t=1:length(list),
         end
         if ismember('obs_l', {vars.name})
             load([path list{t}],'obs_l')
+            if isnumeric(obs_l), obs_l = cellstr(num2str(obs_l)); end
         else
             obs_l = cellstr(num2str((1:size(x,1))'));
         end
@@ -434,7 +435,7 @@ for t=1:length(list),
     
     xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
     
-    if files, % The updated field is not included in the FS yet
+    if files % The updated field is not included in the FS yet
         indorig = length(Lmodel.class);
         red = [Lmodel.centr;xcs];
         lred = {Lmodel.obs_l{:} obs_l{:}};
@@ -449,7 +450,7 @@ for t=1:length(list),
     s = size(x);
     step2 = round(s(1)*step);
     Lmodel.updated(:) = 0;
-    for i = 1:step2:s(1),
+    for i = 1:step2:s(1)
         endv = min(s(1),i+step2-1);
         ss = endv-i+1;
         xstep = xcs(i:endv,:);
@@ -466,8 +467,8 @@ for t=1:length(list),
         Lmodel.obs_l = {Lmodel.obs_l{:} obs_step{:}};
         Lmodel.updated = [Lmodel.updated;ones(size(xstep,1),1)]; 
         
-        if files,
-            for k=i:endv,
+        if files
+            for k=i:endv
                 Lmodel.index_fich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
             end
         end
@@ -475,7 +476,7 @@ for t=1:length(list),
         [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,obslist] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,Lmodel.mat,obslist);
     end
     
-    if files,
+    if files
         Lmodel.index_fich = cfilesys(obslist,red,lred,multr,classr,Lmodel.index_fich,100,Lmodel.path,debug); % update of the clustering file system
     end
       
