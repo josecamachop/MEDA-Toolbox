@@ -16,8 +16,8 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 % X: [NxM] billinear data set for model fitting, where each row is a
 % measurement, each column a variable
 %
-% F: [NxF] design matrix, where columns correspond to factors and rows to
-% levels
+% F: [NxF] design matrix, cell or array, where columns correspond to 
+% factors and rows to levels.
 %
 % model: This paremeter is similar to 'model' of anovan. It could be:
 %       'linear': only main effects are provided (by default)
@@ -95,7 +95,7 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 4/May/23
+% last modification: 13/Jun/23
 %
 % Copyright (C) 2023  Universidad de Granada
 %
@@ -164,6 +164,8 @@ n_interactions      = size(interactions,1);              % number of interaction
 mtcc                = n_factors + n_interactions;        % correction for the number of tests
 ts_factors         = zeros(n_perm*M+1,n_factors,M);       % sum of squares for factors
 ts_interactions    = zeros(n_perm*M+1,n_interactions,M);  % sum of squares for interactions
+F_factors           = zeros(n_factors,M);       % F-value 
+F_interactions      = zeros(n_interactions,M);  % F-value 
 p_factor            = zeros(n_factors,M);                % p-values factors
 p_interaction       = zeros(n_interactions,M);           % p-values interactions
 
@@ -194,18 +196,41 @@ for f = 1 : n_factors
         parglmo.factors{f}.Dvars = n+1;
         n = n + 1;
     else
-        uF = unique(F(:,f));
-        paranovao.n_levels(f) = length(uF);
-        for i = 2:length(uF)
-            D(find(F(:,f)==uF(i)),n+i-1) = 1;
+        if isempty(nested) || isempty(find(nested(:,2)==f)) % if not nested
+            uF = unique(F(:,f));
+            parglmo.n_levels(f) = length(uF);
+            for i = 2:length(uF)
+                D(find(ismember(F(:,f),uF(i))),n+i-1) = 1;
+            end
+            parglmo.factors{f}.Dvars = n+(1:length(uF)-1);
+            if coding(f) == 1
+                D(find(ismember(F(:,f),uF(1))),parglmo.factors{f}.Dvars) = 0;
+            else
+                D(find(ismember(F(:,f),uF(1))),parglmo.factors{f}.Dvars) = -1;
+            end
+            n = n + length(uF) - 1;
+        else % if nested
+            ind = find(nested(:,2)==f);
+            ref = nested(ind,1);
+            urF = unique(F(:,ref));
+            parglmo.n_levels(f) = 0;
+            parglmo.factors{f}.Dvars = [];
+            for j = 1:length(urF)
+                rind = find(ismember(F(:,ref),urF(j)));
+                uF = unique(F(rind,f));
+                parglmo.n_levels(f) = parglmo.n_levels(f) + length(uF);
+                for i = 2:length(uF)
+                    D(rind(find(ismember(F(rind,f),uF(i)))),n+i-1) = 1;
+                end
+                parglmo.factors{f}.Dvars = [parglmo.factors{f}.Dvars n+(1:length(uF)-1)];
+                if coding(f) == 1
+                    D(rind(find(ismember(F(rind,f),uF(1)))),n+(1:length(uF)-1)) = 0;
+                else
+                    D(rind(find(ismember(F(rind,f),uF(1)))),n+(1:length(uF)-1)) = -1;
+                end
+                n = n + length(uF) - 1;
+            end   
         end
-        parglmo.factors{f}.Dvars = n+(1:length(uF)-1);
-        if coding(f) == 1
-            D(find(F(:,f)==uF(1)),parglmo.factors{f}.Dvars) = 0;
-        else
-            D(find(F(:,f)==uF(1)),parglmo.factors{f}.Dvars) = -1;
-        end
-        n = n + length(uF) - 1;
     end
 end
 
@@ -216,7 +241,7 @@ for i = 1 : n_interactions
     parglmo.interactions{i}.factors = interactions{i};
     n = size(D,2);
 end
-  
+
 % Degrees of freedom
 Tdf = size(X,1);      
 Rdf = Tdf-1;
@@ -224,7 +249,7 @@ for f = 1 : n_factors
     if ordinal(f)
         df(f) = 1;
     else
-        df(f) = size(unique(D(:,parglmo.factors{f}.Dvars),'rows'),1) -1;
+        df(f) = length(parglmo.factors{f}.Dvars);
     end
     Rdf = Rdf-df(f);
 end

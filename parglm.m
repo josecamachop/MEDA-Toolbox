@@ -1,4 +1,4 @@
-function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, coding)
+function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, coding, nested)
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
 % matrices in a crossed experimental design and permutation test for multivariate 
@@ -7,7 +7,7 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 % Related routines: asca, apca, parglmVS, parglmMC, create_design
 %
 % T = parglm(X, F)   % minimum call
-% [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, coding)   % complete call
+% [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, coding, nested)   % complete call
 %
 %
 % INPUTS:
@@ -15,8 +15,8 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 % X: [NxM] billinear data set for model fitting, where each row is a
 % measurement, each column a variable
 %
-% F: [NxF] design matrix, where columns correspond to factors and rows to
-% levels.
+% F: [NxF] design matrix, cell or array, where columns correspond to 
+% factors and rows to levels.
 %
 % model: This paremeter is similar to 'model' of anovan. It could be:
 %       'linear': only main effects are provided (by default)
@@ -48,6 +48,9 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 % coding: [1xF] type of coding of factors
 %       0: sum/deviation coding (default)
 %       1: reference coding (reference is the last level)
+%
+% nested: [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
+%   and 3 in 2, then nested = [1 2; 2 3]
 %
 %
 % OUTPUTS:
@@ -123,7 +126,7 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 4/May/23
+% last modification: 13/Jun/23
 %
 % Copyright (C) 2023  Universidad de Granada
 %
@@ -176,6 +179,7 @@ if nargin < 6 || isempty(ts), ts = 1; end;
 if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
 if nargin < 8 || isempty(fmtc), fmtc = 0; end;
 if nargin < 9 || isempty(coding), coding = zeros(1,size(F,2)); end;
+if nargin < 10 || isempty(nested), nested = []; end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -229,18 +233,41 @@ for f = 1 : n_factors
         parglmo.factors{f}.Dvars = n+1;
         n = n + 1;
     else
-        uF = unique(F(:,f));
-        parglmo.n_levels(f) = length(uF);
-        for i = 2:length(uF)
-            D(find(F(:,f)==uF(i)),n+i-1) = 1;
+        if isempty(nested) || isempty(find(nested(:,2)==f)) % if not nested
+            uF = unique(F(:,f));
+            parglmo.n_levels(f) = length(uF);
+            for i = 2:length(uF)
+                D(find(ismember(F(:,f),uF(i))),n+i-1) = 1;
+            end
+            parglmo.factors{f}.Dvars = n+(1:length(uF)-1);
+            if coding(f) == 1
+                D(find(ismember(F(:,f),uF(1))),parglmo.factors{f}.Dvars) = 0;
+            else
+                D(find(ismember(F(:,f),uF(1))),parglmo.factors{f}.Dvars) = -1;
+            end
+            n = n + length(uF) - 1;
+        else % if nested
+            ind = find(nested(:,2)==f);
+            ref = nested(ind,1);
+            urF = unique(F(:,ref));
+            parglmo.n_levels(f) = 0;
+            parglmo.factors{f}.Dvars = [];
+            for j = 1:length(urF)
+                rind = find(ismember(F(:,ref),urF(j)));
+                uF = unique(F(rind,f));
+                parglmo.n_levels(f) = parglmo.n_levels(f) + length(uF);
+                for i = 2:length(uF)
+                    D(rind(find(ismember(F(rind,f),uF(i)))),n+i-1) = 1;
+                end
+                parglmo.factors{f}.Dvars = [parglmo.factors{f}.Dvars n+(1:length(uF)-1)];
+                if coding(f) == 1
+                    D(rind(find(ismember(F(rind,f),uF(1)))),n+(1:length(uF)-1)) = 0;
+                else
+                    D(rind(find(ismember(F(rind,f),uF(1)))),n+(1:length(uF)-1)) = -1;
+                end
+                n = n + length(uF) - 1;
+            end   
         end
-        parglmo.factors{f}.Dvars = n+(1:length(uF)-1);
-        if coding(f) == 1
-            D(find(F(:,f)==uF(1)),parglmo.factors{f}.Dvars) = 0;
-        else
-            D(find(F(:,f)==uF(1)),parglmo.factors{f}.Dvars) = -1;
-        end
-        n = n + length(uF) - 1;
     end
 end
 
@@ -259,7 +286,7 @@ for f = 1 : n_factors
     if ordinal(f)
         df(f) = 1;
     else
-        df(f) = size(unique(D(:,parglmo.factors{f}.Dvars),'rows'),1) -1;
+        df(f) = length(parglmo.factors{f}.Dvars);
     end
     Rdf = Rdf-df(f);
 end

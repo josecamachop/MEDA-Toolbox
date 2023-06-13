@@ -1,5 +1,5 @@
 
-function fig_h = biplot(model,opt,tit,label,classes,vlabel,blur)
+function fig_h = biplot(model,opt,tit,label,classes,vlabel,blur,arrows)
 
 % Compute and plot scores and loadings of a model.
 %
@@ -27,11 +27,13 @@ function fig_h = biplot(model,opt,tit,label,classes,vlabel,blur)
 % classes: [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
 %   visualization (a single group by default per calibration and test)
 %
+% vlabel: [Mx1] name of the variables (numbers are used by default)
+%
 % blur: [1x1] or [1x2] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels. Use two values 
 %   to differentiate blur for scores and loadings (1 by default)
 %
-% arrows: [1x1] percentage of loadings drawn with an arror (70 by default)
+% arrows: [1x1] percentage of loadings drawn with an arrow (10 by default)
 %
 %
 % OUTPUTS:
@@ -79,7 +81,7 @@ if nargin < 4 || isempty(label), label = 1:N; end
 if nargin < 5 || isempty(classes), classes = ones(N,1); end
 if nargin < 6 || isempty(vlabel), vlabel = 1:M; end
 if nargin < 7 || isempty(blur),    blur    = 1;       end;
-if nargin < 8 || isempty(arrows),    arrows    = 70;       end;
+if nargin < 8 || isempty(arrows),    arrows    = 10;       end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -138,7 +140,7 @@ for i=1:length(model.lvs)-1
         hold on
 
         rel = sum(P(:,1:2).^2,2);
-        lim = prctile(rel,arrows);
+        lim = prctile(rel,100-arrows);
         ind = find(rel<=lim); % plot least relevant loadings in gray
         scatter(P2(ind,i),P2(ind,j),[], [.7 .7 .7],'^','filled')
         ind = find(rel>lim); % plot most relevant loadings  with arrows
