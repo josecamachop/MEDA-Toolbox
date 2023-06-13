@@ -90,7 +90,6 @@ else %for PCA
     
     % Score plot
     scores_Lpca(Lmodel);
-    legend(num2str(unique(Lmodel.class)));
     
     % MEDA
     map = meda_Lpca(Lmodel,0.1,111);

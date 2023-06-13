@@ -53,10 +53,9 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 26/May/2017
+% last modification: 13/Jun/2023
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -103,9 +102,9 @@ assert (isempty(find(mult<=0)), 'Value Error: 3rd argument must be above 0. Type
 
 u = x*mat;
 D = Inf*ones(N); % initialization of the (upper triangular) matrix of Mahalanobis distances 
-for i=1:N,
-    for j=i+1:N,
-        if class(i)==class(j), % if belong to the same class, compute the distance between observations i and j
+for i=1:N
+    for j=i+1:N
+        if isequal(class(i),class(j)) % if belong to the same class, compute the distance between observations i and j
             r = (u(i,:)-u(j,:))';
             D(i,j) = r'*r; 
         else % of different classes, not comparable
@@ -120,7 +119,7 @@ multn = mult;
 classn = class;
 olabn = olab;
 updatedn = updated;
-for i=N-1:-1:n_min, % reduction to n_min clusters
+for i=N-1:-1:n_min % reduction to n_min clusters
     
     % Computation of the minimum distance between observations or clusters
     min_dist = find(min(min(D))==D,1);
@@ -129,19 +128,19 @@ for i=N-1:-1:n_min, % reduction to n_min clusters
     row = mod(min_dist,i+1);
     if ~row, row = i+1; end
     column = ceil(min_dist/(i+1)); 
-    if multn(column)>multn(row),
+    if multn(column)>multn(row)
         aux_v = row;
         row = column;
         column = aux_v;
     end     
         
     % Actualization of the list
-    if ~isempty(obslist),
+    if ~isempty(obslist)
         obslist{row} = [obslist{row} obslist{column}];
     end
     
     % Actualization of labels
-    if ~isempty(olabn),
+    if ~isempty(olabn)
         if ~isequal(olabn{row},olabn{column})
             olabn{row} = 'mixed';
         end      
@@ -155,8 +154,9 @@ for i=N-1:-1:n_min, % reduction to n_min clusters
     % Actualization of the distance
     u(row,:) = centr(row,:)*mat;
     r = u-ones((i+1),1)*u(row,:);
-    new_dist = sum(r.^2,2);
-    classdiff = find(classn~=classn(row)); 
+    new_dist = sum(r.^2,2); 
+    %classdiff = find(classn~=classn(row)); 
+    classdiff = find(~ismember(classn(row),classn)); 
     new_dist(classdiff) = Inf; 
     D(1:(row-1),row) = new_dist(1:(row-1));
     D(row,(row+1):end) = new_dist((row+1):end);
@@ -175,7 +175,7 @@ for i=N-1:-1:n_min, % reduction to n_min clusters
     u = u([1:(column-1) (column+1):end],:);
     D = D([1:(column-1) (column+1):end],[1:(column-1) (column+1):end]);
     
-    if isempty(find(D<Inf)),
+    if isempty(find(D<Inf))
         indmin = i;
         break;
     end
