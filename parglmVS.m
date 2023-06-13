@@ -1,4 +1,4 @@
-function [T, parglmo] = parglmVS(X, F, model, prep, n_perm, ts, ordinal, fmtc)
+function [T, parglmo] = parglmVS(X, F, model, prep, n_perm, ts, ordinal, fmtc, coding, nested)
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
 % matrices in a crossed experimental design and permutation test for incremental
@@ -8,7 +8,7 @@ function [T, parglmo] = parglmVS(X, F, model, prep, n_perm, ts, ordinal, fmtc)
 % Related routines: parglm, parglmMC, asca, apca, create_design
 %
 % T = parglmVS(X, F)   % minimum call
-% [T, parglmoVS] = parglmVS(X, F, model, prep, n_perm, ts, ordinal, fmtc, coding)   % complete call
+% [T, parglmoVS] = parglmVS(X, F, model, prep, n_perm, ts, ordinal, fmtc, coding, nested)   % complete call
 %
 %
 % INPUTS:
@@ -49,6 +49,9 @@ function [T, parglmo] = parglmVS(X, F, model, prep, n_perm, ts, ordinal, fmtc)
 % coding: [1xF] type of coding of factors
 %       0: sum/deviation coding (default)
 %       1: reference coding (reference is the last level)
+%
+% nested: [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
+%   and 3 in 2, then nested = [1 2; 2 3]
 %
 %
 % OUTPUTS:
@@ -139,11 +142,13 @@ if nargin < 6 || isempty(ts), ts = 1; end;
 if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
 if nargin < 8 || isempty(fmtc), fmtc = 0; end;
 if nargin < 9 || isempty(coding), coding = zeros(1,size(F,2)); end;
+if nargin < 10 || isempty(nested), nested = []; end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(ordinal), [1 size(F,2)]), 'Dimension Error: 7th argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(fmtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: 9th argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 

@@ -1,4 +1,4 @@
-function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fmtc)
+function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fmtc, coding, nested)
 
 % Parallel General Linear Model to obtain factor and interaction matrices 
 % in a crossed experimental design and permutation test for univariate 
@@ -8,7 +8,7 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 % Related routines: parglm, parglmVS, asca, apca, create_design
 %
 % T = parglmMC(X, F)   % minimum call
-% [T, parglmoMC] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fmtc, coding)   % complete call
+% [T, parglmoMC] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fmtc, coding, nested)   % complete call
 %
 %
 % INPUTS:
@@ -52,6 +52,9 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 % coding: [1xF] type of coding of factors
 %       0: sum/deviation coding (default)
 %       1: reference coding (reference is the last level)
+%
+% nested: [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
+%   and 3 in 2, then nested = [1 2; 2 3]
 %
 %
 % OUTPUTS:
@@ -149,6 +152,7 @@ if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
 if nargin < 8 || isempty(mtc), mtc = 3; end;
 if nargin < 9 || isempty(fmtc), fmtc = 0; end;
 if nargin < 10 || isempty(coding), coding = zeros(1,size(F,2)); end;
+if nargin < 11 || isempty(nested), nested = []; end;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
