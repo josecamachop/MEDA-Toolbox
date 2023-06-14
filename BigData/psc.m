@@ -102,15 +102,11 @@ assert (isempty(find(mult<=0)), 'Value Error: 3rd argument must be above 0. Type
 
 u = x*mat;
 D = Inf*ones(N); % initialization of the (upper triangular) matrix of Mahalanobis distances 
-for i=1:N
-    for j=i+1:N
-        if isequal(class(i),class(j)) % if belong to the same class, compute the distance between observations i and j
-            r = (u(i,:)-u(j,:))';
-            D(i,j) = r'*r; 
-        else % of different classes, not comparable
-            D(i,j) = Inf;
-        end
-        
+uc = unique(class);
+for i=1:length(uc)
+    ind = find(ismember(class,uc(i)));
+    if length(ind) > 1
+        D(ind,ind) = pdist(u(ind,:),'squaredeuclidean');
     end
 end
 
@@ -132,8 +128,8 @@ for i=N-1:-1:n_min % reduction to n_min clusters
         aux_v = row;
         row = column;
         column = aux_v;
-    end     
-        
+    end
+    
     % Actualization of the list
     if ~isempty(obslist)
         obslist{row} = [obslist{row} obslist{column}];
@@ -155,7 +151,6 @@ for i=N-1:-1:n_min % reduction to n_min clusters
     u(row,:) = centr(row,:)*mat;
     r = u-ones((i+1),1)*u(row,:);
     new_dist = sum(r.^2,2); 
-    %classdiff = find(classn~=classn(row)); 
     classdiff = find(~ismember(classn(row),classn)); 
     new_dist(classdiff) = Inf; 
     D(1:(row-1),row) = new_dist(1:(row-1));
@@ -175,7 +170,7 @@ for i=N-1:-1:n_min % reduction to n_min clusters
     u = u([1:(column-1) (column+1):end],:);
     D = D([1:(column-1) (column+1):end],[1:(column-1) (column+1):end]);
     
-    if isempty(find(D<Inf))
+    if isempty(find(~isinf(D)))
         indmin = i;
         break;
     end
