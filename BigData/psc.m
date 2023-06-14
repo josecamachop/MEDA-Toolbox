@@ -106,9 +106,16 @@ uc = unique(class);
 for i=1:length(uc)
     ind = find(ismember(class,uc(i)));
     if length(ind) > 1
-        D(ind,ind) = pdist(u(ind,:),'squaredeuclidean');
+        indM = reshape(1:length(ind)^2,length(ind),length(ind));
+        indM = triu(indM) - diag(diag(indM));
+        indM = indM';
+        indM(indM == 0) = [];
+        D2 = Inf(length(ind));
+        D2(indM) = pdist(u(ind,:),'squaredeuclidean');
+        D(ind,ind) = D2;
     end
 end
+
 
 centr = x;
 multn = mult;
