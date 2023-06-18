@@ -24,6 +24,7 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 %       'interaction': two order interactions are provided
 %       'full': all potential interactions are provided
 %       [1x1]: maximum order of interactions considered
+%       [ix2]: array with two order interactions
 %       cell: with each element a vector of factors
 %
 % prep: [1x1] preprocesing:
@@ -98,7 +99,7 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 13/Jun/23
+% last modification: 16/Jun/23
 %
 % Copyright (C) 2023  Universidad de Granada
 %
@@ -139,9 +140,13 @@ if isequal(model,'full')
     interactions = allinter(n_factors,n_factors);
 end    
 
-if isnumeric(model) & model >= 2 & model <= n_factors
-    interactions = allinter(n_factors,model);
+if isnumeric(model) && isscalar(model) && model >= 2 && model <= n_factors
+        interactions = allinter(n_factors,model);
 end    
+
+if isnumeric(model) && ~isscalar(model)
+        interactions = {model};
+end     
 
 if iscell(model), interactions = model; end
 

@@ -23,6 +23,7 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %       'interaction': two order interactions are provided
 %       'full': all potential interactions are provided
 %       [1x1]: maximum order of interactions considered
+%       [ix2]: array with two order interactions
 %       cell: with each element a vector of factors
 %
 % prep: [1x1] preprocesing:
@@ -32,6 +33,10 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 % n_perm: [1x1] number of permutations (1000 by default)
 %
 % ts: [1x1] Use SSQ (0) or the F-value (otherwise, by default) as test statistic  
+%       0: Sum-of-squares of the factor/interaction
+%       1: F-ratio of the SS of the factor/interaction divided by the SS of 
+%       the residuals (by default)
+%       2: F-ratio following the factors/interactions hierarchy
 %
 % ordinal: [1xF] whether factors are nominal or ordinal
 %       0: nominal (default)
@@ -126,7 +131,7 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 13/Jun/23
+% last modification: 15/Jun/23
 %
 % Copyright (C) 2023  Universidad de Granada
 %
@@ -167,8 +172,12 @@ if isequal(model,'full')
     interactions = allinter(n_factors,n_factors);
 end    
 
-if isnumeric(model) & model >= 2 & model <= n_factors
-    interactions = allinter(n_factors,model);
+if isnumeric(model) && isscalar(model) && model >= 2 && model <= n_factors
+        interactions = allinter(n_factors,model);
+end    
+
+if isnumeric(model) && ~isscalar(model)
+        interactions = {model};
 end    
 
 if iscell(model), interactions = model; end
@@ -232,6 +241,7 @@ for f = 1 : n_factors
         D(:,n+1) = preprocess2D(F(:,f),1);
         parglmo.factors{f}.Dvars = n+1;
         n = n + 1;
+        parglmo.factors{f}.order = 1;
     else
         if isempty(nested) || isempty(find(nested(:,2)==f)) % if not nested
             uF = unique(F(:,f));
@@ -246,6 +256,7 @@ for f = 1 : n_factors
                 D(find(ismember(F(:,f),uF(1))),parglmo.factors{f}.Dvars) = -1;
             end
             n = n + length(uF) - 1;
+            parglmo.factors{f}.order = 1;
         else % if nested
             ind = find(nested(:,2)==f);
             ref = nested(ind,1);
@@ -267,6 +278,7 @@ for f = 1 : n_factors
                 end
                 n = n + length(uF) - 1;
             end   
+            parglmo.factors{f}.order = parglmo.factors{ref}.order + 1;
         end
     end
 end
@@ -277,6 +289,7 @@ for i = 1 : n_interactions
     parglmo.interactions{i}.Dvars = n+1:size(D,2);
     parglmo.interactions{i}.factors = interactions{i};
     n = size(D,2);
+    parglmo.interactions{i}.order = max(parglmo.factors{interactions{i}(1)}.order,parglmo.factors{interactions{i}(2)}.order) + 1;
 end
 
 % Degrees of freedom
@@ -333,8 +346,19 @@ SSQ_residuals = sum(sum(X_residuals.^2));
 
 for f = 1 : n_factors
     parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
-    SSQ_factors(1,f) = sum(sum(parglmo.factors{f}.matrix.^2)); % Note: we are not using Type III sum of squares, and probably we should, although we did not find any difference in our experiments 
-    F_factors(1,f) = (SSQ_factors(1,f)/df(f))/(SSQ_residuals/Rdf);
+    SSQ_factors(1,f) = sum(sum(parglmo.factors{f}.matrix.^2)); % Note: we are not using Type III sum of squares, and probably we should, although we did not find any difference in our experiments
+%     if ts==1
+        F_factors(1,f) = (SSQ_factors(1,f)/df(f))/(SSQ_residuals/Rdf);
+%     else
+%         ind = find(nested(:,1)==f);
+%         if isempty(ind)
+%             ind = find(nested(:,1)==f);
+%         else
+%             ref = nested(ind,2);
+%             F_factors(1,f) = (SSQ_factors(1,f)/df(f))/(SSQ_factors(1,ref)/df(ref));
+%         end
+%             
+%     end
 end
 
 % Interactions
