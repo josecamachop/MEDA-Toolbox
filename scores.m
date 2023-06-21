@@ -20,7 +20,7 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 % test: [LxM] data set with the observations to be visualized in the model
 %   space. By default, model.scores are plotted.
 %
-% opt: (str) options for data plotting: binary code of the form 'abc' for:
+% opt: (str) options for data plotting: binary code of the form 'abcde' for:
 %       a:
 %           0: scatter plot of pairs of LVs 
 %           1: bar plot of each single LV
@@ -30,9 +30,22 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 %       c:
 %           0: plot for categorical classes (consistent with a legend)
 %           1: plot for numerical classes (consistent with a colorbar) 
+%       d:
+%           0: do not plot multiplicity
+%           1: plot multiplicity
+%       e: (for d 0)
+%           0: filled marks
+%           1: empty marks
+%       e: (for d 1)
+%           00: plot multiplicity info in the size of the markers.
+%           01: plot multiplicity info in the form of the markers.
+%           10: plot multiplicity information in the Z axis.
+%           11: plot multiplicity info in the size of the markers and
+%               classes in Z-axis
 %
-%   By deafult, opt = '000'. If less than 3 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, and c=0.
+%   By deafult, opt = '00000'. If less digits are specified, least 
+%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0, d=0
+%   and e=0.
 %
 % tit: (str) title for the plots. Empty by default;
 %
@@ -81,7 +94,7 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/May/2023
+% last modification: 21/Jun/2023
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -104,7 +117,7 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(model.scores, 1);
-[M,A] = size(model.loads);
+M = size(model.loads);
 if nargin < 2, test = []; end;
 L = size(test, 1);
 if nargin < 3 || isempty(opt), opt = 0; end; 
@@ -113,7 +126,8 @@ if nargin < 3 || isempty(opt), opt = 0; end;
 if isnumeric(opt), opt=num2str(opt); end
 
 % Complete opt
-while length(opt)<3, opt = strcat(opt,'0'); end
+while length(opt)<5, opt = strcat(opt,'0'); end
+if length(opt)<6 && opt(4)==1, opt = strcat(opt,'0'); end
 
 if opt(3) == '0', opt(3) = '1'; else,  opt(3) = '0'; end
 if opt(2) == 1 || opt(2) == '1'
@@ -146,7 +160,7 @@ if size(classes,1) == 1, classes = classes'; end;
 
 % Validate dimensions of input data
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 2nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 3rd argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)>=5, 'Dimension Error: 3rd argument must be a string or num of at least 5 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: 5th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: 6th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
@@ -158,6 +172,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must cont
 %% Main code
 
 T = model.scores;
+d = diag(T'*T);
 
 if isfield(model,'scoresV')
     T = model.scoresV;
@@ -190,13 +205,13 @@ end
 fig_h = [];
 if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
-        fig_h = [fig_h plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var)})];
+        fig_h = [fig_h plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var)})];
         title(tit);
     end
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*trace(T(:,i)'*T(:,i))/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}',[],opt(3),[],[],blur)];
+            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}',[],opt(3:end),[],[],blur)];
             title(tit);
         end
     end

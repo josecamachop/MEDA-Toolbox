@@ -125,6 +125,7 @@ if isnumeric(opt), opt=num2str(opt); end
 % Correct for opt integrity
 if opt(1) == 0 && ~isnumeric(classes), opt(1) = 1; end
 while length(opt)<4, opt = strcat(opt,'0'); end
+if length(opt)<5 && opt(3)==1, opt = strcat(opt,'0'); end
 
 % Convert num arrays to str
 if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
