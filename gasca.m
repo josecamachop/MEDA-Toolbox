@@ -1,4 +1,4 @@
-function gascao = gasca(paranovao_st)
+function gascao = gasca(paranovao_st,c)
 
 % GASCA is a data analysis algorithm for designed experiments. It does a
 % group-wise principal component analysis on the level averages of each
@@ -8,7 +8,7 @@ function gascao = gasca(paranovao_st)
 % simultaneous component analysis for designed omics experiments.
 % Submitted to Metabolomics, 2018.
 %
-% ggascao = gasca(paranovao_st)   % complete call
+% gascao = gasca(paranovao_st,c)   % complete call
 %
 %
 % INPUTS:
@@ -130,6 +130,8 @@ gascao = paranovao_st;
 for factor = 1 : gascao.n_factors
     
     xf = gascao.factors{factor}.matrix;
+    map = meda_pca(gascao.factors{factor}.matrix,[],0,0.3,'0');
+    [bel,gascao.factors{factor}.states] = gia(map,c);
     p = gpca(xf,gascao.factors{factor}.states,1:rank(xf));
     
     gascao.factors{factor}.var = trace(xf'*xf);
@@ -143,6 +145,8 @@ end
 for interaction = 1 : gascao.n_interactions
     
     xf = gascao.interactions{interaction}.matrix;
+    map = meda_pca(gascao.interactions{interaction}.matrix,[],0,0.3,'0');
+    [bel,gascao.interactions{interaction}.states] = gia(map,c);
     p = gpca(xf,gascao.interactions{interaction}.states,1:rank(xf));
     
     gascao.factors{factor}.var = trace(xf'*xf);
