@@ -373,7 +373,7 @@ parglmo.residuals = X_residuals;
 
 % Permutations
 for j = 1 : n_perm*mtcc
-    
+   
     perms = randperm(size(X,1)); % permuted data (permute whole data matrix)
     
     X = Xnan(perms, :);

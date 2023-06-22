@@ -74,10 +74,9 @@ function [ok,Lmodel] = check_Lmodel(Lmodel)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Jan/2021
+% last modification: 15/Jun/2023
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -107,12 +106,12 @@ if ~isfield(Lmodel,'nc') || isempty(Lmodel.nc) || Lmodel.nc==0, Lmodel.nc = max(
 if ~isfield(Lmodel,'N') || isempty(Lmodel.N) || Lmodel.N==0, Lmodel.N = size(Lmodel.centr,1); end
 if ~isfield(Lmodel,'lvs') || isempty(Lmodel.lvs), Lmodel.lvs = 1:rank(Lmodel.XX); end
 if ~isfield(Lmodel,'prep') || isempty(Lmodel.prep), Lmodel.prep = 0; end
-if Lmodel.nc>0,
+if Lmodel.nc>0
     if ~isfield(Lmodel,'multr') || isempty(Lmodel.multr), Lmodel.multr = ones(size(Lmodel.centr,1),1); end
     if ~isfield(Lmodel,'class') || isempty(Lmodel.class), Lmodel.class = ones(size(Lmodel.centr,1),1); end
     if ~isfield(Lmodel,'updated') || isempty(Lmodel.updated), Lmodel.updated = ones(size(Lmodel.centr,1),1); end
-    if ~isfield(Lmodel,'obs_l') || isempty(Lmodel.obs_l), 
-        if size(Lmodel.centr,1)>1,
+    if ~isfield(Lmodel,'obs_l') || isempty(Lmodel.obs_l) 
+        if size(Lmodel.centr,1)>1
             Lmodel.obs_l = cellstr(num2str((1:size(Lmodel.centr,1))')); 
         else
             Lmodel.obs_l = {};
@@ -124,7 +123,7 @@ else
     if ~isfield(Lmodel,'updated'), Lmodel.updated = []; end
     if ~isfield(Lmodel,'obs_l'), Lmodel.obs_l = {}; end
 end
-if ~isfield(Lmodel,'XX') || isempty(Lmodel.XX), 
+if ~isfield(Lmodel,'XX') || isempty(Lmodel.XX)
     if isempty(Lmodel.centr)
         Lmodel.XX = [];
     else
@@ -132,7 +131,7 @@ if ~isfield(Lmodel,'XX') || isempty(Lmodel.XX),
         Lmodel.XX = X'*X;
     end
 end
-if M>0,
+if M>0
     if ~isfield(Lmodel,'av') || isempty(Lmodel.av), Lmodel.av = zeros(1,M); end
     if ~isfield(Lmodel,'sc') || isempty(Lmodel.sc), Lmodel.sc = ones(1,M); end
     if ~isfield(Lmodel,'vclass') || isempty(Lmodel.vclass), Lmodel.vclass = ones(1,M); end
@@ -145,7 +144,7 @@ else
     if ~isfield(Lmodel,'weight'), Lmodel.weight = []; end
     if ~isfield(Lmodel,'var_l'), Lmodel.var_l = {}; end
 end
-if ~isfield(Lmodel,'YY') || isempty(Lmodel.YY), 
+if ~isfield(Lmodel,'YY') || isempty(Lmodel.YY) 
     if isempty(Lmodel.centrY) 
         Lmodel.YY = [];
     else
@@ -153,7 +152,7 @@ if ~isfield(Lmodel,'YY') || isempty(Lmodel.YY),
         Lmodel.YY = Y'*Y;
     end
 end
-if ~isfield(Lmodel,'XY') || isempty(Lmodel.XY),
+if ~isfield(Lmodel,'XY') || isempty(Lmodel.XY)
     if isempty(Lmodel.centr) || isempty(Lmodel.centrY) 
         Lmodel.XY = [];
     else
@@ -180,7 +179,7 @@ assert (isequal(size(Lmodel.XX), [M M]), 'Dimension Error: Lmodel.XX must be M-b
 assert (isequal(size(Lmodel.lvs), [1 A]) | isequal(size(Lmodel.lvs), [0 1]), 'Dimension Error: Lmodel.lvs must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(Lmodel.type~=1 & Lmodel.type~=2)), 'Value Error: Lmodel.type must contain 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(Lmodel.type~=1 & Lmodel.type~=2 & Lmodel.type~=3)), 'Value Error: Lmodel.type must contain 1, 2 or 3. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(Lmodel.update~=1 & Lmodel.update~=2)), 'Value Error: Lmodel.update must contain 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(Lmodel.lvs<0)), 'Value Error: Lmodel.lvs must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(Lmodel.lvs), Lmodel.lvs), 'Value Error: Lmodel.lvs must contain integers. Type ''help %s'' for more info.', routine(1).name);

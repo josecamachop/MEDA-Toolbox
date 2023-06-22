@@ -88,6 +88,7 @@ for factor = 1 : vascao.n_factors
         xf = vascao.factors{factor}.matrix(:,ind);
         p = pca_pp(xf,1:rank(xf));
     
+        vascao.factors{factor}.ind = ind;
         vascao.factors{factor}.var = trace(xf'*xf);
         vascao.factors{factor}.lvs = 1:size(p,2);
         vascao.factors{factor}.loads = p;
@@ -107,6 +108,7 @@ for interaction = 1 : vascao.n_interactions
         xf = vascao.interactions{interaction}.matrix(:,ind);
         p = pca_pp(xf,1:rank(xf));
     
+        vascao.factors{interaction}.ind = ind;
         vascao.interactions{interaction}.var = trace(xf'*xf);
         vascao.interactions{interaction}.lvs = 1:size(p,2);
         vascao.interactions{interaction}.loads = p;
@@ -117,4 +119,4 @@ for interaction = 1 : vascao.n_interactions
     end
 end
 
-vascao.type = 'VASCA'
+vascao.type = 'VASCA';
