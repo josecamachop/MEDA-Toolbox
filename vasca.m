@@ -82,7 +82,7 @@ vascao = parglmoVS;
 %Do PCA on level averages for each factor
 for factor = 1 : vascao.n_factors
     
-    ind = find(parglmoVS.p(parglmoVS.ord_factors(factor,:),factor) < siglev);
+    ind = find(parglmoVS.p(:,factor) < siglev);
     if ~isempty(ind)
         vascao.factors{factor}.stasig = true;
         xf = vascao.factors{factor}.matrix(:,ind);

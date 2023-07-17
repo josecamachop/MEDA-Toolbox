@@ -131,7 +131,7 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 15/Jun/23
+% last modification: 6/Jul/23
 %
 % Copyright (C) 2023  Universidad de Granada
 %
@@ -223,14 +223,18 @@ parglmo.interactions           = cell(n_interactions,1);
 [Xs,m,dt] = preprocess2D(X,prep);
 X = X./(ones(size(X,1),1)*dt);
 
-SSQ_X = sum(sum(X.^2));
-
 % Make structure with general 'variables'
 parglmo.data           = X;
 parglmo.prep           = prep;
 parglmo.design         = F;
 parglmo.n_factors      = n_factors;
 parglmo.n_interactions = n_interactions;
+parglmo.n_perm          = n_perm;
+parglmo.ts              = ts;
+parglmo.ordinal         = ordinal;
+parglmo.fmtc            = fmtc;
+parglmo.coding          = coding;
+parglmo.nested          = nested; 
 
 % Create Design Matrix
 n = 1;
@@ -331,6 +335,8 @@ for i=1:length(ru)
 end
 parglmo.data = X;
 parglmo.Xnan = Xnan;
+
+SSQ_X = sum(sum(X.^2));
 
 % GLM model calibration with LS, only fixed factors
 pD =  pinv(D'*D)*D';

@@ -116,6 +116,11 @@ lev = F(:,nfact);
 p = ascao.factors{nfact}.loads;
 pboot = zeros([nboot,size(p)]); 
 
+model = [];
+for i=1:length(ascao.interactions)
+    model = [model; ascao.interactions{i}.factors];
+end
+
 for boot=1:nboot
     
     uF = unique(lev);
@@ -127,16 +132,19 @@ for boot=1:nboot
         
     end
     
-    [~, parglmo] = parglm(yboot,F,[],ascao.prep); 
+    [~, parglmo] = parglm(yboot,F,model,ascao.prep,ascao.n_perm,ascao.ts,ascao.ordinal,ascao.fmtc,ascao.coding,ascao.nested); 
     ascao = asca(parglmo); 
     pb = ascao.factors{nfact}.loads; 
     [~,pboot(boot,:,:)]=orth_proc(p,pb);
     
 end
 
-for j=1:size(pboot,2)
-    bpvals(j) = (min(length(find(pboot(:,j)<0)),length(find(pboot(:,j)>=0)))+1)/(nboot+1);
+for i=1:size(pboot,3)
+    for j=1:size(pboot,2)
+        bpvals(j,i) = (min(length(find(pboot(:,j,i)<0)),length(find(pboot(:,j,i)>=0)))+1)/(nboot+1);
+    end
 end
+bpvals = min(bpvals,[],2)';
 
 %% Plot
 
@@ -162,8 +170,6 @@ function evalboot(p,pboot,pvalue)
 % Plots results
 
 for npc=1:size(pboot,3)
-    
-    figure
     
     plot_vec(p(:,npc), [], [], {'',sprintf('Loadings PC %d',npc)});
     hold on
