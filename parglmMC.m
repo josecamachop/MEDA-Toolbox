@@ -99,7 +99,7 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 6/Jul/23
+% last modification: 25/Jul/23
 %
 % Copyright (C) 2023  Universidad de Granada
 %
@@ -344,9 +344,9 @@ else
 end
     
 % Permutations
-for j = 1 : (n_perm * M) % Increase the number of permutations to perform MTC
+parfor j = 1 : (n_perm * M) % Increase the number of permutations to perform MTC
     
-    perms = randperm(size(X,1)); % permuted data (permute whole data matrix)
+    perms = randperm(size(Xnan,1)); % permuted data (permute whole data matrix)
          
     X = Xnan(perms, :);
     [r,c]=find(isnan(X));

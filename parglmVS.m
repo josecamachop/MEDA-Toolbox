@@ -91,7 +91,7 @@ function [T, parglmo] = parglmVS(X, F, model, prep, n_perm, ts, ordinal, fmtc, c
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 6/Jul/23
+% last modification: 25/Jul/23
 %
 % Copyright (C) 2023  Universidad de Granada
 %
@@ -326,9 +326,9 @@ end
 parglmo.residuals = X_residuals;
 
 % Permutations
-for j = 1 : n_perm*mtcc
+parfor j = 1 : n_perm*mtcc
     
-    perms = randperm(size(X,1)); % permuted data (permute whole rows)
+    perms = randperm(size(Xnan,1)); % permuted data (permute whole rows)
     
     X = Xnan(perms, :);
     [r,c]=find(isnan(X));
@@ -351,18 +351,28 @@ for j = 1 : n_perm*mtcc
     SSQ_residuals(1 + j,:) = sum(X_residuals.^2);
     
     % Factors
+    factors = cell(1,n_factors);
+    SSQf = zeros(n_factors,M);
+    Ff = zeros(n_factors,M);
     for f = 1 : n_factors
         factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
-        SSQ_factors(1 + j,f,:) = sum(factors{f}.matrix.^2);
-        F_factors(1 + j,f,:) = squeeze(SSQ_factors(1 + j,f,:)/df(f))./(SSQ_residuals(1 + j,:)/Rdf)';
+        SSQf(f,:) = sum(factors{f}.matrix.^2);
+        Ff(f,:) = (SSQf(f,:)/df(f))./(SSQ_residuals(1 + j,:)/Rdf);
     end
+    SSQ_factors(1 + j,:,:) = SSQf;
+    F_factors(1 + j,:,:) = Ff; 
     
     % Interactions
+    interacts = {};
+    SSQi = zeros(n_interactions,M);
+    Fi = zeros(n_interactions,M);
     for i = 1 : n_interactions
         interacts{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
-        SSQ_interactions(1 + j,i,:) = sum(interacts{i}.matrix.^2);
-        F_interactions(1 + j,i,:) = squeeze(SSQ_interactions(1 + j,i,:)/df_int(i))./(SSQ_residuals(1 + j,:)/Rdf)';
+        SSQi(i,:) = sum(interacts{i}.matrix.^2);
+        Fi(i,:) = (SSQi(i,:)/df_int(i))./(SSQ_residuals(1 + j,:)/Rdf);
     end
+    SSQ_interactions(1 + j,:,:) = SSQi;
+    F_interactions(1 + j,:,:) = Fi;
 
 end       
 
