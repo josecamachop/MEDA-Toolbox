@@ -21,11 +21,10 @@ function fig_h = biplot(model,opt,tit,label,classes,vlabel,blur,arrows)
 %
 % tit: (str) title for the plots. Empty by default;
 %
-% label: [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
-%   are used by default)
+% label: [Nx1] name of the observations (numbers are used by default)
 %
-% classes: [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
-%   visualization (a single group by default per calibration and test)
+% classes: [Nx1] groups for different visualization (a single group by 
+%   default per calibration and test)
 %
 % vlabel: [Mx1] name of the variables (numbers are used by default)
 %

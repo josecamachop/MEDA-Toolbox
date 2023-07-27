@@ -99,7 +99,7 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 25/Jul/23
+% last modification: 26/Jul/23
 %
 % Copyright (C) 2023  Universidad de Granada
 %
@@ -189,6 +189,7 @@ X = X./(ones(size(X,1),1)*dt);
 % Make structure with unchanging 'variables'
 parglmo.data           = X;
 parglmo.prep           = prep;
+parglmo.scale           = dt;
 parglmo.design         = F;
 parglmo.n_factors      = n_factors;
 parglmo.n_interactions = n_interactions;
@@ -304,6 +305,7 @@ B = pD*X;
 X_residuals = X - D*B;
 parglmo.D = D;
 parglmo.B = B;
+parglmo.mean = parglmo.D*parglmo.B(:,1);
 
 % Create Effect Matrices
 parglmo.inter = D(:,1)*B(1,:);

@@ -102,7 +102,7 @@ end
 %Do PCA on interactions
 for interaction = 1 : vascao.n_interactions
     
-    ind = find(parglmoVS.p(parglmoVS.ord_interactions(interaction,:),interaction+vascao.n_factors) < siglev);
+    ind = find(parglmoVS.p(:,interaction+vascao.n_factors) < siglev);
     if ~isempty(ind)
         vascao.interactions{interaction}.stasig = true;
         xf = vascao.interactions{interaction}.matrix(:,ind);
