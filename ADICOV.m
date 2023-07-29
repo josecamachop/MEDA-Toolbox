@@ -1,12 +1,17 @@
-function App = ADICOV(XX,L,Neig,R,Q,multn)
+function App = ADICOV(XX,L,Neig,varargin)
 
-% Approximation of a DIstribution for a given COVariance (ADICOV). The original
-% paper is Chemometrics and Intelligent Laboratory Systems 105(2), 2011, pp.
-% 171-180.
+% Approximation of a DIstribution for a given COVariance (ADICOV). App is a 
+% matrix that approximates L but with covariance equal to XX. Reference: 
+% Camacho, J., Padilla, P., Díaz-Verdejo, J., Smith, K., Lovett, D. 
+% Least-squares approximation of a space distribution for a given 
+% covariance and latent sub-space. Chemometrics and Intelligent Laboratory 
+% Systems, 2011, 105 (2): 171-180.
 %
 % App = ADICOV(XX,L,Neig) % minimum call
-% App = ADICOV(XX,L,Neig,R,Q,multn) % complete call
+% App = ADICOV(XX,L,Neig,'InSubspace',R,'OutSubspace',Q,'Multiplicity',multn) % complete call
 %
+%
+% See also: ADindex, simuleMV, MSPC_ADICOV
 %
 % INPUTS:
 %
@@ -18,20 +23,22 @@ function App = ADICOV(XX,L,Neig,R,Q,multn)
 % Neig: [1x1] number of eigenvectors-eigenvalues of XX which are maintained 
 %   in the approximation.
 %
-% R: [MxA] Matrix to perform the projection from the original to the  
+% Optional INPUTS:
+%
+% 'InSubspace': [MxA] Matrix to perform the projection from the original to the  
 %   latent subspace. For PCA (App = T*P'), this is the matrix of loadings P. 
 %   For PLS (Y = App*W*inv(P'*W)*Q'), this matrix is W*inv(P'*W). For the 
 %   approximation in the original space (default) the identity matrix is
 %   used. The number of director vectors in R (LVs) should be at least Neig 
 %
-% Q: [MxA] Matrix to perform the projection from the latent subspace to 
+% 'OutSubspace': [MxA] Matrix to perform the projection from the latent subspace to 
 %   the original space. For PCA (App = T*P'), this is the matrix of loadings 
 %   P. For PLS (Y = App*W*inv(P'*W)*Q), this matrix is also P. For the 
 %   approximation in the original space the identity matrix is used. Q=R is 
 %   used by default. The number of director vectors in Q (LVs) should be at 
 %   least Neig
 %
-% multn: [Nx1] multiplicity of the observations (ones by default)
+% 'Multiplicity': [Nx1] multiplicity of the observations (ones by default)
 %
 %
 % OUTPUTS:
@@ -39,20 +46,40 @@ function App = ADICOV(XX,L,Neig,R,Q,multn)
 % App: [NxM] approximation matrix.
 %
 %
-% EXAMPLE OF USE: To obtain a matrix 100x10 with random covariance matrix, 
-% use the following call:
+% EXAMPLE OF USE (copy and paste the code in the command line)
+%   We approximate the distribution of L for a fixed cross-product XX, both
+%   simulated at random.
 %
-% X = real(ADICOV(randn(10,10),randn(100,10),10));
+% X = randn(100,2);
+% XX = X'*X
+% L = randn(100,2); L(1,:) = 10* L(1,:); % data with an outlier
+% appL = ADICOV(XX,L,2);
 %
-% The call to real is necessary to avoid imaginary part in the results
-% since we did not constrain XX to be positive definite. 
+% appL'*appL % same covariance as X
+% plot_scatter(appL); % similar distribution as L
+% plot_scatter(L); 
+%
+%
+% EXAMPLE OF USE: (copy and paste the code in the command line)
+%   Similar example as before in a PCA subspace
+%
+% X = randn(100,10);
+% XX = X'*X;
+% L = randn(100,10); L(1,:) = 10* L(1,:); % data with an outlier
+% model = pca_eig(L,1:2);
+% appL = ADICOV(XX,L,2,'InSubspace',model.loads);
+%
+% model.loads'*X'*X*model.loads % same covariance as the scores of X
+% model.loads'*appL'*appL*model.loads
+%
+% plot_scatter(appL*model.loads); % similar distribution as the scores of L
+% plot_scatter(L*model.loads); 
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 05/May/16.
+% last modification: 28/Jul/23
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -69,15 +96,25 @@ function App = ADICOV(XX,L,Neig,R,Q,multn)
     
 %% Arguments checking
 
-% Set default values
+% Check minimum call
 routine=dbstack;
 assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(XX, 1);
 N = size(L, 1);
-if nargin < 4 || isempty(R), R = eye(M); end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'InSubspace',eye(M));  
+addParameter(p,'OutSubspace',[]);
+addParameter(p,'Multiplicity',ones(size(L,1),1));            
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+R = p.Results.InSubspace;
 A = size(R, 2);
-if nargin < 5 || isempty(Q), Q = R; end;
-if nargin < 6 || isempty(multn),  multn = ones(size(L,1),1); end;
+Q = p.Results.OutSubspace;
+if isempty(Q), Q = R; end;
+multn = p.Results.Multiplicity;
 
 % Convert row arrays to column arrays
 if size(multn,1) == 1,     multn = multn'; end;
@@ -87,20 +124,20 @@ if Neig>rank(XX)
 end
 
 % Validate dimensions of input data
-assert (isequal(size(XX), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(L), [N M]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Neig), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(R), [M A]), 'Dimension Error: 4th argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Q), [M A]), 'Dimension Error: 5th argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(multn), [N 1]), 'Dimension Error: 6th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(XX), [M M]), 'Dimension Error: ''XX'' must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(L), [N M]), 'Dimension Error: ''L'' must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Neig), [1 1]), 'Dimension Error: ''Neig'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(R), [M A]), 'Dimension Error: ''InSubspace'' must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Q), [M A]), 'Dimension Error: ''OutSubspace'' must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(multn), [N 1]), 'Dimension Error: ''Multiplicity'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (Neig>0, 'Value Error: 3rd argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
-assert (Neig<=rank(XX), 'Value Error: 3rd argument must not be above the rank of XX. Type ''help %s'' for more info.', routine(1).name);
-assert (Neig<=A, 'Value Error: 3rd argument must not be above the number of columns of 4th and 5th arguments. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(Neig), Neig), 'Value Error: 3rd argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(multn<0)), 'Value Error: 6th argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(multn), multn), 'Value Error: 6th argument must contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (Neig>0, 'Value Error: ''Neig'' must be above 0. Type ''help %s'' for more info.', routine(1).name);
+assert (Neig<=rank(XX), 'Value Error: ''Neig'' must not be above the rank of XX. Type ''help %s'' for more info.', routine(1).name);
+assert (Neig<=A, 'Value Error: ''Neig'' must not be above the number of columns of 4th and 5th arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(Neig), Neig), 'Value Error: ''Neig'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(multn<0)), 'Value Error: ''Multiplicity'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(multn), multn), 'Value Error: ''Multiplicity'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -119,4 +156,4 @@ Tl = Cmult*R(:,1:Neig);
 dime = min(size(Um,2),size(Vm,2));
 Ua = Um(:,1:dime)*Vm(:,1:dime)';
 Ta = Ua*Sx(vind,vind)*Vx(:,vind)';
-App = (Ta*Q(:,1:Neig)')./(sqrt(multn)*ones(1,M));
+App = real((Ta*Q(:,1:Neig)')./(sqrt(multn)*ones(1,M)));

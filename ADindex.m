@@ -1,10 +1,17 @@
-function [ind,diff] = ADindex(L,App,R,index)
+function [ind,diff] = ADindex(L,App,varargin)
 
-% ADICOV similarity index according to Chemometrics and Intelligent 
-% Laboratory Systems 105, 2011, pp. 171-180
+% ADICOV similarity index. This index allows us to estiamte the distance
+% between a matrix and its corresponding approximation with ADICOV. 
+% Reference: Camacho, J., Padilla, P., Díaz-Verdejo, J., Smith, K., Lovett, 
+% D. Least-squares approximation of a space distribution for a given 
+% covariance and latent sub-space. Chemometrics and Intelligent Laboratory 
+% Systems, 2011, 105 (2): 171-180.
 %
-% ind = ADindex(L,App,R) % minimum call
-% [ind,diff] = ADindex(L,App,R,index) % complete call
+% ind = ADindex(L,App) % minimum call
+% [ind,diff] = ADindex(L,App,'InSubspace',R,'Index',index) % complete call
+%
+%
+% See also: ADICOV, simuleMV, MSPC_ADICOV
 %
 %
 % INPUTS:
@@ -13,9 +20,12 @@ function [ind,diff] = ADindex(L,App,R,index)
 %
 % App: [NxM] data set approximated by ADICOV.
 %
-% R: [MxA] proyection matrix.
 %
-% index: (1x1) MSPC index definition
+% Optional INPUTS:
+%
+% 'InSubspace': [MxA] proyection matrix.
+%
+% 'Index': [1x1] MSPC index definition
 %       0: ADICOV similarity index according to Chemometrics and Intelligent 
 %           Laboratory Systems 105, 2011, pp. 171-180 (default)
 %       1: Modified index 
@@ -29,11 +39,34 @@ function [ind,diff] = ADindex(L,App,R,index)
 %   proyection space.
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 24/May/17
+% EXAMPLE OF USE (copy and paste the code in the command line)
+%   We approximate the distribution of L for a fixed cross-product XX, both
+%   simulated at random.
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% X = randn(100,2);
+% XX = X'*X;
+% L = randn(100,2); L(1,:) = 10* L(1,:); % data with an outlier
+% appL = ADICOV(XX,L,2);
+%
+% ind = ADindex(L,appL)
+%
+%
+% EXAMPLE OF USE: (copy and paste the code in the command line)
+%   Similar example as before in a PCA subspace
+%
+% X = randn(100,10);
+% XX = X'*X;
+% L = randn(100,10); L(1,:) = 10* L(1,:); % data with an outlier
+% model = pca_eig(L,1:2);
+% appL = ADICOV(XX,L,2,'InSubspace',model.loads);
+%
+% ind = ADindex(L,appL,'InSubspace',model.loads)
+%
+%
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 28/Jul/23
+%
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -52,19 +85,28 @@ function [ind,diff] = ADindex(L,App,R,index)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(L, 1);
 M = size(L, 2);
-if nargin < 4 || isempty(index), index = 1; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'InSubspace',eye(M));  
+addParameter(p,'Index',1);          
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+R = p.Results.InSubspace;
+index = p.Results.Index;
 
 % Validate dimensions of input data
-assert (isequal(size(L), [N M]), 'Dimension Error: 1st argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(App), [N M]), 'Dimension Error: 2nd argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(R,1), M), 'Dimension Error: 3rd argument must be M-by-PCs. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(index), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(L), [N M]), 'Dimension Error: ''L'' must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(App), [N M]), 'Dimension Error: ''App'' argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(R,1), M), 'Dimension Error: ''InSubspace'' must be M-by-PCs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(index), [1 1]), 'Dimension Error: ''Index'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); 
 
 % Validate values of input data
-assert (index==0 || index==1, 'Value Error: 4th argument must be 0 or 1. Type ''help %s'' for more info.', routine(1).name);
+assert (index==0 || index==1, 'Value Error: ''Index'' must be 0 or 1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

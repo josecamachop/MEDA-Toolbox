@@ -1,14 +1,16 @@
 function apcao = apca(paranovao)
 
-% ANOVA-PCA is a data analysis algorithm for designed experiments. It does a 
-% principal component analysis on the level averages of each experimental 
-% factor in a designed experiment with balanced data. Interactions between 
-% two factors can also be calculated.
+% ANOVA-PCA (APCA) is a data analysis algorithm for the analysis of designed 
+% experiments. Our code performs a General Linear Models (GLM)
+% factorization followed by a PCA of the factor/interaction matrix plus the
+% residuals. 
 %
-% Related routines: parglm, paranova, apca, gasca, create_design
+% apcao = apca(parglmo)   % complete call
 %
-% apcao = apca(paranovao)   % complete call
 %
+% See also: parglm, asca, gasca, create_design
+%
+% SEGUIR DESDE AQUI
 %
 % INPUTS:
 %
