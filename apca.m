@@ -1,8 +1,9 @@
-function apcao = apca(paranovao)
+function apcao = apca(parglmo)
 
 % ANOVA-PCA (APCA) is a data analysis algorithm for the analysis of designed 
-% experiments. Our code performs a General Linear Models (GLM)
-% factorization followed by a PCA of the factor/interaction matrix plus the
+% experiments. The input is a General Linear Models (GLM) factorization of
+% the data (done with parglm and stored in parglmo) and the code applies 
+% Principal Component Analysis to the factor/interaction matrices plus the
 % residuals. 
 %
 % apcao = apca(parglmo)   % complete call
@@ -14,9 +15,8 @@ function apcao = apca(paranovao)
 %
 % INPUTS:
 %
-% paranovao (structure): structure with the factor and interaction
-% matrices, p-values and explained variance. Obtained with parallel anova
-% o parallel general linear model
+% parglmo (structure): structure with the GLM decomposition with factor and 
+% interaction matrices, p-values and explained variance. 
 %
 %
 % OUTPUTS:
@@ -45,8 +45,9 @@ function apcao = apca(paranovao)
 % 
 % apcao = apca(parglmo);
 %
-% for i=1:2, % Note, the second factor is shown for the sake of illustration
+% for i=1:2, % Note, the second factor is only shown for the sake of illustration, but non-significant factors should not be visualized
 %   scores(apcao.factors{i},[],[],sprintf('Factor %d',i),[],apcao.design(:,i));
+%   loadings(apcao.factors{i},[],sprintf('Factor %d',i));
 % end
 %
 %
@@ -79,6 +80,7 @@ function apcao = apca(paranovao)
 %
 % for i=1:2,
 %   scores(apcao.factors{i},[],[],sprintf('Factor %d',i),[],apcao.design(:,i));
+%   loadings(apcao.factors{i},[],sprintf('Factor %d',i));
 % end
 %
 %
@@ -105,13 +107,16 @@ function apcao = apca(paranovao)
 % apcao = apca(parglmo);
 %
 % M = apcao.factors{1}.matrix + apcao.factors{2}.matrix + apcao.interactions{1}.matrix;
-% code_levels = F(:,1)*10+F(:,2);
+% code_levels = {};
+% for i=1:size(F,1), code_levels{i} = sprintf('F1:%d,F2:%d',F(i,1),F(i,2));end;
 % scores_pca(M,1:2,X,0,101,[],code_levels);
-% legend(num2str(unique(code_levels)))
+% legend(unique(code_levels))
+%
+% loadings_pca(M,1:2,0);
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 19/May/23
+% last modification: 04/Sep/23
 %
 % Copyright (C) 2023  University of Granada, Granada
 %
@@ -137,7 +142,7 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 
 %% Main code
 
-apcao = paranovao;
+apcao = parglmo;
 
 %Do PCA on level averages for each factor
 for factor = 1 : apcao.n_factors

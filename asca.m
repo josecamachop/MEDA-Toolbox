@@ -1,23 +1,20 @@
 function ascao = asca(parglmo)
 
-% ASCA is a data analysis algorithm for designed experiments. It does a 
-% principal component analysis on the level averages of each experimental 
-% factor in a designed experiment with balanced data. Interactions between 
-% two factors can also be calculated. The original paper for this software 
-% is Zwanenburg, G, Hoefsloot, HCJ, Westerhuis, JA, Jansen, JJ, Smilde, AK.
-% ANOVA–principal component analysis and ANOVA–simultaneous component 
-% analysis: a comparison. Journal of Chemometrics, 2018, 25:561-567.
+% ASCA is a data analysis algorithm for designed experiments. The input is 
+% a General Linear Models (GLM) factorization of the data (done with parglm 
+% and stored in parglmo) and the code applies Principal Component Analysis 
+% to the factor/interaction matrices.
 %
-% Related routines: parglm, paranova, apca, gasca, create_design
+% ascao = asca(parglmo)   % complete call
 %
-% ascao = asca(parglm)   % complete call
+%
+% See also: parglm, apca, gasca, create_design
 %
 %
 % INPUTS:
 %
-% parglmo (structure): structure with the factor and interaction matrices, 
-% p-values and explained variance. Obtained with parallel anova (deprecated) 
-% or parallel general linear model.
+% parglmo (structure): structure with the GLM decomposition with factor and 
+% interaction matrices, p-values and explained variance. 
 %
 %
 % OUTPUTS:
@@ -46,7 +43,7 @@ function ascao = asca(parglmo)
 % 
 % ascao = asca(parglmo);
 %
-% for i=1:2, % Note, the second factor is shown for the sake of illustration
+% for i=1:2, % Note, the second factor is only shown for the sake of illustration, but non-significant factors should not be visualized
 %   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
 %   loadings(ascao.factors{i},[],sprintf('Factor %d',i));
 % end
@@ -108,15 +105,16 @@ function ascao = asca(parglmo)
 % ascao = asca(parglmo);
 %
 % M = ascao.factors{1}.matrix + ascao.factors{2}.matrix + ascao.interactions{1}.matrix;
-% code_levels = F(:,1)*10+F(:,2);
+% code_levels = {};
+% for i=1:size(F,1), code_levels{i} = sprintf('F1:%d,F2:%d',F(i,1),F(i,2));end;
 % scores_pca(M,1:2,X,0,101,[],code_levels);
-% legend(num2str(unique(code_levels)))
+% legend(unique(code_levels))
 %
 % loadings_pca(M,1:2,0);
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 19/May/23
+% last modification: 04/Sep/23
 %
 % Copyright (C) 2023  University of Granada, Granada
 %
