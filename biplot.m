@@ -105,6 +105,7 @@ assert (isempty(find(opt~=0 & opt~=1)), 'Value Error: 2nd argument must contain 
 %% Main code
 
 T = model.scores;
+var = sum(T.^2,1);
 P = model.loads;
 
 if isfield(model,'scoresV')
@@ -138,11 +139,14 @@ for i=1:length(model.lvs)-1
         
         hold on
 
-        rel = sum(P(:,1:2).^2,2);
-        lim = prctile(rel,100-arrows);
-        ind = find(rel<=lim); % plot least relevant loadings in gray
+        rel1 = sum(P(:,[i j]).^2,2);
+        lim1 = prctile(rel1,100-arrows);
+        ind1 = find(rel1<=lim1); % plot least relevant loadings in gray
+        rel2 = sum(((P(:,[i j]).^2).*(ones(size(P,1),1)*var([i j]))),2);
+        lim2 = prctile(rel2,100-arrows);
+        ind = intersect(ind1,find(rel2<=lim2)); % plot least relevant loadings in gray
         scatter(P2(ind,i),P2(ind,j),[], [.7 .7 .7],'^','filled')
-        ind = find(rel>lim); % plot most relevant loadings  with arrows
+        ind = find(rel1>lim1 | rel2>lim2); % plot most relevant loadings  with arrows
         scatter(P2(ind,i),P2(ind,j),[], [0 0 0],'^','filled')
         for ii=1:length(ind)
             plot([0 P2(ind(ii),i)],[0 P2(ind(ii),j)],'k-^');
