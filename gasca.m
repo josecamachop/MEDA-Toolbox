@@ -50,7 +50,7 @@ function gascao = gasca(paranovao_st,c)
 %   map = corr(paranovao_st.factors{i}.matrix);
 %   plot_map(map);
 %   c = input('Introduce threshold for correlation in interval (0,1): ');
-%   [bel,paranovao_st.factors{i}.states] = gia(map,c);
+%   [bel,paranovao_st.factors{i}.states] = gia(map,-c);
 % end
 %         
 % gascao = gasca(paranovao_st);
@@ -130,8 +130,9 @@ gascao = paranovao_st;
 for factor = 1 : gascao.n_factors
     
     xf = gascao.factors{factor}.matrix;
-    map = meda_pca(gascao.factors{factor}.matrix,[],0,0.3,'0');
-    [bel,gascao.factors{factor}.states] = gia(map,c);
+    map = meda_pca(xf,[],0,0.3,'0');
+    gascao.factors{factor}.states = transform_crit(map,c(factor));
+    
     p = gpca(xf,gascao.factors{factor}.states,1:rank(xf));
     
     gascao.factors{factor}.var = trace(xf'*xf);
@@ -145,8 +146,9 @@ end
 for interaction = 1 : gascao.n_interactions
     
     xf = gascao.interactions{interaction}.matrix;
-    map = meda_pca(gascao.interactions{interaction}.matrix,[],0,0.3,'0');
-    [bel,gascao.interactions{interaction}.states] = gia(map,c);
+    map = meda_pca(xf,[],0,0.3,'0');
+    gascao.interactions{interaction}.states = transform_crit(map,c(length(gascao.factors)+interaction));
+    
     p = gpca(xf,gascao.interactions{interaction}.states,1:rank(xf));
     
     gascao.factors{factor}.var = trace(xf'*xf);
@@ -156,4 +158,33 @@ for interaction = 1 : gascao.n_interactions
     gascao.interactions{interaction}.scoresV = (xf+gascao.residuals)*p;
 end
 
-gascao.type = 'GASCA'
+gascao.type = 'GASCA';
+
+end
+
+%% Auxiliary
+
+function states = transform_crit(map,c)
+
+lim = 1e-5;
+
+if c<0
+    [bel,states] = gia(map,-c);
+else
+    c2 = 0.99;
+    [bel,states] = gia(map,c2);
+    len = max(cellfun('length',states))
+    if isempty(len), len=0; end
+    while len~=c && c2 < 1-lim && c2 > lim
+        diff = c - len;
+        c2 = (-diff/(abs(diff)+10))*(1-c2) + c2;        
+        if c2 < 1-lim && c2 > lim
+            [bel,states] = gia(map,c2);
+            len = max(cellfun('length',states))
+            if isempty(len), len=0; end
+        end
+    end
+    
+end
+
+end
