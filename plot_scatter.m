@@ -181,10 +181,21 @@ unique_ord_classes = unique(ord_classes);
 bins = [0 1 maxv Inf];
 markers = ['^','v','d','o','s'];
 
+okabe_ito = [0.1,0.1,0.1;
+    0.902,0.624,0;
+    0.337,0.706,0.914;
+    0,0.620,0.451;
+    0.941,0.894,0.259;
+    0,0.447,0.698;
+    0.835,0.369,0;
+    0.8,0.475,0.655];
+
 if opt(1) == '0'
-    color_list = parula(length(unique(ord_classes)));
+    color_list = parula(length(unique(ord_classes))); % continuous data
+elseif length(unique(ord_classes)) > 8
+    color_list = hsv(length(unique(ord_classes))); % categorical data greater than 8 categories
 else
-    color_list = hsv(length(unique(ord_classes)));
+    color_list = okabe_ito;
 end
     
 colors = color_list(ord_classes, :);
