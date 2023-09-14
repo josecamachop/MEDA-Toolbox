@@ -55,10 +55,9 @@ function [y_var,t_var] = var_pls(x,y,lvs,prepx,prepy,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 19/May/2023
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -120,7 +119,8 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must cont
 xcs = preprocess2D(x,prepx); 
 ycs = preprocess2D(y,prepy); 
 
-[beta,W,P,Q,R] = kernel_pls(xcs'*xcs,xcs'*ycs,1:max(lvs));
+%[beta,W,P,Q,R] = kernel_pls(xcs'*xcs,xcs'*ycs,1:max(lvs));
+[beta,W,P,Q,R] = simpls(xcs,ycs,1:max(lvs));
 lvs(find(lvs>size(W,2))) = [];
 
 totalVt = sum(sum(xcs.^2));
@@ -134,8 +134,8 @@ end
     
 %% Show results
            
-if opt(1) == '1',
-    if opt(2) == '1',
+if opt(1) == '1'
+    if opt(2) == '1'
         plot_vec(y_var,lvs,[],{'#PCs','% Residual Variance in Y'},[],0);
     else
         plot_vec([y_var t_var],lvs,[],{'#PCs','% Residual Variance'},[],0,{'Y','Scores'});

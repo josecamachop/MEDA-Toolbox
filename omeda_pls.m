@@ -81,10 +81,9 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label,cl
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 11/May/2021
+% last modification: 19/May/2023
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -157,7 +156,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 8th argument must cont
 [xcs,m,sd] = preprocess2D(x,prepx);
 ycs = preprocess2D(y,prepy);
 
-[beta,W,P,Q,R] = kernel_pls(xcs'*xcs,xcs'*ycs,lvs);
+[beta,W,P,Q,R] = simpls(xcs,ycs,lvs);
         
 testcs = preprocess2Dapp(test,m,sd);
 omeda_vec = omeda(testcs,dummy,R,P);
@@ -170,20 +169,20 @@ lim = prctile(omeda_x,95)';
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
     vec = omeda_vec;
  
-    if opt(2) == '1',
+    if opt(2) == '1'
         limp = lim;
     else
         limp = [];
     end
     
-    if opt(3) == '1',
+    if opt(3) == '1'
         ind = find(lim>1e-10);
         vec(ind) = vec(ind)./lim(ind);
-    	if ~isempty(limp),
+    	if ~isempty(limp)
             limp(ind) = limp(ind)./lim(ind);
         end
     end

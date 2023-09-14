@@ -1,9 +1,9 @@
-function [p,t] = pca_pp(xcs,pcs)
+function [p,t,model] = pca_pp(xcs,pcs)
 
 % Principal Component Analysis based on svd.
 %
 % p = pca_pp(xcs)     % minimum call
-% [p,t] = pca_pp(xcs,pcs)     % complete call
+% [p,t,model] = pca_pp(xcs,pcs)     % complete call
 %
 %
 % INPUTS:
@@ -20,6 +20,8 @@ function [p,t] = pca_pp(xcs,pcs)
 %
 % t: [NxA] matrix of scores.
 %
+% model: structure that contains model information.
+%
 %
 % EXAMPLE OF USE: Random data:
 %
@@ -30,11 +32,9 @@ function [p,t] = pca_pp(xcs,pcs)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 20/Oct/21
-% major change: include nipls
+% last modification: 21/Apr/2023
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -98,6 +98,11 @@ end
 p = p(:,pcs);
 t = t(:,pcs);
 
+model.var = trace(XX);
+model.lvs = 1:size(p,2);
+model.loads = p;
+model.scores = t;
+model.type = 'PCA';
         
 
 

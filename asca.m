@@ -48,6 +48,7 @@ function ascao = asca(parglmo)
 %
 % for i=1:2, % Note, the second factor is shown for the sake of illustration
 %   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
+%   loadings(ascao.factors{i},[],sprintf('Factor %d',i));
 % end
 %
 %
@@ -73,13 +74,14 @@ function ascao = asca(parglmo)
 %     end
 % end
 %
-% [table, parglmo] = parglm(X, F, [1 2]);
+% [table, parglmo] = parglm(X, F, {[1 2]});
 % table
 % 
 % ascao = asca(parglmo);
 %
 % for i=1:2,
 %   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
+%   loadings(ascao.factors{i},[],sprintf('Factor %d',i));
 % end
 %
 %
@@ -100,7 +102,7 @@ function ascao = asca(parglmo)
 %     end
 % end
 %
-% [table, parglmo] = parglm(X, F, [1 2]);
+% [table, parglmo] = parglm(X, F, {[1 2]});
 % table
 % 
 % ascao = asca(parglmo);
@@ -110,12 +112,13 @@ function ascao = asca(parglmo)
 % scores_pca(M,1:2,X,0,101,[],code_levels);
 % legend(num2str(unique(code_levels)))
 %
+% loadings_pca(M,1:2,0);
+%
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 02/Dec/22
+% last modification: 19/May/23
 %
-% Copyright (C) 2022  University of Granada, Granada
-% Copyright (C) 2022  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -166,4 +169,6 @@ for interaction = 1 : ascao.n_interactions
     ascao.interactions{interaction}.scores = xf*p;
     ascao.interactions{interaction}.scoresV = (xf+ascao.residuals)*p;
 end
+
+ascao.type = 'ASCA';
 

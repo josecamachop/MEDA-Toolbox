@@ -1,4 +1,4 @@
-function [P,sdT,Lmodel] = Lpca(Lmodel)
+function [P,T,Lmodel] = Lpca(Lmodel)
   
 % PCA for large data. 
 %
@@ -11,15 +11,16 @@ function [P,sdT,Lmodel] = Lpca(Lmodel)
 %   model:
 %       Lmodel.XX: [MxM] X-block cross-product matrix.
 %       Lmodel.lvs: [1x1] number of PCs A.
+%       Lmodel.centr: (LxM) centroids of the clusters of observations
 %
 %
 % OUTPUTS:
 %
 % P: [MxA] matrix of loadings in the PCA model.
 %
-% sdT: [1xA] standard deviations of the scores.
+% T: [LxA] matrix of scores of the centroids.
 %
-% Lmodel: (struct Lmodel) model after integrity checking.
+% Lmodel: (struct Lmodel) output model
 %
 %
 % EXAMPLE OF USE: Random data
@@ -31,10 +32,10 @@ function [P,sdT,Lmodel] = Lpca(Lmodel)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 27/May/2017
+% last modification: 11/May/2023
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 20176  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2023  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -65,5 +66,8 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 dd = diag(d2);
 [dd,inddd]=sort(dd,'descend');
 P = P(:,inddd(Lmodel.lvs));
-
-sdT = real(sqrt(dd(1:max(Lmodel.lvs))/(Lmodel.N-1)));
+T = Lmodel.centr*P;
+Lmodel.loads = P;
+Lmodel.scores = T;
+Lmodel.var = sum(sum(trace(Lmodel.XX)));
+Lmodel.LVvar = dd;

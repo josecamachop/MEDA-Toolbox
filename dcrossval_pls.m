@@ -54,10 +54,9 @@ function [Qm,Q,lvso] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,rep,opt)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 14/Oct/19
+% last modification: 19/May/23
 %
-% Copyright (C) 2019  University of Granada, Granada
-% Copyright (C) 2019  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -113,14 +112,14 @@ assert (blocks_r<=N, 'Value Error: 4th argument must be at most N. Type ''help %
 
 %% Main code
 
-for j=1:rep,
+for j=1:rep
     % Cross-validation
     
     rows = rand(1,N);
     [a,r_ind]=sort(rows);
     elem_r=N/blocks_r;
     
-    for i=1:blocks_r,
+    for i=1:blocks_r
         ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
         i2 = ones(N,1);
         i2(ind_i)=0;
@@ -139,7 +138,7 @@ for j=1:rep,
         vcs = preprocess2Dapp(val,av,st);
         vcs_y = preprocess2Dapp(val_y,av_y,st_y);
         
-        beta = kernel_pls(ccs'*ccs,ccs'*ccs_y,1:lvso(i));
+        beta = simpls(ccs,ccs_y,1:lvso(i));
         srec = vcs*beta;
         
         Qu(i) = sum(sum((vcs_y-srec).^2));
@@ -154,7 +153,7 @@ Qm = mean(Q);
 
 %% Show results
 
-if opt == 1,
+if opt == 1
    fig_h = plot_vec(Q,[],[],{'#Repetition','Goodness of Prediction'},[],1); 
 end
 

@@ -91,10 +91,9 @@ function Lmodel = Lmodel_ini(X,Y,obs_l,var_l)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 26/May/2017
+% last modification: 13/Jun/23
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -115,18 +114,18 @@ if nargin < 1, X = []; end;
 N = size(X, 1);
 M = size(X, 2);
 if nargin < 2, Y = []; end;
-if nargin < 3 || isempty(obs_l), 
-    if N>0, 
+if nargin < 3 || isempty(obs_l) 
+    if N>0 
         obs_l = cellstr(num2str((1:N)')); 
     else
-        obs_l={}; 
+        obs_l = {}; 
     end;
 end
-if nargin < 4 || isempty(var_l), 
-    if M>0,
+if nargin < 4 || isempty(var_l) 
+    if M>0
         var_l = cellstr(num2str((1:M)')); 
     else
-        var_l = [];
+        var_l = {};
     end
 end;
 

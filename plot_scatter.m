@@ -20,29 +20,32 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %
 % lcont: {2} control limits on x and y axis (nothing by default)
 %
-% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
+%           0: plot for numerical classes (consistent with a colorbar)
+%           1: plot for categorical classes (consistent with a legend)
+%       b:
 %           0: do not plot multiplicity
 %           1: plot multiplicity
-%       b: (for a 0)
+%       c: (for b 0)
 %           0: filled marks
 %           1: empty marks
-%       b: (for a 1)
+%       c: (for b 1)
 %           00: plot multiplicity info in the size of the markers.
 %           01: plot multiplicity info in the form of the markers.
 %           10: plot multiplicity information in the Z axis.
 %           11: plot multiplicity info in the size of the markers and
 %               classes in Z-axis
 %
-%   By deafult, opt = '00'. If less digits are specified, least significant
-%   digits are set to 0, i.e. opt = 1 means a=1, b=00.
+%   By deafult, opt = '100'. If less digits are specified, least significant
+%   digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0
 %
 % mult: [Nx1] multiplicity of each row (1s by default)
 %
 % maxv: [1x3] thresholds for the different markers.
-%       maxv(1): maximum threshold for marker 'x' for opt = 2 (20 by default)
-%       maxv(1): maximum threshold for marker 'o' for opt = 2 (50 by default)
-%       maxv(1): maximum threshold for marker 's' for opt = 2 (100 by default)
+%       maxv(1): maximum threshold for marker 'd' for opt = 1101 (20 by default)
+%       maxv(2): maximum threshold for marker 'o' for opt = 1101 (50 by default)
+%       maxv(3): maximum threshold for marker 's' for opt = 1101 (100 by default)
 %
 % blur: [1x1] avoid blur when adding labels. The higher, the more labels
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
@@ -55,7 +58,7 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %
 % EXAMPLE OF USE: Plot random data with filled marks and control limits:
 %
-% fig_h = plot_scatter(rand(100,2),[],[],{'Y','X'},{0.8,0.8},0);
+% fig_h = plot_scatter(rand(100,2),[],[],{'Y','X'},{0.8,0.8});
 %
 %
 % EXAMPLE OF USE: with labels and classes in elements:
@@ -66,17 +69,17 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 % EXAMPLE OF USE: with labels, multilicity and classes in elements:
 %
 % X = randn(5,2);
-% for opt = [0 100 101 110 111],
-%   fig_h = plot_scatter(X,{'one','two','three','four','five'},[1 1 1 2 2],{'Y','X'},[],opt,[1 20 50 100 1000]);
+% opts = {'10' '1100' '1101' '1110' '1111'};
+% for o = 1:length(opts),
+%   plot_scatter(X,{'one','two','three','four','five'},[1 1 1 2 2],{'Y','X'},[],opts{o},[1 20 50 100 1000]);
 % end
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 17/Nov/2022
+% last modification: 21/Apr/2023
 %
-% Copyright (C) 2022  University of Granada, Granada
-% Copyright (C) 2022  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -104,13 +107,10 @@ if nargin < 2 || isempty(elabel), elabel = 1:N; end;
 if nargin < 3 || isempty(classes), classes = ones(N,1); end;
 if nargin < 4 || isempty(xylabel), xylabel = {'',''}; end;
 if nargin < 5 || isempty(lcont),  lcont = []; end;
-if nargin < 6 || isempty(opt),     opt     = '000';                 end;
+if nargin < 6 || isempty(opt),     opt     = '100';                 end;
 if nargin < 7 || isempty(mult),    mult    = ones(N,1);         end;
 if nargin < 8 || isempty(maxv),    maxv    = [20 50 100];       end;
 if nargin < 9 || isempty(blur),    blur    = 1;       end;
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
 
 % Convert row arrays to column arrays
 if size(elabel,1)  == 1, elabel  = elabel';  end;
@@ -120,12 +120,16 @@ if size(mult,1) == 1, mult = mult'; end;
 if size(maxv,2) == 1, maxv = maxv'; end;
 
 % Convert num arrays to str
-if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
 if isnumeric(opt), opt=num2str(opt); end
-if ~isempty(classes) && isnumeric(classes), classes=num2str(classes); end
 
-% Complete opt
-while length(opt)<3, opt = strcat(opt,'0'); end
+% Correct for opt integrity
+if opt(1) == 0 && ~isnumeric(classes), opt(1) = 1; end
+while length(opt)<4, opt = strcat(opt,'0'); end
+if length(opt)<5 && opt(3)==1, opt = strcat(opt,'0'); end
+
+% Convert num arrays to str
+if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
+if ~isempty(classes) && isnumeric(classes) && opt(1)=='1', classes=num2str(classes); end
 
 % Convert char arrays to cell
 if ischar(elabel),  elabel = cellstr(elabel); end;
@@ -138,7 +142,7 @@ if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(lcont), assert (iscell(lcont) && isequal(size(lcont), [2 1]), 'Dimension Error: 5th argument must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end;
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 6th argument must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==4, 'Dimension Error: 6th argument must be a string or num of maximum 4 bits. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: 7th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: 8th argument must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
@@ -153,6 +157,17 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must cont
 fig_h = figure;
 hold on;
 
+% Sort data for colorbar
+if opt(1)=='0'
+    [classes,ord] = sort(classes,'ascend');
+    cax = [min(classes) max(classes)];
+    classes = num2str(classes); 
+    classes = cellstr(classes);
+    bdata = bdata(ord,:);
+    elabel = elabel(ord);
+    mult = mult(ord);
+end
+
 % Get ordering of classes
 unique_classes = unique(classes,'stable');
 if iscell(classes)
@@ -166,7 +181,12 @@ unique_ord_classes = unique(ord_classes);
 bins = [0 1 maxv Inf];
 markers = ['^','v','d','o','s'];
 
-color_list = hsv(length(unique(ord_classes)));
+if opt(1) == '0'
+    color_list = parula(length(unique(ord_classes)));
+else
+    color_list = hsv(length(unique(ord_classes)));
+end
+    
 colors = color_list(ord_classes, :);
 
 sizes = zeros(size(mult));
@@ -174,26 +194,26 @@ for i=1:length(bins)-1
     sizes (mult>bins(i) & mult<=bins(i+1)) = round(2.5 * i^2 * pi);
 end
 
-switch opt
-    case '000',  % 2D plot, No multiplicity info, filled marks
+switch opt(2:4)
+    case '000'  % 2D plot, No multiplicity info, filled marks
         for i=1:length(unique_ord_classes)
             ind = find(ord_classes == unique_ord_classes(i));
             scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'filled','DisplayName',unique_classes{i});
         end
 
-    case '010',  % 2D plot, No multiplicity info, empty marks
+    case '010'  % 2D plot, No multiplicity info, empty marks
         for i=1:length(unique_ord_classes)
             ind = find(ord_classes == unique_ord_classes(i));
             scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'DisplayName',unique_classes{i});
         end
 
-    case '100',  % 2D plot, Multiplicity in size
+    case '100'  % 2D plot, Multiplicity in size
         for i=1:length(unique_ord_classes)
             ind = find(ord_classes == unique_ord_classes(i));
             scatter(bdata(ind,1), bdata(ind,2),sizes(ind), colors(ind,:),'filled','DisplayName',unique_classes{i});
         end
 
-    case '101',  % 2D plot, Multiplicity in markers
+    case '101'  % 2D plot, Multiplicity in markers
         for i=1:length(unique_ord_classes)
             for j=1:length(bins)-1
                 ind = find(ord_classes == unique_ord_classes(i) & mult<=bins(j+1) & mult>bins(j));
@@ -202,101 +222,20 @@ switch opt
             end
         end
 
-    case '110',  % 3D plot, Multiplicity in Z-axis
+    case '110'  % 3D plot, Multiplicity in Z-axis
         for i=1:length(unique_ord_classes)
             ind = find(ord_classes == unique_ord_classes(i));
             scatter3(bdata(ind,1), bdata(ind,2), mult(ind), [], colors(ind,:), 'filled', 'DisplayName',unique_classes{i});
         end
 
-    case '111',  % 3D plot, Multiplicity in size, classes in Z-axis
+    case '111'  % 3D plot, Multiplicity in size, classes in Z-axis
         for i=1:length(unique_ord_classes)
             ind = find(ord_classes == unique_ord_classes(i));
-            scatter3(bdata(ind,1), bdata(ind,2), classes(ind), sizes(ind), colors(ind,:), 'filled', 'DisplayName',unique_classes{i});
+            scatter3(bdata(ind,1), bdata(ind,2), ord_classes(ind), sizes(ind), colors(ind,:), 'filled', 'DisplayName',unique_classes{i});
         end
 end
 
-% Plot labels
-ax = axis;
-f = 5;
-deltax = (ax(2)-ax(1))/100;
-deltay = (ax(4)-ax(3))/100;
-if ~isempty(elabel)
-    for i=1:N
-        suffx = length(char(strtrim(elabel(i,1))));
-        ind = [1:(i-1) (i+1):size(bdata,1)];
-
-        dx = (bdata(ind,1)-bdata(i,1))/deltax;
-        dxM = dx;
-        dxM(dxM<0) = Inf;
-        dxm = dx;
-        dxm(dxm>0) = Inf;
-        dy = (bdata(ind,2)-bdata(i,2))/deltay;
-        dyM = dy;
-        dyM(dyM<0) = Inf;
-        dym = dy;
-        dym(dym>0) = Inf;
-
-        % Labels in any direction: not used
-
-%         d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
-%         if length(find(d > 10/blur))>1 || isempty(ind),
-%             quad = find(d==max(d),1);
-%             switch quad,
-%                 case 1,
-%                     posx = bdata(i,1)+deltax;
-%                     posy = bdata(i,2)+deltay;
-%                 case 2,
-%                     posx = bdata(i,1)+deltax;
-%                     posy = bdata(i,2)-6*deltay;
-%                 case 3,
-%                     posx = bdata(i,1)-deltax-suffx/2;
-%                     posy = bdata(i,2)+2*deltay;
-%                 case 4,
-%                     posx = bdata(i,1)-deltax-suffx/2;
-%                     posy = bdata(i,2)-6*deltay;
-%             end
-%
-%
-%         % Labels only to the right: used
-%
-        d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
-        if (length(find(d > 10/blur))>1 && length(find(d(1:2) > 10/blur))>0)|| isempty(ind),
-            quad = find(d(1:2)==max(d(1:2)),1);
-            switch quad,
-                case 1,
-                    posx = bdata(i,1)+deltax;
-                    posy = bdata(i,2)+deltay;
-                case 2,
-                    posx = bdata(i,1)+deltax;
-                    posy = bdata(i,2)-6*deltay;
-                case 3,
-                    posx = bdata(i,1)-deltax-suffx/2;
-                    posy = bdata(i,2)+2*deltay;
-                case 4,
-                    posx = bdata(i,1)-deltax-suffx/2;
-                    posy = bdata(i,2)-6*deltay;
-            end
-
-%         % Labels only to upper right: not used
-%
-%         d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
-%         if (length(find(d > 10/blur))>1 && d(1) > 10/blur)|| isempty(ind),
-%             posx = bdata(i,1)+deltax;
-%             posy = bdata(i,2)+deltay;
-
-
-            switch opt
-                case '110'
-                    text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
-                case '111'
-                    text(posx, posy, classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
-                otherwise
-                    text(posx, posy, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
-            end
-        end
-    end
-end
-
+text_scatter(fig_h,bdata,elabel,classes,opt(2:4),mult,blur);
 
 ax = axis;
 ax([1 3]) = min(ax([1 3]),zeros(1,2));
@@ -310,12 +249,12 @@ if ~isempty(lcont) % Plot control limits
     if ~isempty(lcont{1})
         ax(1) = min([ax(1);lcont{1}(:)]);
         ax(2) = max([ax(2);lcont{1}(:)]);
-        for i=1:length(lcont{1}),
+        for i=1:length(lcont{1})
             plot([lcont{1}(i) lcont{1}(i)], ax(3:4), 'r--','LineWidth',2, 'HandleVisibility', 'off');
         end
     end
     if ~isempty(lcont{2})
-        for i=1:length(lcont{2}),
+        for i=1:length(lcont{2})
             plot(ax(1:2),[lcont{2}(i) lcont{2}(i)], 'r--','LineWidth',2, 'HandleVisibility', 'off');
         end
     end
@@ -337,6 +276,12 @@ for i=1:length(axes_h)
         set(axes_h(i), 'FontSize', 12);
     end
 end
+
+% Set caxis if colorbar
+if opt(1)=='0'
+    caxis(cax);
+end
+
 
 legend off
 box on

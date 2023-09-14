@@ -13,28 +13,29 @@ function [T,TT,fig_h] = scores_Lpca(Lmodel,test,opt,label,classes)
 %
 % Lmodel: (struct Lmodel) model with the information to compute the PCA
 %   model:
-%       Lmodel.XX: (MxM) X-block cross-product matrix.
-%       Lmodel.lvs: [1x1] number of PCs. 
+%       Lmodel.XX: (MxM) X-block cross-product matrix
+%       Lmodel.lvs: [1x1] number of PCs
+%       Lmodel.LVvar: [1xA] variance of PCs
 %       Lmodel.centr: (LxM) centroids of the clusters of observations
-%       Lmodel.multr: (Lx1) multiplicity of each cluster.
-%       Lmodel.class: (Lx1) class associated to each cluster.
-%       Lmodel.av: [1xM] sample average according to the preprocessing method.
-%       Lmodel.sc: [1xM] sample scale according to the preprocessing method.
-%       Lmodel.weight: [1xM] weight applied after the preprocessing method.
+%       Lmodel.multr: (Lx1) multiplicity of each cluster
+%       Lmodel.class: (Lx1) class associated to each cluster
+%       Lmodel.av: [1xM] sample average according to the preprocessing method
+%       Lmodel.sc: [1xM] sample scale according to the preprocessing method
+%       Lmodel.weight: [1xM] weight applied after the preprocessing method
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
 %
 % opt: (str or num) options for data plotting: binary code of the form 'abcd' for:
 %       a:
-%           0: no plots
-%           1: plot scores
-%       b:
 %           0: scatter plot of pairs of PCs 
 %           1: bar plot of each single PC
-%       c:
+%       b:
 %           0: plot calibration and test data
 %           1: plot only test data 
+%       c:
+%           0: plot for categorical classes (consistent with a legend)
+%           1: plot for numerical classes (consistent with a colorbar) 
 %       d:
 %           00: plot multiplicity info in the size of the markers.
 %           01: plot multiplicity info in the form of the markers.
@@ -42,9 +43,8 @@ function [T,TT,fig_h] = scores_Lpca(Lmodel,test,opt,label,classes)
 %           11: plot multiplicity info in the size of the markers and 
 %               classes in Z-axis
 %           
-%   By deafult, opt = '10000'. If less than 5 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0, d=00. 
-%   If a=0, then b, c and d are ignored. If b=1, then d is ignored.
+%   By deafult, opt = '00000'. If less than 5 digits are specified, least 
+%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0, d=00 
 %
 % label: [Lx1] name of the test observations (numbers are used by default)
 %
@@ -86,10 +86,9 @@ function [T,TT,fig_h] = scores_Lpca(Lmodel,test,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Jan/21
+% last modification: 17/Jun/2023
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -119,7 +118,7 @@ M = size(Lmodel.XX, 2);
 if nargin < 2, test = []; end;
 L = size(test, 1);
 
-if nargin < 3 || isempty(opt), opt = '100'; end; 
+if nargin < 3 || isempty(opt), opt = '00000'; end; 
 
 A = length(Lmodel.lvs);
 
@@ -128,16 +127,19 @@ if isnumeric(opt), opt=num2str(opt); end
 
 % Complete opt
 while length(opt)<5, opt = strcat(opt,'0'); end
-if opt(3) == '1',
+
+if opt(3) == '0', opt(3) = '1'; else,  opt(3) = '0'; end
+
+if opt(2) == '1'
     K = L;
 else
     K = N+L;
 end
 
-if nargin < 4 || isempty(label), 
-    if  opt(3) == '1',
+if nargin < 4 || isempty(label)
+    if  opt(2) == '1'
         label = cellstr(num2str((1:L)'));
-    elseif isempty(Lmodel.obs_l),
+    elseif isempty(Lmodel.obs_l)
         label = cellstr(num2str([1:N 1:L]'));
     else
         if L
@@ -148,8 +150,8 @@ if nargin < 4 || isempty(label),
         end
     end
 else
-    if  opt(3) == '0',
-        if isempty(Lmodel.obs_l),
+    if  opt(2) == '0'
+        if isempty(Lmodel.obs_l)
             lb1 = cellstr(num2str((1:N)'));
             label = {lb1{:} label{:}};
         else
@@ -158,13 +160,15 @@ else
     end
 end
 
-if nargin < 5 || isempty(classes),
-    if opt(3) == '1', 
+label(find(ismember(label, 'mixed'))) = {''};
+
+if nargin < 5 || isempty(classes)
+    if opt(2) == '1' 
         classes = ones(L,1); 
     else
         classes = [Lmodel.class;2*ones(L,1)];  
     end
-elseif opt(3) == '0' && length(classes)==L,
+elseif opt(2) == '0' && length(classes)==L
         classes = [Lmodel.class;2*classes];
 end
 
@@ -198,33 +202,31 @@ end
 %% Show results
 
 fig_h = [];
-if opt(1) == '1',
      
-    if opt(3) == '0'
-        ttt = [T;TT];
-        mult = [Lmodel.multr;ones(size(TT,1),1)];
-    else
-        ttt = TT;
-        mult = ones(size(TT,1));
+if opt(2) == '0'
+    ttt = [T;TT];
+    mult = [Lmodel.multr;ones(size(TT,1),1)];
+else
+    ttt = TT;
+    mult = ones(size(TT,1));
+end
+
+t_var = var_Lpca(Lmodel,0);
+
+M = max(Lmodel.multr)/10;
+m = max(1,M/100);
+int = 10^((log10(M)-log10(m))/2 + log10(m));
+markers = [m,int,M];
+if length(Lmodel.lvs) == 1 || opt(1) == '1'
+    for i=1:length(Lmodel.lvs)
+        fig_h(i) = plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1)))}, [], [], [], mult, markers);
     end
-    
-    t_var = var_Lpca(Lmodel,0);
-    
-    M = max(Lmodel.multr)/10;
-    m = max(1,M/100);
-    int = 10^((log10(M)-log10(m))/2 + log10(m));
-    markers = [m,int,M];
-    if length(Lmodel.lvs) == 1 || opt(2) == '1',
-        for i=1:length(Lmodel.lvs)
-            fig_h(i) = plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1)))}, [], [], [], mult, markers);
-        end
-    else
-        h = 1;
-        for i=1:length(Lmodel.lvs)-1,
-            for j=i+1:length(Lmodel.lvs),
-                fig_h(h) = plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat('1',opt(4:5)), mult, markers, 0.1);
-                h = h+1;
-            end
+else
+    h = 1;
+    for i=1:length(Lmodel.lvs)-1
+        for j=i+1:length(Lmodel.lvs)
+            fig_h(h) = plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat(opt(3),'1',opt(4:5)), mult, markers, 0.1);
+            h = h+1;
         end
     end
 end

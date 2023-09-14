@@ -1,7 +1,8 @@
 
 function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur)
 
-% Compute and plot loadings in PLS
+% Compute and plot loadings in PLS. This routine is deprecated and superseded 
+% by loadings.m (please, use the latter)
 %
 % P = loadings_pls(x,y) % minimum call
 % [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur) % complete call
@@ -144,9 +145,9 @@ ycs = preprocess2D(y,prepy);
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
-    if opt(3) == '0',
+    if opt(3) == '0'
         Pt = W;
         text = 'Weights';
     else
@@ -154,7 +155,7 @@ if opt(1) == '1',
         text = 'X-block loadings';
     end
     
-    if length(lvs) == 1 || opt(2) == '1',
+    if length(lvs) == 1 || opt(2) == '1'
         for i=1:length(lvs),
             plot_vec(Pt(:,i), label, classes, {'',sprintf('%s LV %d',text,lvs(i))});
         end
