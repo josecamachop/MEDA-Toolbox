@@ -181,9 +181,6 @@ unique_ord_classes = unique(ord_classes);
 bins = [0 1 maxv Inf];
 markers = ['^','v','d','o','s'];
 
-%MDSA 04-09-2023 Changing the colourmap for colourblind friendly colours
-%for categorical data when possible
-
 okabe_ito = [0.1,0.1,0.1;
     0.902,0.624,0;
     0.337,0.706,0.914;
