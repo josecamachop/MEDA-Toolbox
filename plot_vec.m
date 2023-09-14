@@ -163,24 +163,9 @@ for j=1:length(bins)-1,
     end
 end
 
-okabe_ito = [0.5,0.5,0.5;
-    0.902,0.624,0;
-    0.337,0.706,0.914;
-    0,0.620,0.451;
-    0.941,0.894,0.259;
-    0,0.447,0.698;
-    0.835,0.369,0;
-    0.8,0.475,0.655];
-    
 if ~isempty(classes)
     unique_classes = unique(classes);
-    %% Colourblind friendly addition when possible - MDSA
-    if length(unique_classes) <= 8
-        color_list = okabe_ito(1:length(unique_classes),:);
-    else
-        color_list = hsv(length(unique_classes));
-    end
-
+    color_list = hsv(length(unique_classes));
     if opt == '0',
         if isnumeric(elabel) && length(elabel)==length(unique(elabel))
             plot(elabel,vec,'k','HandleVisibility', 'off');
@@ -204,13 +189,7 @@ if ~isempty(classes)
         end
     end 
 else
-    
-    if M <= 8
-        color_list = okabe_ito(1:M,:);
-    else
-        color_list = hsv(M);
-    end
-
+    color_list = hsv(M);
     for i=1:M,
         if opt == '0',
             if isnumeric(elabel) && length(elabel)==length(unique(elabel))
