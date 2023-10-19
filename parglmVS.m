@@ -28,7 +28,7 @@ function [T, parglmo] = parglmVS(X, F, model, prep, n_perm, ts, ordinal, fmtc, c
 %       cell: with each element a vector of factors
 %
 % prep: [1x1] preprocesing:
-%       1: mean preping
+%       1: mean centering
 %       2: autoscaling (default)
 %
 % n_perm: [1x1] number of permutations (1000 by default)
@@ -300,7 +300,7 @@ B = pD*X;
 X_residuals = X - D*B;
 parglmo.D = D;
 parglmo.B = B;
-parglmo.mean = parglmo.D*parglmo.B(:,1);
+%parglmo.mean = parglmo.D*parglmo.B(:,1);
 
 % Create Effect Matrices
 parglmo.inter = D(:,1)*B(1,:);

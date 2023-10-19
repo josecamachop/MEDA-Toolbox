@@ -94,7 +94,7 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/Jun/2023
+% last modification: 29/Sep/2023
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -117,7 +117,7 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(model.scores, 1);
-M = size(model.loads);
+M = size(model.loads,1);
 if nargin < 2, test = []; end;
 L = size(test, 1);
 if nargin < 3 || isempty(opt), opt = 0; end; 
