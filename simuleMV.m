@@ -1,6 +1,8 @@
 function X = simuleMV(obs,vars,lcorr,corM)
 
-% Simulation of MV data with ADICOV, submitted to Chemolab
+% Simulation of multivariate data with ADICOV. Reference: Camacho, J. On 
+% the Generation of Random Multivariate Data. Chemometrics and Intelligent
+% Laboratory Systems, 2017, 160: 40-51.
 %
 % X = simuleMV(obs,vars) % minimum call
 % X = simuleMV(obs,vars,lcorr,corM)% complete call
@@ -39,10 +41,10 @@ function X = simuleMV(obs,vars,lcorr,corM)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/Sep/16.
+% last modification: 28/Jul/23
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2023  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
