@@ -164,10 +164,10 @@ for i=N-1:-1:n_min % reduction to n_min clusters
     D(row,(row+1):end) = new_dist((row+1):end);
    
     % Delete old cluster references
-    if ~isempty(obslist),
+    if ~isempty(obslist)
         obslist = obslist([1:(column-1) (column+1):end]);
     end
-    if ~isempty(olabn),
+    if ~isempty(olabn)
         olabn = olabn([1:(column-1) (column+1):end]);
     end
     multn = multn([1:(column-1) (column+1):end]);

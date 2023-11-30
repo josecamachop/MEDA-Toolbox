@@ -805,7 +805,7 @@ if Lmodel.type==1 || Lmodel.type==2
         end
         
         s = size(x);
-        step2 = round(s(1)*step);
+        step2 = max(100,round(s(1)*step)); % Min step of 100 obs
         Lmodel.updated(:) = 0;
         for i = 1:step2:s(1)
             endv = min(s(1),i+step2-1);

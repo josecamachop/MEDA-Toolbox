@@ -82,9 +82,11 @@ vascao = parglmoVS;
 %Do PCA on level averages for each factor
 for factor = 1 : vascao.n_factors
     
-    ind = find(parglmoVS.p(:,factor) < siglev);
-    if ~isempty(ind)
+    pvals = parglmoVS.p(parglmoVS.ord_factors(factor,:),factor); 
+    M = find(pvals==min(pvals));
+    if ~isempty(pvals(M)< siglev)
         vascao.factors{factor}.stasig = true;
+        ind = parglmoVS.ord_factors(factor,1:M);
         xf = vascao.factors{factor}.matrix(:,ind);
         p = pca_pp(xf,1:rank(xf));
     
@@ -102,9 +104,11 @@ end
 %Do PCA on interactions
 for interaction = 1 : vascao.n_interactions
     
-    ind = find(parglmoVS.p(:,interaction+vascao.n_factors) < siglev);
-    if ~isempty(ind)
+    pvals = parglmoVS.p(parglmoVS.ord_interactions(interaction,:),interaction+vascao.n_factors); 
+    M = find(pvals==min(pvals));
+    if ~isempty(pvals(M)< siglev)
         vascao.interactions{interaction}.stasig = true;
+        ind = parglmoVS.ord_interactions(interaction,1:M);
         xf = vascao.interactions{interaction}.matrix(:,ind);
         p = pca_pp(xf,1:rank(xf));
     
