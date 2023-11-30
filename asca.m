@@ -159,6 +159,9 @@ end
 for interaction = 1 : ascao.n_interactions
     
     xf = ascao.interactions{interaction}.matrix;
+    for factor = 1 : ascao.interactions{1}.factors
+        xf = xf + ascao.factors{factor}.matrix;
+    end
     p = pca_pp(xf,1:rank(xf));
     
     ascao.interactions{interaction}.var = trace(xf'*xf);
