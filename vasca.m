@@ -83,7 +83,7 @@ vascao = parglmoVS;
 for factor = 1 : vascao.n_factors
     
     pvals = parglmoVS.p(parglmoVS.ord_factors(factor,:),factor); 
-    M = find(pvals==min(pvals),1);
+    M = find(pvals==min(pvals)); M = M(end);
     if ~isempty(pvals(M) <= siglev)
         vascao.factors{factor}.stasig = true;
         ind = parglmoVS.ord_factors(factor,1:M);
@@ -105,7 +105,7 @@ end
 for interaction = 1 : vascao.n_interactions
     
     pvals = parglmoVS.p(parglmoVS.ord_interactions(interaction,:),interaction+vascao.n_factors); 
-    M = find(pvals==min(pvals),1);
+    M = find(pvals==min(pvals)); M = M(end);
     if ~isempty(pvals(M) <= siglev)
         vascao.interactions{interaction}.stasig = true;
         ind = parglmoVS.ord_interactions(interaction,1:M);
