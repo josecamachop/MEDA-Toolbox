@@ -77,7 +77,7 @@ function MEDA_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for MEDA
 handles.output = hObject;
-handles.data.version='1.2';
+handles.data.version='1.3';
 %Change icon
 %warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
 %javaFrame = get(hObject,'JavaFrame');
@@ -140,4 +140,4 @@ function about_menu_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 myicon = imread('icon.png');
-h = msgbox({strcat('Version number: ',handles.data.version),'','Main Authors:','Code: José Camacho (jcamacho@ugr.es)','GUI: Rafael A. Rodríguez-Gómez (rodgom@ugr.es)'},'About','custom',myicon);
+h = msgbox({strcat('Version number: ',handles.data.version),'','Main Author: José Camacho (jcamacho@ugr.es)'},'About','custom',myicon);

@@ -68,7 +68,7 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 16/Jun/23
+% last modification: 08/Sep/23
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -118,10 +118,20 @@ assert (isempty(find(debug~=0 & debug~=1 & debug~=2)), 'Value Error: 6th argumen
 Lmodel.update = 2; 
 
 if files
-  if ispc
-	  [status,result] = system(['del ' Lmodel.path 'MEDA*.txt']); % delete previous files
+  if Lmodel.type~=3 
+      if ispc
+          [status,result] = system(['del ' Lmodel.path 'MEDA*.txt']); % delete previous files
+      else
+          [status,result] = system(['rm ' Lmodel.path 'MEDA*.txt']); % delete previous files
+      end
   else
-	  [status,result] = system(['rm ' Lmodel.path 'MEDA*.txt']); % delete previous files
+      for f = 1:length(LmodelASCA.factors)
+          if ispc
+              [status,result] = system(['del ' Lmodel.factors{f}.path 'MEDA*.txt']); % delete previous files
+          else
+              [status,result] = system(['rm ' Lmodel.factors{f}.path 'MEDA*.txt']); % delete previous files
+          end
+      end 
   end
 end
 
@@ -129,7 +139,7 @@ if Lmodel.type==3 % build coding matrix
     
     if debug, disp('preparing coding matrix..................................................'), end;
             
-    if ~isfield(Lmodel,'anova'), Lmodel.anovast = []; end
+    if ~isfield(Lmodel,'anovast'), Lmodel.anovast = []; end
     if ~isfield(Lmodel.anovast,'model'), Lmodel.anovast.model = []; end
     if ~isfield(Lmodel.anovast,'ordinal'), Lmodel.anovast.ordinal = []; end
     if ~isfield(Lmodel.anovast,'coding'), Lmodel.anovast.coding = []; end
@@ -597,6 +607,10 @@ elseif Lmodel.type==3
         Lmodel.interactions{i}.centr = ones(size(Lmodel.centr,1),size(Lmodel.interactions{i}.XX,1));
     
         if debug, disp(sprintf('computing PCA model of interaction %d..............................................',i)); end;
+        
+        for f = 1 : length(Lmodel.interactions{i}.factors) % Combine Factors and Interaction
+            Lmodel.interactions{i}.XX = Lmodel.interactions{i}.XX + Lmodel.factors{Lmodel.interactions{i}.factors(f)}.XX;
+        end
 
         if isempty(Lmodel.interactions{i}.lvs)
             Lmodel.interactions{i}.lvs = 1:rank(Lmodel.interactions{i}.XX);
@@ -791,7 +805,7 @@ if Lmodel.type==1 || Lmodel.type==2
         end
         
         s = size(x);
-        step2 = round(s(1)*step);
+        step2 = max(100,round(s(1)*step)); % Min step of 100 obs
         Lmodel.updated(:) = 0;
         for i = 1:step2:s(1)
             endv = min(s(1),i+step2-1);

@@ -213,10 +213,12 @@ end
 
 t_var = var_Lpca(Lmodel,0);
 
-M = max(Lmodel.multr)/10;
-m = max(1,M/100);
-int = 10^((log10(M)-log10(m))/2 + log10(m));
-markers = [m,int,M];
+indx = floor(log10(max(Lmodel.multr)));
+
+1:(indx-1)/3:indx;
+
+indx = floor(log10(max(Lmodel.multr)));
+markers = 10.^((1+(indx-1)/3):(indx-1)/3:indx);
 if length(Lmodel.lvs) == 1 || opt(1) == '1'
     for i=1:length(Lmodel.lvs)
         fig_h(i) = plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1)))}, [], [], [], mult, markers);

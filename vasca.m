@@ -48,7 +48,7 @@ function vascao = vasca(parglmoVS,siglev)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 19/May/23
+% last modification: 30/Nov/23
 %
 % Copyright (C) 2023  University of Granada, Granada
 %
@@ -82,9 +82,11 @@ vascao = parglmoVS;
 %Do PCA on level averages for each factor
 for factor = 1 : vascao.n_factors
     
-    ind = find(parglmoVS.p(:,factor) < siglev);
-    if ~isempty(ind)
+    pvals = parglmoVS.p(parglmoVS.ord_factors(factor,:),factor); 
+    M = find(pvals==min(pvals)); M = M(end);
+    if ~isempty(pvals(M) <= siglev)
         vascao.factors{factor}.stasig = true;
+        ind = parglmoVS.ord_factors(factor,1:M);
         xf = vascao.factors{factor}.matrix(:,ind);
         p = pca_pp(xf,1:rank(xf));
     
@@ -102,10 +104,15 @@ end
 %Do PCA on interactions
 for interaction = 1 : vascao.n_interactions
     
-    ind = find(parglmoVS.p(:,interaction+vascao.n_factors) < siglev);
-    if ~isempty(ind)
+    pvals = parglmoVS.p(parglmoVS.ord_interactions(interaction,:),interaction+vascao.n_factors); 
+    M = find(pvals==min(pvals)); M = M(end);
+    if ~isempty(pvals(M) <= siglev)
         vascao.interactions{interaction}.stasig = true;
+        ind = parglmoVS.ord_interactions(interaction,1:M);
         xf = vascao.interactions{interaction}.matrix(:,ind);
+        for factor = 1 : vascao.interactions{1}.factors
+            xf = xf + vascao.factors{factor}.matrix(:,ind);
+        end
         p = pca_pp(xf,1:rank(xf));
     
         vascao.interactions{interaction}.ind = ind;

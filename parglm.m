@@ -27,8 +27,9 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %       cell: with each element a vector of factors
 %
 % prep: [1x1] preprocesing:
-%       1: mean preping
-%       2: autoscaling (default)
+%       0: no preprocessing 
+%       1: mean-centering 
+%       2: auto-scaling (default)  
 %
 % n_perm: [1x1] number of permutations (1000 by default)
 %
@@ -36,7 +37,8 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %       0: Sum-of-squares of the factor/interaction
 %       1: F-ratio of the SS of the factor/interaction divided by the SS of 
 %       the residuals (by default)
-%       2: F-ratio following the factors/interactions hierarchy
+%       2: F-ratio following the factors/interactions hierarchy (only for
+%       random models or unconstrained mixed model, see Montogomery)
 %
 % ordinal: [1xF] whether factors are nominal or ordinal
 %       0: nominal (default)
@@ -131,7 +133,7 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 26/Jul/23
+% last modification: 21/Dec/23
 %
 % Copyright (C) 2023  Universidad de Granada
 %
@@ -190,6 +192,7 @@ if nargin < 8 || isempty(fmtc), fmtc = 0; end;
 if nargin < 9 || isempty(coding), coding = zeros(1,size(F,2)); end;
 if nargin < 10 || isempty(nested), nested = []; end;
 
+
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -238,8 +241,13 @@ parglmo.coding          = coding;
 parglmo.nested          = nested; 
 
 % Create Design Matrix
-n = 1;
-D = ones(size(X,1),1);
+if prep
+    n = 1;
+    D = ones(size(X,1),1);
+else
+    n = 0;
+    D = [];
+end
 
 for f = 1 : n_factors
     if ordinal(f)
@@ -249,6 +257,7 @@ for f = 1 : n_factors
         parglmo.factors{f}.order = 1;
     else
         if isempty(nested) || isempty(find(nested(:,2)==f)) % if not nested
+            parglmo.factors{f}.factors = [];
             uF = unique(F(:,f));
             parglmo.n_levels(f) = length(uF);
             for i = 2:length(uF)
@@ -265,6 +274,7 @@ for f = 1 : n_factors
         else % if nested
             ind = find(nested(:,2)==f);
             ref = nested(ind,1);
+            parglmo.factors{f}.factors = [ref parglmo.factors{ref}.factors];
             urF = unique(F(:,ref));
             parglmo.n_levels(f) = 0;
             parglmo.factors{f}.Dvars = [];
@@ -298,8 +308,13 @@ for i = 1 : n_interactions
 end
 
 % Degrees of freedom
-Tdf = size(X,1);      
-Rdf = Tdf-1;
+Tdf = size(X,1); 
+if prep
+    mdf = 1;
+else
+    mdf = 0;
+end
+Rdf = Tdf-mdf;
 for f = 1 : n_factors
     if ordinal(f)
         df(f) = 1;
@@ -345,23 +360,55 @@ B = pD*X;
 X_residuals = X - D*B;
 parglmo.D = D;
 parglmo.B = B;
-parglmo.mean = parglmo.D*parglmo.B(:,1);
+%parglmo.mean = parglmo.D*parglmo.B(:,1);
 
 % Create Effect Matrices
-parglmo.inter = D(:,1)*B(1,:);
-SSQ_inter = sum(sum(parglmo.inter.^2));
+if prep
+    parglmo.inter = D(:,1)*B(1,:);
+    SSQ_inter = sum(sum(parglmo.inter.^2));
+else
+    parglmo.inter = 0;
+    SSQ_inter = 0;
+end    
 SSQ_residuals = sum(sum(X_residuals.^2));
 
 for f = 1 : n_factors
     parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
     SSQ_factors(1,f) = sum(sum(parglmo.factors{f}.matrix.^2)); % Note: we are not using Type III sum of squares, and probably we should, although we did not find any difference in our experiments
-    F_factors(1,f) = (SSQ_factors(1,f)/df(f))/(SSQ_residuals/Rdf);
 end
 
-% Interactions
 for i = 1 : n_interactions
     parglmo.interactions{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
     SSQ_interactions(1,i) = sum(sum(parglmo.interactions{i}.matrix.^2));
+end
+
+for f = 1 : n_factors
+    if ts==2 % pooled reference MSE
+        SS_ref = 0;
+        Df_ref = 0;
+        for f2 = 1 : n_factors
+            if ~isempty(find(f==parglmo.factors{f2}.factors))
+                SS_ref = SS_ref + SSQ_factors(1,f2);
+                Df_ref = Df_ref + df(f2);
+            end
+        end
+        for i = 1 : n_interactions
+            if ~isempty(find(f==parglmo.interactions{i}.factors))
+                SS_ref = SS_ref + SSQ_interactions(1,i);
+                Df_ref = Df_ref + df_int(i);
+            end
+        end
+        if SS_ref == 0
+            F_factors(1,f) = (SSQ_factors(1,f)/df(f))/(SSQ_residuals/Rdf);
+        else
+            F_factors(1,f) = (SSQ_factors(1,f)/df(f))/(SS_ref/Df_ref);
+        end
+    else
+        F_factors(1,f) = (SSQ_factors(1,f)/df(f))/(SSQ_residuals/Rdf);
+    end
+end
+
+for i = 1 : n_interactions
     F_interactions(1,i) = (SSQ_interactions(1,i)/df_int(i))/(SSQ_residuals/Rdf);
 end
 
@@ -396,25 +443,55 @@ parfor j = 1 : n_perm*mtcc
     % Factors
     factors = cell(1,n_factors);
     SSQf = zeros(1,n_factors);
-    Ff = zeros(1,n_factors);
     for f = 1 : n_factors
         factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
         SSQf(f) = sum(sum(factors{f}.matrix.^2));
-        Ff(f) = (SSQf(f)/df(f))/(SSQ_residualsp/Rdf);
     end
     SSQ_factors(1 + j,:) = SSQf;
-    F_factors(1 + j,:) = Ff; 
     
     % Interactions
     interacts = {};
     SSQi = zeros(1,n_interactions);
-    Fi = zeros(1,n_interactions);
     for i = 1 : n_interactions
         interacts{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);    
         SSQi(i) = sum(sum(interacts{i}.matrix.^2));
-        Fi(i) = (SSQi(i)/df_int(i))/(SSQ_residualsp/Rdf);
     end
     SSQ_interactions(1 + j,:) = SSQi;
+    
+    % F Factors
+    Ff = zeros(1,n_factors);
+    for f = 1 : n_factors
+        if ts==2% pooled reference MSE
+            MSS_ref = 0;
+            Df_ref = 0;
+            for f2 = 1 : n_factors
+                if ~isempty(find(f==parglmo.factors{f2}.factors))
+                    MSS_ref = MSS_ref + SSQf(f2);
+                    Df_ref = Df_ref + df(f2);
+                end
+            end
+            for i = 1 : n_interactions
+                if ~isempty(find(f==parglmo.interactions{i}.factors))
+                    MSS_ref = MSS_ref + SSQi(i);
+                    Df_ref = Df_ref + df_int(i);
+                end
+            end
+            if MSS_ref == 0
+                Ff(f) = (SSQf(f)/df(f))/(SSQ_residualsp/Rdf);
+            else
+                Ff(f) = (SSQf(f)/df(f))/(MSS_ref/Df_ref);
+            end
+        else
+            Ff(f) = (SSQf(f)/df(f))/(SSQ_residualsp/Rdf);
+        end
+    end
+    F_factors(1 + j,:) = Ff; 
+    
+    % F Interactions
+    Fi = zeros(1,n_interactions);
+    for i = 1 : n_interactions
+        Fi(i) = (SSQi(i)/df_int(i))/(SSQ_residualsp/Rdf);
+    end
     F_interactions(1 + j,:) = Fi; 
 
 end        
@@ -478,10 +555,11 @@ for i = 1 : n_interactions
 end
 name{end+1} = 'Residuals';
 name{end+1} = 'Total';
-      
+   
+
 SSQ = [SSQ_inter SSQ_factors(1,:) SSQ_interactions(1,:) SSQ_residuals SSQ_X];
 par = [parglmo.effects 100];
-DoF = [1 df df_int Rdf Tdf];
+DoF = [mdf df df_int Rdf Tdf];
 MSQ = SSQ./DoF;
 F = [nan F_factors(1,:) F_interactions(1,:) nan nan];
 p_value = [nan parglmo.p nan nan];
