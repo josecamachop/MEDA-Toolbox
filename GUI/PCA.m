@@ -1034,7 +1034,7 @@ N=size(vertex,1);%Tama�o de la matriz:
 A=[];
 B=[];
 C=[];
-for i=1:N,%Desde 1 hasta el n�mero de v�rtices que tenga el polinomio
+for i=1:N %Desde 1 hasta el n�mero de v�rtices que tenga el polinomio
     %irregular, voy a hacer lo siguiente:
     
     %Coordenadas de un v�rtice:
@@ -1044,7 +1044,7 @@ for i=1:N,%Desde 1 hasta el n�mero de v�rtices que tenga el polinomio
     %Cooredenadas del siguiente v�rtice:
     %El if controla el caso en que ya se hayan cogido todos los v�rtices,
     %el v�rtce en ese caso ser� el primero de ellos, para cerrar la figura.
-    if i==N,
+    if i==N
         x2=vertex(1,1);
         y2=vertex(1,2);
     else
@@ -1070,21 +1070,21 @@ X=[];
 corte=0;
 CORTES=[];
 
-for j=1:M, %Se recorren todas las observaciones
+for j=1:M %Se recorren todas las observaciones
     Y=matrix_2PCs(j,2);
     corte=0;
-    for k=1:N,%Todas las rectas del poligono irregular
+    for k=1:N%Todas las rectas del poligono irregular
         X=(-(B(k)*Y)-C(k))/A(k);
         
         if k+1>N,
             if (Y>min(vertex(k,2),vertex(1,2)))&&(Y<max(vertex(k,2),vertex(1,2))),
-                if X>matrix_2PCs(j,1),
+                if X>matrix_2PCs(j,1)
                     corte=corte+1;
                 end
             end
         else
             if (Y>min(vertex(k,2),vertex(k+1,2)))&&(Y<max(vertex(k,2),vertex(k+1,2))),
-                if X>matrix_2PCs(j,1),
+                if X>matrix_2PCs(j,1)
                     corte=corte+1;
                 end
             end
@@ -1147,7 +1147,7 @@ for l=1:N,
     end
 end
 
-if exist('handles.data.dummyGREEN')
+if isfield(handles.data,'dummyGREEN')
     handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
 else
     handles.data.dummy{1,ID}=handles.data.dummyRED;
@@ -1199,7 +1199,7 @@ for l=1:N,
     end
 end
 
-if exist('handles.data.dummyRED')
+if isfield(handles.data,'RED')
     handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
 else
     handles.data.dummy{1,ID}=handles.data.dummyGREEN;
@@ -1366,7 +1366,7 @@ function omedaButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
-if ~isnumeric(ID),
+if ~isnumeric(ID)
     ID = ID.Number;
 end
 
@@ -1861,7 +1861,7 @@ size_x = size(handles.data.data_matrix);
 PCs = 1:size_x(2);
 PCs(handles.data.PCs) = [];
 E=leverages_pca(handles.data.data_matrix,PCs,handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
-ylabel('Residuals')
+ylabel('Residuals', 'FontSize', 16);
 
 % --- Executes on button press in modelomedaButton.
 function modelomedaButton_Callback(hObject, eventdata, handles)

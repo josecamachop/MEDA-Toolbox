@@ -42,10 +42,10 @@ function [L,E] = leverages_pca(x,pcs,prep,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 09/Dec/2022
+% last modification: 15/Jan/2022
 %
-% Copyright (C) 2022  University of Granada, Granada
-% Copyright (C) 2022  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2024  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -107,11 +107,11 @@ xcs = preprocess2D(x,prep);
 [P,T] = pca_pp(xcs,pcs);
 
 L = diag(P*P');
-E = sum((xcs-T*P')^2);
+E = sum((xcs-T*P').^2);
 
 %% Show results
 
-if opt == '1', 
+if opt == '1' 
     plot_vec(L, label, classes, {'Variables','Leverages'});
 end
         

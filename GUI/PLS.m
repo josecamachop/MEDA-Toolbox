@@ -1308,7 +1308,7 @@ for l=1:N,
     end
 end
 
-if exist('handles.data.dummyGREEN')
+if isfield(handles.data,'dummyGREEN')
     handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
 else
     handles.data.dummy{1,ID}=handles.data.dummyRED;
@@ -1359,7 +1359,7 @@ for l=1:N,
     end
 end
 
-if exist('handles.data.dummyRED')
+if isfield(handles.data,'RED')
     handles.data.dummy{1,ID}=handles.data.dummyGREEN+handles.data.dummyRED;
 else
     handles.data.dummy{1,ID}=handles.data.dummyGREEN;
