@@ -133,9 +133,9 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 21/Dec/23
+% last modification: 13/Feb/24
 %
-% Copyright (C) 2023  Universidad de Granada
+% Copyright (C) 2024  Universidad de Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -255,6 +255,7 @@ for f = 1 : n_factors
         parglmo.factors{f}.Dvars = n+1;
         n = n + 1;
         parglmo.factors{f}.order = 1;
+        parglmo.factors{f}.factors = [];
     else
         if isempty(nested) || isempty(find(nested(:,2)==f)) % if not nested
             parglmo.factors{f}.factors = [];
