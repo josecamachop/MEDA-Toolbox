@@ -52,10 +52,10 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 % plot_scatter(centr,[],[],{'Var 1', 'Var 2'},[],[],multn);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 13/Jun/2023
+% coded by: Jose Camacho (josecamacho@ugr.es)
+% last modification: 19/Feb/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -158,7 +158,7 @@ for i=N-1:-1:n_min % reduction to n_min clusters
     u(row,:) = centr(row,:)*mat;
     r = u-ones((i+1),1)*u(row,:);
     new_dist = sum(r.^2,2); 
-    classdiff = find(~ismember(classn(row),classn)); 
+    classdiff = find(~ismember(classn,classn(row))); 
     new_dist(classdiff) = Inf; 
     D(1:(row-1),row) = new_dist(1:(row-1));
     D(row,(row+1):end) = new_dist((row+1):end);

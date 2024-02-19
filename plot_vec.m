@@ -3,7 +3,7 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 % Bar or line plot.
 %
 % plot_vec(vec) % minimum call
-% plot_vecplot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv) % complete call
+% plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv) % complete call
 %
 %
 % INPUTS:

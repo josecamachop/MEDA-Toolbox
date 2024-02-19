@@ -67,10 +67,10 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 % mspc_Lpca(Lmodel);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 08/Sep/23
+% coded by: Jose Camacho (josecamacho@ugr.es)
+% last modification: 19/Feb/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

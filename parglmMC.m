@@ -145,7 +145,9 @@ if isnumeric(model) && isscalar(model) && model >= 2 && model <= n_factors
 end    
 
 if isnumeric(model) && ~isscalar(model)
-        interactions = {model};
+    for i = 1:size(model,1)
+        interactions{i} = model(i,:);
+    end
 end     
 
 if iscell(model), interactions = model; end
