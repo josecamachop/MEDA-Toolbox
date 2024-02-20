@@ -133,7 +133,7 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 13/Feb/24
+% last modification: 19/Feb/24
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -161,31 +161,6 @@ M = size(X, 2);
 n_factors = size(F,2);                 % number of factors
 
 if nargin < 3 || isempty(model), model = 'linear'; end;
-
-if isequal(model,'linear')
-    interactions = [];
-end  
-    
-if isequal(model,'interaction')
-    interactions = allinter(n_factors,2);
-end    
-
-if isequal(model,'full')
-    interactions = allinter(n_factors,n_factors);
-end    
-
-if isnumeric(model) && isscalar(model) && model >= 2 && model <= n_factors
-        interactions = allinter(n_factors,model);
-end    
-
-if isnumeric(model) && ~isscalar(model)
-    for i = 1:size(model,1)
-        interactions{i} = model(i,:);
-    end
-end    
-
-if iscell(model), interactions = model; end
-    
 if nargin < 4 || isempty(prep), prep = 2; end;
 if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
 if nargin < 6 || isempty(ts), ts = 1; end;
@@ -194,6 +169,31 @@ if nargin < 8 || isempty(fmtc), fmtc = 0; end;
 if nargin < 9 || isempty(coding), coding = zeros(1,size(F,2)); end;
 if nargin < 10 || isempty(nested), nested = []; end;
 
+if isequal(model,'linear')
+    interactions = [];
+end  
+    
+f = 1:n_factors;
+f(nested(:,2)) = [];
+if isequal(model,'interaction')
+    interactions = allinter(f,2);
+end    
+
+if isequal(model,'full')
+    interactions = allinter(f,length(f));
+end    
+
+if isnumeric(model) && isscalar(model) && model >= 2 && model <= n_factors
+        interactions = allinter(f,model);
+end    
+
+if isnumeric(model) && ~isscalar(model)
+    for i = 1:size(model,1)
+        interactions{i} = model(i,:);
+    end
+end    
+
+if iscell(model), interactions = model; end    
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -581,19 +581,19 @@ end
 
 %% Auxiliary function for interactions
 
-function interactions = allinter(nF,order)
+function interactions = allinter(factors,order)
     
     if order > 2
-        interactions = allinter(nF,order-1);
+        interactions = allinter(factors,order-1);
         for i = 1:length(interactions)
-            for j = max(interactions{i})+1:nF
+            for j = factors(find(factors > max(interactions{i})))
                 interactions{end+1} = [interactions{i} j];
             end
         end
     else
         interactions = {};
-        for i = 1:nF
-            for j = i+1:nF
+        for i = factors
+            for j = factors(find(factors >i))
                 interactions{end+1} = [i j];
             end
         end
