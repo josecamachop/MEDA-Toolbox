@@ -141,7 +141,7 @@ if isequal(model,'linear')
 end  
     
 f = 1:n_factors;
-f(nested(:,2)) = [];
+if ~isempty(nested), f(nested(:,2)) = []; end
 if isequal(model,'interaction')
     interactions = allinter(f,2);
 end    
