@@ -137,12 +137,13 @@ fig_h = figure;
 hold on;
 
 % Preprocess classes to force them start with 1, 2...n,
-unique_classes = unique(classes);
+unique_classes = unique(classes,'stable');
 if iscell(classes)
-    classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
+    ord_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
 else
-    classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
+    ord_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
 end
+unique_ord_classes = unique(ord_classes);
 
 % Plot vectors
 
@@ -154,7 +155,7 @@ for i=1:length(bins)-1
 end
 
 % Plot multiplicity
-for j=1:length(bins)-1,
+for j=1:length(bins)-1
     ind = mult>bins(j) & mult<=bins(j+1);
     if isnumeric(elabel)
         plot(elabel(find(ind)), 0*find(ind), 'ko', 'MarkerSize', sizes(j), 'HandleVisibility', 'off');
@@ -164,17 +165,16 @@ for j=1:length(bins)-1,
 end
 
 if ~isempty(classes)
-    unique_classes = unique(classes);
-    color_list = hsv(length(unique_classes));
-    if opt == '0',
+    color_list = hsv(length(unique_ord_classes));
+    if opt == '0'
         if isnumeric(elabel) && length(elabel)==length(unique(elabel))
             plot(elabel,vec,'k','HandleVisibility', 'off');
         else
             plot(vec,'k','HandleVisibility', 'off');
         end
     end  
-    for i=1:length(unique_classes)
-        ind = classes == unique_classes(i);
+    for i=1:length(unique_ord_classes)
+        ind = ord_classes == unique_ord_classes(i);
         if isnumeric(elabel) && length(elabel)==length(unique(elabel))
             vind = elabel(find(ind));
         else
@@ -182,7 +182,7 @@ if ~isempty(classes)
         end
             
         
-        if opt == '0',
+        if opt == '0'
             plot(vind, vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', color_list(i,:), 'DisplayName', num2str(unique_classes(i)));
         else 
            bar([0;vind;max(vind)+1], [0;vec(ind,:);0], 0.8, 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
@@ -190,8 +190,8 @@ if ~isempty(classes)
     end 
 else
     color_list = hsv(M);
-    for i=1:M,
-        if opt == '0',
+    for i=1:M
+        if opt == '0'
             if isnumeric(elabel) && length(elabel)==length(unique(elabel))
                 plot(elabel, vec(:,i), 'LineWidth', 2, 'Color', color_list(i,:), 'DisplayName', vlabel{i});
             else

@@ -182,9 +182,9 @@ bins = [0 1 maxv Inf];
 markers = ['^','v','d','o','s'];
 
 if opt(1) == '0'
-    color_list = parula(length(unique(ord_classes)));
+    color_list = parula(length(unique_ord_classes));
 else
-    color_list = hsv(length(unique(ord_classes)));
+    color_list = hsv(length(unique_ord_classes));
 end
     
 colors = color_list(ord_classes, :);
