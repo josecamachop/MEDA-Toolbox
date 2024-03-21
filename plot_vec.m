@@ -19,9 +19,16 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 %
 % lcont: [NxL or Lx1] L control limits (nothing by default)
 %
-% opt: (str or num) options for data plotting.
-%       0: line plot
-%       1: bar plot (default)
+% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+%       a:
+%           0: line plot
+%           1: bar plot
+%       b: 
+%           0: plot for numerical classes (consistent with a colorbar)
+%           1: plot for categorical classes (consistent with a legend)
+%
+%   By deafult, opt = '10'. If less digits are specified, least significant
+%   digits are set to 0, i.e. opt = 1 means a=1, b=0
 %
 % vlabel: [Mx1] name of the vectors (numbers are used by default)
 %
@@ -52,10 +59,9 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 11/May/2021
+% last modification: 21/Mar/2024
 %
 % Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -87,8 +93,12 @@ if nargin < 7 || isempty(vlabel),  vlabel = 1:M; end;
 if nargin < 8 || isempty(mult),    mult    = ones(N,1);         end;
 if nargin < 9 || isempty(maxv),    maxv    = [20 50 100];       end;
 
-% Convert int arrays to str
+% Convert num arrays to str
 if isnumeric(opt), opt=num2str(opt); end
+
+% Correct for opt integrity
+while length(opt)<2, opt = strcat(opt,'0'); end
+if opt(2) == 0 & ~isnumeric(classes), opt(2) = 1; end
 
 % Convert row arrays to column arrays
 if size(elabel,1)  == 1, elabel = elabel'; end;
@@ -98,9 +108,9 @@ if size(vlabel,1)  == 1, vlabel = vlabel'; end;
 if size(mult,1) == 1, mult = mult'; end;
 if size(maxv,2) == 1, maxv = maxv'; end;
 
-% Convert int arrays to str
-
+% Convert num arrays to str
 if ~isempty(vlabel) && isnumeric(vlabel), vlabel=num2str(vlabel); end
+if ~isempty(classes) && isnumeric(classes) && opt(1)=='1', classes=num2str(classes); end
 
 % Convert char arrays to cell
 if ischar(elabel),  elabel = cellstr(elabel); end;
@@ -113,19 +123,19 @@ if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(lcont), assert (isequal(size(lcont,1), N) || isequal(size(lcont,2), 1), 'Dimension Error: 5th argument must be N-by-L or L-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==2, 'Dimension Error: 6th argument must be a string or num of maximum 2 bits. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: 8th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: 9th argument must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
  
 % Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
    
 % Convert constant limits in vectors
 if ~isempty(lcont) && ~isequal(size(lcont,1), N), lcont = (lcont*ones(1,N))'; end;
     
 % Exception: bar plot with multivariate vec and one-observation class  
-if ~opt && ~isempty(classes) && size(vec, 2)>1,
+if ~opt(1) && ~isempty(classes) && size(vec, 2)>1
     unique_classes = unique(classes);
     assert (min(hist(classes,unique(classes)))>1, 'Exception: Cannot visualize a multivariate bar plot with one-observation classes. Try setting the 6th argument to 1.'); 
 end;
@@ -183,9 +193,9 @@ if ~isempty(classes)
             
         
         if opt == '0'
-            plot(vind, vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', color_list(i,:), 'DisplayName', num2str(unique_classes(i)));
+            plot(vind, vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', color_list(i,:), 'DisplayName', unique_classes{i});
         else 
-           bar([0;vind;max(vind)+1], [0;vec(ind,:);0], 0.8, 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', num2str(unique_classes(i)));
+           bar([0;vind;max(vind)+1], [0;vec(ind,:);0], 0.8, 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', unique_classes{i});
         end
     end 
 else
