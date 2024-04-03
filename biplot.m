@@ -1,10 +1,10 @@
 
-function fig_h = biplot(model,opt,tit,label,classes,vlabel,blur,arrows)
+function fig_h = biplot(model,varargin)
 
 % Compute and plot scores and loadings of a model.
 %
 % fig_h = biplot(model) % minimum call
-% fig_h = biplot(model,opt,tit,label,classes,vlabel,blur,arrows) % complete call
+% fig_h = biplot(model,'opt', opt, 'title', tit, 'label', label, 'class', classes, 'vlabel', vlabel, 'blur', blur, 'arrow', arrows) % complete call
 %
 % INPUTS:
 %
@@ -15,24 +15,25 @@ function fig_h = biplot(model,opt,tit,label,classes,vlabel,blur,arrows)
 %   loads: [MxA] model parameters.
 %   scores: [NxA] data scores.
 %
-% opt: [1X1]
+% Optional INPUTS:
+% 'opt': [1X1]
 %       0: plot for numerical classes (consistent with a colorbar)
 %       1: plot for categorical classes (consistent with a legend, by default)
 %
-% tit: (str) title for the plots. Empty by default;
+% 'title': (str) title for the plots. Empty by default;
 %
-% label: [Nx1] name of the observations (numbers are used by default)
+% 'label': [Nx1] name of the observations (numbers are used by default)
 %
-% classes: [Nx1] groups for different visualization (a single group by 
+% 'class': [Nx1] groups for different visualization (a single group by 
 %   default per calibration and test)
 %
-% vlabel: [Mx1] name of the variables (numbers are used by default)
+% 'vlabel': [Mx1] name of the variables (numbers are used by default)
 %
-% blur: [1x1] or [1x2] avoid blur when adding labels. The higher, the more labels 
+% 'blur': [1x1] or [1x2] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels. Use two values 
 %   to differentiate blur for scores and loadings (1 by default)
 %
-% arrows: [1x1] percentage of loadings drawn with an arrow (10 by default)
+% 'arrow': [1x1] percentage of loadings drawn with an arrow (10 by default)
 %
 %
 % OUTPUTS:
@@ -44,12 +45,16 @@ function fig_h = biplot(model,opt,tit,label,classes,vlabel,blur,arrows)
 %
 % X = simuleMV(20,10,8);
 % [~,~,model] = pca_pp(X,1:2);
-%
-% T = biplot(model);
+% A = 'qwertyuiolkjhgfdsazx';
+% A=A';
+% T = biplot(model, 'label', A, 'arrow',10);
+% T = biplot(model, 'label', A, 'arrow',20);
+% T = biplot(model, 'title', "graph", 'arrow',5);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 27/Apr/2023
+% last modification: 3/Apr/2024
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -74,13 +79,34 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(model.scores, 1);
 M = size(model.loads,1);
 
-if nargin < 2 || isempty(opt), opt = 1; end; 
-if nargin < 3, tit = ''; end 
-if nargin < 4 || isempty(label), label = 1:N; end
-if nargin < 5 || isempty(classes), classes = ones(N,1); end
-if nargin < 6 || isempty(vlabel), vlabel = 1:M; end
-if nargin < 7 || isempty(blur),    blur    = 1;       end;
-if nargin < 8 || isempty(arrows),    arrows    = 10;       end;
+% if nargin < 2 || isempty(opt), opt = 1; end; 
+% if nargin < 3, tit = ''; end 
+% if nargin < 4 || isempty(label), label = 1:N; end
+% if nargin < 5 || isempty(classes), classes = ones(N,1); end
+% if nargin < 6 || isempty(vlabel), vlabel = 1:M; end
+% if nargin < 7 || isempty(blur),    blur    = 1;       end;
+% if nargin < 8 || isempty(arrows),    arrows    = 10;       end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'opt',ones(1,1));  
+addParameter(p,'title'," ");
+addParameter(p,'label',ones(N,1));
+addParameter(p,'class',ones(N,1));   
+addParameter(p,'vlabel',ones(M,1));
+addParameter(p,'blur',1);  
+addParameter(p,'arrow',10);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+opt = p.Results.opt;
+tit = p.Results.title;
+label = p.Results.label;
+classes = p.Results.class;
+vlabel = p.Results.vlabel;
+blur = p.Results.blur;
+arrows = p.Results.arrow;
+
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
