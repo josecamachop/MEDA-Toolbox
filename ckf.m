@@ -1,9 +1,9 @@
-function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,opt)
-
+function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
+%%% Preguntar inputs de funcion [press, term1]
 % CKF Algorithm: Journal of Chemometrics, 29(8): 467-478, 2015
 %
 % cumpress = ckf(xcs,T,P) % minimum call
-% [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,opt) % complete call
+% [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -14,7 +14,9 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,opt)
 %
 % P: [MxA] loadings.
 %
-% opt: (str or num) options for data plotting.
+% Optional INPUTS:
+%
+% 'Option': (str or num) options for data plotting.
 %       0: no plots.
 %       1: plot (default)
 %
@@ -36,11 +38,15 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,opt)
 %
 % X = simuleMV(20,10,8);
 % [P,T] = pca_pp(X);
+% % Plot
+% cumpress = ckf(X,T,P,'Option',1);
+% % Or
 % cumpress = ckf(X,T,P);
-%
+% % Not plot
+% cumpress = ckf(X,T,P,'Option',0);
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 4/Apr/2024
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -66,7 +72,15 @@ assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(xcs, 1);
 M = size(xcs, 2);
 A = size(T, 2);
-if nargin < 4 || isempty(opt), opt=1; end;
+%if nargin < 4 || isempty(opt), opt=1; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Option',1);             
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+opt = p.Results.Option;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
