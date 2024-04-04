@@ -41,21 +41,21 @@ function fig_h = biplot(model,varargin)
 % fig_h: set of figure handles
 %
 %
-% EXAMPLE OF USE: Random scores
+% EXAMPLE OF USE: Random scores and loadings, two percentages of loading 
+% arrows displayed 
 %
 % X = simuleMV(20,10,8);
 % [~,~,model] = pca_pp(X,1:2);
 % 
-% 
 % A = cell(1, 20);
 % 
 % for i = 1:20
-%     A{i} = ['A_', num2str(i)];
+%     A{i} = ['A_{', num2str(i), '}'];
 % end
 % 
 % A = A';
-% T = biplot(model, 'Title', 'graph', 'ObsLabel', A, 'PercArrows',10);
-% 
+% T = biplot(model, 'Title', 'Random Biplot 10%', 'ObsLabel', A, 'PercArrows',10);
+% T = biplot(model, 'Title', 'Random Biplot 20%', 'ObsLabel', A, 'PercArrows',25); 
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
@@ -162,8 +162,10 @@ for i=1:length(model.lvs)-1
         fig_h = [fig_h plot_scatter([T(:,i),T(:,j)], label, classes, {sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}',[],opt,[],[],blur(1))];
         title(tit);
         
-        if opt
-            legend('show');
+        if opt 
+            if length(unique(classes)) > 1
+                legend('show');
+            end
         else
             colorbar;
         end
