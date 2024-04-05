@@ -1,4 +1,4 @@
-function [AAUC, AUC] = crossval_pls_da(x,y,lvs,blocks_r,prepx,prepy,opt)
+function [AAUC, AUC] = crossval_pls_da(x,y,varargin)
 
 % Row-wise k-fold (rkf) cross-validation in PLS-DA. We correct the 
 % classification limit following Richard G. Brereton, J. Chemometrics 2014; 
@@ -15,23 +15,25 @@ function [AAUC, AUC] = crossval_pls_da(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 % y: [NxO] billinear data set of dummy variables (+1, -1)
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional INPUTS:
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
-% blocks_r: [1x1] maximum number of blocks of samples (the minimum number
+% 'MaxBlock': [1x1] maximum number of blocks of samples (the minimum number
 %   of observations of a class divided by 2 by default)
 %
-% prepx: [1x1] preprocesing of the x-block
+% 'PreprocessingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
-%       2: autoscaling (default)
+%       2: autoscaling (default)  
 %
-% prepy: [1x1] preprocesing of the y-block
+% 'PreprocessingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
-%       2: autoscaling (default)
+%       2: autoscaling (default)  
 %
-% opt: (str or num) options for data plotting.
+% 'Option': (str or num) options for data plotting.
 %       0: no plots.
 %       1: plot (default)
 %
@@ -43,16 +45,17 @@ function [AAUC, AUC] = crossval_pls_da(x,y,lvs,blocks_r,prepx,prepy,opt)
 % AUC: [AxO] Area Under the Curve in ROC per variable
 %
 %
-% EXAMPLE OF USE: Random data with structural relationship
+% EXAMPLE OF USE: Random data with structural relationship using mean
+% centering.
 %
 % X = simuleMV(20,10,8);
 % Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
 % lvs = 0:10;
-% AUC = crossval_pls_da(X,Y,lvs,5);
+% AUC = crossval_pls_da(X,Y,'LatVars',lvs,'PreprocessingX',1,'PreprocessingY',1);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 4/Nov/20
+% last modification: 5/Apr/24
 %
 % Copyright (C) 2020  University of Granada, Granada
 % Copyright (C) 2020  Jose Camacho Paez
@@ -80,8 +83,8 @@ N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
 
-if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
-A = length(lvs);
+% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+
 
 ind = (size(y,2)+1)*ones(size(y,1),1);
 [r,c]=find(y==1);
@@ -90,11 +93,32 @@ ind(r1) = c(r2);
 vals = unique(ind);
 rep = sort(histc(ind,vals),'ascend');
 N2 = rep(1); % minimum length of a class
-if nargin < 4 || isempty(blocks_r), blocks_r = max(2,N2); end;
+% if nargin < 4 || isempty(blocks_r), blocks_r = max(2,N2); end;
+% 
+% if nargin < 5 || isempty(prepx), prepx = 2; end;
+% if nargin < 6 || isempty(prepy), prepy = 2; end;
+% if nargin < 7 || isempty(opt), opt = 1; end;
 
-if nargin < 5 || isempty(prepx), prepx = 2; end;
-if nargin < 6 || isempty(prepy), prepy = 2; end;
-if nargin < 7 || isempty(opt), opt = 1; end;
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+lat=0:rank(x);
+addParameter(p,'LatVars',lat'); 
+addParameter(p,'MaxBlock',2);
+addParameter(p,'PreprocessingX',2);   
+addParameter(p,'PreprocessingY',2);
+addParameter(p,'Option',1);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+
+lvs = p.Results.LatVars;
+blocks_r = p.Results.MaxBlock;
+prepx = p.Results.PreprocessingX;
+prepy = p.Results.PreprocessingY;
+opt = p.Results.Option;
+
+% Extract LatVars length
+A = length(lvs);
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;

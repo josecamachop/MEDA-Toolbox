@@ -4,7 +4,7 @@ function fig_h = biplot(model,varargin)
 % Compute and plot scores and loadings of a model.
 %
 % fig_h = biplot(model) % minimum call
-% fig_h = biplot(model,'Options', opt, 'Title', tit, 'ObsLabel', label, 'ObsClass', classes, 'VarsLabel', vlabel, 'BlurIndex', blur, 'PercArrows', arrows) % complete call
+% fig_h = biplot(model,'Option', opt, 'Title', tit, 'ObsLabel', label, 'ObsClass', classes, 'VarsLabel', vlabel, 'BlurIndex', blur, 'PercArrows', arrows) % complete call
 %
 % INPUTS:
 %
@@ -16,7 +16,8 @@ function fig_h = biplot(model,varargin)
 %   scores: [NxA] data scores.
 %
 % Optional INPUTS:
-% 'Options': [1X1]
+%
+% 'Option': [1X1]
 %       0: plot for numerical classes (consistent with a colorbar)
 %       1: plot for categorical classes (consistent with a legend, by default)
 %
@@ -94,7 +95,7 @@ M = size(model.loads,1);
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'Options',ones(1,1));  
+addParameter(p,'Option',ones(1,1));  
 addParameter(p,'Title',' ');
 addParameter(p,'ObsLabel',ones(N,1));
 addParameter(p,'ObsClass',ones(N,1));   
@@ -104,7 +105,7 @@ addParameter(p,'PercArrows',10);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-opt = p.Results.Options;
+opt = p.Results.Option;
 tit = p.Results.Title;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;

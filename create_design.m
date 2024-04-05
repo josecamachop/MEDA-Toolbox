@@ -15,7 +15,6 @@ function F = create_design(levels,varargin)
 % 'Replicates': [1x1] number of replicates per combination of levels in the
 % factors.
 %
-%
 % OUTPUTS:
 %
 % F: [NxF] design matrix.
@@ -30,7 +29,7 @@ function F = create_design(levels,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 4/April/24.
+% last modification: 4/Apr/24.
 %
 % Copyright (C) 2018  University of Granada, Granada
 % Copyright (C) 2018  Jose Camacho Paez
@@ -62,6 +61,7 @@ parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 reps = p.Results.Replicates;
+
 %% Main code
 
 F = ones(reps,1);

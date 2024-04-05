@@ -1,11 +1,11 @@
-function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,opt)
+function [cumpress,press] = crossval_pca(x,pcs,varargin)
 
 % Cross-validation for square-prediction-errors computing. The original
 % papers are Chemometrics and Intelligent Laboratory Systems 131, 2014, pp.
 % 37-50 and Journal of Chemometrics, 26(7), 2012, pp. 361-373.
 %
 % cumpress = crossval_pca(x,pcs) % minimum call
-% [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,opt)
+% [cumpress,press] = crossval_pca(x,pcs,'ValProcedure',leave_m,'MaxSampleBlock',blocks_r,'MaxVarBlock',blocks_c,'Preprocessing',prep,'Option',opt)
 % % complete call
 %
 %
@@ -16,21 +16,23 @@ function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,op
 % pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(x)
 %
-% leave_m: (str) cross-validation procedure:
+% Optional INPUTS:
+%
+% 'ValProcedure': (str) cross-validation procedure:
 %   'rkf': row-wise k fold (default)
 %   'ekf': element-wise k fold
 %   'cekf': corrected element-wise k fold
 %
-% blocks_r: [1x1] maximum number of blocks of samples (N by default)
+% 'MaxSampleBlock': [1x1] maximum number of blocks of samples (N by default)
 %
-% blocks_c: [1x1] maximum number of blocks of variables (M by default)
+% 'MaxVarBlock': [1x1] maximum number of blocks of variables (M by default)
 %
-% prep: [1x1] preprocesing
+% 'preprocesing': [1x1] preprocesing
 %       0: no preprocessing 
 %       1: mean-centering 
 %       2: auto-scaling (default)  
 %
-% opt: (str or num) options for data plotting.
+% 'Option': (str or num) options for data plotting.
 %       0: no plots.
 %       1: plot (default)
 %
@@ -42,15 +44,15 @@ function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,op
 % press: [AxM] PRESS per variable.
 %
 %
-% EXAMPLE OF USE: Random data
+% EXAMPLE OF USE: Random data using mean centering
 %
 % X = simuleMV(20,10,8);
 % pcs = 0:10;
-% cumpress = crossval_pca(X,pcs,'ekf');
+% cumpress = crossval_pca(X,pcs,'ValProcedure','rkf','Preprocessing', 1);
 %
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 5/Apr/2024
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -76,13 +78,30 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
+% if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
 A = length(pcs);
-if nargin < 3 || isempty(leave_m), leave_m = 'rkf'; end;
-if nargin < 4 || isempty(blocks_r), blocks_r = N; end;
-if nargin < 5 || isempty(blocks_c), blocks_c = M; end;
-if nargin < 6 || isempty(prep), prep = 2; end;
-if nargin < 7 || isempty(opt), opt = 1; end;
+% if nargin < 3 || isempty(leave_m), leave_m = 'rkf'; end;
+% if nargin < 4 || isempty(blocks_r), blocks_r = N; end;
+% if nargin < 5 || isempty(blocks_c), blocks_c = M; end;
+% if nargin < 6 || isempty(prep), prep = 2; end;
+% if nargin < 7 || isempty(opt), opt = 1; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'ValProcedure','rkf'); 
+addParameter(p,'MaxSampleBlock',N);
+addParameter(p,'MaxVarBlock',M);
+addParameter(p,'Preprocessing',2);   
+addParameter(p,'Option',1);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+leave_m = p.Results.ValProcedure;
+blocks_r = p.Results.MaxSampleBlock;
+blocks_c = p.Results.MaxVarBlock;
+prep = p.Results.Preprocessing;
+opt = p.Results.Option;
+
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end

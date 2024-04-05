@@ -1,5 +1,5 @@
 function [D, parglmo, anovast] = codglm(F, parglmi, anovast)
-%%%Preguntar [] y anovast.model como parseo opciones dentro de anovast
+%%%Preguntar anovast.model como parseo opciones dentro de anovast
 % Compute coding matrix from a design matrix for General Linear Models.
 %
 % Related routines: parglm, asca, apca, parglmVS, parglmMC, create_design

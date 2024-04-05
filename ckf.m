@@ -1,5 +1,5 @@
 function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
-%%% Preguntar inputs de funcion [press, term1]
+%
 % CKF Algorithm: Journal of Chemometrics, 29(8): 467-478, 2015
 %
 % cumpress = ckf(xcs,T,P) % minimum call
@@ -34,14 +34,14 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 % term3: [NxM] third error term, according to referred paper.
 %
 %
-% EXAMPLE OF USE: Random curve
+% EXAMPLE OF USE: Random curve, two examples of use.
 %
 % X = simuleMV(20,10,8);
 % [P,T] = pca_pp(X);
-% % Plot
-% cumpress = ckf(X,T,P,'Option',1);
-% % Or
+%
+% % Plot ('Option' default 1)
 % cumpress = ckf(X,T,P);
+%
 % % Not plot
 % cumpress = ckf(X,T,P,'Option',0);
 %

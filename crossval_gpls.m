@@ -5,8 +5,7 @@ function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
 % computing in GPLS. 
 %
 % [cumpress,press] = crossval_gpls(x,y) % minimum call
-% [cumpress,press,nze] =
-% crossval_pls(x,y,'LatVars',lvs,'Gamma',gammas,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Options',opt) % complete call
+% [cumpress,press,nze] = crossval_pls(x,y,'LatVars',lvs,'Gamma',gammas,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -34,7 +33,7 @@ function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% 'Options': [1x1] options for data plotting
+% 'Option': [1x1] options for data plotting
 %       0: no plots
 %       1: bar plot (default)
 %
@@ -48,7 +47,7 @@ function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
 % nze: [A x gammas x 1] Average number of non-zero elements
 %
 %
-% EXAMPLE OF USE: Random data
+% EXAMPLE OF USE: Random data, two examples of use.
 %
 % obs = 20;
 % vars = 100;
@@ -58,15 +57,17 @@ function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
 % Y = 0.1*randn(obs,1)*std(Y) + Y;
 % gammas=[0 0.5:0.1:1];
 % lvs = 0:10;
-% % Mean Centering example
+% 
+% % Mean Centering example with default gammas
 % [cumpress,press,nze] = crossval_gpls(X,Y,'LatVars',lvs,'PreprocessingX',1,'PreprocessingY',1);
 % legend('show')
-% % Default example
+% 
+% % Auto scaling example with gammas
 % [cumpress,press,nze] = crossval_gpls(X,Y,'LatVars',lvs,'Gamma',gammas);
 % legend('show')
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 4/April/24.
+% last modification: 4/Apr/24.
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -111,7 +112,7 @@ addParameter(p,'Gamma',gam);
 addParameter(p,'MaxBlock',N);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
-addParameter(p,'Options',1);   
+addParameter(p,'Option',1);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -121,7 +122,7 @@ gammas = p.Results.Gamma;
 blocks_r = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
-opt = p.Results.Options;
+opt = p.Results.Option;
 
 % Extract LatVars and Gamma length
 A = length(lvs);
