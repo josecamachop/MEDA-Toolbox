@@ -1,4 +1,4 @@
-function [npcf,rvdim,rvdimperm]=dray(x,flagprep,npermmax,conf)
+function [npcf,rvdim,rvdimperm]=dray(x,varargin)
 
 % Dray's method for PCA component selection. If using this software please cite:
 % S. Dray, On the number of principal components: a test of dimensionality
@@ -11,7 +11,7 @@ function [npcf,rvdim,rvdimperm]=dray(x,flagprep,npermmax,conf)
 % e2937
 %
 % npcf = dray(x) % minimum call
-% [npcf,rvdim,rvdimperm]=dray(x,flagprep,npermmax,conf)
+% [npcf,rvdim,rvdimperm]=dray(x,'Preprocessing',flagprep,'MaxPermutation',npermmax,'Confidence',conf)
 % % complete call
 %
 %
@@ -19,12 +19,14 @@ function [npcf,rvdim,rvdimperm]=dray(x,flagprep,npermmax,conf)
 %
 % x: [NxM] original data
 %
-% flagprep: [1x1] 0 for no preprocessing on x; 1 for mean-centering; 2 for
+% Optional INPUTS:
+%
+% 'Preprocessing': [1x1] 0 for no preprocessing on x; 1 for mean-centering; 2 for
 % auto-scaling. Default: 2
 %
-% npermmax: [1x1] maximum number of permutations. Default: 300
+% 'MaxPermutation': [1x1] maximum number of permutations. Default: 300
 %
-% conf: [1x1] confidence level for the test (e.g. 95 for 95%). Default: 95
+% 'Confidence': [1x1] confidence level for the test (e.g. 95 for 95%). Default: 95
 %
 %
 % OUTPUTS:
@@ -41,11 +43,11 @@ function [npcf,rvdim,rvdimperm]=dray(x,flagprep,npermmax,conf)
 % EXAMPLE OF USE: Random data
 %
 % x = simuleMV(20,10,8);
-% npcf = dray(x,2,300,95);
+% npcf = dray(x,'MaxPermutation',350,'Confidence',90);
 %
 %
 % codified by: Raffaele Vitale (rvitale86@gmail.com)
-% last modification: 29/Aug/2018
+% last modification: 8/Apr/2024
 %
 % Copyright (C) 2016  Universitat Politecnica de Valencia, Valencia
 % Copyright (C) 2016  Raffaele Vitale
@@ -67,16 +69,29 @@ function [npcf,rvdim,rvdimperm]=dray(x,flagprep,npermmax,conf)
 
 if nargin<1
     error('Error in the number of arguments. Type ''help dray'' for more info.')
-end
-if nargin<2 || isempty(flagprep)
-    flagprep=2;
-end
-if nargin<3 || isempty(npermmax)
-    npermmax=300;
-end
-if nargin<4 || isempty(conf)
-    conf=95;
-end
+ end
+% if nargin<2 || isempty(flagprep)
+%     flagprep=2;
+% end
+% if nargin<3 || isempty(npermmax)
+%     npermmax=300;
+% end
+% if nargin<4 || isempty(conf)
+%     conf=95;
+% end
+
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Preprocessing',2);  
+addParameter(p,'MaxPermutation',300);
+addParameter(p,'Confidence',95);            
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+flagprep = p.Results.Preprocessing;
+npermmax = p.Results.MaxPermutation;
+conf = p.Results.Confidence;
 
 %% Main code
 

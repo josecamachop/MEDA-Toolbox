@@ -1,4 +1,4 @@
-function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,rep,opt)
+function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,varargin)
 
 % Row-wise k-fold (rkf) double cross-validation in SPLS-DA, restricted to 
 % one response categorical variable of two levels. Reference:
@@ -10,7 +10,8 @@ function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks
 % G. Brereton, J. Chemometrics 2014; 28: 213–225
 %
 % AUCm = dcrossval_spls_da(x,y) % minimum call
-% [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks_r,prepx,prepy,rep,opt) % complete call
+% [AUCm,AUC,lvso,keepXso] = 
+% dcrossval_spls_da(x,y,'LatVars',lvs,'KeepXBlock',keepXs,'Alpha',alpha,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Repetition',rep,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -19,32 +20,34 @@ function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks
 %
 % y: [Nx1] billinear data set of one categorical variable with two levels.
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional INPUTS:
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
-% keepXs: [1xK] Numbers of x-block variables kept per latent variable modeled. By default,
+% 'KeepXBlock': [1xK] Numbers of x-block variables kept per latent variable modeled. By default,
 % 	keepXs = 1:M
 %
-% alpha: [1x1] Trade-off controlling parameter that goes from -1 (maximum 
+% 'Alpha': [1x1] Trade-off controlling parameter that goes from -1 (maximum 
 %   completeness), through 0 (pure prediction, by default) to 1 (maximum 
 %   parsimony) 
 %
-% blocks_r: [1x1] maximum number of blocks of samples (the minimum number
+% 'MaxBlock': [1x1] maximum number of blocks of samples (the minimum number
 %   of observations of a class by default)
 %
-% prepx: [1x1] preprocesing of the x-block
+% 'PreprocesingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: [1x1] preprocesing of the y-block
+% 'PreprocesingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% rep: [1x1] number of repetitios for stability
+% 'Repetition': [1x1] number of repetitios for stability
 %
-% opt: [1x1] options for data plotting
+% 'Option': [1x1] options for data plotting
 %       0: no plots
 %       1: bar plot (default)
 %
@@ -67,13 +70,13 @@ function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,lvs,keepXs,alpha,blocks
 % Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
 % lvs = 0:10;
 % keepXs = 1:10;
-% [AUCm,AUC,lvso,keepX] = dcrossval_spls_da(X,Y,lvs,keepXs,0,5)
-% [AUCm_simple,AUC_simple,lvso_simple,keepX_simple] = dcrossval_spls_da(X,Y,lvs,keepXs,0.5,5)
-% [AUCm_complete,AUC_complete,lvso_complete,keepX_complete] = dcrossval_spls_da(X,Y,lvs,keepXs,-0.5,5)
+% [AUCm,AUC,lvso,keepX] = dcrossval_spls_da(X,Y,'LatVars',lvs,'KeepXBlock',keepXs,'MaxBlock',5)
+% [AUCm_simple,AUC_simple,lvso_simple,keepX_simple] = dcrossval_spls_da(X,Y,'LatVars',lvs,'KeepXBlock',keepXs,'Alpha',0.5,'MaxBlock',5)
+% [AUCm_complete,AUC_complete,lvso_complete,keepX_complete] = dcrossval_spls_da(X,Y,'LatVars',lvs,'KeepXBlock',keepXs,'Alpha',-0.5,'MaxBlock',5)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 14/Oct/19
+% last modification: 8/Apr/24
 %
 % Copyright (C) 2018  University of Granada, Granada
 % Copyright (C) 2018  Jose Camacho Paez
@@ -99,20 +102,50 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 O = size(y, 2);
-if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
-A = length(lvs);
-if nargin < 4 || isempty(keepXs), keepXs = 1:M; end;
-J =  length(keepXs);
-if nargin < 5 || isempty(alpha), alpha = 0; end;
+M = size(x, 2);
+% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+% A = length(lvs);
+% if nargin < 4 || isempty(keepXs), keepXs = 1:M; end;
+% J =  length(keepXs);
+% if nargin < 5 || isempty(alpha), alpha = 0; end;
+% 
+ vals = unique(y);
+ rep2 = sort(histc(y,vals),'descend');
+ N2 = rep2(2);
+% if nargin < 6 || isempty(blocks_r), blocks_r = max(3,round(N2/2)); end;
+% if nargin < 7 || isempty(prepx), prepx = 2; end;
+% if nargin < 8 || isempty(prepy), prepy = 2; end;
+% if nargin < 9 || isempty(rep), rep = 10; end;
+% if nargin < 10 || isempty(opt), opt = 1; end;
 
-vals = unique(y);
-rep2 = sort(histc(y,vals),'descend');
-N2 = rep2(2);
-if nargin < 6 || isempty(blocks_r), blocks_r = max(3,round(N2/2)); end;
-if nargin < 7 || isempty(prepx), prepx = 2; end;
-if nargin < 8 || isempty(prepy), prepy = 2; end;
-if nargin < 9 || isempty(rep), rep = 10; end;
-if nargin < 10 || isempty(opt), opt = 1; end;
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+lat=0:rank(x);
+addParameter(p,'LatVars',lat'); 
+keep = 1:M;
+addParameter(p,'KeepXBlock',keep);
+addParameter(p,'Alpha',0);
+addParameter(p,'MaxBlock', max(3,round(N2/2)));
+addParameter(p,'PreprocessingX',2);   
+addParameter(p,'PreprocessingY',2);
+addParameter(p,'Repetition',10);
+addParameter(p,'Option',1);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+
+lvs = p.Results.LatVars;
+alpha = p.Results.Alpha;
+keepXs = p.Results.KeepXBlock;
+blocks_r = p.Results.MaxBlock;
+prepx = p.Results.PreprocessingX;
+prepy = p.Results.PreprocessingY;
+rep = p.Results.Repetition;
+opt = p.Results.Option;
+
+% Extract LatVars and Gamma length
+A = length(lvs);
+J =  length(keepXs);
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -196,7 +229,7 @@ for j=1:rep,
         %vcs_y = preprocess2Dapp(val_y,av_y,st_y);
         vcs_y = val_y;
         
-        [AUCt,nze] =  crossval_spls_da(rest,rest_y,lvs,keepXs,blocks_r-1,prepx,prepy,0);
+        [AUCt,nze] =  crossval_spls_da(rest,rest_y,'LatVars',lvs,'KeepXBlock',keepXs,'MaxBlock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
         
         cumpressb = (abs(alpha)-1)*AUCt/max(max(AUCt)) + alpha*nze/max(max(nze));
         

@@ -1,22 +1,24 @@
-function [bel,states,stree] = gia(map,gamma,siz,stree)
+function [bel,states,stree] = gia(map,varargin)
 
 % Group identification algorithm (gia) to generate groups of variables from 
 % a correlation map of variables x variables. It should be noted that this
 % algorithm is a heuristic, and not all possible groups may be identified.
 %
 % bel = gia(map)   % minimum call
-% [bel,states,stree] = gia(map,gamma,siz,stree)   % complete call
+% [bel,states,stree] = gia(map,'Gamma',gamma,'MinSize',siz,'Stree',stree)   % complete call
 %
 %
 % INPUTS:
 %
 % map: [MxM] correlation matrix. Values should be between -1 and 1.
 %
-% gamma: [1x1] correlation threshold to identify groups (0.7 by default)
+% Optional INPUTS:
 %
-% siz: [1x1] Integer with the minimum size of groups (2 by default)
+% 'Gamma': [1x1] correlation threshold to identify groups (0.7 by default)
 %
-% stree: [struct] tree with GIA division, if previously executed. This
+% 'MinSize': [1x1] Integer with the minimum size of groups (2 by default)
+%
+% 'Stree': [struct] tree with GIA division, if previously executed. This
 %   structure makes reiterative GIA computations faster (empty by default)
 %   - tree: cell with division tree 
 %   - indm: number of variables above a given threshold
@@ -50,22 +52,22 @@ function [bel,states,stree] = gia(map,gamma,siz,stree)
 % pcs = 1:3;
 % map = meda_pca(X,pcs);
 % C = [0.05:0.05:0.95];
-%
-% [belv{1},statesv{1},stree] = gia(map,C(1));
+% 
+% [belv{1},statesv{1},stree] = gia(map,'Gamma',C(1));
 % S = 0;
 % for j=1:length(statesv{1}), S = S + length(statesv{1}{j}); end;
 % disp(['There are ',num2str(length(statesv{1})),' groups with mean size ' ,num2str(S/length(statesv{1})), ' for C = ', num2str(C(1))])
-%
+% 
 % for i=2:length(C)
-%   [belv{i},statesv{i}] = gia(map,C(i),[],stree);
+%   [belv{i},statesv{i}] = gia(map,'Gamma',C(i),'Stree',stree);
 %   S = 0;
 %   for j=1:length(statesv{i}), S = S + length(statesv{i}{j}); end;
 %   disp(['There are ',num2str(length(statesv{i})),' groups with mean size ' ,num2str(S/length(statesv{i})), ' for C = ', num2str(C(i))])
 % end
-%
+
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 31/Oct/17.
+% last modification: 8/Apt/24.
 %
 % Copyright (C) 2017  University of Granada, Granada
 % Copyright (C) 2017  Jose Camacho Paez
@@ -89,9 +91,21 @@ function [bel,states,stree] = gia(map,gamma,siz,stree)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(map, 1);
-if nargin < 2 || isempty(gamma), gamma=0.7; end;
-if nargin < 3 || isempty(siz), siz=2; end;
-if nargin < 4 || isempty(stree), stree={}; end;
+% if nargin < 2 || isempty(gamma), gamma=0.7; end;
+% if nargin < 3 || isempty(siz), siz=2; end;
+% if nargin < 4 || isempty(stree), stree={}; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Gamma',0.7);  
+addParameter(p,'MinSize',2);
+addParameter(p,'Stree',{});            
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+gamma = p.Results.Gamma;
+siz = p.Results.MinSize;
+stree = p.Results.Stree;
 
 % Avoid gamma with just 1
 %if gamma==1, gamma = 1 -1e-10; end;

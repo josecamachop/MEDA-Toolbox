@@ -1,4 +1,4 @@
-function [AUCm,AUC,lvso] = dcrossval_pls_da(x,y,lvs,blocks_r,prepx,prepy,rep,opt)
+function [AUCm,AUC,lvso] = dcrossval_pls_da(x,y,varargin)
 
 % Row-wise k-fold (rkf) double cross-validation in PLS-DA, restricted to one 
 % response categorical variable of two levels. The algorithm uses
@@ -8,7 +8,7 @@ function [AUCm,AUC,lvso] = dcrossval_pls_da(x,y,lvs,blocks_r,prepx,prepy,rep,opt
 % J. Chemometrics 2014; 28: 213–225
 %
 % AUCm = dcrossval_pls_da(x,y) % minimum call
-% [AUCm,AUC,lvso] = dcrossval_spls_da(x,y,lvs,blocks_r,prepx,prepy,rep,opt) % complete call
+% [AUCm,AUC,lvso] = dcrossval_spls_da(x,y,'LatVars',lvs,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Repetition',rep,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -17,25 +17,27 @@ function [AUCm,AUC,lvso] = dcrossval_pls_da(x,y,lvs,blocks_r,prepx,prepy,rep,opt
 %
 % y: [Nx1] billinear data set of one categorical variable with two levels
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional INPUTS:
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
-% blocks_r: [1x1] maximum number of blocks of samples (the minimum number
+% 'MaxBlock': [1x1] maximum number of blocks of samples (the minimum number
 %   of observations of a class divided by 2 by default)
 %
-% prepx: [1x1] preprocesing of the x-block
+% 'PreprocessingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)
 %
-% prepy: [1x1] preprocesing of the y-block
+% 'PreprocessingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)
 %
-% rep: [1x1] number of repetitios for stability
+% 'Repetition': [1x1] number of repetitinos for stability
 %
-% opt: [1x1] options for data plotting
+% 'Option': [1x1] options for data plotting
 %       0: no plots
 %       1: bar plot (default)
 %
@@ -54,11 +56,11 @@ function [AUCm,AUC,lvso] = dcrossval_pls_da(x,y,lvs,blocks_r,prepx,prepy,rep,opt
 % X = simuleMV(20,10,8);
 % Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
 % lvs = 0:10;
-% [AUCm,AUC,lvso] = dcrossval_pls_da(X,Y,lvs,5)
+% [AUCm,AUC,lvso] = dcrossval_pls_da(X,Y,'LatVars',lvs,'Repetition',5)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 14/Oct/19
+% last modification: 8/Apr/24
 %
 % Copyright (C) 2019  University of Granada, Granada
 % Copyright (C) 2019  Jose Camacho Paez, Edoardo Saccenti
@@ -84,17 +86,41 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 O = size(y, 2);
-if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
-A = length(lvs);
+% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+% A = length(lvs);
 
 vals = unique(y);
 repb = sort(histc(y,vals),'descend');
 N2 = repb(2);
-if nargin < 4 || isempty(blocks_r), blocks_r = max(3,round(N2/2)); end;
-if nargin < 5 || isempty(prepx), prepx = 2; end;
-if nargin < 6 || isempty(prepy), prepy = 2; end;
-if nargin < 7 || isempty(rep), rep = 10; end;
-if nargin < 8 || isempty(opt), opt = 1; end;
+% if nargin < 4 || isempty(blocks_r), blocks_r = max(3,round(N2/2)); end;
+% if nargin < 5 || isempty(prepx), prepx = 2; end;
+% if nargin < 6 || isempty(prepy), prepy = 2; end;
+% if nargin < 7 || isempty(rep), rep = 10; end;
+% if nargin < 8 || isempty(opt), opt = 1; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+lat=0:rank(x);
+blocks_r = max(3,round(N2/2));
+addParameter(p,'LatVars',lat'); 
+addParameter(p,'MaxBlock',blocks_r);
+addParameter(p,'PreprocessingX',2);   
+addParameter(p,'PreprocessingY',2);
+addParameter(p,'Repetitions',10);
+addParameter(p,'Option',1);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+
+lvs = p.Results.LatVars;
+blocks_r = p.Results.MaxBlock;
+prepx = p.Results.PreprocessingX;
+prepy = p.Results.PreprocessingY;
+rep = p.Results.Repetitions;
+opt = p.Results.Option;
+
+% Extract LatVars length
+A = length(lvs);
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -169,7 +195,7 @@ for j=1:rep
         %vcs_y = preprocess2Dapp(val_y,av_y,st_y);
         vcs_y = val_y;
         
-        AUCt =  crossval_pls_da(rest,rest_y,lvs,blocks_r-1,prepx,prepy,0);
+        AUCt =  crossval_pls_da(rest,rest_y,'LatVars',lvs,'MaxBlock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
         
         idx=find(AUCt==max(AUCt),1);
         lvso(j,i) = lvs(idx);
