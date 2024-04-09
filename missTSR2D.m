@@ -1,9 +1,9 @@
-function rec = missTSR2D(x,pc,prep,perc,ac,iter,conv)
+function rec = missTSR2D(x,pc,varargin)
 
 % Missing data imputation with Trimmed Scores Regression.
 %
 % rec = missTSR2D(x,pc) % minimum call
-% rec = missTSR2D(x,pc,prep,perc,ac,ini,iter,conv)   % complete call
+% rec = missTSR2D(x,pc,'Preprocessing',prep,'Percentage',perc,'AutoCorrData'ac,'Iterations',iter,'Convergence',conv)   % complete call
 %
 %
 % INPUTS:
@@ -12,32 +12,39 @@ function rec = missTSR2D(x,pc,prep,perc,ac,iter,conv)
 %
 % pc: (1x1) number of principal components for the D-statistic.
 %
-% prep: (1x1) preprocesing of the data
+% Optional INPUTS:
+%
+% 'Preprocessing': (1x1) preprocesing of the data
 %       0: no preprocessing.
 %       1: mean centering.
 %       2: autoscaling (default)  
 %
-% perc: (1x1) maximum percentage of missing values in a row or column. (0.3
+% 'Percentage': (1x1) maximum percentage of missing values in a row or column. (0.3
 %   by default)
 %
-% ac: (1x1) 1 for autocorrelated data, 0 otherwise (by default).
+% 'AutoCorrData': (1x1) 1 for autocorrelated data, 0 otherwise (by default).
 %
-% iter: (1x1) maximum number of iterations (100 by default).
+% 'Iterations': (1x1) maximum number of iterations (100 by default).
 %
-% conv: (1x1) convergence threshold. (1e-5 by default)
+% 'Convergence': (1x1) convergence threshold. (1e-5 by default)
 %
 %
 % OUTPUTS:
 %
 % rec: (NxM) recovered data matrix, N(observations) x M(variables)
 %
+% EXAMPLE FO USE:
+%
+% X = simuleMV(20,10,8);
+% pc = 2;
+% 
+% rec = missTSR2D(X,pc,'Iterations',50);
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 20/Aug/09
+% last modification: 9/Apr/2024
 % major change: include nipls
 %
-% Copyright (C) 2009  University of Granada, Granada
-% Copyright (C) 2009  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -51,7 +58,7 @@ function rec = missTSR2D(x,pc,prep,perc,ac,iter,conv)
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>
-
+%% Main Code
 % Parameters checking
 
 if nargin < 2, error('Error in the number of arguments.'); end;
@@ -60,21 +67,45 @@ s = size(x);
 if find(s<1), error('Incorrect content of x.'); end;
 if pc<0, error('Incorrect value of pc.'); end;
 
-if nargin < 3, prep = 2; end;
+% if nargin < 3, prep = 2; end;
+% if (prep<0||prep>2), error('Incorrect value of prep.'); end;
+% if nargin < 4, perc = 0.3; end; 
+% if (perc<0||perc>1), error('Incorrect value of perc.'); end;
+% 
+% if nargin < 5, ac = 0; end;
+% if (ac<0||ac>1), error('Incorrect value of ac.'); end;
+% 
+% if nargin < 6, iter = 100; end;
+% if (iter<1), error('Incorrect value of iter.'); end;
+% 
+% if nargin < 7, conv = 1e-5; end;
+% if (conv<0), error('Incorrect value of conv.'); end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Preprocessing',2);   
+addParameter(p,'Percentage',0.3);
+addParameter(p,'AutoCorrData',0); 
+addParameter(p,'Iterations',100);
+addParameter(p,'Convergence',1e-5);
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+prep = p.Results.Preprocessing;
+perc = p.Results.Percentage;
+ac = p.Results.AutoCorrData;
+iter = p.Results.Iterations;
+conv = p.Results.Convergence;
+
 if (prep<0||prep>2), error('Incorrect value of prep.'); end;
 
-if nargin < 4, perc = 0.3; end;
 if (perc<0||perc>1), error('Incorrect value of perc.'); end;
 
-if nargin < 5, ac = 0; end;
 if (ac<0||ac>1), error('Incorrect value of ac.'); end;
 
-if nargin < 6, iter = 100; end;
 if (iter<1), error('Incorrect value of iter.'); end;
 
-if nargin < 7, conv = 1e-5; end;
 if (conv<0), error('Incorrect value of conv.'); end;
-
 
 % Main code
 
