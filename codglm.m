@@ -63,7 +63,7 @@ function [D, parglmo, anovast] = codglm(F, parglmi, anovast)
 % coded by: José Camacho (josecamacho@ugr.es)
 % last modification: 16/Jun/23
 %
-% Copyright (C) 2023  Universidad de Granada
+% Copyright (C) 2024  Universidad de Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

@@ -54,8 +54,7 @@ function [cumpress,press] = crossval_pca(x,pcs,varargin)
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 5/Apr/2024
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

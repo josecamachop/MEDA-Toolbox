@@ -62,7 +62,7 @@ function fig_h = biplot(model,varargin)
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 4/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

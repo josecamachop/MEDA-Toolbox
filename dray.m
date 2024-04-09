@@ -49,9 +49,8 @@ function [npcf,rvdim,rvdimperm]=dray(x,varargin)
 % codified by: Raffaele Vitale (rvitale86@gmail.com)
 % last modification: 8/Apr/2024
 %
-% Copyright (C) 2016  Universitat Politecnica de Valencia, Valencia
-% Copyright (C) 2016  Raffaele Vitale
-% 
+% Copyright (C) 2024  Universitat Politecnica de Valencia, Valencia
+%
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
 % the Free Software Foundation, either version 3 of the License, or

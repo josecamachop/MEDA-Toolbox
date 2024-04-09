@@ -63,8 +63,7 @@ function [AUC,nze] = crossval_spls_da(x,y,varargin)
 % coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 4/Apr/24
 %
-% Copyright (C) 2020  University of Granada, Granada
-% Copyright (C) 2020  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

@@ -74,8 +74,7 @@ function [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,varargin)
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 8/Apr/24
 %
-% Copyright (C) 2019  University of Granada, Granada
-% Copyright (C) 2019  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

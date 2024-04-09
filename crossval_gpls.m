@@ -69,8 +69,7 @@ function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 4/Apr/24.
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

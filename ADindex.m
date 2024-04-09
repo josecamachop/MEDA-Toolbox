@@ -66,7 +66,7 @@ function [ind,diff] = ADindex(L,App,varargin)
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 28/Jul/23
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
