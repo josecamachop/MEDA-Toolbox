@@ -1,10 +1,9 @@
-function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
+function [cumpress,press] = crossval_pls(x,y,varargin)
 
 % Row-wise k-fold (rkf) cross-validation for square-prediction-errors computing in PLS.
 %
 % [cumpress,press] = crossval_pls(x,y) % minimum call
-% [cumpress,press] =
-% crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt) % complete call
+% [cumpress,press] = crossval_pls(x,y,'LatVars',lvs,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -13,22 +12,24 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional INPUTS:
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
-% blocks_r: [1x1] maximum number of blocks of samples (N by default)
+% 'MaxBlock': [1x1] maximum number of blocks of samples (N by default)
 %
-% prepx: [1x1] preprocesing of the x-block
+% 'PreprocessingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: [1x1] preprocesing of the y-block
+% 'PreprocessingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% opt: (str or num) options for data plotting.
+% 'Option': (str or num) options for data plotting.
 %       0: no plots.
 %       1: plot (default)
 %
@@ -40,16 +41,19 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 % press: [AxO] PRESS per variable.
 %
 %
-% EXAMPLE OF USE: Random data with structural relationship
+% EXAMPLE OF USE: Random data with structural relationship, two examples
+% of plot.
 %
 % X = simuleMV(20,10,8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
-% cumpress = crossval_pls(X,Y,lvs);
-%
+% cumpress = crossval_pls(X,Y,'LatVars',lvs);
+% 
+% % Mean centering example
+% cumpress = crossval_pls(X,Y,'LatVars',lvs,'PreprocessingX',1,'PreprocessingY',1);
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/May/2023
+% last modification: 5/Apr/2024
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -75,12 +79,32 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+% if nargin < 4 || isempty(blocks_r), blocks_r = N; end;
+% if nargin < 5 || isempty(prepx), prepx = 2; end;
+% if nargin < 6 || isempty(prepy), prepy = 2; end;
+% if nargin < 7 || isempty(opt), opt = 1; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+lat=0:rank(x);
+addParameter(p,'LatVars',lat'); 
+addParameter(p,'MaxBlock',N);
+addParameter(p,'PreprocessingX',2);   
+addParameter(p,'PreprocessingY',2);
+addParameter(p,'Option',1);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+
+lvs = p.Results.LatVars;
+blocks_r = p.Results.MaxBlock;
+prepx = p.Results.PreprocessingX;
+prepy = p.Results.PreprocessingY;
+opt = p.Results.Option;
+
+% Extract LatVars length
 A = length(lvs);
-if nargin < 4 || isempty(blocks_r), blocks_r = N; end;
-if nargin < 5 || isempty(prepx), prepx = 2; end;
-if nargin < 6 || isempty(prepy), prepy = 2; end;
-if nargin < 7 || isempty(opt), opt = 1; end;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end

@@ -1,11 +1,11 @@
-function [Qm,Q,lvso] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,rep,opt)
+function [Qm,Q,lvso] = dcrossval_pls(x,y,varargin)
 
 % Row-wise k-fold (rkf) double cross-validation for PLS. The algorithm uses
 % repetitions of the dCV loop to estimate the stability: see Szymanska, E., 
 % Saccenti, E., Smilde, A.K., Weterhuis, J. Metabolomics (2012) 8: 3.
 %
 % Qm = dcrossval_pls(x,y) % minimum call
-% [Qm,Q,lvso] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,rep,opt) % complete call
+% [Qm,Q,lvso] = dcrossval_pls(x,y,'LatVars',lvs,blocks_r,prepx,prepy,rep,opt) % complete call
 %
 %
 % INPUTS:
@@ -14,24 +14,26 @@ function [Qm,Q,lvso] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,rep,opt)
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional INPUTS:
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
-% blocks_r: [1x1] maximum number of blocks of samples (N by default)
+% 'MaxBlock': [1x1] maximum number of blocks of samples (N by default)
 %
-% prepx: [1x1] preprocesing of the x-block
+% 'PreprocessingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: [1x1] preprocesing of the y-block
+% 'PreprocessingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
-%       2: autoscaling (default)  
+%       2: autoscaling (default)   
 %
-% rep: [1x1] number of repetitios for stability.
+% 'Repetitions': [1x1] number of repetitions for stability.
 %
-% opt: [1x1] options for data plotting
+% 'Option': [1x1] options for data plotting
 %       0: no plots
 %       1: bar plot (default)
 %
@@ -50,11 +52,11 @@ function [Qm,Q,lvso] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,rep,opt)
 % X = simuleMV(20,10,8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
-% Q = dcrossval_pls(X,Y,lvs);
+% Q = dcrossval_pls(X,Y,'LatVars',lvs,'Repetitions',5);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/May/23
+% last modification: 5/Apr/24
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -79,13 +81,36 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 O = size(y, 2);
-if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+% A = length(lvs);
+% if nargin < 4 || isempty(blocks_r), blocks_r = N; end;
+% if nargin < 5 || isempty(prepx), prepx = 2; end;
+% if nargin < 6 || isempty(prepy), prepy = 2; end;
+% if nargin < 7 || isempty(rep), rep = 10; end;
+% if nargin < 8 || isempty(opt), opt = 1; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+lat=0:rank(x);
+addParameter(p,'LatVars',lat'); 
+addParameter(p,'MaxBlock',N);
+addParameter(p,'PreprocessingX',2);   
+addParameter(p,'PreprocessingY',2);
+addParameter(p,'Repetitions',10);
+addParameter(p,'Option',1);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+
+lvs = p.Results.LatVars;
+blocks_r = p.Results.MaxBlock;
+prepx = p.Results.PreprocessingX;
+prepy = p.Results.PreprocessingY;
+rep = p.Results.Repetitions;
+opt = p.Results.Option;
+
+% Extract LatVars length
 A = length(lvs);
-if nargin < 4 || isempty(blocks_r), blocks_r = N; end;
-if nargin < 5 || isempty(prepx), prepx = 2; end;
-if nargin < 6 || isempty(prepy), prepy = 2; end;
-if nargin < 7 || isempty(rep), rep = 10; end;
-if nargin < 8 || isempty(opt), opt = 1; end;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -128,7 +153,7 @@ for j=1:rep
         val_y = y(ind_i,:);
         rest_y = y(find(i2),:);
         
-        cumpress = crossval_pls(rest,rest_y,lvs,blocks_r-1,prepx,prepy,0);
+        cumpress = crossval_pls(rest,rest_y,'LatVars',lvs,'MaxBlock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingX',prepy,'Option',0);
         
         lvso(j,i) = lvs(find(cumpress==min(cumpress),1));
         

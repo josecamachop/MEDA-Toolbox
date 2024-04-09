@@ -1,9 +1,10 @@
-function [Qm,Q,lvso,gammaso] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,prepx,prepy,opt)
+function [Qm,Q,lvso,gammaso] = dcrossval_gpls(x,y,varargin)
 
 % Row-wise k-fold (rkf) double cross-validation for square-prediction-errors computing in GPLS.
 %
 % Qm = dcrossval_gpls(x,y) % minimum call
-% [Qm,Q,lvso,gammaso] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,prepx,prepy,opt) % complete call
+% [Qm,Q,lvso,gammaso] = 
+% dcrossval_gpls(x,y,'LatVars',lvs,'Gamma',gammas,'Alpha',alpha,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -12,28 +13,30 @@ function [Qm,Q,lvso,gammaso] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,prep
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional INPUTS:
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
-% gammas: [1xJ] gamma values considered. By default, gammas = 0:0.1:1
+% 'Gamma': [1xJ] gamma values considered. By default, gammas = 0:0.1:1
 %
-% alpha: [1x1] Trade-off controlling parameter that goes from -1 (maximum 
+% 'Alpha': [1x1] Trade-off controlling parameter that goes from -1 (maximum 
 %   completeness), through 0 (pure prediction, by default) to 1 (maximum 
 %   parsimony) 
 %
-% blocks_r: [1x1] maximum number of blocks of samples (N by default)
+% 'MaxBlock': [1x1] maximum number of blocks of samples (N by default)
 %
-% prepx: [1x1] preprocesing of the x-block
+% 'PreprocessingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: [1x1] preprocesing of the y-block
+% 'PreprocessingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% opt: [1x1] options for data plotting
+% 'Option': [1x1] options for data plotting
 %       0: no plots
 %       1: bar plot (default)
 %
@@ -50,22 +53,22 @@ function [Qm,Q,lvso,gammaso] = dcrossval_gpls(x,y,lvs,gammas,alpha,blocks_r,prep
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
-%
+% 
 % obs = 20;
 % vars = 100;
 % X = simuleMV(obs,vars,5);
 % X = [0.1*randn(obs,5)+X(:,1)*ones(1,5) X(:,6:end)];
 % Y = sum((X(:,1:5)),2);
 % Y = 0.1*randn(obs,1)*std(Y) + Y;
-%
+% 
 % lvs = 0:10;
 % gammas = [0 0.5:0.1:1];
-% [Qm,Q,lvso,gammaso] = dcrossval_gpls(X,Y,lvs,gammas,0,5)
-% [Qm_simple,Q_simple,lvso_simple,gammaso_simple] = dcrossval_gpls(X,Y,lvs,gammas,0.5,5)
+% [Qm,Q,lvso,gammaso] = dcrossval_gpls(X,Y,'LatVars',lvs,'Gamma',gammas,'MaxBlock',5)
+% [Qm_simple,Q_simple,lvso_simple,gammaso_simple] = dcrossval_gpls(X,Y,'LatVars',lvs,'Gamma',gammas,'Alpha',0.5,'MaxBlock',5)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 04/Apr/18.
+% last modification: 5/Apr/24.
 %
 % Copyright (C) 2018  University of Granada, Granada
 % Copyright (C) 2018  Jose Camacho Paez
@@ -92,15 +95,42 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+% A = length(lvs);
+% if nargin < 4 || isempty(gammas), gammas = 0:0.1:1; end;
+% J =  length(gammas);
+% if nargin < 5 || isempty(alpha), alpha = 1; end;
+% if nargin < 6 || isempty(blocks_r), blocks_r = N; end;
+% if nargin < 7 || isempty(prepx), prepx = 2; end;
+% if nargin < 8 || isempty(prepy), prepy = 2; end;
+% if nargin < 9 || isempty(opt), opt = 1; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+lat=0:rank(x);
+addParameter(p,'LatVars',lat'); 
+gam = 0:0.1:1;
+addParameter(p,'Gamma',gam);
+addParameter(p,'Alpha',0);
+addParameter(p,'MaxBlock',N);
+addParameter(p,'PreprocessingX',2);   
+addParameter(p,'PreprocessingY',2);
+addParameter(p,'Option',1);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+
+lvs = p.Results.LatVars;
+gammas = p.Results.Gamma;
+alpha = p.Results.Alpha;
+blocks_r = p.Results.MaxBlock;
+prepx = p.Results.PreprocessingX;
+prepy = p.Results.PreprocessingY;
+opt = p.Results.Option;
+
+% Extract LatVars and Gamma length
 A = length(lvs);
-if nargin < 4 || isempty(gammas), gammas = 0:0.1:1; end;
 J =  length(gammas);
-if nargin < 5 || isempty(alpha), alpha = 1; end;
-if nargin < 6 || isempty(blocks_r), blocks_r = N; end;
-if nargin < 7 || isempty(prepx), prepx = 2; end;
-if nargin < 8 || isempty(prepy), prepy = 2; end;
-if nargin < 9 || isempty(opt), opt = 1; end;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -148,7 +178,7 @@ for i=1:blocks_r,
     val_y = y(ind_i,:);
     rest_y = y(find(i2),:);
         
-    [cumpress,kk,nze] =  crossval_gpls(rest,rest_y,lvs,gammas,blocks_r-1,prepx,prepy,0);
+    [cumpress,kk,nze] =  crossval_gpls(rest,rest_y,'LatVars',lvs,'Gamma',gammas,'Maxblock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
        
     cumpressb = (1-abs(alpha))*cumpress/max(max(cumpress)) + alpha*nze/max(max(nze));
     
