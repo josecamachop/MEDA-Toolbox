@@ -32,8 +32,7 @@ function F = create_design(levels,varargin)
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 4/April/24.
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
