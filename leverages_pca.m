@@ -1,30 +1,32 @@
 
-function [L,E] = leverages_pca(x,pcs,prep,opt,label,classes)
+function [L,E] = leverages_pca(x,varargin)
 
 % Compute and plot the leverages of variables in the PCA model
 %
 % L = leverages_pca(x) % minimum call
-% L = leverages_pca(x,pcs,prep,opt,label,classes) % complete call
+% L = leverages_pca(x,'Pcs',pcs,'Preprocessing',prep,'Option',opt,'VarsLabel',label,'ObsClass',classes) % complete call
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
 %
-% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% Optional INPUTS:
+%
+% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 1:rank(xcs)
 %
-% prep: [1x1] preprocesing of the data
+% 'Preprocessing': [1x1] preprocesing of the data
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default) 
 %
-% opt: (str or num) options for data plotting
+% 'Option': (str or num) options for data plotting
 %       0: no plots.
 %       1: plot bar plot of leverages (default) 
 %
-% label: [Mx1] name of the variables (numbers are used by default)
+% 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
-% classes: [Mx1] groups for different visualization (a single group 
+% 'ObsClass: [Mx1] groups for different visualization (a single group 
 %   by default)
 %
 %
@@ -37,15 +39,20 @@ function [L,E] = leverages_pca(x,pcs,prep,opt,label,classes)
 %
 % EXAMPLE OF USE: Random scores
 %
+% A = cell(1, 10);
+% 
+% for i = 1:10
+%     A{i} = ['A_{', num2str(i), '}'];
+% end
+% 
 % X = simuleMV(20,10,8);
-% L = leverages_pca(X,1:3);
+% L = leverages_pca(X,'Pcs',1:3,'VarsLabel',A);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 15/Jan/2022
+% last modification: 9/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
-% Copyright (C) 2024  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -67,11 +74,32 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
-if nargin < 3 || isempty(prep), prep = 2; end;
-if nargin < 4 || isempty(opt), opt = 1; end; 
-if nargin < 5 || isempty(label), label = [1:M]; end
-if nargin < 6 || isempty(classes), classes = ones(M,1); end
+% if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
+% if nargin < 3 || isempty(prep), prep = 2; end;
+% if nargin < 4 || isempty(opt), opt = 1; end; 
+% if nargin < 5 || isempty(label), label = [1:M]; end
+% if nargin < 6 || isempty(classes), classes = ones(M,1); end
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+PCS = 1:rank(x);
+addParameter(p,'Pcs',PCS);  
+addParameter(p,'Preprocessing',2);
+addParameter(p,'Option',1);
+Label = [1:M];
+addParameter(p,'VarsLabel',Label);
+Classes = ones(M,1);
+addParameter(p,'ObsClass',Classes);     
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+pcs = p.Results.Pcs;
+prep = p.Results.Preprocessing;
+opt = p.Results.Option;
+label = p.Results.VarsLabel;
+classes = p.Results.ObsClass;
+
+
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end

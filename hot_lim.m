@@ -1,10 +1,10 @@
-function lim = hot_lim(npc,nob,p_value,phase)
+function lim = hot_lim(npc,nob,p_value,varargin)
 
 % Control limit for D statistic. This routine needs the Statistics and
 % Machine Learning Toolbox in Matlab.
 %
 % lim = hot_lim(npc,nob,p_value)       % minimum call
-% lim = hot_lim(npc,nob,p_value,phase)       % complete call
+% lim = hot_lim(npc,nob,p_value,'Phase',phase)       % complete call
 %
 %
 % INPUTS:
@@ -14,8 +14,10 @@ function lim = hot_lim(npc,nob,p_value,phase)
 % nob: [1x1] Number of observations
 %
 % p_value: [1x1] p-value of the test, in (0,1]
+% 
+% Optional INPUTS:
 %
-% phase: [1x1] SPC phase:
+% 'Phase': [1x1] SPC phase:
 %   - 1: Phase I
 %   - 2: Phase II (by default)
 %
@@ -28,14 +30,13 @@ function lim = hot_lim(npc,nob,p_value,phase)
 % EXAMPLE OF USE: For 2 PCs, 100 observations, the 99% confidence limit in
 % phase II follows:
 %
-% lim = hot_lim(2,100,0.01,2)
+% lim = hot_lim(2,100,0.01,'Phase',2)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/May/16
+% last modification: 9/Apr/2024
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -55,7 +56,16 @@ function lim = hot_lim(npc,nob,p_value,phase)
 % Set default values
 routine=dbstack;
 assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-if nargin < 4 || isempty(phase), phase = 2; end;
+% if nargin < 4 || isempty(phase), phase = 2; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Phase',2);  
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+phase = p.Results.Phase;
+
 
 % Convert char values in numerical 
 if ischar(phase), 

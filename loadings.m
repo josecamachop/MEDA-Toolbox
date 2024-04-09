@@ -1,10 +1,10 @@
 
-function fig_h =loadings(model,opt,tit,label,classes,blur)
+function fig_h =loadings(model,varargin)
 
 % Compute and plot loadings.
 %
 % fig_h =loadings(model) % minimum call
-% fig_h =loadings(model,opt,tit,label,classes,blur) % complete call
+% fig_h =loadings(model,'Option'opt,'Title',tit,'VarsLabel',label,'ObsClass,classes,'BlurIndex',blur) % complete call
 %
 % INPUTS:
 %
@@ -14,7 +14,9 @@ function fig_h =loadings(model,opt,tit,label,classes,blur)
 %   loads: [MxA] model parameters.
 %   scores: [NxA] data scores. 
 %
-% opt: (str) options for data plotting: binary code of the form 'ab' for:
+% Optional Inputs:
+%
+% 'Option': (str) options for data plotting: binary code of the form 'ab' for:
 %       a:
 %           0: scatter plot of pairs of LVs 
 %           1: bar plot of each single LV
@@ -25,14 +27,14 @@ function fig_h =loadings(model,opt,tit,label,classes,blur)
 %   By deafult, opt = '00'. If less than 2 digits are specified, the least 
 %   significant digit is set to 0, i.e. opt = 1 means a=1, b=0.
 %
-% tit: (str) title for the plots. Empty by default;
+% 'Title': (str) title for the plots. Empty by default;
 %
-% label: [Mx1] name of the variables (numbers are used by default)
+% 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
-% classes: [Mx1] groups for different visualization (a single group 
+% 'ObsClass': [Mx1] groups for different visualization (a single group 
 %   by default)
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels (1 by default)
 %
 %
@@ -43,16 +45,22 @@ function fig_h =loadings(model,opt,tit,label,classes,blur)
 %
 % EXAMPLE OF USE: Random data
 %
+% A = cell(1, 10);
+% 
+% for i = 1:10
+%     A{i} = ['A_{', num2str(i), '}'];
+% end
+% 
 % X = simuleMV(20,10,8);
 % [~,~,model] = pca_pp(X,1:2);
-%
-% P = loadings(model);
+% 
+% P = loadings(model,'VarsLabel',A);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/May/2023
+% last modification: 9/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -75,7 +83,35 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(model.scores, 1);
 M = size(model.loads, 1);
 
-if nargin < 2 || isempty(opt), opt = 0; end; 
+% if nargin < 2 || isempty(opt), opt = 0; end; 
+
+% Convert int arrays to str
+% if isnumeric(opt), opt=num2str(opt); end
+% 
+% % Complete opt
+% while length(opt)<2, opt = strcat(opt,'0'); end
+% if opt(2) == '0', opt(2) = '1'; else,  opt(2) = '0'; end
+
+% if nargin < 3, tit = ''; end 
+% if nargin < 4 || isempty(label), label = 1:M; end
+% if nargin < 5 || isempty(classes), classes = ones(M,1); end
+% if nargin < 6 || isempty(blur),    blur    = 1;       end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Option',00);  
+addParameter(p,'Title',' ');
+addParameter(p,'VarsLabel',1:M);
+addParameter(p,'ObsClass',ones(M,1));   
+addParameter(p,'BlurIndex',1);     
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+opt = p.Results.Option;
+tit = p.Results.Title;
+label = p.Results.VarsLabel;
+classes = p.Results.ObsClass;
+blur = p.Results.BlurIndex;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -84,10 +120,6 @@ if isnumeric(opt), opt=num2str(opt); end
 while length(opt)<2, opt = strcat(opt,'0'); end
 if opt(2) == '0', opt(2) = '1'; else,  opt(2) = '0'; end
 
-if nargin < 3, tit = ''; end 
-if nargin < 4 || isempty(label), label = 1:M; end
-if nargin < 5 || isempty(classes), classes = ones(M,1); end
-if nargin < 6 || isempty(blur),    blur    = 1;       end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;

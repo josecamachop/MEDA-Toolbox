@@ -1,11 +1,11 @@
-function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,lvs,tol)
+function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 
 % Group-wise Partial Least Squares. The original paper is Camacho, J., 
 % Saccenti, E. Group-wise Partial Least Squares Regression. Submitted to
 % Chemometrics and Intelligent Laboratory Systems, 2016.
 %
 % beta = gpls(xcs,ycs,states)     % minimum call
-% [beta,W,P,Q,R,bel] = gpca(xcs,ycs,states,lvs)     % complete call
+% [beta,W,P,Q,R,bel] = gpca(xcs,ycs,states,'LatVars',lvs,'Tolerance',tol)     % complete call
 %
 %
 % INPUTS:
@@ -16,10 +16,12 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,lvs,tol)
 %
 % states: {Sx1} Cell with the groups of variables.
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional INPUTS:
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(xcs)
 %
-% tol: [1x1] tolerance value
+% 'Tolerance': [1x1] tolerance value
 %
 %
 % OUTPUTS:
@@ -49,19 +51,18 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,lvs,tol)
 % Y = 0.1*randn(obs,1)*std(Y) + Y;
 % lvs = 1;
 % map = meda_pls(X,Y,lvs,[],[],[],0);
-%
+% 
 % Xcs = preprocess2D(X,2);
 % Ycs = preprocess2D(Y,2);
-% [bel,states] = gia(map,0.4,1);
-% [beta,W,P,Q,R,bel] = gpls(Xcs,Ycs,states,lvs);
+% [bel,states] = gia(map,'Gamma',0.4,'MinSize',1);
+% [beta,W,P,Q,R,bel] = gpls(Xcs,Ycs,states,'LatVars',lvs);
 % 
 % plot_vec(beta,[],[],{'','Regression coefficients'});
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 24/Jul/2017
+% last modification: 9/Apr/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -84,8 +85,20 @@ assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(xcs, 1);
 M = size(xcs, 2);
 O = size(ycs, 2);
-if nargin < 4 || isempty(lvs), lvs = 0:rank(xcs); end;
-if nargin < 5 || isempty(tol), tol = 1e-15; end;
+% if nargin < 4 || isempty(lvs), lvs = 0:rank(xcs); end;
+% if nargin < 5 || isempty(tol), tol = 1e-15; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+LVS = 0:rank(xcs);
+Tol = 1e-15;
+addParameter(p,'LatVars',LVS);  
+addParameter(p,'Tolerance',Tol);          
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+lvs = p.Results.LatVars;
+tol = p.Results.Tolerance;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;

@@ -1,29 +1,31 @@
 
-function [meda_map,ind,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
+function [meda_map,ind,ord] = meda_pca(x,varargin)
 
 % Missing data methods for exploratory data analysis in PCA. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
 % 8-18. 
 %
 % meda_map = meda_pca(x) % minimum call
-% [meda_map,ind,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars) % complete call
+% [meda_map,ind,ord] = meda_pca(x,'Pcs',pcs,'Preprocessing',prep,'Threshold',thres,'Option',opt,'VarsLabel',label,'Vars',vars) % complete call
 %
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set 
 %
-% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% Optional INPUTS:
+%
+% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 1:rank(xcs)
 %
-% prep: [1x1] preprocesing of the data
+% 'Preprocessing': [1x1] preprocesing of the data
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% thres: [1x1] threshold (0,1] for discretization and discarding (0.1 by default) 
+% 'Threshold': [1x1] threshold (0,1] for discretization and discarding (0.1 by default) 
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
 %           1: plot MEDA matrix
@@ -37,9 +39,9 @@ function [meda_map,ind,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
 %   If a=0, then b and c are ignored.
 %
-% label: [Mx1] name of the variables (numbers are used by default)
+% 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
-% vars: [Sx1] Subset of variables to plot (1:M by default)
+% 'Vars': [Sx1] Subset of variables to plot (1:M by default)
 %
 %
 % OUTPUTS:
@@ -55,14 +57,13 @@ function [meda_map,ind,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 % X = simuleMV(20,10,8);
 % pcs = 1:3;
-% map = meda_pca(X,pcs,2,0.3,'111');
+% map = meda_pca(X,'Pcs',pcs,'Threshold',0.3,'Option','111');
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 31/Oct/17
+% last modification: 9/Apr/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -84,12 +85,32 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
-if nargin < 3 || isempty(prep), prep = 2; end;
-if nargin < 4 || isempty(thres), thres = 0.1; end; 
-if nargin < 5 || isempty(opt), opt = '100'; end; 
-if nargin < 6 || isempty(label), label = 1:M; end
-if nargin < 7 || isempty(vars), vars = 1:M; end;
+% if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
+% if nargin < 3 || isempty(prep), prep = 2; end;
+% if nargin < 4 || isempty(thres), thres = 0.1; end; 
+% if nargin < 5 || isempty(opt), opt = '100'; end; 
+% if nargin < 6 || isempty(label), label = 1:M; end
+% if nargin < 7 || isempty(vars), vars = 1:M; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+PCS = 1:rank(x);
+addParameter(p,'Pcs',PCS);  
+addParameter(p,'Preprocessing',2);
+addParameter(p,'Threshold',0.1);
+addParameter(p,'Option',100);  
+addParameter(p,'VarsLabel',1:M);
+addParameter(p,'Vars',1:M);      
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+pcs = p.Results.Pcs;
+prep = p.Results.Preprocessing;
+thres = p.Results.Threshold;
+opt = p.Results.Option;
+label = p.Results.VarsLabel;
+vars = p.Results.Vars;
+
 
 % Convert row arrays to column arrays
 if size(label,1) == 1, label = label'; end;
@@ -136,7 +157,7 @@ x2 = preprocess2D(x,prep);
 
 P = pca_pp(x2,pcs);
         
-meda_map = meda(x2'*x2,P,P);
+meda_map = meda(x2'*x2,P);
 
 if opt(3) == '1'
     Dmap = diag(meda_map);

@@ -1,4 +1,4 @@
-function [p,t,bel,e] = gpca(xcs,states,pcs,tol)
+function [p,t,bel,e] = gpca(xcs,states,varargin)
 
 % Group-wise Principal Component Analysis. The original paper is Camacho, J., 
 % Rodríguez-Gómez, R., Saccenti, E. Group-wise Principal Component Analysis 
@@ -6,7 +6,7 @@ function [p,t,bel,e] = gpca(xcs,states,pcs,tol)
 % Statistics, 2017.
 %
 % p = gpca(xcs,states)     % minimum call
-% [p,t,bel,e] = gpca(xcs,states,pcs)     % complete call
+% [p,t,bel,e] = gpca(xcs,states,'Pcs',pcs,'Tolerance',tol)     % complete call
 %
 % INPUTS:
 %
@@ -14,10 +14,12 @@ function [p,t,bel,e] = gpca(xcs,states,pcs,tol)
 %
 % states: {Sx1} Cell with the groups of variables.
 %
-% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% Optional INPUTS:
+%
+% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(xcs)
 %
-% tol: [1x1] tolerance value
+% 'Tolerance': [1x1] tolerance value
 %
 %
 % OUTPUTS:
@@ -39,9 +41,9 @@ function [p,t,bel,e] = gpca(xcs,states,pcs,tol)
 % [map,ord] = seriation(map);
 % plot_map(map);
 % x = x(:,ord);
-% [bel,states] = gia(map,0.3);
+% [bel,states] = gia(map,'Gamma',0.3);
 % Xcs = preprocess2D(x,2);
-% [p,t,bel] = gpca(Xcs,states,pcs);
+% [p,t,bel] = gpca(Xcs,states,'Pcs',pcs);
 % 
 % for i=pcs,
 %   plot_vec(p(:,i),[],[],{'',sprintf('Loadings PC %d',i)});
@@ -49,10 +51,9 @@ function [p,t,bel,e] = gpca(xcs,states,pcs,tol)
 % end
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 25/Apr/2018
+% last modification: 9/Apr/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -78,8 +79,20 @@ if length(states)==0,
     states{1} = 1:M;
 end
 
-if nargin < 3 || isempty(pcs), pcs = 0:rank(xcs); end;
-if nargin < 4 || isempty(tol), tol = 1e-15; end;
+% if nargin < 3 || isempty(pcs), pcs = 0:rank(xcs); end;
+% if nargin < 4 || isempty(tol), tol = 1e-15; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+PCS = 0:rank(xcs);
+Tol = 1e-15;
+addParameter(p,'Pcs',PCS);  
+addParameter(p,'Tolerance',Tol);          
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+pcs = p.Results.Pcs;
+tol = p.Results.Tolerance;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
