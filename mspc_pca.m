@@ -1,28 +1,30 @@
 
-function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,pcs,test,prep,opt,label,classes,p_valueD,p_valueQ,limtype)
+function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,varargin)
 
 % Compute D-st and Q-st in PCA-based Multivariate Statistical Process 
 % Control
 %
 % [Dst,Qst] = mspc_pca(x) % minimum call
-% [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,pcs,test,prep,opt,label,classes,p_valueD,p_valueQ,limtype) % complete call
+% [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,'Pcs',pcs,'ObsTest',test,'Preprocessing',prep,'Option',opt,'ObsLabel',label,'ObsClass',classes,'PValueD',p_valueD,'PValueQ',p_valueQ,'LimType',limtype) % complete call
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
 %
-% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% Optional INPUTS:
+%
+% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 1:rank(xcs)
 %
-% test: [LxM] data set with the observations to be compared. These data 
+% 'ObsTest': [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
 %
-% prep: [1x1] preprocesing of the data
+% 'Preprocessing': [1x1] preprocesing of the data
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default) 
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
 %           1: plot MSPC charts
@@ -36,21 +38,21 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,pcs,test,prep,opt,label,clas
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
 %   If a=0, then b and c are ignored.
 %
-% label: [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
+% 'ObsLabel': [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
 %   are used by default)
 %
-% classes: [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
+% 'ObsClass': [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
 %   visualization (a single group by default per calibration and test)
 %
-% p_valueD: [Ldx1] p-values for control limits in the D-st, in (0,1]. 
+% 'PValueD': [Ldx1] p-values for control limits in the D-st, in (0,1]. 
 %   Values equal to 0.01 and 0.05 are used by default in bar plots, and
 %   0.01 in scatter plots
 %
-% p_valueQ: [Lqx1] p-values for control limits in the Q-st, in (0,1]. 
+% 'PValueQ': [Lqx1] p-values for control limits in the Q-st, in (0,1]. 
 %   Values equal to 0.01 and 0.05 are used by default in bar plots, and
 %   0.01 in scatter plots
 %
-% limtype: [1x1] type of control limit
+% 'LimType': [1x1] type of control limit
 %       0: theoretical (statistical distribution based, by default)
 %       otherwise: percentiles
 %
@@ -89,14 +91,13 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,pcs,test,prep,opt,label,clas
 % test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
-% [Dst,Qst,Dstt,Qstt] = mspc_pca(X,pcs,test,2,100,[],[ones(100,1);2*ones(5,1);3*ones(5,1)]);
+% [Dst,Qst,Dstt,Qstt] = mspc_pca(X,'Pcs',pcs,'ObsTest',test);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Jan/2017
+% last modification: 10/4/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -118,12 +119,38 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
-if nargin < 3, test = []; end;
-L = size(test, 1);
-if nargin < 4 || isempty(prep), prep = 2; end;
-if nargin < 5 || isempty(opt), opt = '100'; end; 
+% if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
+% if nargin < 3, test = []; end;
+% L = size(test, 1);
+% if nargin < 4 || isempty(prep), prep = 2; end;
+% if nargin < 5 || isempty(opt), opt = '100'; end; 
 
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Pcs',1:rank(x)); 
+addParameter(p,'ObsTest',[]);
+addParameter(p,'Preprocessing',2);
+addParameter(p,'Option',100);  
+L = size('ObsTest', 1);
+addParameter(p,'ObsLabel',ones(N+L,1));  
+addParameter(p,'ObsClass',ones(N,1));  
+addParameter(p,'PValueD',0.1);  
+addParameter(p,'PValueQ',0.1);  
+addParameter(p,'LimType',0);  
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+pcs = p.Results.Pcs;
+test = p.Results.ObsTest;
+prep = p.Results.Preprocessing;
+opt = p.Results.Option;
+label = p.Results.ObsLabel;
+classes = p.Results.ObsClass;
+p_valueD = p.Results.PValueD;
+p_valueQ = p.Results.PValueQ;
+limtype = p.Results.LimType;
+
+L = size(test, 1);
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
 
@@ -205,11 +232,11 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must cont
 [xcs,m,sc] = preprocess2D(x,prep);
 [P,T] = pca_pp(xcs,pcs);
 
-[Dst,Qst] = mspc(xcs,inv(cov(T)),P);
+[Dst,Qst] = mspc(xcs,'InvCovarT',inv(cov(T)),'InSubspace',P);
 
 if ~isempty(test)
     testcs = preprocess2Dapp(test,m,sc);
-    [Dstt,Qstt] = mspc(testcs,inv(cov(T)),P);
+    [Dstt,Qstt] = mspc(testcs,'InvCovarT',inv(cov(T)),'InSubspace',P);
 else
     Dstt = [];
     Qstt = [];
@@ -219,9 +246,9 @@ if limtype==0,
     UCLd = [];
     for i=1:Ld,
         if isempty(test),
-            UCLd(i) = hot_lim(A,N,p_valueD(i),1);
+            UCLd(i) = hot_lim(A,N,p_valueD(i),'Phase',1);
         else
-            UCLd(i) = hot_lim(A,N,p_valueD(i),2);
+            UCLd(i) = hot_lim(A,N,p_valueD(i),'Phase',2);
         end
     end
     

@@ -1,4 +1,4 @@
-function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, coding, nested)
+function [T, parglmo] = parglm(X, F, varargin)
 
 % Parallel General Linear Model to obtain multivariate factor and interaction 
 % matrices in a crossed experimental design and permutation test for multivariate 
@@ -7,7 +7,7 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 % Related routines: asca, apca, parglmVS, parglmMC, create_design
 %
 % T = parglm(X, F)   % minimum call
-% [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, coding, nested)   % complete call
+% [T, parglmo] = parglm(X, F,'Model',model,'Preprocessing',prep,'Permutaitons',n_perm,'Ts',ts,'Ordinal',ordinal,'Fmtc',fmtc,'Coding',coding,'Nested',nested)   % complete call
 %
 %
 % INPUTS:
@@ -18,7 +18,9 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 % F: [NxF] design matrix, cell or array, where columns correspond to 
 % factors and rows to levels.
 %
-% model: This paremeter is similar to 'model' of anovan. It could be:
+% Optional INPUTS:
+%
+% 'Model': This paremeter is similar to 'model' of anovan. It could be:
 %       'linear': only main effects are provided (by default)
 %       'interaction': two order interactions are provided
 %       'full': all potential interactions are provided
@@ -26,25 +28,25 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %       [ix2]: array with two order interactions
 %       cell: with each element a vector of factors
 %
-% prep: [1x1] preprocesing:
+% 'Preprocessing': [1x1] preprocesing:
 %       0: no preprocessing 
 %       1: mean-centering 
 %       2: auto-scaling (default)  
 %
-% n_perm: [1x1] number of permutations (1000 by default)
+% 'Permutations': [1x1] number of permutations (1000 by default)
 %
-% ts: [1x1] Use SSQ (0) or the F-value (otherwise, by default) as test statistic  
+% 'Ts': [1x1] Use SSQ (0) or the F-value (otherwise, by default) as test statistic  
 %       0: Sum-of-squares of the factor/interaction
 %       1: F-ratio of the SS of the factor/interaction divided by the SS of 
 %       the residuals (by default)
 %       2: F-ratio following the factors/interactions hierarchy (only for
 %       random models or unconstrained mixed model, see Montogomery)
 %
-% ordinal: [1xF] whether factors are nominal or ordinal
+% 'Ordinal': [1xF] whether factors are nominal or ordinal
 %       0: nominal (default)
 %       1: ordinal
 % 
-% fmtc: [1x1] correct for multiple-tesis when multifactorial (multi-way)
+% 'Fmtc': [1x1] correct for multiple-tesis when multifactorial (multi-way)
 % analysis
 %       0: do not correct (default)
 %       1: Bonferroni 
@@ -52,11 +54,11 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %       3: Benjamini-Hochberg step-down (FDR)
 %       4: Q-value from Benjamini-Hochberg step-down
 %
-% coding: [1xF] type of coding of factors
+% 'Coding': [1xF] type of coding of factors
 %       0: sum/deviation coding (default)
 %       1: reference coding (reference is the last level)
 %
-% nested: [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
+% 'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
 %   and 3 in 2, then nested = [1 2; 2 3]
 %
 %
@@ -75,14 +77,14 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
-%
+% 
 % table = parglm(X, F)
 %
 %
@@ -93,9 +95,9 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     fi{i} = randn(1,vars);
@@ -108,8 +110,8 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(fi{i} + fj{j},reps,1);
 %     end
 % end
-%
-% table = parglm(X, F, {[1 2]})
+% 
+% table = parglm(X, F, 'Model',{[1 2]})
 %
 %
 % EXAMPLE OF USE (copy and paste the code in the command line)
@@ -120,7 +122,7 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
 %
-% F = create_design(levels,reps);
+% F = create_design(levels,'Replicates',reps);
 %
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
@@ -129,11 +131,11 @@ function [T, parglmo] = parglm(X, F, model, prep, n_perm, ts, ordinal, fmtc, cod
 %     end
 % end
 %
-% table = parglm(X, F, {[1 2]})
+% table = parglm(X, F, 'Model',{[1 2]})
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 19/Feb/24
+% last modification: 10/Apr/24
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -160,14 +162,41 @@ M = size(X, 2);
 
 n_factors = size(F,2);                 % number of factors
 
-if nargin < 3 || isempty(model), model = 'linear'; end;
-if nargin < 4 || isempty(prep), prep = 2; end;
-if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
-if nargin < 6 || isempty(ts), ts = 1; end;
-if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
-if nargin < 8 || isempty(fmtc), fmtc = 0; end;
-if nargin < 9 || isempty(coding), coding = zeros(1,size(F,2)); end;
-if nargin < 10 || isempty(nested), nested = []; end;
+% if nargin < 3 || isempty(model), model = 'linear'; end;
+% if nargin < 4 || isempty(prep), prep = 2; end;
+% if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
+% if nargin < 6 || isempty(ts), ts = 1; end;
+% if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
+% if nargin < 8 || isempty(fmtc), fmtc = 0; end;
+% if nargin < 9 || isempty(coding), coding = zeros(1,size(F,2)); end;
+% if nargin < 10 || isempty(nested), nested = []; end;
+
+
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+
+addParameter(p,'Model','linear'); 
+addParameter(p,'Preprocessing',2);
+addParameter(p,'Permutations',1000);  
+addParameter(p,'Ts',1); 
+addParameter(p,'Ordinal',zeros(1,size(F,2))); 
+addParameter(p,'Fmtc',0); 
+addParameter(p,'Coding',zeros(1,size(F,2))); 
+addParameter(p,'Nested',[]); 
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+model = p.Results.Model;
+prep = p.Results.Preprocessing;
+n_perm = p.Results.Permutations;
+ts = p.Results.Ts;
+ordinal = p.Results.Ordinal;
+fmtc = p.Results.Fmtc;
+coding = p.Results.Coding;
+nested = p.Results.Nested;
+
+if isempty(model), model = 'linear'; end;
 
 if isequal(model,'linear')
     interactions = [];
@@ -193,7 +222,7 @@ if isnumeric(model) && ~isscalar(model)
     end
 end    
 
-if iscell(model), interactions = model; end    
+if iscell(model), interactions = model; end 
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);

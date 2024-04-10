@@ -1,4 +1,4 @@
-function paranovao = paranova(X, F, interactions, center, n_perm)
+function paranovao = paranova(X, F,varargin)
 
 % Parallel ANOVA to obtain multivariate factor and interaction matrices in
 % a crossed experimental design and permutation test for significance. This
@@ -18,14 +18,16 @@ function paranovao = paranova(X, F, interactions, center, n_perm)
 % F: [NxF] design matrix, where columns correspond to factors and rows to
 % levels. Levels start at 1 and should be correlative.
 %
-% interactions: [Ix2] matrix where rows contain the factors for which
+% Optional INPUTS:
+%
+% 'Interactions': [Ix2] matrix where rows contain the factors for which
 % interactions are to be calculated.
 %
-% center: [1x1] preprocesing:
+% 'Preprocessing': [1x1] preprocesing:
 %       1: mean centering
 %       2: autoscaling (default)
 %
-% n_perm: [1x1] number of permutations (1000 by default).
+% 'Permutations': [1x1] number of permutations (1000 by default).
 %
 %
 % OUTPUTS:
@@ -40,16 +42,16 @@ function paranovao = paranova(X, F, interactions, center, n_perm)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     for j = 1:length(levels{2}),
 %         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(randn(1,vars),reps,1);
 %     end
 % end
-%
+% 
 % paranovao = paranova(X, F);
 %
 %
@@ -60,7 +62,7 @@ function paranovao = paranova(X, F, interactions, center, n_perm)
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
 %
-% F = create_design(levels,reps);
+% F = create_design(levels,'replicates',reps);
 %
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
@@ -72,9 +74,9 @@ function paranovao = paranova(X, F, interactions, center, n_perm)
 %
 % coded by: Gooitzen Zwanenburg (G.Zwanenburg@uva.nl)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 19/Apr/18
+% last modification: 10/Apr/24
 %
-% Copyright (C) 2018  Gooitzen Zwanenburg, University of Amsterdam
+% Copyright (C) 2024  Gooitzen Zwanenburg, University of Amsterdam
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -96,9 +98,21 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(X, 1);
 M = size(X, 2);
-if nargin < 3 || isempty(interactions), interactions = []; end;
-if nargin < 4 || isempty(center), center = 2; end;
-if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
+% if nargin < 3 || isempty(interactions), interactions = []; end;
+% if nargin < 4 || isempty(center), center = 2; end;
+% if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Interactions',[]); 
+addParameter(p,'Preprocessing',2);
+addParameter(p,'Permutations',1000);     
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+interactions = p.Results.Interactions;
+center = p.Results.Preprocessing;
+n_perm = p.Results.Permutations;
 
 % Validate dimensions of input data
 assert (isequal(size(center), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
