@@ -1,26 +1,28 @@
-function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,blur)
+function fig_h = plot_scatter(bdata,varargin)
 
 % Scatter plot.
 %
 % plot_scatter(bdata) % minimum call
 % plot_scatter(bdata,elabel,classes,xylabel,lcont,0) % plot without multiplicity
-% fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,blur) % complete call
+% fig_h = plot_scatter(bdata,'EleLabel',elabel,'ObsClass',classes,'XYLabel',xylabel,'LimCont',lcont,'Option',opt,'Multiplicity',mult,'Threshold',maxv,'BlurIndex',blur) % complete call
 %
 %
 % INPUTS:
 %
 % bdata: (Nx2) bidimensional data to plot.
 %
-% elabel: [Nx1] name of the elements (numbers are used by default)
+% Optional INPUTS:
 %
-% classes: [Nx1, str(N), {N}] groups for different visualization (a single
+% 'EleLabel': [Nx1] name of the elements (numbers are used by default)
+%
+% 'ObsClass': [Nx1, str(N), {N}] groups for different visualization (a single
 %   group by default)
 %
-% xylabel: {2} xlabel and ylabel (nothing by default)
+% 'XYLabel': {2} xlabel and ylabel (nothing by default)
 %
-% lcont: {2} control limits on x and y axis (nothing by default)
+% 'LimCont': {2} control limits on x and y axis (nothing by default)
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: plot for numerical classes (consistent with a colorbar)
 %           1: plot for categorical classes (consistent with a legend)
@@ -40,14 +42,14 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %   By deafult, opt = '100'. If less digits are specified, least significant
 %   digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0
 %
-% mult: [Nx1] multiplicity of each row (1s by default)
+% 'Multiplicity': [Nx1] multiplicity of each row (1s by default)
 %
-% maxv: [1x3] thresholds for the different markers.
+% 'Threshold': [1x3] thresholds for the different markers.
 %       maxv(1): maximum threshold for marker 'd' for opt = 1101 (20 by default)
 %       maxv(2): maximum threshold for marker 'o' for opt = 1101 (50 by default)
 %       maxv(3): maximum threshold for marker 's' for opt = 1101 (100 by default)
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
 %
@@ -58,12 +60,12 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 %
 % EXAMPLE OF USE: Plot random data with filled marks and control limits:
 %
-% fig_h = plot_scatter(rand(100,2),[],[],{'Y','X'},{0.8,0.8});
+% fig_h = plot_scatter(rand(100,2),'XYLabel',{'Y','X'},'LimCont',{0.8,0.8});
 %
 %
 % EXAMPLE OF USE: with labels and classes in elements:
 %
-% fig_h = plot_scatter(randn(5,2),{'one','two','three','four','five'},[1 1 1 2 2],{'Y','X'});
+% fig_h = plot_scatter(randn(5,2),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'});
 %
 %
 % EXAMPLE OF USE: with labels, multilicity and classes in elements:
@@ -71,15 +73,15 @@ function fig_h = plot_scatter(bdata,elabel,classes,xylabel,lcont,opt,mult,maxv,b
 % X = randn(5,2);
 % opts = {'10' '1100' '1101' '1110' '1111'};
 % for o = 1:length(opts),
-%   plot_scatter(X,{'one','two','three','four','five'},[1 1 1 2 2],{'Y','X'},[],opts{o},[1 20 50 100 1000]);
+%   plot_scatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'Option',opts{o},'Multiplicity',[1 20 50 100 1000]);
 % end
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 21/Apr/2023
+% last modification: 11/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -103,14 +105,36 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 N = size(bdata, 1);
-if nargin < 2 || isempty(elabel), elabel = 1:N; end;
-if nargin < 3 || isempty(classes), classes = ones(N,1); end;
-if nargin < 4 || isempty(xylabel), xylabel = {'',''}; end;
-if nargin < 5 || isempty(lcont),  lcont = []; end;
-if nargin < 6 || isempty(opt),     opt     = '100';                 end;
-if nargin < 7 || isempty(mult),    mult    = ones(N,1);         end;
-if nargin < 8 || isempty(maxv),    maxv    = [20 50 100];       end;
-if nargin < 9 || isempty(blur),    blur    = 1;       end;
+% if nargin < 2 || isempty(elabel), elabel = 1:N; end;
+% if nargin < 3 || isempty(classes), classes = ones(N,1); end;
+% if nargin < 4 || isempty(xylabel), xylabel = {'',''}; end;
+% if nargin < 5 || isempty(lcont),  lcont = []; end;
+% if nargin < 6 || isempty(opt),     opt     = '100';                 end;
+% if nargin < 7 || isempty(mult),    mult    = ones(N,1);         end;
+% if nargin < 8 || isempty(maxv),    maxv    = [20 50 100];       end;
+% if nargin < 9 || isempty(blur),    blur    = 1;       end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'EleLabel',1:N);   
+addParameter(p,'ObsClass',ones(N,1));
+addParameter(p,'XYLabel',{'',''});
+addParameter(p,'LimCont',[]);
+addParameter(p,'Option','100');
+addParameter(p,'Multiplicity',ones(N,1));
+addParameter(p,'Threshold',[20 50 100]);
+addParameter(p,'BlurIndex',1);
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+elabel = p.Results.EleLabel;
+classes = p.Results.ObsClass;
+xylabel = p.Results.XYLabel;
+lcont = p.Results.LimCont;
+opt = p.Results.Option;
+mult = p.Results.Multiplicity;
+maxv = p.Results.Threshold;
+blur = p.Results.BlurIndex;
 
 % Convert row arrays to column arrays
 if size(elabel,1)  == 1, elabel  = elabel';  end;

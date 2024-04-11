@@ -1,21 +1,23 @@
 
-function fig_h = plot_map(map,label,int,ind)
+function fig_h = plot_map(map,varargin)
 
 % Plot color map.
 %
 % plot_map(map) % minimum call
-% plot_map(map,label) % complete call
+% plot_map(map,'VarsLabel',label,'ColorInt',int,'ColorDist',ind) % complete call
 %
 %
 % INPUTS:
 %
 % map: (MxM) matrix with values in the [0,1] interval. 
 %
-% label: (Mx1) name of the variables (numbers are used by default)
+% Optional INPUTS:
 %
-% int: (2x1) color interval ([-1;1] by default)
+% 'VarsLabel': (Mx1) name of the variables (numbers are used by default)
 %
-% ind: (Lx1) color distribution ([0:.2:0.79 0.8:0.04:1]' by default);
+% 'ColorInt': (2x1) color interval ([-1;1] by default)
+%
+% 'ColoDist': (Lx1) color distribution ([0:.2:0.79 0.8:0.04:1]' by default);
 %
 % OUTPUTS:
 %
@@ -30,10 +32,10 @@ function fig_h = plot_map(map,label,int,ind)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 14/Dic/20
+% last modification: 11/Apr/2024
 %
-% Copyright (C) 2022  University of Granada, Granada
-% Copyright (C) 2022  Jose Camacho Paez, Alejandro Perez Villegas
+% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2024  Jose Camacho Paez, Alejandro Perez Villegas
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -54,9 +56,22 @@ function fig_h = plot_map(map,label,int,ind)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(map,2);
-if nargin < 2 || isempty(label), label= 1:M; end
-if nargin < 3 || isempty(int), int = [-1;1]; end;
-if nargin < 4 || isempty(ind), ind = [0:.2:0.79 0.8:0.04:1]'; end;
+% if nargin < 2 || isempty(label), label= 1:M; end
+% if nargin < 3 || isempty(int), int = [-1;1]; end;
+% if nargin < 4 || isempty(ind), ind = [0:.2:0.79 0.8:0.04:1]'; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'VarsLabel',1:M);   
+addParameter(p,'ColorInt',[-1;1]);
+addParameter(p,'ColorDist',[0:.2:0.79 0.8:0.04:1]);
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+label = p.Results.VarsLabel;
+int = p.Results.ColorInt;
+ind = p.Results.ColorDist;
+
 
 % Convert row arrays to column arrays
 if size(label,1)  == 1, label = label'; end;
@@ -154,7 +169,7 @@ pos = get(axes_h, 'Position');
 set(axes_h,'Position',[pos(1) pos(2)/2 pos(3) pos(4)])
 
 % Set colors
-if int(1)<0,
+if int(1)<0
     set(fig_h,'Colormap',[[ind;ones(length(ind),1)] [ind;flipud(ind)] [ones(length(ind),1);flipud(ind)]])
 else
     set(fig_h,'Colormap',[[ones(length(ind),1)] [flipud(ind)] [flipud(ind)]])

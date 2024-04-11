@@ -7,7 +7,7 @@ function [T, parglmo] = parglm(X, F, varargin)
 % Related routines: asca, apca, parglmVS, parglmMC, create_design
 %
 % T = parglm(X, F)   % minimum call
-% [T, parglmo] = parglm(X, F,'Model',model,'Preprocessing',prep,'Permutaitons',n_perm,'Ts',ts,'Ordinal',ordinal,'Fmtc',fmtc,'Coding',coding,'Nested',nested)   % complete call
+% [T, parglmo] = parglm(X, F,'Model',model,'Preprocessing',prep,'Permutations',n_perm,'Ts',ts,'Ordinal',ordinal,'Fmtc',fmtc,'Coding',coding,'Nested',nested)   % complete call
 %
 %
 % INPUTS:
