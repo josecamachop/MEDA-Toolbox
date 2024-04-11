@@ -1,25 +1,27 @@
-function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
+function fig_h = plot_vec(vec,varargin)
 
 % Bar or line plot.
 %
 % plot_vec(vec) % minimum call
-% plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv) % complete call
+% plot_vec(vec,'EleLabel',elabel,'ObsClass',classes,'XYLabel',xylabel,'LimCont',lcont,'Option',opt,'VecLabel',vlabel,'Multiplicity',mult,'Threshold',maxv) % complete call
 %
 %
 % INPUTS:
 %
 % vec: [NxM] vector/s to plot. 
 %
-% elabel: [Nx1] name of the vector elements (numbers are used by default)
+% Optional INPUTS:
 %
-% classes: [Nx1, str(N), {N}] groups for different visualization (a single 
+% 'EleLabel': [Nx1] name of the vector elements (numbers are used by default)
+%
+% 'ObsClass': [Nx1, str(N), {N}] groups for different visualization (a single 
 %   group by default)
 %
-% xylabel: {2} xlabel and ylabel (nothing by default)
+% 'XYLabel': {2} xlabel and ylabel (nothing by default)
 %
-% lcont: [NxL or Lx1] L control limits (nothing by default)
+% 'LimCont': [NxL or Lx1] L control limits (nothing by default)
 %
-% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
 %       a:
 %           0: line plot
 %           1: bar plot
@@ -30,11 +32,11 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 %   By deafult, opt = '10'. If less digits are specified, least significant
 %   digits are set to 0, i.e. opt = 1 means a=1, b=0
 %
-% vlabel: [Mx1] name of the vectors (numbers are used by default)
+% 'VecLabel': [Mx1] name of the vectors (numbers are used by default)
 %
-% mult: [NxM] multiplicity of each row (1s by default)
+% 'Multiplicity': [NxM] multiplicity of each row (1s by default)
 %
-% maxv: [1x3] thresholds for the different marker size (20, 50 and 100 by default)
+% 'Threshold': [1x3] thresholds for the different marker size (20, 50 and 100 by default)
 %
 %
 % OUTPUTS:
@@ -44,24 +46,24 @@ function fig_h = plot_vec(vec,elabel,classes,xylabel,lcont,opt,vlabel,mult,maxv)
 %
 % EXAMPLE OF USE: To plot three lines with constant control limits:
 %
-% fig_h = plot_vec(randn(100,3),[],[],{'Functions','Time'},[1, -1, 3]);
+% fig_h = plot_vec(randn(100,3),'XYLabel',{'Functions','Time'},'LimCont',[1, -1, 3]);
 %
 %
 % EXAMPLE OF USE: with labels and classes in observations and variable limit:
 %
-% fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{[],'Functions'},randn(5,1),1);
+% fig_h = plot_vec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Option',1);
 %
 %
 % EXAMPLE OF USE: with labels, multiplicity and classes in observations and variable limit:
 %
-% fig_h = plot_vec(randn(5,3),{'one','two','three','four','five'},[1 1 1 2 2],{[],'Functions'},randn(5,1),1,[],100*rand(5,1),[20 50 100]);
+% fig_h = plot_vec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Option',1,'VecLabel',100*rand(5,1),'Multiplicity',[20 50 100]);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 21/Mar/2024
+% last modification: 11/Apr/2024
 %
-% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -84,14 +86,36 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 if size(vec,1) == 1,     vec = vec'; end;
 N = size(vec, 1);
 M = size(vec, 2);
-if nargin < 2 || isempty(elabel), elabel = 1:N; end;
-if nargin < 3 || isempty(classes), classes = []; end;
-if nargin < 4 || isempty(xylabel), xylabel = {'',''}; end;
-if nargin < 5 || isempty(lcont),  lcont = []; end;
-if nargin < 6 || isempty(opt),  opt = '1'; end;
-if nargin < 7 || isempty(vlabel),  vlabel = 1:M; end;
-if nargin < 8 || isempty(mult),    mult    = ones(N,1);         end;
-if nargin < 9 || isempty(maxv),    maxv    = [20 50 100];       end;
+% if nargin < 2 || isempty(elabel), elabel = 1:N; end;
+% if nargin < 3 || isempty(classes), classes = []; end;
+% if nargin < 4 || isempty(xylabel), xylabel = {'',''}; end;
+% if nargin < 5 || isempty(lcont),  lcont = []; end;
+% if nargin < 6 || isempty(opt),  opt = '1'; end;
+% if nargin < 7 || isempty(vlabel),  vlabel = 1:M; end;
+% if nargin < 8 || isempty(mult),    mult    = ones(N,1);         end;
+% if nargin < 9 || isempty(maxv),    maxv    = [20 50 100];       end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'EleLabel',1:N);   
+addParameter(p,'ObsClass',[]);
+addParameter(p,'XYLabel',{'',''});
+addParameter(p,'LimCont',[]);
+addParameter(p,'Option','1');
+addParameter(p,'Multiplicity',ones(N,1));
+addParameter(p,'Threshold',[20 50 100]);
+addParameter(p,'VecLabel',1:M);
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+elabel = p.Results.EleLabel;
+classes = p.Results.ObsClass;
+xylabel = p.Results.XYLabel;
+lcont = p.Results.LimCont;
+opt = p.Results.Option;
+mult = p.Results.Multiplicity;
+maxv = p.Results.Threshold;
+vlabel = p.Results.VecLabel;
 
 % Convert num arrays to str
 if isnumeric(opt), opt=num2str(opt); end
