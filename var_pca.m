@@ -1,5 +1,5 @@
 
-function [x_var,cumpress] = var_pca(x,pcs,prep,opt)
+function [x_var,cumpress] = var_pca(x,varargin)
 
 % Variability captured in terms of the number of PCs. It includes the ckf
 % algorithm.
@@ -12,16 +12,19 @@ function [x_var,cumpress] = var_pca(x,pcs,prep,opt)
 %
 % x: [NxM] billinear data set for model fitting
 %
+%
+% Optional INPUTS (parameters):
+%
 % pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(x). The value for 0 PCs is
 %   added at the begining if not specified.
 %
-% prep: [1x1] preprocesing
+% 'Preprocessing': [1x1] preprocesing
 %       0: no preprocessing 
 %       1: mean-centering 
 %       2: auto-scaling (default)  
 %
-% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
 %       a:
 %           0: no plots
 %           1: plot residual variance
@@ -44,14 +47,13 @@ function [x_var,cumpress] = var_pca(x,pcs,prep,opt)
 %
 % X = simuleMV(20,10,8);
 % pcs = 0:10;
-% x_var = var_pca(X,pcs);
+% x_var = var_pca(X,'Pcs',pcs);
 %
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 12/Apr/2024
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -73,9 +75,21 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
-if nargin < 3 || isempty(prep), prep = 2; end;
-if nargin < 4 || isempty(opt), opt = '10'; end;
+% if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
+% if nargin < 3 || isempty(prep), prep = 2; end;
+% if nargin < 4 || isempty(opt), opt = '10'; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Pcs',0:rank(x));   
+addParameter(p,'Preprocessing',2);   
+addParameter(p,'Option',10);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+pcs = p.Results.Pcs;
+opt = p.Results.Option;
+prep = p.Results.Preprocessing;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -107,9 +121,9 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must cont
 
 %% Main code
 
-xcs = preprocess2D(x,prep); 
+xcs = preprocess2D(x,'Preprocessing',prep); 
 
-[P,T] = pca_pp(xcs,1:max(pcs));
+[P,T] = pca_pp(xcs,'Pcs',1:max(pcs));
 pcs(find(pcs>size(P,2))) = [];
 
 totalVx = sum(sum(xcs.^2));
@@ -122,7 +136,7 @@ end
 cumpress = zeros(length(pcs),1);
 if nargout>1 || opt(2) == '0',
     for i = 1:length(pcs),
-         c = ckf(xcs,T(:,1:pcs(i)),P(:,1:pcs(i)),0);
+         c = ckf(xcs,T(:,1:pcs(i)),P(:,1:pcs(i)),'Option',0);
          cumpress(i) = c(end);
     end
 end
@@ -132,9 +146,9 @@ end
 
 if opt(1) == '1',
     if opt(2) == '1',
-        plot_vec(x_var,pcs,[],{'#PCs','% Residual Variance'},[],0);
+        plot_vec(x_var,'EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'Option',0);
     else
-        plot_vec([x_var cumpress/cumpress(1)],pcs,[],{'#PCs','% Residual Variance'},[],0,{'X','ckf'});
+        plot_vec([x_var cumpress/cumpress(1)],'EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'Option',0,'VecLabel',{'X','ckf'});
         legend('show');
     end
 end

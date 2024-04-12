@@ -1,4 +1,4 @@
-function [SDImap,best] = SDI(T,classes,reg,opt)
+function [SDImap,best] = SDI(T,classes,varargin)
 
 % Discriminant Index for selection of best visualization subspace. The original
 % paper is Sara Tortorella, Maurizio Servili, Tullia Gallina Toschi, Gabriele 
@@ -7,7 +7,7 @@ function [SDImap,best] = SDI(T,classes,reg,opt)
 % (2020) 104160.
 %
 % SDImap = SDI(T,classes) % minimum call
-% [SDImap,best] = SDI(T,classes,reg,opt) % complete call
+% [SDImap,best] = SDI(T,classes,'Regular',reg,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -17,10 +17,12 @@ function [SDImap,best] = SDI(T,classes,reg,opt)
 % classes: [Nx1] groups of observations. 0 values will be treated as the
 %   rest, and no DImap will be computed for those.
 %
-% reg: [1x1] regularization parameter, to favour optimums in 1 LV space
+% Optional INPUTS (parameters):
+%
+% 'Regular': [1x1] regularization parameter, to favour optimums in 1 LV space
 % (0.1 by default)
 %
-% opt: [1x1] options for data plotting:
+% 'Option': [1x1] options for data plotting:
 %       0: no plots
 %       1: plot SDI matrix per class (by default)
 %
@@ -37,19 +39,18 @@ function [SDImap,best] = SDI(T,classes,reg,opt)
 % X = simuleMV(20,10,8);
 % Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
 % lvs = 0:10;
-% [beta,W,P,Q,R] = simpls(X,Y,lvs);
+% [beta,W,P,Q,R] = simpls(X,Y,'LatVars',lvs);
 % T = X*R;
-%
+% 
 % class = Y;
 % class(find(Y==-1))=2;
 % SDImap = SDI(T,class);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Oct/20
+% last modification: 12/Apr/2024
 %
-% Copyright (C) 2020  University of Granada, Granada
-% Copyright (C) 2020  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -70,8 +71,19 @@ function [SDImap,best] = SDI(T,classes,reg,opt)
 routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 [N,A] = size(T);
-if nargin < 3 || isempty(reg), reg = .1; end; 
-if nargin < 4 || isempty(opt), opt = 1; end; 
+% if nargin < 3 || isempty(reg), reg = .1; end; 
+% if nargin < 4 || isempty(opt), opt = 1; end; 
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Regular',.1);   
+addParameter(p,'Option',1);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+reg = p.Results.Regular;
+opt = p.Results.Option;
+
 
 if size(classes,1) == 1, classes = classes'; end;
 
@@ -102,18 +114,18 @@ for i=1:size(T,2),
             if i~=j,
                 XX=T(:,[i j])'*T(:,[i j]);
                 XY=T(:,[i j])'*preprocess2D(classesD(:,k));  
-                [beta,W,P2,Q,R] = kernel_pls(XX,XY,1);
+                [beta,W,P2,Q,R] = kernel_pls(XX,XY,'LatVars',1);
                 T2 = T(:,[i j])*R;
             end
         
             ind = find(classesD(:,k));
             ind2 = find(~classesD(:,k));
             if i==j,
-                [kk,m1,dt] = preprocess2D(T(ind,i),2);
-                [kk,m2,dt2] = preprocess2D(T(ind2,i),2);
+                [kk,m1,dt] = preprocess2D(T(ind,i),'Preprocessing',2);
+                [kk,m2,dt2] = preprocess2D(T(ind2,i),'Preprocessing',2);
             else
-                [kk,m1,dt] = preprocess2D(T2(ind),2);
-                [kk,m2,dt2] = preprocess2D(T2(ind2),2);
+                [kk,m1,dt] = preprocess2D(T2(ind),'Preprocessing',2);
+                [kk,m2,dt2] = preprocess2D(T2(ind2),'Preprocessing',2);
             end
             
             WS(i,j,k) = dt.^2*(length(ind)-1)+dt2.^2*(length(ind2)-1);
@@ -135,7 +147,8 @@ end
 if opt==1,
     for k=1:length(ucl),
         Mv = max(max(squeeze(SDImap(:,:,k))));
-        plot_map(SDImap(:,:,k),[],[0,Mv]);
+       % plot_map(SDImap(:,:,k),[],[0,Mv]);
+       plot_map(SDImap(:,:,k),'ColorInt',[0,Mv]);
         ylabel('#LV','FontSize',18)
         xlabel('#LV','FontSize',18)
     end  

@@ -1,9 +1,9 @@
 
-function [y_var,t_var] = var_pls(x,y,lvs,prepx,prepy,opt)
+function [y_var,t_var] = var_pls(x,y,varargin)
 
 % Variability captured in terms of the number of LVs.
 %
-% var_pls(x,y,maxlvs) % minimum call
+% var_pls(x,y) % minimum call
 % var_pls(x,y,maxlvs,prepx,prepy,opt) %complete call
 %
 %
@@ -13,21 +13,23 @@ function [y_var,t_var] = var_pls(x,y,lvs,prepx,prepy,opt)
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional INPUTS (parameter):
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x). The value for 0 PCs is
 %   added at the begining if not specified.
 %
-% prepx: [1x1] preprocesing of the x-block
+% 'PreprocessingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: [1x1] preprocesing of the y-block
+% 'PreprocessingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
 %       a:
 %           0: no plots
 %           1: plot Residual variance
@@ -51,11 +53,11 @@ function [y_var,t_var] = var_pls(x,y,lvs,prepx,prepy,opt)
 % X = simuleMV(20,10,8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
-% x_var = var_pls(X,Y,lvs);
+% x_var = var_pls(X,Y,'LatVars',lvs);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/May/2023
+% last modification: 12/May/2024
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -80,10 +82,24 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
-if nargin < 4 || isempty(prepx), prepx = 2; end;
-if nargin < 5 || isempty(prepy), prepy = 2; end;
-if nargin < 6 || isempty(opt), opt = '10'; end;
+% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+% if nargin < 4 || isempty(prepx), prepx = 2; end;
+% if nargin < 5 || isempty(prepy), prepy = 2; end;
+% if nargin < 6 || isempty(opt), opt = '10'; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'LatVars',0:rank(x));   
+addParameter(p,'PreprocessingX',2);   
+addParameter(p,'PreprocessingY',2);   
+addParameter(p,'Option',10);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+lvs = p.Results.LatVars;
+opt = p.Results.Option;
+prepx = p.Results.PreprocessingX;
+prepy = p.Results.PreprocessingY;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -116,11 +132,11 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must cont
 
 %% Main code
 
-xcs = preprocess2D(x,prepx); 
-ycs = preprocess2D(y,prepy); 
+xcs = preprocess2D(x,'Preprocessing',prepx); 
+ycs = preprocess2D(y,'Preprocessing',prepy); 
 
 %[beta,W,P,Q,R] = kernel_pls(xcs'*xcs,xcs'*ycs,1:max(lvs));
-[beta,W,P,Q,R] = simpls(xcs,ycs,1:max(lvs));
+[beta,W,P,Q,R] = simpls(xcs,ycs,'LatVars',1:max(lvs));
 lvs(find(lvs>size(W,2))) = [];
 
 totalVt = sum(sum(xcs.^2));
@@ -138,7 +154,7 @@ if opt(1) == '1'
     if opt(2) == '1'
         plot_vec(y_var,lvs,[],{'#PCs','% Residual Variance in Y'},[],0);
     else
-        plot_vec([y_var t_var],lvs,[],{'#PCs','% Residual Variance'},[],0,{'Y','Scores'});
+        plot_vec([y_var t_var],'EleLabel',lvs,'XYLabel',{'#PCs','% Residual Variance'},'Option',0,'VecLabel',{'Y','Scores'});
         legend('show');
     end
 end
