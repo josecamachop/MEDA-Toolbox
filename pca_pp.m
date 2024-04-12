@@ -1,4 +1,4 @@
-function [p,t,model] = pca_pp(xcs,pcs)
+function [p,t,model] = pca_pp(xcs,varargin)
 
 % Principal Component Analysis based on the eigendecompostion of XX.
 %

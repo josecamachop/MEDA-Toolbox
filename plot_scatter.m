@@ -75,7 +75,7 @@ function fig_h = plot_scatter(bdata,varargin)
 % for o = 1:length(opts),
 %   plot_scatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'Option',opts{o},'Multiplicity',[1 20 50 100 1000]);
 % end
-%
+
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
@@ -105,14 +105,6 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 N = size(bdata, 1);
-% if nargin < 2 || isempty(elabel), elabel = 1:N; end;
-% if nargin < 3 || isempty(classes), classes = ones(N,1); end;
-% if nargin < 4 || isempty(xylabel), xylabel = {'',''}; end;
-% if nargin < 5 || isempty(lcont),  lcont = []; end;
-% if nargin < 6 || isempty(opt),     opt     = '100';                 end;
-% if nargin < 7 || isempty(mult),    mult    = ones(N,1);         end;
-% if nargin < 8 || isempty(maxv),    maxv    = [20 50 100];       end;
-% if nargin < 9 || isempty(blur),    blur    = 1;       end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -162,7 +154,7 @@ if ischar(xylabel),  xylabel = cellstr(xylabel); end;
 
 % Validate dimensions of input data
 assert(size(bdata,2) == 2, 'Dimension Error: 1st argument must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: parameter ''EleLabel''  must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(lcont), assert (iscell(lcont) && isequal(size(lcont), [2 1]), 'Dimension Error: 5th argument must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end;

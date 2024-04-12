@@ -72,15 +72,15 @@ function [ypred,testypred] = pred_pls(x,y,varargin)
 % n_PCs = 10;
 % X = simuleMV(n_obs,n_vars,6);
 % Y = 0.1*randn(n_obs,2) + X(:,1:2);
-%
+% 
 % n_obst = 10;
 % test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1))
-%
-% pred_pls(X,Y,1,test);
+% 
+% pred_pls(X,Y,'LatVars',1,'ObsTest',test);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 11/Apr/2024
+% last modification: 12/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

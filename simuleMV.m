@@ -1,5 +1,5 @@
 function X = simuleMV(obs,vars,lcorr,corM)
-
+% LAST FUNCTION TO PARSE INPUTS
 % Simulation of multivariate data with ADICOV. Reference: Camacho, J. On 
 % the Generation of Random Multivariate Data. Chemometrics and Intelligent
 % Laboratory Systems, 2017, 160: 40-51.
@@ -98,7 +98,7 @@ if uselevel,
             disp('Warning: correlation level too low. Resulting matrix may show a higher correlation due to structural constraints.')
         end
         X = real(ADICOV(eye(vars),randn(obs2,vars),vars));
-        Xs = preprocess2D(X,2);
+        Xs = preprocess2D(X);
         COV = Xs'*Xs/(size(X,1)-1);
         corM = COV + 0.01*eye(vars);
     else

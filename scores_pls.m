@@ -1,11 +1,11 @@
 
-function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
+function [T,TT] = scores_pls(x,y,varargin)
 
 % Compute and plot scores in PLS. This routine is deprecated and superseded 
 % by scores.m (please, use the latter)
 %
 % T = scores_pls(x,y) % minimum call
-% [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes) % complete call
+% [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur) % complete call
 %
 % INPUTS:
 %
@@ -13,23 +13,25 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional Inputs (parameters):
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 1:rank(x)
 %
-% test: [LxM] data set with the observations to be compared. These data 
+% 'ObsTest': [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
 %
-% prepx: [1x1] preprocesing of the x-block
+% 'PreprocessingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: [1x1] preprocesing of the y-block
+% 'PreprocessingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abcd' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'abcd' for:
 %       a:
 %           0: no plots
 %           1: plot scores
@@ -47,13 +49,13 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0 and 
 %   d=0. If a=0, then b, c  and d are ignored.
 %
-% label: [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
+% 'ObsLabel': [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
 %   are used by default)
 %
-% classes: [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
+% 'ObsClass': [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
 %   visualization (a single group by default per calibration and test)
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
 %
@@ -68,7 +70,7 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
 %
 % X = simuleMV(20,10,8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% T = scores_pls(X,Y,1:3);
+% T = scores_pls(X,Y,'LatVars',1:3);
 %
 %
 % EXAMPLE OF USE: Calibration and Test, both line and scatter plots
@@ -78,19 +80,19 @@ function [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur)
 % n_PCs = 10;
 % X = simuleMV(n_obs,n_vars,8);
 % Y = 0.1*randn(n_obs,2) + X(:,1:2);
-%
+% 
 % n_obst = 10;
 % test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
-%
-% scores_pls(X,Y,1,test);
-% scores_pls(X,Y,1:2,test);
+% 
+% scores_pls(X,Y,'LatVars',1,'ObsTest',test);
+% scores_pls(X,Y,'LatVars',1:2,'ObsTest',test);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 21/Apr/2023
+% last modification: 12/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -112,13 +114,39 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 3 || isempty(lvs), lvs = 1:rank(x); end;
-if nargin < 4, test = []; end;
+% if nargin < 3 || isempty(lvs), lvs = 1:rank(x); end;
+% if nargin < 4, test = []; end;
+% L = size(test, 1);
+% K = N+L;
+% if nargin < 5 || isempty(prepx), prepx = 2; end;
+% if nargin < 6 || isempty(prepy), prepy = 2; end;
+% if nargin < 7 || isempty(opt), opt = '100'; end; 
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'LatVars',1:rank(x));   
+addParameter(p,'ObsTest',[]);   
+parse(p,varargin{:});
+test = p.Results.ObsTest;
 L = size(test, 1);
 K = N+L;
-if nargin < 5 || isempty(prepx), prepx = 2; end;
-if nargin < 6 || isempty(prepy), prepy = 2; end;
-if nargin < 7 || isempty(opt), opt = '100'; end; 
+addParameter(p,'Option','100');
+addParameter(p,'PreprocessingX',2);
+addParameter(p,'PreprocessingY',2);
+addParameter(p,'ObsLabel',ones(N+L,1));
+addParameter(p,'ObsClass',ones(N+L,1));
+addParameter(p,'BlurIndex',1);
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+test = p.Results.ObsTest;
+prepx = p.Results.PreprocessingX;
+prepy = p.Results.PreprocessingY;
+lvs = p.Results.LatVars;
+opt = p.Results.Option;
+label = p.Results.ObsLabel;
+classes = p.Results.ObsClass;
+blur = p.Results.BlurIndex;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -179,14 +207,14 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must cont
 
 %% Main code
 
-[xcs,m,sd] = preprocess2D(x,prepx);
-ycs = preprocess2D(y,prepy);
+[xcs,m,sd] = preprocess2D(x,'Preprocessing',prepx);
+ycs = preprocess2D(y,'Preprocessing',prepy);
 
 [beta,W,P,Q,R] = simpls(xcs,ycs,lvs); 
 T = xcs*R;
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,m,sd);
+    testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
     TT = testcs*R;
 else
     TT = [];
@@ -205,12 +233,12 @@ if opt(1) == '1'
     
     if length(lvs) == 1 || opt(2) == '1'
         for i=1:length(lvs)
-            plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+            plot_vec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
         end
     else
         for i=1:length(lvs)-1
             for j=i+1:length(lvs)
-                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores LV %d (%.0f%%)',lvs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}',[],opt(4),[],[],blur);
+                plot_scatter([Tt(:,i),Tt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores LV %d (%.0f%%)',lvs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','Option',opt(4),'BlurIndex',blur);
             end      
         end
     end

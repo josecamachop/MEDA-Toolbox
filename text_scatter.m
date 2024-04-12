@@ -1,4 +1,4 @@
-function text_scatter(fig_h,bdata,elabel,classes,opt,mult,blur)
+function text_scatter(fig_h,bdata,varargin)
 
 % Print text in a Scatter plot.
 %
@@ -12,12 +12,14 @@ function text_scatter(fig_h,bdata,elabel,classes,opt,mult,blur)
 %
 % bdata: (Nx2) bidimensional data 
 %
-% elabel: [Nx1] name of the elements (numbers are used by default)
+% Optional INPUTS (parameter):
 %
-% classes: [Nx1, str(N), {N}] groups for different visualization (a single
+% 'EleLabel': [Nx1] name of the elements (numbers are used by default)
+%
+% 'ObsClass': [Nx1, str(N), {N}] groups for different visualization (a single
 %   group by default)
 %
-% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
 %       a:
 %           0: do not plot multiplicity
 %           1: plot multiplicity
@@ -34,9 +36,9 @@ function text_scatter(fig_h,bdata,elabel,classes,opt,mult,blur)
 %   By deafult, opt = '00'. If less digits are specified, least significant
 %   digits are set to 0, i.e. opt = 1 means a=1, b=00.
 %
-% mult: [Nx1] multiplicity of each row (1s by default)
+% 'Multiplicity': [Nx1] multiplicity of each row (1s by default)
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
 %
@@ -70,11 +72,28 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 figure(fig_h);
 
 N = size(bdata, 1);
-if nargin < 3 || isempty(elabel), elabel = 1:N; end;
-if nargin < 4 || isempty(classes), classes = ones(N,1); end;
-if nargin < 5 || isempty(opt),     opt     = '000';                 end;
-if nargin < 6 || isempty(mult),    mult    = ones(N,1);         end;
-if nargin < 7 || isempty(blur),    blur    = 1;       end;
+% if nargin < 3 || isempty(elabel), elabel = 1:N; end;
+% if nargin < 4 || isempty(classes), classes = ones(N,1); end;
+% if nargin < 5 || isempty(opt),     opt     = '000';                 end;
+% if nargin < 6 || isempty(mult),    mult    = ones(N,1);         end;
+% if nargin < 7 || isempty(blur),    blur    = 1;       end;
+
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'EleLabel',1:N);   
+addParameter(p,'ObsClass',ones(N,1));   
+addParameter(p,'Option',000);   
+addParameter(p,'Multiplicity',ones(N,1)); 
+addParameter(p,'BluIndex',1);
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+elabel = p.Results.EleLabel;
+opt = p.Results.Option;
+classes = p.Results.ObsClass;
+mult = p.Results.Multiplicity;
+blur = p.Results.BluIndex;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end

@@ -1,11 +1,11 @@
-function [beta,W,P,Q,R,model] = simpls(X,Y,lvs)
+function [beta,W,P,Q,R,model] = simpls(X,Y,varargin)
 
 % Simpls algorithm for Partial Least Squares. De Jong, Sijmen. "SIMPLS: an 
 % alternative approach to partial least squares regression." Chemometrics 
 % and intelligent laboratory systems 18.3 (1993): 251-263.
 %
 % beta = simpls(xcs,ycs)     % minimum call
-% [beta,W,P,Q,R,model] = simpls(xcs,ycs,lvs)     % complete call
+% [beta,W,P,Q,R,model] = simpls(xcs,ycs,'LatVars',lvs)     % complete call
 %
 %
 % INPUTS:
@@ -14,7 +14,9 @@ function [beta,W,P,Q,R,model] = simpls(X,Y,lvs)
 %
 % ycs: [NxO] preprocessed billinear data set of responses
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional INPUTS (parameter):
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:size(XX)
 %
 %
@@ -37,16 +39,16 @@ function [beta,W,P,Q,R,model] = simpls(X,Y,lvs)
 %
 % X = simuleMV(20,10,8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% Xcs = preprocess2D(X,2);
-% Ycs = preprocess2D(Y,2);
+% Xcs = preprocess2D(X);
+% Ycs = preprocess2D(Y);
 % lvs = 1:10;
-% [beta,W,P,Q,R] = simpls(Xcs,Ycs,lvs);
+% [beta,W,P,Q,R] = simpls(Xcs,Ycs,'LatVars',lvs);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/May/23
+% last modification: 12/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -68,7 +70,15 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 [N,M] = size(X);
 O = size(Y, 2);
-if nargin < 3 || isempty(lvs), lvs = 0:rank(X); end;
+% if nargin < 3 || isempty(lvs), lvs = 0:rank(X); end;
+
+% Introduce optional inputs as parameters
+p = inputParser;
+addParameter(p,'LatVars',0:rank(X));   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+lvs = p.Results.LatVars;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;

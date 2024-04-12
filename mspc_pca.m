@@ -131,9 +131,12 @@ addParameter(p,'Pcs',1:rank(x));
 addParameter(p,'ObsTest',[]);
 addParameter(p,'Preprocessing',2);
 addParameter(p,'Option',100);  
-L = size('ObsTest', 1);
+
+parse(p,varargin{:});
+test = p.Results.ObsTest;
+L = size(test, 1);
 addParameter(p,'ObsLabel',ones(N+L,1));  
-addParameter(p,'ObsClass',ones(N,1));  
+addParameter(p,'ObsClass',ones(N+L,1));  
 addParameter(p,'PValueD',0.1);  
 addParameter(p,'PValueQ',0.1);  
 addParameter(p,'LimType',0);  
@@ -229,13 +232,13 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must cont
 
 %% Main code
 
-[xcs,m,sc] = preprocess2D(x,prep);
-[P,T] = pca_pp(xcs,pcs);
+[xcs,m,sc] = preprocess2D(x,'Preprocessing',prep);
+[P,T] = pca_pp(xcs,'Pcs',pcs);
 
 [Dst,Qst] = mspc(xcs,'InvCovarT',inv(cov(T)),'InSubspace',P);
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,m,sc);
+    testcs = preprocess2Dapp(test,m,'SDivideTest',sc);
     [Dstt,Qstt] = mspc(testcs,'InvCovarT',inv(cov(T)),'InSubspace',P);
 else
     Dstt = [];
@@ -282,7 +285,7 @@ if opt(1) == '1',
     end
     
     if opt(2) == '0',
-        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq});
+        plot_scatter([Dsttt,Qsttt], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'D-st','Q-st'}, 'LimCont',{UCLd,UCLq});
     else
         plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd);
         plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq);
