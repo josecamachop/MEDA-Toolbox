@@ -32,23 +32,24 @@ function apcao = apca(parglmo)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
-%
+% 
 % [table, parglmo] = parglm(X, F);
 % table
 % 
 % apcao = apca(parglmo);
-%
-% for i=1:2, % Note, the second factor is only shown for the sake of illustration, but non-significant factors should not be visualized
-%   scores(apcao.factors{i},[],[],sprintf('Factor %d',i),[],apcao.design(:,i));
-%   loadings(apcao.factors{i},[],sprintf('Factor %d',i));
+% 
+% for i=1:2,
+%   scores(apcao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',apcao.design(:,i));
+%   loadings(apcao.factors{i},'Title',sprintf('Factor %d',i));
 % end
+
 %
 %
 % EXAMPLE OF USE (copy and paste the code in the command line)
@@ -79,8 +80,8 @@ function apcao = apca(parglmo)
 % apcao = apca(parglmo);
 %
 % for i=1:2,
-%   scores(apcao.factors{i},[],[],sprintf('Factor %d',i),[],apcao.design(:,i));
-%   loadings(apcao.factors{i},[],sprintf('Factor %d',i));
+%   scores(apcao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',apcao.design(:,i));
+%   loadings(apcao.factors{i},'Title',sprintf('Factor %d',i));
 % end
 %
 %
@@ -148,7 +149,7 @@ apcao = parglmo;
 for factor = 1 : apcao.n_factors
     
     xf = apcao.factors{factor}.matrix+apcao.residuals;
-    [p,t] = pca_pp(xf,1:rank(apcao.factors{factor}.matrix));
+    [p,t] = pca_pp(xf,'Pcs',1:rank(apcao.factors{factor}.matrix));
     
     apcao.factors{factor}.var = trace(xf'*xf);
     apcao.factors{factor}.lvs = 1:size(p,2);
