@@ -11,7 +11,7 @@ function fig_h = plot_scatter(bdata,varargin)
 %
 % bdata: (Nx2) bidimensional data to plot.
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'EleLabel': [Nx1] name of the elements (numbers are used by default)
 %
@@ -154,8 +154,8 @@ if ischar(xylabel),  xylabel = cellstr(xylabel); end;
 
 % Validate dimensions of input data
 assert(size(bdata,2) == 2, 'Dimension Error: 1st argument must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: parameter ''EleLabel''  must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(elabel), assert((isequal(size(elabel), [N 1]) || isequal(size(elabel), [N+1 1])), 'Dimension Error: parameter ''EleLabel''  must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(classes), assert ((isequal(size(classes), [N 1]) || isequal(size(classes), [N+1 1])), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(lcont), assert (iscell(lcont) && isequal(size(lcont), [2 1]), 'Dimension Error: 5th argument must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end;
 assert (ischar(opt) && length(opt)==4, 'Dimension Error: 6th argument must be a string or num of maximum 4 bits. Type ''help %s'' for more info.', routine(1).name);
@@ -251,7 +251,7 @@ switch opt(2:4)
         end
 end
 
-text_scatter(fig_h,bdata,elabel,classes,opt(2:4),mult,blur);
+text_scatter(fig_h,bdata,'EleLabel',elabel,'ObsClass',classes,'Option',opt(2:4),'Multiplicity',mult,'BlurIndex',blur);
 
 ax = axis;
 ax([1 3]) = min(ax([1 3]),zeros(1,2));

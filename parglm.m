@@ -254,7 +254,7 @@ parglmo.factors                = cell(n_factors,1);
 parglmo.interactions           = cell(n_interactions,1);
 
 % preprocess the data
-[Xs,m,dt] = preprocess2D(X,prep);
+[Xs,m,dt] = preprocess2D(X,'Preprocessing',prep);
 X = X./(ones(size(X,1),1)*dt);
 
 % Make structure with general 'variables'

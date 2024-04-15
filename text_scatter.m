@@ -85,7 +85,7 @@ addParameter(p,'EleLabel',1:N);
 addParameter(p,'ObsClass',ones(N,1));   
 addParameter(p,'Option',000);   
 addParameter(p,'Multiplicity',ones(N,1)); 
-addParameter(p,'BluIndex',1);
+addParameter(p,'BlurIndex',1);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -93,7 +93,7 @@ elabel = p.Results.EleLabel;
 opt = p.Results.Option;
 classes = p.Results.ObsClass;
 mult = p.Results.Multiplicity;
-blur = p.Results.BluIndex;
+blur = p.Results.BlurIndex;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end

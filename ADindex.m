@@ -47,7 +47,7 @@ function [ind,diff] = ADindex(L,App,varargin)
 % XX = X'*X;
 % L = randn(100,2); L(1,:) = 10* L(1,:); % data with an outlier
 % appL = ADICOV(XX,L,2);
-%
+% 
 % ind = ADindex(L,appL)
 %
 %
@@ -57,14 +57,14 @@ function [ind,diff] = ADindex(L,App,varargin)
 % X = randn(100,10);
 % XX = X'*X;
 % L = randn(100,10); L(1,:) = 10* L(1,:); % data with an outlier
-% model = pca_eig(L,1:2);
+% model = pca_eig(L,'Pcs',1:2);
 % appL = ADICOV(XX,L,2,'InSubspace',model.loads);
-%
+% 
 % ind = ADindex(L,appL,'InSubspace',model.loads)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 28/Jul/23
+% last modification: 15/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
