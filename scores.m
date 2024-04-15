@@ -126,25 +126,29 @@ M = size(model.loads,1);
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'ObsTest',[]);   
-
-parse(p,varargin{:});
-test = p.Results.ObsTest;
-L = size(test, 1);
+addParameter(p,'ObsTest',[]);
+L = size('ObsTest', 1);
 addParameter(p,'Option','0');
-addParameter(p,'Title',[]);   
-addParameter(p,'ObsLabel',ones(N+L,1));
-addParameter(p,'ObsClass',ones(N+L,1));
+if 'Option' == '1'
+    K = L;
+else
+    K = N+L;
+end
+addParameter(p,'Title',' ');  
 addParameter(p,'BlurIndex',1);
+addParameter(p,'ObsLabel',1:K);
+addParameter(p,'ObsClass',ones(K,1));
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
+
 test = p.Results.ObsTest;
 opt = p.Results.Option;
 tit = p.Results.Title;
+blur = p.Results.BlurIndex;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
-blur = p.Results.BlurIndex;
+
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -153,29 +157,29 @@ if isnumeric(opt), opt=num2str(opt); end
 while length(opt)<5, opt = strcat(opt,'0'); end
 if length(opt)<6 && opt(4)==1, opt = strcat(opt,'0'); end
 
-if opt(3) == '0', opt(3) = '1'; else,  opt(3) = '0'; end
-if opt(2) == 1 || opt(2) == '1'
-    K = L;
-else
-    K = N+L;
-end
+% if opt(3) == '0', opt(3) = '1'; else,  opt(3) = '0'; end
+% if opt(2) == 1 || opt(2) == '1'
+%     K = L;
+% else
+%     K = N+L;
+% end
 
-if nargin < 4, tit = ''; end 
-if nargin < 5 || isempty(label) 
-    if opt(2) == 1 || opt(2) == '1'
-        label = 1:L;
-    else
-        label = [1:N 1:L]; 
-    end
-end
-if nargin < 6 || isempty(classes)
-    if opt(2) == 1 || opt(2) == '1' 
-        classes = ones(L,1); 
-    else
-        classes = [ones(N,1);2*ones(L,1)];  
-    end
-end
-if nargin < 7 || isempty(blur),    blur    = 1;       end;
+% % if nargin < 4, tit = ''; end 
+% if nargin < 5 || isempty(label) 
+%     if opt(2) == 1 || opt(2) == '1'
+%         label = 1:L;
+%     else
+%         label = [1:N 1:L]; 
+%     end
+% end
+% if nargin < 6 || isempty(classes)
+%     if opt(2) == 1 || opt(2) == '1' 
+%         classes = ones(L,1); 
+%     else
+%         classes = [ones(N,1);2*ones(L,1)];  
+%     end
+% end
+% if nargin < 7 || isempty(blur),    blur    = 1;       end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -235,7 +239,7 @@ if length(model.lvs) == 1 || opt(1) == '1'
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}','Option',opt(3:end),'BlurIndex',blur)];
+            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}','Option',opt(3:end),'BlurIndex',blur)];
             title(tit);
         end
     end
