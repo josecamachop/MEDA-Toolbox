@@ -14,7 +14,7 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 %
 % P: [MxA] loadings.
 %
-% Optional INPUTS:
+% Optional INPUTS (Parameter):
 %
 % 'Option': (str or num) options for data plotting.
 %       0: no plots.
@@ -38,7 +38,7 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 %
 % X = simuleMV(20,10,8);
 % [P,T] = pca_pp(X);
-%
+% 
 % % Plot ('Option' default 1)
 % cumpress = ckf(X,T,P);
 %
@@ -46,7 +46,7 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 % cumpress = ckf(X,T,P,'Option',0);
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 4/Apr/2024
+% last modification: 16/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -71,7 +71,7 @@ assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(xcs, 1);
 M = size(xcs, 2);
 A = size(T, 2);
-%if nargin < 4 || isempty(opt), opt=1; end;
+
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -125,8 +125,10 @@ end
     
 %% Show results
 
-if opt == '1',    
-    fig_h = plot_vec(cumpress/cumpress(1),0:A,[],{'#PCs','ckf'},[],0); 
+if opt == '1'
+    A = size(T, 2);
+    Z = 0:A;
+    fig_h = plot_vec(cumpress/cumpress(1),'EleLabel',Z,'XYLabel',{'#PCs','ckf'},'Option',0); 
 end
 
         

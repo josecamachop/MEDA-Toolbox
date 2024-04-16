@@ -24,7 +24,7 @@ function F = create_design(levels,varargin)
 %
 % reps = 4;
 % levels = {[1,2,3,4],[1,2,3]};
-%
+% 
 % F = create_design(levels,'Replicates',reps);
 %
 %

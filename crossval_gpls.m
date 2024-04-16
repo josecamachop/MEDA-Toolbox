@@ -67,7 +67,7 @@ function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
 % legend('show')
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 4/Apr/24.
+% last modification: 16/Apr/24.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -93,14 +93,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
-
-% if nargin < 4 || isempty(gammas), gammas = 0:0.1:1; end;
-
-% if nargin < 5 || isempty(blocks_r), blocks_r = N; end;
-% if nargin < 6 || isempty(prepx), prepx = 2; end;
-% if nargin < 7 || isempty(prepy), prepy = 2; end;
-% if nargin < 8 || isempty(opt), opt = 1; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -176,23 +168,23 @@ for i=1:blocks_r,
     sample_y = y(ind_i,:);
     calibr_y = y(find(i2),:); 
 
-    [ccs,av,st] = preprocess2D(calibr,prepx);
-    [ccs_y,av_y,st_y] = preprocess2D(calibr_y,prepy);
+    [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);
+    [ccs_y,av_y,st_y] = preprocess2D(calibr_y,'Preprocessing',prepy);
         
-    scs = preprocess2Dapp(sample,av,st);
-    scs_y = preprocess2Dapp(sample_y,av_y,st_y);
+    scs = preprocess2Dapp(sample,av,'SDivideTest',st);
+    scs_y = preprocess2Dapp(sample_y,av_y,'SDivideTest',st_y);
      
     gammas2 = gammas;
     gammas2(find(gammas==0)) = [];  
     if ~isempty(gammas2)
-        [kk,kk,kk,kk,kk,kk,stree] = gpls_meda(ccs,ccs_y,1:max(lvs),min(gammas2));
+        [kk,kk,kk,kk,kk,kk,stree] = gpls_meda(ccs,ccs_y,'LatVars',1:max(lvs),'Gamma',min(gammas2));
     else
         stree = [];
     end
 
     for gamma=1:length(gammas),
         
-        [beta,W,P,Q,R] = gpls_meda(ccs,ccs_y,1:max(lvs),gammas(gamma),stree);
+        [beta,W,P,Q,R] = gpls_meda(ccs,ccs_y,'LatVars',1:max(lvs),'Gamma',gammas(gamma),'Stree',stree);
             
         for lv=1:length(lvs),
                 
@@ -221,6 +213,6 @@ cumpress = sum(press,3);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(cumpress',gammas,[],{'\gamma','PRESS'},[],0,lvs); 
+    fig_h = plot_vec(cumpress','EleLabel',gammas,'XYLabel',{'\gamma','PRESS'},'Option',0,'VecLabel',lvs); 
 end
 

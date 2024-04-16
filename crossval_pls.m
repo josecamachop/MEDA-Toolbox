@@ -154,13 +154,13 @@ for i=1:blocks_r
     sample_y = y(ind_i,:);
     calibr_y = y(find(i2),:); 
 
-    [ccs,av,st] = preprocess2D(calibr,prepx);
-    [ccs_y,av_y,st_y] = preprocess2D(calibr_y,prepy);
+    [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);
+    [ccs_y,av_y,st_y] = preprocess2D(calibr_y,'Preprocessing',prepy);
         
-    scs = preprocess2Dapp(sample,av,st);
-    scs_y = preprocess2Dapp(sample_y,av_y,st_y);
+    scs = preprocess2Dapp(sample,av,'SDivideTest',st);
+    scs_y = preprocess2Dapp(sample_y,av_y,'SDivideTest',st_y);
     
-    [beta,W,P,Q,R] = simpls(ccs,ccs_y,0:max(lvs));
+    [beta,W,P,Q,R] = simpls(ccs,ccs_y,'LatVars',0:max(lvs));
     
     for lv=1:length(lvs),
     
@@ -184,6 +184,6 @@ cumpress = sum(press,2);
 %% Show results
 
 if opt == '1' 
-    fig_h = plot_vec(cumpress,lvs,[],{'#LVs','PRESS'},[],0); 
+    fig_h = plot_vec(cumpress,'EleLabel',lvs,'XYLabel',{'#LVs','PRESS'},'Option',0); 
 end
 

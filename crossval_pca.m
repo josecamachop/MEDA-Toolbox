@@ -52,7 +52,7 @@ function [cumpress,press] = crossval_pca(x,pcs,varargin)
 %
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Apr/2024
+% last modification: 16/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -79,11 +79,7 @@ N = size(x, 1);
 M = size(x, 2);
 % if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
 A = length(pcs);
-% if nargin < 3 || isempty(leave_m), leave_m = 'rkf'; end;
-% if nargin < 4 || isempty(blocks_r), blocks_r = N; end;
-% if nargin < 5 || isempty(blocks_c), blocks_c = M; end;
-% if nargin < 6 || isempty(prep), prep = 2; end;
-% if nargin < 7 || isempty(opt), opt = 1; end;
+
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -162,7 +158,7 @@ for i=1:blocks_r,
     sc = size(calibr);
     ss = size(sample);
 
-    [ccs,av,st] = preprocess2D(calibr,prep);
+    [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prep);
     
     if ~prep,
         avs_prep=ones(ss(1),1)*mean(ccs);
@@ -170,9 +166,9 @@ for i=1:blocks_r,
         avs_prep=zeros(ss);
     end
   
-    scs = preprocess2Dapp(sample,av,st);
+    scs = preprocess2Dapp(sample,av,'SDivideTest',st);
      
-    p = pca_pp(ccs,0:max(pcs));
+    p = pca_pp(ccs,'Pcs',0:max(pcs));
     
     for pc=1:length(pcs),
         
@@ -246,6 +242,6 @@ cumpress = sum(press,2);
 %% Show results
 
 if opt == '1',    
-    fig_h = plot_vec(cumpress,pcs,[],{'#PCs','PRESS'},[],0); 
+    fig_h = plot_vec(cumpress,'EleLabel',pcs,'XYLabel',{'#PCs','PRESS'},'Option',0); 
 end
 
