@@ -54,9 +54,9 @@ function [D, parglmo, anovast] = codglm(F, parglmi, anovast)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % D = codglm(F)
 %
 %

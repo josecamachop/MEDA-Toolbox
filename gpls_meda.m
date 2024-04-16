@@ -66,7 +66,7 @@ function  [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/2024.
+% last modification: 16/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

@@ -167,7 +167,7 @@ for j = 1:max(lvs),
         end
     end
 
-    sS = sum((preprocess2D(Tt,2)'*ycs).^2,2); % select pseudo-eigenvector with the highest covariance
+    sS = sum((preprocess2D(Tt,'Preprocessing',2)'*ycs).^2,2); % select pseudo-eigenvector with the highest covariance
     if max(sS),
         ind = find(sS==max(sS),1);
     else
