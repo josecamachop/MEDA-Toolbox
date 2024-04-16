@@ -46,21 +46,20 @@ function fig_h = biplot(model,varargin)
 % arrows displayed 
 %
 % X = simuleMV(20,10,8);
-% [~,~,model] = pca_pp(X,1:2);
+% [~,~,model] = pca_pp(X,'Pcs',1:2);
 % 
 % A = cell(1, 20);
 % 
 % for i = 1:20
 %     A{i} = ['A_{', num2str(i), '}'];
 % end
-% 
+
 % A = A';
 % T = biplot(model, 'Title', 'Random Biplot 10%', 'ObsLabel', A, 'PercArrows',10);
 % T = biplot(model, 'Title', 'Random Biplot 20%', 'ObsLabel', A, 'PercArrows',25); 
 %
-%
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 4/Apr/2024
+% last modification: 16/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -160,7 +159,7 @@ fig_h = [];
 for i=1:length(model.lvs)-1
     for j=i+1:length(model.lvs)
         
-        fig_h = [fig_h plot_scatter([T(:,i),T(:,j)], label, classes, {sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}',[],opt,[],[],blur(1))];
+        fig_h = [fig_h plot_scatter([T(:,i),T(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}','Option',opt,'BlurIndex',blur(1))];
         title(tit);
         
         if opt 
@@ -186,7 +185,7 @@ for i=1:length(model.lvs)-1
             plot([0 P2(ind(ii),i)],[0 P2(ind(ii),j)],'k-^');
         end
         
-        text_scatter(fig_h(end),[P2(ind,i),P2(ind,j)],vlabel(ind),[],[],[],blur(2));
+        text_scatter(fig_h(end),[P2(ind,i),P2(ind,j)],'EleLabel',vlabel(ind),'BlurIndex',blur(2));
         
         axis auto
         ax = axis;
