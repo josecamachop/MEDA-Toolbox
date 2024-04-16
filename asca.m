@@ -30,14 +30,14 @@ function ascao = asca(parglmo)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
-%
+% 
 % [table, parglmo] = parglm(X, F);
 % table
 % 
@@ -55,9 +55,9 @@ function ascao = asca(parglmo)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     fi{i} = randn(1,vars);
@@ -70,8 +70,8 @@ function ascao = asca(parglmo)
 %         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(fi{i} + fj{j},reps,1);
 %     end
 % end
-%
-% [table, parglmo] = parglm(X, F, {[1 2]});
+% 
+% [table, parglmo] = parglm(X, F, 'Model',{[1 2]});
 % table
 % 
 % ascao = asca(parglmo);
@@ -89,32 +89,32 @@ function ascao = asca(parglmo)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     for j = 1:length(levels{2}),
 %         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(randn(1,vars),reps,1);
 %     end
 % end
-%
-% [table, parglmo] = parglm(X, F, {[1 2]});
+% 
+% [table, parglmo] = parglm(X, F, 'Model',{[1 2]});
 % table
 % 
 % ascao = asca(parglmo);
-%
+% 
 % M = ascao.factors{1}.matrix + ascao.factors{2}.matrix + ascao.interactions{1}.matrix;
 % code_levels = {};
 % for i=1:size(F,1), code_levels{i} = sprintf('F1:%d,F2:%d',F(i,1),F(i,2));end;
-% scores_pca(M,1:2,X,0,101,[],code_levels);
+% scores_pca(M,'Pcs',1:2,'ObsTest',X,'Preprocessing',0,'Option',101,'ObsClass',code_levels);
 % legend(unique(code_levels))
-%
-% loadings_pca(M,1:2,0);
+% 
+% loadings_pca(M,'Pcs',1:2,'Preprocessing',0);
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 30/Nov/23
+% last modification: 16/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -146,7 +146,7 @@ ascao = parglmo;
 for factor = 1 : ascao.n_factors
     
     xf = ascao.factors{factor}.matrix;
-    p = pca_pp(xf,1:rank(xf));
+    p = pca_pp(xf,'Pcs',1:rank(xf));
     
     ascao.factors{factor}.var = trace(xf'*xf);
     ascao.factors{factor}.lvs = 1:size(p,2);
@@ -162,7 +162,7 @@ for interaction = 1 : ascao.n_interactions
     for factor = 1 : ascao.interactions{1}.factors
         xf = xf + ascao.factors{factor}.matrix;
     end
-    p = pca_pp(xf,1:rank(xf));
+    p = pca_pp(xf,'Pcs',1:rank(xf));
     
     ascao.interactions{interaction}.var = trace(xf'*xf);
     ascao.interactions{interaction}.lvs = 1:size(p,2);

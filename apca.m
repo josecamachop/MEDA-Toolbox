@@ -59,7 +59,7 @@ function apcao = apca(parglmo)
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
 %
-% F = create_design(levels,reps);
+% F = create_design(levels,'Replicates',reps);
 %
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
@@ -74,7 +74,7 @@ function apcao = apca(parglmo)
 %     end
 % end
 %
-% [table, parglmo] = parglm(X, F, [1 2]);
+% [table, parglmo] = parglm(X, F, 'Model',[1 2]);
 % table
 % 
 % apcao = apca(parglmo);
@@ -93,7 +93,7 @@ function apcao = apca(parglmo)
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
 %
-% F = create_design(levels,reps);
+% F = create_design(levels,'Replicates',reps);
 %
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
@@ -102,7 +102,7 @@ function apcao = apca(parglmo)
 %     end
 % end
 %
-% [table, parglmo] = parglm(X, F, [1 2]);
+% [table, parglmo] = parglm(X, F, 'Model',[1 2]);
 % table
 % 
 % apcao = apca(parglmo);
@@ -110,10 +110,10 @@ function apcao = apca(parglmo)
 % M = apcao.factors{1}.matrix + apcao.factors{2}.matrix + apcao.interactions{1}.matrix;
 % code_levels = {};
 % for i=1:size(F,1), code_levels{i} = sprintf('F1:%d,F2:%d',F(i,1),F(i,2));end;
-% scores_pca(M,1:2,X,0,101,[],code_levels);
+% scores_pca(M,'Pcs',1:2,'ObsTest',X,'Preprocessing',0,'Option',101,'ObsClass',code_levels);
 % legend(unique(code_levels))
 %
-% loadings_pca(M,1:2,0);
+% loadings_pca(M,'Pcs',1:2,'Preprocessing',0);
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
