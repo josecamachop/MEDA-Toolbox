@@ -127,17 +127,11 @@ M = size(model.loads,1);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'ObsTest',[]);
-L = size('ObsTest', 1);
-addParameter(p,'Option','0');
-if 'Option' == '1'
-    K = L;
-else
-    K = N+L;
-end
+addParameter(p,'Option','00000');
 addParameter(p,'Title',' ');  
 addParameter(p,'BlurIndex',1);
-addParameter(p,'ObsLabel',1:K);
-addParameter(p,'ObsClass',ones(K,1));
+addParameter(p,'ObsLabel',[]);
+addParameter(p,'ObsClass',[]);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -149,6 +143,7 @@ blur = p.Results.BlurIndex;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
 
+L = size(test, 1);
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -157,34 +152,34 @@ if isnumeric(opt), opt=num2str(opt); end
 while length(opt)<5, opt = strcat(opt,'0'); end
 if length(opt)<6 && opt(4)==1, opt = strcat(opt,'0'); end
 
-% if opt(3) == '0', opt(3) = '1'; else,  opt(3) = '0'; end
-% if opt(2) == 1 || opt(2) == '1'
-%     K = L;
-% else
-%     K = N+L;
-% end
+if opt(3) == '0', opt(3) = '1'; else,  opt(3) = '0'; end
+if opt(2) == 1 || opt(2) == '1'
+    K = L;
+else
+    K = N+L;
+end
 
 % % if nargin < 4, tit = ''; end 
-% if nargin < 5 || isempty(label) 
-%     if opt(2) == 1 || opt(2) == '1'
-%         label = 1:L;
-%     else
-%         label = [1:N 1:L]; 
-%     end
-% end
-% if nargin < 6 || isempty(classes)
-%     if opt(2) == 1 || opt(2) == '1' 
-%         classes = ones(L,1); 
-%     else
-%         classes = [ones(N,1);2*ones(L,1)];  
-%     end
-% end
+if isempty(label) 
+    if opt(2) == 1 || opt(2) == '1'
+        label = 1:L;
+    else
+        label = [1:N 1:L]; 
+    end
+end
+if isempty(classes)
+    if opt(2) == 1 || opt(2) == '1' 
+        classes = ones(L,1); 
+    else
+        classes = [ones(N,1);2*ones(L,1)];  
+    end
+end
+
 % if nargin < 7 || isempty(blur),    blur    = 1;       end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
-
 
 % Validate dimensions of input data
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 2nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
