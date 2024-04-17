@@ -27,14 +27,14 @@ function [cumpress,press] = crossval_pca(x,pcs,varargin)
 %
 % 'MaxVarBlock': [1x1] maximum number of blocks of variables (M by default)
 %
-% 'preprocesing': [1x1] preprocesing
+% 'Preprocesing': [1x1] preprocesing
 %       0: no preprocessing 
 %       1: mean-centering 
 %       2: auto-scaling (default)  
 %
-% 'Option': (str or num) options for data plotting.
-%       0: no plots.
-%       1: plot (default)
+% 'Plot': (bool) plot results.
+%       false: no plots.
+%       true: plot (default)
 %
 %
 % OUTPUTS:
@@ -87,7 +87,7 @@ addParameter(p,'ValProcedure','rkf');
 addParameter(p,'MaxSampleBlock',N);
 addParameter(p,'MaxVarBlock',M);
 addParameter(p,'Preprocessing',2);   
-addParameter(p,'Option',1);   
+addParameter(p,'Plot',true);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -95,11 +95,7 @@ leave_m = p.Results.ValProcedure;
 blocks_r = p.Results.MaxSampleBlock;
 blocks_c = p.Results.MaxVarBlock;
 prep = p.Results.Preprocessing;
-opt = p.Results.Option;
-
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
+opt = p.Results.Plot;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -125,7 +121,7 @@ assert (blocks_r>2, 'Value Error: 4th argument must be above 2. Type ''help %s''
 assert (blocks_c>2, 'Value Error: 5th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r<=N, 'Value Error: 4th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_c<=M, 'Value Error: 5th argument must be at most M. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
+assert (islogical(opt), 'Value Error: 7th argument must contain a boolean. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -148,7 +144,7 @@ elem_c=M/blocks_c;
 
 
 % Cross-validation
-for i=1:blocks_r,
+for i=1:blocks_r
     
     ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
     i2 = ones(N,1);
@@ -160,7 +156,7 @@ for i=1:blocks_r,
 
     [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prep);
     
-    if ~prep,
+    if ~prep
         avs_prep=ones(ss(1),1)*mean(ccs);
     else
         avs_prep=zeros(ss);
@@ -170,29 +166,29 @@ for i=1:blocks_r,
      
     p = pca_pp(ccs,'Pcs',0:max(pcs));
     
-    for pc=1:length(pcs),
+    for pc=1:length(pcs)
         
-        if pcs(pc) > 0, % PCA Modelling
+        if pcs(pc) > 0 % PCA Modelling
                                
             p2 = p(:,1:min(pcs(pc),end));
             
             switch lower(leave_m)
                 
-                case 'rkf',
+                case 'rkf'
                     t_est = scs*p2;
                     srec = t_est*p2';
                     pem = sum((scs-srec).^2,1);
                                      
-                case 'ekf',
+                case 'ekf'
                     t_est = scs*p2;
                     srec = t_est*p2';
                     erec = scs - srec;
                     term3_p = erec;
-                    if blocks_c == M,
+                    if blocks_c == M
                         term1_p = (scs-avs_prep).*(ones(ss(1),1)*(sum(p2.*p2,2))');
                     else
                         term1_p = zeros(size(term3_p));
-                        for j=1:blocks_c,
+                        for j=1:blocks_c
                             ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection
                             term1_p(:,ind_j) = (scs(:,ind_j)-avs_prep(:,ind_j))*(p2(ind_j,:)*p2(ind_j,:)');
                         end
@@ -210,7 +206,7 @@ for i=1:blocks_r,
                     
                     rec = t_cest*p2';
                     rec_sam = t_sest*p2';
-                    for j=1:blocks_c,
+                    for j=1:blocks_c
                         ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection
                         p3 = pca_pp([ccs rec(:,ind_j)],pc);
                         scs2 = [scs rec_sam(:,ind_j)];
@@ -241,7 +237,7 @@ cumpress = sum(press,2);
 
 %% Show results
 
-if opt == '1',    
-    fig_h = plot_vec(cumpress,'EleLabel',pcs,'XYLabel',{'#PCs','PRESS'},'Option',0); 
+if opt    
+    fig_h = plot_vec(cumpress,'EleLabel',pcs,'XYLabel',{'#PCs','PRESS'},'Option','01'); 
 end
 
