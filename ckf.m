@@ -128,7 +128,7 @@ end
 if opt == '1'
     A = size(T, 2);
     Z = 0:A;
-    fig_h = plot_vec(cumpress/cumpress(1),'EleLabel',Z,'XYLabel',{'#PCs','ckf'},'Option',0); 
+    fig_h = plot_vec(cumpress/cumpress(1),'EleLabel',Z,'XYLabel',{'#PCs','ckf'},'Option','01'); 
 end
 
         
