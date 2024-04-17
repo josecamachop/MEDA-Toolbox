@@ -116,7 +116,7 @@ function apcao = apca(parglmo)
 % loadings_pca(M,'Pcs',1:2,'Preprocessing',0);
 %
 %
-% coded by: José Camacho (josecamacho@ugr.es)
+% coded by: Jos  Camacho (josecamacho@ugr.es)
 % last modification: 04/Sep/23
 %
 % Copyright (C) 2024  University of Granada, Granada
@@ -161,7 +161,7 @@ end
 for interaction = 1 : apcao.n_interactions
     
     xf = apcao.interactions{interaction}.matrix+apcao.residuals;
-    p = pca_pp(xf,1:rank(apcao.interactions{interaction}.matrix));
+    p = pca_pp(xf,'Pcs',1:rank(apcao.interactions{interaction}.matrix));
     
     apcao.factors{factor}.var = trace(xf'*xf);
     apcao.interactions{interaction}.lvs = 1:size(p,2);
