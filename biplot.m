@@ -53,7 +53,7 @@ function fig_h = biplot(model,varargin)
 % for i = 1:20
 %     A{i} = ['A_{', num2str(i), '}'];
 % end
-
+% 
 % A = A';
 % T = biplot(model, 'Title', 'Random Biplot 10%', 'ObsLabel', A, 'PercArrows',10);
 % T = biplot(model, 'Title', 'Random Biplot 20%', 'ObsLabel', A, 'PercArrows',25); 
