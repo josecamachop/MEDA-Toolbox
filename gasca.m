@@ -44,22 +44,24 @@ function gascao = gasca(paranovao_st,c)
 %   X(find(F(:,2) == levels{2}(i)),int2) = X(find(F(:,2) == levels{2}(i)),int2) + simuleMV(reps*length(levels{1}),length(int2),8) + repmat(randn(1,length(int2)),reps*length(levels{1}),1);
 % end
 % 
-% paranovao_st = parglm(X, F);
+% [table, paranovao_st] = parglm(X, F); %He añadido table para intentar
+% %imitar apca y asca para probar si funcionaba, antes no tenia table
+% %añadido pero daba error en que no reconocia .factors de paranovao.st
+% table
 % 
-% for i=1:length(paranovao_st.factors),
+% for i=1:length(paranovao_st.factors)
 %   map = corr(paranovao_st.factors{i}.matrix);
 %   plot_map(map);
 %   c = input('Introduce threshold for correlation in interval (0,1): ');
-%   [bel,paranovao_st.factors{i}.states] = gia(map,-c);
+%   [bel,paranovao_st.factors{i}.states] = gia(map,'Gamma',-c);
 % end
 % 
 % gascao = gasca(paranovao_st);
 % 
 % for i=1:2,
-%   scores(gascao.factors{i},[],[],sprintf('Factor %d',i),[],gascao.design(:,i));
-%   loadings(gascao.factors{i},[],sprintf('Factor %d',i));
+%   scores(gascao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',gascao.design(:,i));
+%   loadings(gascao.factors{i},'Title',sprintf('Factor %d',i));
 % end
-
 %
 % EXAMPLE OF USE: Same example with MEDA:
 %
@@ -98,7 +100,7 @@ function gascao = gasca(paranovao_st,c)
 % Related routines: parglm, paranova, asca, apca, create_design 
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 8/Apr/24
+% last modification: 18/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -130,7 +132,8 @@ gascao = paranovao_st;
 for factor = 1 : gascao.n_factors
     
     xf = gascao.factors{factor}.matrix;
-    map = meda_pca(xf,[],0,0.3,'0');
+    map = meda_pca(xf,'Preprocessing',0,'Threshold',0.3,'Option','000');
+    
     gascao.factors{factor}.states = transform_crit(map,c(factor));
     
     p = gpca(xf,gascao.factors{factor}.states,1:rank(xf));
@@ -146,7 +149,7 @@ end
 for interaction = 1 : gascao.n_interactions
     
     xf = gascao.interactions{interaction}.matrix;
-    map = meda_pca(xf,[],0,0.3,'0');
+    map = meda_pca(xf,'Preprocessing',0,'Threshold',0.3,'Option','000');
     gascao.interactions{interaction}.states = transform_crit(map,c(length(gascao.factors)+interaction));
     
     p = gpca(xf,gascao.interactions{interaction}.states,1:rank(xf));
