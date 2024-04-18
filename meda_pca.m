@@ -61,7 +61,7 @@ function [meda_map,ind,ord] = meda_pca(x,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/2024
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -153,9 +153,9 @@ assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>
 x = x(:,vars);
 label = label(vars);
 
-x2 = preprocess2D(x,prep);
+x2 = preprocess2D(x,'Preprocessing',prep);
 
-P = pca_pp(x2,pcs);
+P = pca_pp(x2,'Pcs',pcs);
         
 meda_map = meda(x2'*x2,P);
 
@@ -166,7 +166,7 @@ else
     ind = 1:length(vars);
 end
 
-if opt(2) == '1',
+if opt(2) == '1'
     [map, ord] = seriation(meda_map(ind,ind));
 else
     ord = 1:length(vars);
@@ -175,11 +175,11 @@ end
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
     map = meda_map;
 
-    if opt(3) == '1',
+    if opt(3) == '1'
         ind2 = ind;
     else
         ind2 = 1:length(vars);
@@ -188,7 +188,7 @@ if opt(1) == '1',
     map = map(ind2,ind2);
     label = label(ind2);
     
-    if opt(2) == '1',
+    if opt(2) == '1'
         ord2 = ord;
     else
         ord2 = 1:length(vars);
@@ -197,7 +197,7 @@ if opt(1) == '1',
     map = map(ord2,ord2);
     label = label(ord2);
     
-    plot_map(map,label);
+    plot_map(map,'VarsLabel',label);
     
 end  
 

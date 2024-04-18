@@ -57,7 +57,7 @@ function L = leverages_pls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/2024
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -82,12 +82,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-% if nargin < 3 || isempty(lvs), lvs = 1:rank(x); end;
-% if nargin < 4 || isempty(prepx), prepx = 2; end;
-% if nargin < 5 || isempty(prepy), prepy = 2; end;
-% if nargin < 6 || isempty(opt), opt = 1; end; 
-% if nargin < 7 || isempty(label), label = [1:M]; end
-% if nargin < 8 || isempty(classes), classes = ones(M,1); end
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -141,10 +135,10 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must cont
 
 %% Main code
 
-xcs = preprocess2D(x,prepx);
-ycs = preprocess2D(y,prepy);
+xcs = preprocess2D(x,'Preprocessing',prepx);
+ycs = preprocess2D(y,'Preprocessing',prepy);
 
-[beta,W,P,Q] = simpls(xcs,ycs,lvs);
+[beta,W,P,Q] = simpls(xcs,ycs,'LatVars',lvs);
 
 L = diag(W*W');
 
@@ -152,6 +146,6 @@ L = diag(W*W');
 %% Show results
 
 if opt == '1'
-    plot_vec(L, label, classes, {'Variables','Leverages'});
+    plot_vec(L, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'Variables','Leverages'});
 end
         

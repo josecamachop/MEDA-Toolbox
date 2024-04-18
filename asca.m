@@ -42,7 +42,7 @@ function ascao = asca(parglmo)
 % table
 % 
 % ascao = asca(parglmo);
-%
+% 
 % for i=1:2, % Note, the second factor is only shown for the sake of illustration, but non-significant factors should not be visualized
 %   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
 %   loadings(ascao.factors{i},[],sprintf('Factor %d',i));
@@ -75,10 +75,10 @@ function ascao = asca(parglmo)
 % table
 % 
 % ascao = asca(parglmo);
-%
+% 
 % for i=1:2,
-%   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
-%   loadings(ascao.factors{i},[],sprintf('Factor %d',i));
+%   scores(ascao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',ascao.design(:,i));
+%   loadings(ascao.factors{i},'Title',sprintf('Factor %d',i));
 % end
 %
 %
@@ -114,7 +114,7 @@ function ascao = asca(parglmo)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 16/Apr/2024
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %

@@ -282,7 +282,7 @@ end
 
 for f = 1 : n_factors
     if ordinal(f)
-        D(:,n+1) = preprocess2D(F(:,f),1);
+        D(:,n+1) = preprocess2D(F(:,f),'Preprocessing',1);
         parglmo.factors{f}.Dvars = n+1;
         n = n + 1;
         parglmo.factors{f}.order = 1;

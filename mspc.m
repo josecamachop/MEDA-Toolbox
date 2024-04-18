@@ -45,10 +45,10 @@ function [Dst,Qst] = mspc(testcs,varargin)
 % n_vars = 10;
 % n_PCs = 1;
 % X = simuleMV(n_obs,n_vars,6);
-% [Xcs, m, sc] = preprocess2D(X,2);
+% [Xcs, m, sc] = preprocess2D(X,'Preprocessing',2);
 % 
 % pcs = 1:n_PCs;
-% [p,t] = pca_pp(Xcs,pcs);
+% [p,t] = pca_pp(Xcs,'Pcs',pcs);
 % e = Xcs - t*p';
 % UCLd = hot_lim(n_PCs,n_obs,0.05,'Phase',2);
 % UCLq = spe_lim(e,0.01);
@@ -56,15 +56,14 @@ function [Dst,Qst] = mspc(testcs,varargin)
 % n_obst = 10;
 % test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
 % test(6:10,:) = 3*test(6:10,:);
-% testcs = preprocess2Dapp(test,m,sc);
+% testcs = preprocess2Dapp(test,m,'SDivideTest',sc);
 % 
 % [Dst,Qst] = mspc(testcs,'InvCovarT',inv(cov(t)),'InSubspace',p);
 % 
-% plot_scatter([Dst,Qst],[],[ones(5,1);2*ones(5,1)],{'D-st','Q-st'},{UCLd,UCLq}); 
-%
-%
+% plot_scatter([Dst,Qst],'ObsClass',[ones(5,1);2*ones(5,1)],'XYLabel',{'D-st','Q-st'},'LimCont',{UCLd,UCLq}); 
+
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/2024.
+% last modification: 18/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -87,10 +86,6 @@ function [Dst,Qst] = mspc(testcs,varargin)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(testcs, 2);
-% if nargin < 2, invCT = []; end;
-
-% if nargin < 3 || isempty(R), R = zeros(M,A); end;
-% if nargin < 4 || isempty(Q), Q = R; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;

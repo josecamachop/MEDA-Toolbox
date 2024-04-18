@@ -45,16 +45,16 @@ function omeda_vec = omeda(testcs,dummy,R,varargin)
 % n_vars = 10;
 % n_PCs = 10;
 % X = simuleMV(n_obs,n_vars,6);
-% [Xcs, m, sc] = preprocess2D(X,2);
+% [Xcs, m, sc] = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:n_PCs;
-% p = pca_pp(Xcs,pcs);
+% p = pca_pp(Xcs,'Pcs',pcs);
 % 
 % n_obst = 10;
 % test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
 % test(1,1:2) = 10*max(abs(X(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;
-% testcs = preprocess2Dapp(test,m,sc);
+% testcs = preprocess2Dapp(test,m,'SDivideTest',sc);
 % 
 % omeda_vec = omeda(testcs,dummy,p);
 % 
@@ -62,7 +62,7 @@ function omeda_vec = omeda(testcs,dummy,R,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 10/Apr/2024.
+% last modification: 18/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

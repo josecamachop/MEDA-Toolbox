@@ -55,7 +55,7 @@ function [cumpress,press,nze] = crossval_spls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Apr/24.
+% last modification: 18/Apr/24.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -163,11 +163,11 @@ for i=1:blocks_r,
     sample_y = y(ind_i,:);
     calibr_y = y(find(i2),:); 
 
-    [ccs,av,st] = preprocess2D(calibr,prepx);
-    [ccs_y,av_y,st_y] = preprocess2D(calibr_y,prepy);
+    [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);
+    [ccs_y,av_y,st_y] = preprocess2D(calibr_y,'Preprocessing',prepy);
         
-    scs = preprocess2Dapp(sample,av,st);
-    scs_y = preprocess2Dapp(sample_y,av_y,st_y);
+    scs = preprocess2Dapp(sample,av,'SDivideTest',st);
+    scs_y = preprocess2Dapp(sample_y,av_y,'SDivideTest',st_y);
     
     if  ~isempty(find(lvs)),
         
@@ -206,6 +206,6 @@ cumpress = sum(press,3);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(cumpress',keepXs,[],{'#NZV','PRESS'},[],0,lvs); 
+    fig_h = plot_vec(cumpress','EleLabel',keepXs,'XYLabel',{'#NZV','PRESS'},'Option','01','VecLabel',lvs); 
 end
 

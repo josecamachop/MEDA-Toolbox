@@ -46,9 +46,9 @@ function text_scatter(fig_h,bdata,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/Apr/2023
+% last modification: 18/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -83,7 +83,7 @@ N = size(bdata, 1);
 p = inputParser;
 addParameter(p,'EleLabel',1:N);   
 addParameter(p,'ObsClass',ones(N,1));   
-addParameter(p,'Option',000);   
+addParameter(p,'Option','000');   
 addParameter(p,'Multiplicity',ones(N,1)); 
 addParameter(p,'BlurIndex',1);
 parse(p,varargin{:});

@@ -42,15 +42,15 @@ function [bel,states,stree] = gia(map,varargin)
 %
 % X = simuleMV(20,10,8);
 % pcs = 1:3;
-% map = meda_pca(X,pcs);
-% [bel,states] = gia(map,0.3);
+% map = meda_pca(X,'Pcs',pcs);
+% [bel,states] = gia(map,'Gamma',0.3);
 %
 %
 % EXAMPLE OF USE: Checking metaparameter:
 %
 % X = simuleMV(20,100,8);
 % pcs = 1:3;
-% map = meda_pca(X,pcs);
+% map = meda_pca(X,'Pcs',pcs);
 % C = [0.05:0.05:0.95];
 % 
 % [belv{1},statesv{1},stree] = gia(map,'Gamma',C(1));
@@ -64,10 +64,9 @@ function [bel,states,stree] = gia(map,varargin)
 %   for j=1:length(statesv{i}), S = S + length(statesv{i}{j}); end;
 %   disp(['There are ',num2str(length(statesv{i})),' groups with mean size ' ,num2str(S/length(statesv{i})), ' for C = ', num2str(C(i))])
 % end
-
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 8/Apr/24.
+% last modification: 18/Apr/24.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -90,9 +89,6 @@ function [bel,states,stree] = gia(map,varargin)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(map, 1);
-% if nargin < 2 || isempty(gamma), gamma=0.7; end;
-% if nargin < 3 || isempty(siz), siz=2; end;
-% if nargin < 4 || isempty(stree), stree={}; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;

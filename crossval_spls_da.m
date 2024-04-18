@@ -16,7 +16,7 @@ function [AUC,nze] = crossval_spls_da(x,y,varargin)
 %
 % y: [NxO] billinear data set of dummy variables (+1, -1)
 %
-% Optional INPUTS:
+% Optional INPUTS (parameter):
 %
 % 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
@@ -100,11 +100,7 @@ ind(r1) = c(r2);
 vals = unique(ind);
 rep = sort(histc(ind,vals),'ascend');
 N2 = rep(1); % minimum length of a class
-% if nargin < 5 || isempty(blocks_r), blocks_r = max(2,N2); end;
-% 
-% if nargin < 6 || isempty(prepx), prepx = 2; end;
-% if nargin < 7 || isempty(prepy), prepy = 2; end;
-% if nargin < 8 || isempty(opt), opt = 1; end;
+
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -194,7 +190,7 @@ for i=1:blocks_r,
     sample_y = y(test,:);
     calibr_y = y(cal,:);  
     
-    [ccs,av,st] = preprocess2D(calibr,prepx);    
+    [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);    
     %[ccs_y,av_y,st_y] = preprocess2D(calibr_y,prepy);
     ccs_y = calibr_y;
     
@@ -206,12 +202,12 @@ for i=1:blocks_r,
     for j=1:length(vals)
         ind2 = find(ind==vals(j));
         if ~isempty(ind2),
-            [kk,m(j,:)] = preprocess2D(ccs(ind2,:),1);  % additional subtraction of class mean
+            [kk,m(j,:)] = preprocess2D(ccs(ind2,:),'Preprocessing',1);  % additional subtraction of class mean
         end
     end
     ccs = preprocess2Dapp(ccs,mean(m));
         
-    scs = preprocess2Dapp(sample,av,st);
+    scs = preprocess2Dapp(sample,av,'SDivideTest',st);
     scs = preprocess2Dapp(scs,mean(m));
 
     %[ccs,PR] = reduce2(ccs,coef);
@@ -258,7 +254,7 @@ AAUC =  mean(AUC,3);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(AAUC',keepXs,[],{'#NZV','AUC'},[],0,lvs); 
+    fig_h = plot_vec(AAUC','EleLabel',keepXs,'XYLabel',{'#NZV','AUC'},'Option','01','VecLabel',lvs); 
     legend('show')
 end
 

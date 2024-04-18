@@ -36,33 +36,33 @@ function meda_map = meda(XX,R,varargin)
 % EXAMPLE OF USE: MEDA on PCA
 %
 % X = simuleMV(20,10,8);
-% Xcs = preprocess2D(X,2);
+% Xcs = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:3;
-% p = pca_pp(Xcs,pcs);
+% p = pca_pp(Xcs,'Pcs',pcs);
 % 
 % meda_map = meda(Xcs'*Xcs,p);
 % 
 % [meda_map,ord] = seriation(meda_map);
-% plot_map(meda_map,ord);
+% plot_map(meda_map,'VarsLabel',ord);
 %
 %
 % EXAMPLE OF USE: MEDA on PLS
 %
 % X = simuleMV(20,10,8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% Xcs = preprocess2D(X,2);
-% Ycs = preprocess2D(Y,2);
+% Xcs = preprocess2D(X,'Preprocessing',2);
+% Ycs = preprocess2D(Y,'Preprocessing',2);
 % lvs = 1:10;
 % [beta,W,P,Q,R] = kernel_pls(Xcs'*Xcs,Xcs'*Ycs,'LatVars',lvs);
 % 
 % meda_map = meda(Xcs'*Xcs,R,'OutSubspace',P);
 % 
 % [meda_map,ord] = seriation(meda_map);
-% plot_map(meda_map,ord);
+% plot_map(meda_map,'VarsLabel',ord);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/2024.
+% last modification: 18/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

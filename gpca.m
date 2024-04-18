@@ -14,7 +14,7 @@ function [p,t,bel,e] = gpca(xcs,states,varargin)
 %
 % states: {Sx1} Cell with the groups of variables.
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(xcs)
@@ -37,21 +37,20 @@ function [p,t,bel,e] = gpca(xcs,states,varargin)
 %
 % x = simuleMV(20,10,8);
 % pcs = 1:2;
-% map = meda_pca(x,pcs,[],[],0);
+% map = meda_pca(x,'Pcs',pcs,'Option',0);
 % [map,ord] = seriation(map);
 % plot_map(map);
 % x = x(:,ord);
 % [bel,states] = gia(map,'Gamma',0.3);
-% Xcs = preprocess2D(x,2);
+% Xcs = preprocess2D(x,'Preprocessing',2);
 % [p,t,bel] = gpca(Xcs,states,'Pcs',pcs);
-% 
 % for i=pcs,
-%   plot_vec(p(:,i),[],[],{'',sprintf('Loadings PC %d',i)});
-%   plot_vec(t(:,i),[],[],{'',sprintf('Scores PC %d',i)});
+%   plot_vec(p(:,i),'XYLabel',{'',sprintf('Loadings PC %d',i)});
+%   plot_vec(t(:,i),'XYLabel',{'',sprintf('Scores PC %d',i)});
 % end
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/2024
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

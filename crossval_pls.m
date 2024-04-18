@@ -184,6 +184,6 @@ cumpress = sum(press,2);
 %% Show results
 
 if opt == '1' 
-    fig_h = plot_vec(cumpress,'EleLabel',lvs,'XYLabel',{'#LVs','PRESS'},'Option',0); 
+    fig_h = plot_vec(cumpress,'EleLabel',lvs,'XYLabel',{'#LVs','PRESS'},'Option','01'); 
 end
 

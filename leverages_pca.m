@@ -50,7 +50,7 @@ function [L,E] = leverages_pca(x,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/2024
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -131,8 +131,8 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must cont
 
 %% Main code
 
-xcs = preprocess2D(x,prep);
-[P,T] = pca_pp(xcs,pcs);
+xcs = preprocess2D(x,'Preprocessing',prep);
+[P,T] = pca_pp(xcs,'Pcs',pcs);
 
 L = diag(P*P');
 E = sum((xcs-T*P').^2);
@@ -140,6 +140,6 @@ E = sum((xcs-T*P').^2);
 %% Show results
 
 if opt == '1' 
-    plot_vec(L, label, classes, {'Variables','Leverages'});
+    plot_vec(L, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'Variables','Leverages'});
 end
         

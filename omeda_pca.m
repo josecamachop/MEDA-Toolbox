@@ -24,7 +24,7 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,varargin)
 %   compare, and 0 for the rest of observations. By default all test
 %   observations are set to 1.
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'Preprocessing': [1x1] preprocesing of the data
 %       0: no preprocessing
@@ -76,7 +76,7 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 10/Apr/2024
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -104,15 +104,12 @@ if isempty(pcs), pcs = 1:rank(x); end;
 if isempty(test), test = x; end;
 L = size(test, 1);
 if nargin < 4 || isempty(dummy), dummy = ones(L,1); end;
-% if nargin < 5 || isempty(prep), prep = 2; end;
-% if nargin < 6 || isempty(opt), opt = '100'; end; 
-% if nargin < 7 || isempty(label), label = 1:M; end
-% if nargin < 8 || isempty(classes), classes = ones(M,1); end
+
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'Preprocessing',2);     
-addParameter(p,'Option',100);  
+addParameter(p,'Option','100');  
 addParameter(p,'VarsLabel',1:M);  
 addParameter(p,'VarsClass',ones(M,1));  
 parse(p,varargin{:});
@@ -159,11 +156,11 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must cont
 
 %% Main code
 
-[xcs,m,sd] = preprocess2D(x,prep);
+[xcs,m,sd] = preprocess2D(x,'Preprocessing',prep);
 
-P = pca_pp(xcs,pcs);
+P = pca_pp(xcs,'Pcs',pcs);
     
-testcs = preprocess2Dapp(test,m,sd);
+testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
 omeda_vec = omeda(testcs,dummy,P);
 
 % heuristic: 95% limit for one-observation-dummy
@@ -174,25 +171,25 @@ lim = prctile(omeda_x,95)';
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
     vec = omeda_vec;
  
-    if opt(2) == '1',
+    if opt(2) == '1'
         limp = lim;
     else
         limp = [];
     end
     
-    if opt(3) == '1',
+    if opt(3) == '1'
         ind = find(lim>1e-10);
         vec(ind) = vec(ind)./lim(ind);
-    	if ~isempty(limp),
+    	if ~isempty(limp)
             limp(ind) = limp(ind)./lim(ind);
         end
     end
     
-    plot_vec(vec,label,classes,{[],'d^2_A'},[limp -limp]);
+    plot_vec(vec,'EleLabel',label,'ObsClass',classes,'XYLabel',{[],'d^2_A'},'LimCont',[limp -limp]);
     
 end
 

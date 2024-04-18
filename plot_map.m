@@ -64,7 +64,7 @@ M = size(map,2);
 p = inputParser;
 addParameter(p,'VarsLabel',1:M);   
 addParameter(p,'ColorInt',[-1;1]);
-addParameter(p,'ColorDist',[0:.2:0.79 0.8:0.04:1]);
+addParameter(p,'ColorDist',[0:.2:0.79 0.8:0.04:1]');
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility

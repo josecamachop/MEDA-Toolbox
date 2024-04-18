@@ -15,7 +15,7 @@ function [meda_map,ind,ord] = meda_pls(x,y,varargin)
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % LatVars: [1xA] Latent Variables considered (e.g. pcs = 1:2 selects the
 %   first two LVs). By default, lvs = 1:rank(x)
@@ -95,13 +95,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-% if nargin < 3 || isempty(lvs), lvs = 1:rank(x); end;
-% if nargin < 4 || isempty(prepx), prepx = 2; end;
-% if nargin < 5 || isempty(prepy), prepy = 2; end;
-% if nargin < 6 || isempty(thres), thres = 0.1; end; 
-% if nargin < 7 || isempty(opt), opt = '100'; end; 
-% if nargin < 8 || isempty(label), label = 1:M; end
-% if nargin < 9 || isempty(vars), vars = 1:M; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -168,10 +161,10 @@ assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>
 x = x(:,vars);
 label = label(vars);
 
-x2 = preprocess2D(x,prepx);
-y2 = preprocess2D(y,prepy);
+x2 = preprocess2D(x,'Preprocessing',prepx);
+y2 = preprocess2D(y,'Preprocessing',prepy);
 
-[beta,W,P,Q,R] = simpls(x2,y2,lvs);
+[beta,W,P,Q,R] = simpls(x2,y2,'LatVars',lvs);
 
 meda_map = meda(x2'*x2,R,'OutSubspace',P);
 
@@ -213,6 +206,6 @@ if opt(1) == '1'
     map = map(ord2,ord2);
     label = label(ord2);
     
-    plot_map(map,label);
+    plot_map(map,'VarsLabel',label);
     
 end  

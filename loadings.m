@@ -44,7 +44,7 @@ function fig_h =loadings(model,varargin)
 %
 %
 % EXAMPLE OF USE: Random data
-%
+% 
 % A = cell(1, 10);
 % 
 % for i = 1:10
@@ -52,13 +52,13 @@ function fig_h =loadings(model,varargin)
 % end
 % 
 % X = simuleMV(20,10,8);
-% [~,~,model] = pca_pp(X,1:2);
+% [~,~,model] = pca_pp(X,'Pcs',1:2);
 % 
 % P = loadings(model,'VarsLabel',A);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/2024
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -159,7 +159,7 @@ if length(model.lvs) == 1 || opt(1) == '1'
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            fig_h = [fig_h plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings %s %d',dim,model.lvs(i)),sprintf('Loadings %s %d',dim,model.lvs(j))}',[],opt(2),[],[],blur)];
+            fig_h = [fig_h plot_scatter([P(:,i),P(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Loadings %s %d',dim,model.lvs(i)),sprintf('Loadings %s %d',dim,model.lvs(j))}','Option',opt(2),'BlurIndex',blur)];
             title(tit);
         end
     end

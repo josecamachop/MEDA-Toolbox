@@ -53,7 +53,7 @@ function paranovao = paranova(X, F,varargin)
 % end
 % 
 % paranovao = paranova(X, F);
-%
+
 %
 % EXAMPLE OF USE: Random data, two factors, with 4 and 3 levels, but only
 %   the first one is significative, and 4 replicates:
@@ -61,20 +61,20 @@ function paranovao = paranova(X, F,varargin)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
+% 
 % F = create_design(levels,'replicates',reps);
-%
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
-%
+% 
 % paranovao = paranova(X, F);
 %
 %
 % coded by: Gooitzen Zwanenburg (G.Zwanenburg@uva.nl)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 10/Apr/24
+% last modification: 18/Apr/24
 %
 % Copyright (C) 2024  Gooitzen Zwanenburg, University of Amsterdam
 %

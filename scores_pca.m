@@ -14,7 +14,7 @@ function [T,TT] = scores_pca(x,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% 'PCs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 1:rank(xcs)
 %
 % 'ObsTest': [LxM] data set with the observations to be compared. These data 
@@ -115,13 +115,10 @@ M = size(x, 2);
 p = inputParser;
 addParameter(p,'Pcs',1:rank(x));   
 addParameter(p,'ObsTest',[]);   
-parse(p,varargin{:});
-test = p.Results.ObsTest;
-L = size(test, 1);
-addParameter(p,'Option','100');
+addParameter(p,'Option','1000');
 addParameter(p,'Preprocessing',2);
-addParameter(p,'ObsLabel',ones(N+L,1));
-addParameter(p,'ObsClass',ones(N+L,1));
+addParameter(p,'ObsLabel',[]);
+addParameter(p,'ObsClass',[]);
 addParameter(p,'BlurIndex',1);
 parse(p,varargin{:});
 
@@ -134,6 +131,7 @@ label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
 blur = p.Results.BlurIndex;
 
+L = size(test, 1);
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
 
@@ -147,21 +145,21 @@ else
     K = N+L;
 end
 
-if nargin < 6 || isempty(label) 
+if isempty(label) 
     if opt(3) == 1 || opt(3) == '1'
         label = 1:L;
     else
         label = [1:N 1:L]; 
     end
 end
-if nargin < 7 || isempty(classes)
+if isempty(classes)
     if opt(3) == 1 || opt(3) == '1' 
         classes = ones(L,1); 
     else
         classes = [ones(N,1);2*ones(L,1)];  
     end
 end
-if nargin < 8 || isempty(blur),    blur    = 1;       end;
+% if nargin < 8 || isempty(blur),    blur    = 1;       end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -196,7 +194,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must cont
 [P,T] = pca_pp(xcs,'Pcs',pcs);
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,m,sd);
+    testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
     TT = testcs*P;
 else
     TT = [];

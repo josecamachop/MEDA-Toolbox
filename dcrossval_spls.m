@@ -72,7 +72,7 @@ function [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 8/Apr/24
+% last modification: 18/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -98,16 +98,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
-% A = length(lvs);
-% if nargin < 4 || isempty(keepXs), keepXs = 1:M; end;
-% J =  length(keepXs);
-% if nargin < 5 || isempty(alpha), alpha = 0; end;
-% if nargin < 6 || isempty(blocks_r), blocks_r = N; end;
-% if nargin < 7 || isempty(prepx), prepx = 2; end;
-% if nargin < 8 || isempty(prepy), prepy = 2; end;
-% if nargin < 9 || isempty(rep), rep = 10; end;
-% if nargin < 10 || isempty(opt), opt = 1; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -186,11 +176,11 @@ for j=1:rep,
         val_y = y(ind_i,:);
         rest_y = y(find(i2),:);
         
-        [ccs,av,st] = preprocess2D(rest,prepx);
-        [ccs_y,av_y,st_y] = preprocess2D(rest_y,prepy);
+        [ccs,av,st] = preprocess2D(rest,'Preprocessing',prepx);
+        [ccs_y,av_y,st_y] = preprocess2D(rest_y,'Preprocessing',prepy);
         
-        vcs = preprocess2Dapp(val,av,st);
-        vcs_y = preprocess2Dapp(val_y,av_y,st_y);
+        vcs = preprocess2Dapp(val,av,'SDivideTest',st);
+        vcs_y = preprocess2Dapp(val_y,av_y,'SDivideTest',st_y);
         
         [cumpress,kk,nze] =  crossval_spls(rest,rest_y,'LatVars',lvs,'KeepXBlock',keepXs,'MaxBlock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
         
@@ -225,6 +215,6 @@ Qm = mean(Q);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(Q,[],[],{'#Repetition','Goodness of Prediction'},[],1); 
+    fig_h = plot_vec(Q,'XYLabel',{'#Repetition','Goodness of Prediction'},'Option','11'); 
 end
 

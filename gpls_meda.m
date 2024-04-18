@@ -16,7 +16,7 @@ function  [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,varargin)
 %
 % ycs: [NxO] preprocessed billinear data set of predicted variables
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'Latvars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(xcs)
@@ -62,11 +62,11 @@ function  [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,varargin)
 % lvs = 1;
 % [beta,W,P,Q,R,bel] = gpls_meda(X,Y,'LatVars',lvs);
 % 
-% plot_vec(beta,[],[],{'','Regression coefficients'});
+% plot_vec(beta,'XYLabel',{'','Regression coefficients'});
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 16/Apr/2024.
+% last modification: 18/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

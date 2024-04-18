@@ -14,7 +14,7 @@ function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
@@ -67,7 +67,7 @@ function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
 % legend('show')
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 16/Apr/24.
+% last modification: 18/Apr/24.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -213,6 +213,6 @@ cumpress = sum(press,3);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(cumpress','EleLabel',gammas,'XYLabel',{'\gamma','PRESS'},'Option',0,'VecLabel',lvs); 
+    fig_h = plot_vec(cumpress','EleLabel',gammas,'XYLabel',{'\gamma','PRESS'},'Option','01','VecLabel',lvs); 
 end
 

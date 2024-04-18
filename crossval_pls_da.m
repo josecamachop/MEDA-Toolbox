@@ -55,7 +55,7 @@ function [AAUC, AUC] = crossval_pls_da(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 5/Apr/24
+% last modification: 18/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -178,7 +178,7 @@ for i=1:blocks_r,
     sample_y = y(test,:);
     calibr_y = y(cal,:);
     
-    [ccs,av,st] = preprocess2D(calibr,prepx);
+    [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);
     %[ccs_y,av_y,st_y] = preprocess2D(calibr_y,prepy);
     ccs_y = calibr_y;
     
@@ -190,12 +190,12 @@ for i=1:blocks_r,
     for j=1:length(vals)
         ind2 = find(ind==vals(j));
         if ~isempty(ind2),
-            [kk,m(j,:)] = preprocess2D(ccs(ind2,:),1);  % additional subtraction of class mean
+            [kk,m(j,:)] = preprocess2D(ccs(ind2,:),'Preprocessing',1);  % additional subtraction of class mean
         end
     end
     ccs = preprocess2Dapp(ccs,mean(m));
         
-    scs = preprocess2Dapp(sample,av,st);
+    scs = preprocess2Dapp(sample,av,'SDivideTest',st);
     scs = preprocess2Dapp(scs,mean(m));
     
     if  ~isempty(find(lvs)),
@@ -207,7 +207,7 @@ for i=1:blocks_r,
                 X = ccs;
                 Y = ccs_y;
               
-                beta = simpls(X,Y,1:lvs(lv));
+                beta = simpls(X,Y,'LatVars',1:lvs(lv));
                 
                 srec1(test,lv,:) = scs*beta;
                 
@@ -234,6 +234,6 @@ AAUC =  mean(AUC,2);
 %% Show results
 
 if opt == 1,
-    fig_h = plot_vec(AAUC',lvs,[],{'#LVs','AUC'},[],0);
+    fig_h = plot_vec(AAUC','EleLabel',lvs,'XYLabel',{'#LVs','AUC'},'Option','01');
 end
 

@@ -159,7 +159,7 @@ else
     K = N+L;
 end
 
-% % if nargin < 4, tit = ''; end 
+
 if isempty(label) 
     if opt(2) == 1 || opt(2) == '1'
         label = 1:L;
@@ -175,7 +175,7 @@ if isempty(classes)
     end
 end
 
-% if nargin < 7 || isempty(blur),    blur    = 1;       end;
+
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;

@@ -1,4 +1,4 @@
-function [D, parglmo, anovast] = codglm(F, parglmi, anovast)
+function [D, parglmo, anovast] = codglm(F, parglmi, varargin)
 %%%Preguntar anovast.model como parseo opciones dentro de anovast
 % Compute coding matrix from a design matrix for General Linear Models.
 %
@@ -16,7 +16,9 @@ function [D, parglmo, anovast] = codglm(F, parglmi, anovast)
 % parglmi (structure): structure with the number of factors and the number 
 % of levels for each of them.
 %
-% anovast (structure): structure with the anova choices.
+% Optional INPUTS (parameter):
+%
+% 'Anovast' (structure): structure with the anova choices.
 %
 % 	model: This paremeter is similar to 'model' of anovan. It could be:
 %       'linear': only main effects are provided (by default)
@@ -61,7 +63,7 @@ function [D, parglmo, anovast] = codglm(F, parglmi, anovast)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 16/Jun/23
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -87,7 +89,15 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 n_factors = parglmi.n_factors;                 % number of factors
 levels = parglmi.levels;
 
-if nargin < 3 || isempty(anovast), anovast = []; end
+% if nargin < 3 || isempty(anovast), anovast = []; end
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Anovast',[]);             
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+anovast = p.Results.Anovast;
     
 if ~isfield(anovast,'model') || isempty(anovast.model), anovast.model = 'linear'; end;
 

@@ -50,17 +50,17 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 % Y = sum((X(:,1:5)),2);
 % Y = 0.1*randn(obs,1)*std(Y) + Y;
 % lvs = 1;
-% map = meda_pls(X,Y,lvs,[],[],[],0);
+% map = meda_pls(X,Y,'LatVars',lvs,'option',0);
 % 
-% Xcs = preprocess2D(X,2);
-% Ycs = preprocess2D(Y,2);
+% Xcs = preprocess2D(X,'Preprocessing',2);
+% Ycs = preprocess2D(Y,'preprocessing',2);
 % [bel,states] = gia(map,'Gamma',0.4,'MinSize',1);
 % [beta,W,P,Q,R,bel] = gpls(Xcs,Ycs,states,'LatVars',lvs);
 % 
-% plot_vec(beta,[],[],{'','Regression coefficients'});
+% plot_vec(beta,'XYLabel',{'','Regression coefficients'});
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/2024
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

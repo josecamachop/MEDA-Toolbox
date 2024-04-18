@@ -13,7 +13,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,varargin)
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 1:rank(x)
@@ -104,7 +104,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 10/Apr/2024
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -142,9 +142,8 @@ addParameter(p,'ObsTest',[]);
 addParameter(p,'PreprocessingX',2);
 addParameter(p,'PreprocessingY',2);
 addParameter(p,'Option',100);  
-L = size('ObsTest', 1);
-addParameter(p,'ObsLabel',ones(N+L,1));  
-addParameter(p,'ObsClass',ones(N,1));  
+addParameter(p,'ObsLabel',[]);  
+addParameter(p,'ObsClass',[]);  
 addParameter(p,'PValueD',0.1);  
 addParameter(p,'PValueQ',0.1);  
 addParameter(p,'LimType',0);  
@@ -175,35 +174,35 @@ else
     K = N+L;
 end
 
-if nargin < 8 || isempty(label) 
+if  isempty(label) 
     if opt(3) == 1 || opt(3) == '1'
         label = 1:L;
     else
         label = [1:N 1:L]; 
     end
 end
-if nargin < 9 || isempty(classes)
+if isempty(classes)
     if opt(3) == 1 || opt(3) == '1' 
         classes = ones(L,1); 
     else
         classes = [ones(N,1);2*ones(L,1)];  
     end
 end
-if nargin < 10 || isempty(p_valueD) 
-    if opt(2) == 0 || opt(2) == '0'
-        p_valueD = 0.01; 
-    else
-        p_valueD = [0.01 0.05]; 
-    end
-end;
-if nargin < 11 || isempty(p_valueQ) 
-    if opt(2) == 0 || opt(2) == '0'
-        p_valueQ = 0.01; 
-    else
-        p_valueQ = [0.01 0.05]; 
-    end
-end;
-if nargin < 12, limtype = 0; end;
+% if nargin < 10 || isempty(p_valueD) 
+%     if opt(2) == 0 || opt(2) == '0'
+%         p_valueD = 0.01; 
+%     else
+%         p_valueD = [0.01 0.05]; 
+%     end
+% end;
+% if nargin < 11 || isempty(p_valueQ) 
+%     if opt(2) == 0 || opt(2) == '0'
+%         p_valueQ = 0.01; 
+%     else
+%         p_valueQ = [0.01 0.05]; 
+%     end
+% end;
+% if nargin < 12, limtype = 0; end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -242,16 +241,16 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must cont
 
 %% Main code
 
-[xcs,m,sc] = preprocess2D(x,prepx);
-ycs = preprocess2D(y,prepy);
+[xcs,m,sc] = preprocess2D(x,'Preprocessing',prepx);
+ycs = preprocess2D(y,'Preprocessing',prepy);
 
-[beta,W,P,Q,R] = simpls(xcs,ycs,lvs);
+[beta,W,P,Q,R] = simpls(xcs,ycs,'LatVars',lvs);
 T = xcs*R;
 
 [Dst,Qst] = mspc(xcs,'InvCovarT',inv(cov(T)),'InSubspace',R,'OutSubspace',P);
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,m,sc);
+    testcs = preprocess2Dapp(test,m,'SDivideTest',sc);
     [Dstt,Qstt] = mspc(testcs,'InvCovarT',inv(cov(T)),'InSubspace',R,'OutSubspace',P);
 else
     Dstt = [];
@@ -298,10 +297,10 @@ if opt(1) == '1'
     end
     
     if opt(2) == '0'
-        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq});
+        plot_scatter([Dsttt,Qsttt], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'D-st','Q-st'}, 'LimCont',{UCLd,UCLq});
     else
-        plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd);
-        plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq);
+        plot_vec(Dsttt, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{[],'D-st'},'LimCont', UCLd);
+        plot_vec(Qsttt, 'EleLabel',label,'ObsClass', classes, 'XYLabel',{[],'Q-st'}, 'LimCont',UCLq);
     end
 end
         

@@ -67,7 +67,7 @@ function P = loadings_pca(x,varargin)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 9/ Apr/2024.
+% last modification: 18/ Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -91,12 +91,6 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-% if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
-% if nargin < 3 || isempty(prep), prep = 2; end;
-% if nargin < 4 || isempty(opt), opt = '10'; end; 
-% if nargin < 5 || isempty(label), label = [1:M]; end
-% if nargin < 6 || isempty(classes), classes = ones(M,1); end
-% if nargin < 7 || isempty(blur),    blur    = 1;       end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -151,22 +145,22 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must cont
 
 %% Main code
 
-xcs = preprocess2D(x,prep);
-[P,T] = pca_pp(xcs,pcs);
+xcs = preprocess2D(x,'Preprocessing',prep);
+[P,T] = pca_pp(xcs,'Pcs',pcs);
 
 
 %% Show results
 
 if opt(1) == '1',
     
-    if length(pcs) == 1 || opt(2) == '1',
+    if length(pcs) == 1 || opt(2) == '1'
         for i=1:length(pcs),
-                plot_vec(P(:,i), label, classes, {'',sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+                plot_vec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
         end
     else
         for i=1:length(pcs)-1,
             for j=i+1:length(pcs),
-                plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Loadings PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}',[],[],[],[],blur);
+                plot_scatter([P(:,i),P(:,j)], 'EleLabel',label,'ObsClass' ,classes, 'XYLabel',{sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Loadings PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','BlurIndex',blur);
             end      
         end
     end

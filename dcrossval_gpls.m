@@ -65,10 +65,10 @@ function [Qm,Q,lvso,gammaso] = dcrossval_gpls(x,y,varargin)
 % gammas = [0 0.5:0.1:1];
 % [Qm,Q,lvso,gammaso] = dcrossval_gpls(X,Y,'LatVars',lvs,'Gamma',gammas,'MaxBlock',5)
 % [Qm_simple,Q_simple,lvso_simple,gammaso_simple] = dcrossval_gpls(X,Y,'LatVars',lvs,'Gamma',gammas,'Alpha',0.5,'MaxBlock',5)
-%
-%
+% 
+
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Apr/24.
+% last modification: 18/Apr/24.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -94,15 +94,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
-% A = length(lvs);
-% if nargin < 4 || isempty(gammas), gammas = 0:0.1:1; end;
-% J =  length(gammas);
-% if nargin < 5 || isempty(alpha), alpha = 1; end;
-% if nargin < 6 || isempty(blocks_r), blocks_r = N; end;
-% if nargin < 7 || isempty(prepx), prepx = 2; end;
-% if nargin < 8 || isempty(prepy), prepy = 2; end;
-% if nargin < 9 || isempty(opt), opt = 1; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -185,13 +176,13 @@ for i=1:blocks_r,
     lvso(i) = lvs(l(1));
     gammaso(i) = gammas(g(1));
     
-    [ccs,av,st] = preprocess2D(rest,prepx);
-    [ccs_y,av_y,st_y] = preprocess2D(rest_y,prepy);
+    [ccs,av,st] = preprocess2D(rest,'Preprocessing',prepx);
+    [ccs_y,av_y,st_y] = preprocess2D(rest_y,'Preprocessing',prepy);
     
-    vcs = preprocess2Dapp(val,av,st);
-    vcs_y = preprocess2Dapp(val_y,av_y,st_y);
+    vcs = preprocess2Dapp(val,av,'SDivideTest',st);
+    vcs_y = preprocess2Dapp(val_y,av_y,'SDivideTest',st_y);
     
-    beta = gpls_meda(ccs,ccs_y,1:lvso(i),gammaso(i));
+    beta = gpls_meda(ccs,ccs_y,'LatVars',1:lvso(i),'Gamma',gammaso(i));
     srec = vcs*beta;
     
     Q(i) = 1 - sum(sum((vcs_y-srec).^2))/sum(sum(vcs_y.^2));
@@ -202,7 +193,7 @@ Qm = mean(Q);
 
 %% Show results
 
-if opt == 1,
-    fig_h = plot_vec(Q,[],[],{'#Split','Goodness of Prediction'},[],1); 
+if opt == 1
+    fig_h = plot_vec(Q,'XYLabel',{'#Split','Goodness of Prediction'},'Option','11'); 
 end
 

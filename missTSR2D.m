@@ -12,7 +12,7 @@ function rec = missTSR2D(x,pc,varargin)
 %
 % pc: (1x1) number of principal components for the D-statistic.
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'Preprocessing': (1x1) preprocesing of the data
 %       0: no preprocessing.
@@ -128,7 +128,7 @@ num0=iter;
 ax = x; 
 while e0>conv && num0 > 0,
 
-    [xce,m,d] = preprocess2D(ax,prep);
+    [xce,m,d] = preprocess2D(ax,'Preprocessing',prep);
     
     med = zeros(s);
     for j=1:s(1),

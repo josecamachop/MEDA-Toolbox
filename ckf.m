@@ -41,12 +41,12 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 % 
 % % Plot ('Option' default 1)
 % cumpress = ckf(X,T,P);
-%
+% 
 % % Not plot
 % cumpress = ckf(X,T,P,'Option',0);
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 16/Apr/2024
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

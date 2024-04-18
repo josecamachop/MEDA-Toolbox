@@ -49,7 +49,6 @@ function apcao = apca(parglmo)
 %   scores(apcao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',apcao.design(:,i));
 %   loadings(apcao.factors{i},'Title',sprintf('Factor %d',i));
 % end
-
 %
 %
 % EXAMPLE OF USE (copy and paste the code in the command line)
@@ -58,9 +57,9 @@ function apcao = apca(parglmo)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
+% 
 % F = create_design(levels,'Replicates',reps);
-%
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     fi{i} = randn(1,vars);
@@ -73,12 +72,12 @@ function apcao = apca(parglmo)
 %         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(fi{i} + fj{j},reps,1);
 %     end
 % end
-%
+% 
 % [table, parglmo] = parglm(X, F, 'Model',[1 2]);
 % table
 % 
 % apcao = apca(parglmo);
-%
+% 
 % for i=1:2,
 %   scores(apcao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',apcao.design(:,i));
 %   loadings(apcao.factors{i},'Title',sprintf('Factor %d',i));
@@ -92,32 +91,32 @@ function apcao = apca(parglmo)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
+% 
 % F = create_design(levels,'Replicates',reps);
-%
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     for j = 1:length(levels{2}),
 %         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(randn(1,vars),reps,1);
 %     end
 % end
-%
+% 
 % [table, parglmo] = parglm(X, F, 'Model',[1 2]);
 % table
 % 
 % apcao = apca(parglmo);
-%
+% 
 % M = apcao.factors{1}.matrix + apcao.factors{2}.matrix + apcao.interactions{1}.matrix;
 % code_levels = {};
 % for i=1:size(F,1), code_levels{i} = sprintf('F1:%d,F2:%d',F(i,1),F(i,2));end;
 % scores_pca(M,'Pcs',1:2,'ObsTest',X,'Preprocessing',0,'Option',101,'ObsClass',code_levels);
 % legend(unique(code_levels))
-%
+% 
 % loadings_pca(M,'Pcs',1:2,'Preprocessing',0);
 %
 %
 % coded by: Jos  Camacho (josecamacho@ugr.es)
-% last modification: 04/Sep/23
+% last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %

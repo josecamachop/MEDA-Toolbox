@@ -17,7 +17,7 @@ function [AUCm,AUC,lvso] = dcrossval_pls_da(x,y,varargin)
 %
 % y: [Nx1] billinear data set of one categorical variable with two levels
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
@@ -60,7 +60,7 @@ function [AUCm,AUC,lvso] = dcrossval_pls_da(x,y,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 8/Apr/24
+% last modification: 18/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -85,17 +85,10 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 O = size(y, 2);
-% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
-% A = length(lvs);
 
 vals = unique(y);
 repb = sort(histc(y,vals),'descend');
 N2 = repb(2);
-% if nargin < 4 || isempty(blocks_r), blocks_r = max(3,round(N2/2)); end;
-% if nargin < 5 || isempty(prepx), prepx = 2; end;
-% if nargin < 6 || isempty(prepy), prepy = 2; end;
-% if nargin < 7 || isempty(rep), rep = 10; end;
-% if nargin < 8 || isempty(opt), opt = 1; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -180,15 +173,15 @@ for j=1:rep
         val_y = [val_y;y(yn1(ind_in1),:)];
         rest_y = [rest_y;y(yn1(find(i2)),:)];  
         
-        [ccs,av,st] = preprocess2D(rest,prepx);
+        [ccs,av,st] = preprocess2D(rest,'Preprocessing',prepx);
         %[ccs_y,av_y,st_y] = preprocess2D(rest_y,prepy);
         ccs_y = rest_y;
         
-        [kk,m1] = preprocess2D(ccs(find(rest_y==1),:),1);  % additional subtraction of class mean
-        [kk,mn1] = preprocess2D(ccs(find(rest_y==-1),:),1);
+        [kk,m1] = preprocess2D(ccs(find(rest_y==1),:),'Preprocessing',1);  % additional subtraction of class mean
+        [kk,mn1] = preprocess2D(ccs(find(rest_y==-1),:),'Preprocessing',1);
         ccs = preprocess2Dapp(ccs,(m1+mn1)/2);
         
-        vcs = preprocess2Dapp(val,av,st);
+        vcs = preprocess2Dapp(val,av,'SDivideTest',st);
         vcs = preprocess2Dapp(vcs,(m1+mn1)/2);
         
         %vcs_y = preprocess2Dapp(val_y,av_y,st_y);
@@ -204,7 +197,7 @@ for j=1:rep
             X = ccs;
             Y = ccs_y;
               
-            beta = simpls(X,Y,1:lvso(j,i));
+            beta = simpls(X,Y,'LatVars',1:lvso(j,i));
             
             sr = vcs*beta;
             srec1(ind_i1') = sr(1:length(ind_i1));
@@ -224,7 +217,7 @@ AUCm = mean(AUC);
 
 %% Show results
 
-if opt == 1,
-    fig_h = plot_vec(AUC,[],[],{'#Repetition','AUC'},[],1);
+if opt == 1
+    fig_h = plot_vec(AUC,'XYLabel',{'#Repetition','AUC'},'Option',11);
 end
 

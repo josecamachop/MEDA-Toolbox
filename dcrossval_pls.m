@@ -56,7 +56,7 @@ function [Qm,Q,lvso] = dcrossval_pls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Apr/24
+% last modification: 18/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -157,13 +157,13 @@ for j=1:rep
         
         lvso(j,i) = lvs(find(cumpress==min(cumpress),1));
         
-        [ccs,av,st] = preprocess2D(rest,prepx);
-        [ccs_y,av_y,st_y] = preprocess2D(rest_y,prepy);
+        [ccs,av,st] = preprocess2D(rest,'Preprocessing',prepx);
+        [ccs_y,av_y,st_y] = preprocess2D(rest_y,'Preprocessing',prepy);
         
-        vcs = preprocess2Dapp(val,av,st);
-        vcs_y = preprocess2Dapp(val_y,av_y,st_y);
+        vcs = preprocess2Dapp(val,av,'SDivideTest',st);
+        vcs_y = preprocess2Dapp(val_y,av_y,'SDivideTest',st_y);
         
-        beta = simpls(ccs,ccs_y,1:lvso(i));
+        beta = simpls(ccs,ccs_y,'LatVars',1:lvso(i));
         srec = vcs*beta;
         
         Qu(i) = sum(sum((vcs_y-srec).^2));
@@ -179,6 +179,6 @@ Qm = mean(Q);
 %% Show results
 
 if opt == 1
-   fig_h = plot_vec(Q,[],[],{'#Repetition','Goodness of Prediction'},[],1); 
+   fig_h = plot_vec(Q,'XYLabel',{'#Repetition','Goodness of Prediction'},'Option','11'); 
 end
 

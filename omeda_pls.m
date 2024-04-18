@@ -112,17 +112,13 @@ if isempty(lvs), lvs = 1:rank(x); end;
 if isempty(test), test = x; end;
 L = size(test, 1);
 if isempty(dummy), dummy = ones(L,1); end;
-% if nargin < 6 || isempty(prepx), prepx = 2; end;
-% if nargin < 7 || isempty(prepy), prepy = 2; end;
-% if nargin < 8 || isempty(opt), opt = '100'; end; 
-% if nargin < 9 || isempty(label), label = 1:M; end
-% if nargin < 10 || isempty(classes), classes = ones(M,1); end
+
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'PreprocessingX',2);     
 addParameter(p,'PreprocessingY',2);   
-addParameter(p,'Option',100);  
+addParameter(p,'Option','100');  
 addParameter(p,'VarsLabel',1:M);  
 addParameter(p,'VarsClass',ones(M,1));  
 parse(p,varargin{:});
@@ -171,12 +167,12 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 8th argument must cont
 
 %% Main code
 
-[xcs,m,sd] = preprocess2D(x,prepx);
-ycs = preprocess2D(y,prepy);
+[xcs,m,sd] = preprocess2D(x,'preprocessing',prepx);
+ycs = preprocess2D(y,'preprocessing',prepy);
 
-[beta,W,P,Q,R] = simpls(xcs,ycs,lvs);
+[beta,W,P,Q,R] = simpls(xcs,ycs,'LatVars',lvs);
         
-testcs = preprocess2Dapp(test,m,sd);
+testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
 omeda_vec = omeda(testcs,dummy,R,'OutSubspace',P);
     
 % heuristic: 95% limit for one-observation-dummy
@@ -205,7 +201,7 @@ if opt(1) == '1'
         end
     end
     
-    plot_vec(vec,label,classes,{[],'d^2_A'},[limp -limp]);
+    plot_vec(vec,'EleLabel',label,'ObsClass',classes,'XYLabel',{[],'d^2_A'},'LimCont',[limp -limp]);
     
 end
 

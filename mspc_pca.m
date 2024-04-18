@@ -72,10 +72,6 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,varargin)
 % UCLq: [Lqx1] Control limits in Q-statistic
 %
 %
-% EXAMPLE OF USE: Random scores
-%
-% X = simuleMV(100,10);
-% [Dst,Qst] = mspc_pca(X,1:3);
 %
 %
 % EXAMPLE OF USE: PCA-based MSPC on NOC test data and anomalies.
@@ -95,7 +91,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 10/4/2024
+% last modification: 18/4/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -130,13 +126,9 @@ p = inputParser;
 addParameter(p,'Pcs',1:rank(x)); 
 addParameter(p,'ObsTest',[]);
 addParameter(p,'Preprocessing',2);
-addParameter(p,'Option',100);  
-
-parse(p,varargin{:});
-test = p.Results.ObsTest;
-L = size(test, 1);
-addParameter(p,'ObsLabel',ones(N+L,1));  
-addParameter(p,'ObsClass',ones(N+L,1));  
+addParameter(p,'Option','100');  
+addParameter(p,'ObsLabel',[]);  
+addParameter(p,'ObsClass',[]);  
 addParameter(p,'PValueD',0.1);  
 addParameter(p,'PValueQ',0.1);  
 addParameter(p,'LimType',0);  
@@ -166,35 +158,35 @@ else
     K = N+L;
 end
 
-if nargin < 6 || isempty(label), 
+if isempty(label)
     if opt(3) == 1 || opt(3) == '1',
         label = 1:L;
     else
         label = [1:N 1:L]; 
     end
 end
-if nargin < 7 || isempty(classes),
+if isempty(classes)
     if opt(3) == 1 || opt(3) == '1', 
         classes = ones(L,1); 
     else
         classes = [ones(N,1);2*ones(L,1)];  
     end
 end
-if nargin < 8 || isempty(p_valueD), 
-    if opt(2) == 0 || opt(2) == '0',
-        p_valueD = 0.01; 
-    else
-        p_valueD = [0.01 0.05]; 
-    end
-end;
-if nargin < 9 || isempty(p_valueQ), 
-    if opt(2) == 0 || opt(2) == '0',
-        p_valueQ = 0.01; 
-    else
-        p_valueQ = [0.01 0.05]; 
-    end
-end;
-if nargin < 10, limtype = 0; end;
+% if nargin < 8 || isempty(p_valueD), 
+%     if opt(2) == 0 || opt(2) == '0',
+%         p_valueD = 0.01; 
+%     else
+%         p_valueD = [0.01 0.05]; 
+%     end
+% end;
+% if nargin < 9 || isempty(p_valueQ), 
+%     if opt(2) == 0 || opt(2) == '0',
+%         p_valueQ = 0.01; 
+%     else
+%         p_valueQ = [0.01 0.05]; 
+%     end
+% end;
+% if nargin < 10, limtype = 0; end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;

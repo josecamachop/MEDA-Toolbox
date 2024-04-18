@@ -13,6 +13,8 @@ function [P,W,Q] = loadings_pls(x,y,varargin)
 %
 % y: [NxO] billinear data set of predicted variables
 %
+% Optional INPUTS(parameter):
+%
 % 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 1:rank(x)
 %
@@ -74,7 +76,7 @@ function [P,W,Q] = loadings_pls(x,y,varargin)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 9/Apr/24
+% last modification: 18/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -99,13 +101,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-% if nargin < 3 || isempty(lvs), lvs = 1:rank(x); end;
-% if nargin < 4 || isempty(prepx), prepx = 2; end;
-% if nargin < 5 || isempty(prepy), prepy = 2; end;
-% if nargin < 6 || isempty(opt), opt = '100'; end; 
-% if nargin < 7 || isempty(label), label = [1:M]; end
-% if nargin < 8 || isempty(classes), classes = ones(M,1); end
-% if nargin < 9 || isempty(blur),    blur    = 1;       end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -113,7 +108,7 @@ LVS = 1:rank(x);
 addParameter(p,'LatVars',LVS);  
 addParameter(p,'PreprocessingX',2);
 addParameter(p,'PreprocessingY',2);
-addParameter(p,'Option',100);  
+addParameter(p,'Option','100');  
 addParameter(p,'VarsLabel',1:M);
 addParameter(p,'ObsClass',ones(M,1));   
 addParameter(p,'BlurIndex',1);     
@@ -164,10 +159,10 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must cont
 
 %% Main code
 
-xcs = preprocess2D(x,prepx);
-ycs = preprocess2D(y,prepy);
+xcs = preprocess2D(x,'Preprocessing',prepx);
+ycs = preprocess2D(y,'Preprocessing',prepy);
 
-[beta,W,P,Q] = simpls(xcs,ycs,lvs); 
+[beta,W,P,Q] = simpls(xcs,ycs,'LatVars',lvs); 
 
 %% Show results
 
@@ -183,12 +178,12 @@ if opt(1) == '1'
     
     if length(lvs) == 1 || opt(2) == '1'
         for i=1:length(lvs),
-            plot_vec(Pt(:,i), label, classes, {'',sprintf('%s LV %d',text,lvs(i))});
+            plot_vec(Pt(:,i),  'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('%s LV %d',text,lvs(i))});
         end
     else
         for i=1:length(lvs)-1,
             for j=i+1:length(lvs),
-                plot_scatter([Pt(:,i),Pt(:,j)], label, classes, {sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}',[],[],[],[],blur);
+                plot_scatter([Pt(:,i),Pt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}','BlurIndex',blur);
             end      
         end
     end

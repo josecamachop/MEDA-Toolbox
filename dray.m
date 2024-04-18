@@ -19,7 +19,7 @@ function [npcf,rvdim,rvdimperm]=dray(x,varargin)
 %
 % x: [NxM] original data
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'Preprocessing': [1x1] 0 for no preprocessing on x; 1 for mean-centering; 2 for
 % auto-scaling. Default: 2
@@ -68,16 +68,7 @@ function [npcf,rvdim,rvdimperm]=dray(x,varargin)
 
 if nargin<1
     error('Error in the number of arguments. Type ''help dray'' for more info.')
- end
-% if nargin<2 || isempty(flagprep)
-%     flagprep=2;
-% end
-% if nargin<3 || isempty(npermmax)
-%     npermmax=300;
-% end
-% if nargin<4 || isempty(conf)
-%     conf=95;
-% end
+end
 
 
 % Introduce optional inputs as parameters (name-value pair) 

@@ -99,7 +99,7 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 10/Apr/24
+% last modification: 18/Apr/24
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -212,7 +212,7 @@ parglmo.factors                = cell(n_factors,1);
 parglmo.interactions           = cell(n_interactions,1);
 
 % preprocess the data
-[Xs,m,dt] = preprocess2D(X,prep);
+[Xs,m,dt] = preprocess2D(X,'Preprocessing',prep);
 X = X./(ones(size(X,1),1)*dt);
 
 % Make structure with unchanging 'variables'
@@ -235,7 +235,7 @@ D = ones(size(X,1),1);
 
 for f = 1 : n_factors
     if ordinal(f)
-        D(:,n+1) = preprocess2D(F(:,f),1);
+        D(:,n+1) = preprocess2D(F(:,f),'preprocessing',1);
         parglmo.factors{f}.Dvars = n+1;
         n = n + 1;
     else
