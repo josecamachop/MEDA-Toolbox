@@ -6,7 +6,7 @@ function [T,TT] = scores_pca(x,varargin)
 % by scores.m (please, use the latter)
 %
 % T = scores_pca(x) % minimum call
-% [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes,blur) % complete call
+% [T,TT] = scores_pca(x,'Pcs',pcs,'ObsTest',test,prep,opt,label,classes,blur) % complete call
 %
 % INPUTS:
 %
@@ -71,17 +71,17 @@ function [T,TT] = scores_pca(x,varargin)
 % n_obs = 100;
 % n_vars = 10;
 % X = simuleMV(n_obs,n_vars,8);
-%
+% 
 % n_obst = 10;
 % test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
-%
-% scores_pca(X,1,test);
-% scores_pca(X,1:2,test);
+% 
+% scores_pca(X,'Pcs',1,'ObsTest',test);
+% scores_pca(X,'Pcs',1:2,'ObsTest',test);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 12/Apr/2024
+% last modification: 19/Apr/2024
 %
 % Copyright (C) 2024 University of Granada, Granada
 % 
@@ -105,11 +105,6 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-% if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
-% if nargin < 3, test = []; end;
-% L = size(test, 1);
-% if nargin < 4 || isempty(prep), prep = 2; end;
-% if nargin < 5 || isempty(opt), opt = '100'; end; 
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;

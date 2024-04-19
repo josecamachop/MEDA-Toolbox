@@ -31,21 +31,21 @@ function vascao = vasca(parglmoVS,siglev)
 %
 % n_obs = 40;
 % n_vars = 400;
-%
+% 
 % class = (randn(n_obs,1)>0)+1;
 % X = simuleMV(n_obs,n_vars,8);
 % X(class==2,1:3) = X(class==2,1:3) + 10;
-%
+% 
 % [TVS, parglmoVS] = parglmVS(X, class); % With variable selection
 % TVS
-%
+% 
 % vascao = vasca(parglmoVS);
-%
+% 
 % if vascao.factors{1}.stasig
-%    scores(vascao.factors{1},[],[],sprintf('Factor %d',1),[],vascao.design(:,1));
-%    loadings(vascao.factors{1},[],sprintf('Factor %d',1));
+%    scores(vascao.factors{1},'Title',sprintf('Factor %d',1),'ObsClass',vascao.design(:,1));
+%    loadings(vascao.factors{1},'Title',sprintf('Factor %d',1));
 % end
-%
+
 %
 % coded by: José Camacho (josecamacho@ugr.es)
 % last modification: 30/Nov/23
@@ -88,7 +88,7 @@ for factor = 1 : vascao.n_factors
         vascao.factors{factor}.stasig = true;
         ind = parglmoVS.ord_factors(factor,1:M);
         xf = vascao.factors{factor}.matrix(:,ind);
-        p = pca_pp(xf,1:rank(xf));
+        p = pca_pp(xf,'Pcs',1:rank(xf));
     
         vascao.factors{factor}.ind = ind;
         vascao.factors{factor}.var = trace(xf'*xf);

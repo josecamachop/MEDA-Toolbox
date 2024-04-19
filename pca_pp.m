@@ -28,13 +28,13 @@ function [p,t,model] = pca_pp(xcs,varargin)
 % EXAMPLE OF USE: Random data:
 %
 % X = simuleMV(20,10,8);
-% Xcs = preprocess2D(X,2);
+% Xcs = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:3;
 % [p,t] = pca_pp(Xcs,'Pcs',pcs);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 11/Apr/2024
+% last modification: 19/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

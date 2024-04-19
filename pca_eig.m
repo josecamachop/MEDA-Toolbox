@@ -10,7 +10,7 @@ function model = pca_eig(xcs,varargin)
 %
 % xcs: [NxM] preprocessed billinear data set 
 %
-% Optional INPUTS:
+% Optional INPUTS (parameter):
 %
 % 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:min(size(xcs))
@@ -28,13 +28,13 @@ function model = pca_eig(xcs,varargin)
 % EXAMPLE OF USE: Random data:
 %
 % X = simuleMV(20,10,8);
-% Xcs = preprocess2D(X,2);
+% Xcs = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:3;
 % model = pca_eig(Xcs,'Pcs',pcs)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 11/Apr/2024
+% last modification: 19/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -58,7 +58,7 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(xcs, 1);
 M = size(xcs, 2);
-% if nargin < 2 || isempty(pcs), pcs = 0:rank(xcs); end;
+
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;

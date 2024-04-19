@@ -11,7 +11,7 @@ function fig_h = plot_map(map,varargin)
 %
 % map: (MxM) matrix with values in the [0,1] interval. 
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'VarsLabel': (Mx1) name of the variables (numbers are used by default)
 %
@@ -32,7 +32,7 @@ function fig_h = plot_map(map,varargin)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 11/Apr/2024
+% last modification: 19/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % Copyright (C) 2024  Jose Camacho Paez, Alejandro Perez Villegas

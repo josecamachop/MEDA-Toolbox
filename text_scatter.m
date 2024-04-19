@@ -72,11 +72,7 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 figure(fig_h);
 
 N = size(bdata, 1);
-% if nargin < 3 || isempty(elabel), elabel = 1:N; end;
-% if nargin < 4 || isempty(classes), classes = ones(N,1); end;
-% if nargin < 5 || isempty(opt),     opt     = '000';                 end;
-% if nargin < 6 || isempty(mult),    mult    = ones(N,1);         end;
-% if nargin < 7 || isempty(blur),    blur    = 1;       end;
+
 
 
 % Introduce optional inputs as parameters (name-value pair) 

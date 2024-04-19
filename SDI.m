@@ -46,9 +46,8 @@ function [SDImap,best] = SDI(T,classes,varargin)
 % class(find(Y==-1))=2;
 % SDImap = SDI(T,class);
 %
-%
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Apr/2024
+% last modification: 19/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -71,8 +70,6 @@ function [SDImap,best] = SDI(T,classes,varargin)
 routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 [N,A] = size(T);
-% if nargin < 3 || isempty(reg), reg = .1; end; 
-% if nargin < 4 || isempty(opt), opt = 1; end; 
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -88,7 +85,7 @@ opt = p.Results.Option;
 if size(classes,1) == 1, classes = classes'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(classes), [N 1]), 'Dimension Error: 2nd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [N 1]), 'Dimension Error: parameter ''Classes'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
 % Validate values of input data
 assert (isempty(find(opt<0 | opt>2)), 'Value Error: 3rd argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);

@@ -35,7 +35,7 @@ function [xcs,average,scale] = preprocess2D(x,varargin)
 % fig_h = plot_vec([av' sc'],'XYLabel',{'Avergae','Std Dev'},'Option','11');
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/May/2024
+% last modification: 19/May/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -80,8 +80,8 @@ assert (isequal(size(prep), [1 1]), 'Dimension Error in paramaeter ''Preprocessi
 assert (isequal(size(weights), [1 M]), 'Dimension Error in parameter ''Weights'' be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (prep>=0 && prep<=3 && isequal(fix(prep), prep), 'Value Error: 2nd argument must contain integers between 0 and 2. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(weights<0)) && isempty(find(weights==Inf)), 'Value Error: 3rd argument must contain positive values. Type ''help %s'' for more info.', routine(1).name);
+assert (prep>=0 && prep<=3 && isequal(fix(prep), prep), 'Value Error: paramaeter ''Preprocessing'' must contain integers between 0 and 2. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(weights<0)) && isempty(find(weights==Inf)), 'Value Error: parameter ''Weights'' must contain positive values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

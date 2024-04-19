@@ -75,11 +75,11 @@ function fig_h = plot_scatter(bdata,varargin)
 % for o = 1:length(opts),
 %   plot_scatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'Option',opts{o},'Multiplicity',[1 20 50 100 1000]);
 % end
-
+%
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 11/Apr/2024
+% last modification: 19/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -153,15 +153,15 @@ if ischar(classes), classes = cellstr(classes); end;
 if ischar(xylabel),  xylabel = cellstr(xylabel); end;
 
 % Validate dimensions of input data
-assert(size(bdata,2) == 2, 'Dimension Error: 1st argument must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
+assert(size(bdata,2) == 2, 'Dimension Error: parameter ''bdata'' must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(elabel), assert((isequal(size(elabel), [N 1]) || isequal(size(elabel), [N+1 1])), 'Dimension Error: parameter ''EleLabel''  must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(classes), assert ((isequal(size(classes), [N 1]) || isequal(size(classes), [N+1 1])), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: 4th argument must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(lcont), assert (iscell(lcont) && isequal(size(lcont), [2 1]), 'Dimension Error: 5th argument must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end;
-assert (ischar(opt) && length(opt)==4, 'Dimension Error: 6th argument must be a string or num of maximum 4 bits. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: 7th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: 8th argument must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(classes), assert ((isequal(size(classes), [N 1]) || isequal(size(classes), [N+1 1])), 'Dimension Error: parameter ''ObsClass'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: parameter ''XYLabel'' must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(lcont), assert (iscell(lcont) && isequal(size(lcont), [2 1]), 'Dimension Error: parameter ''LimCont'' must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end;
+assert (ischar(opt) && length(opt)==4, 'Dimension Error: parameter ''Option'' must be a string or num of maximum 4 bits. Type ''help %s'' for more info.', routine(1).name);
+if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: parameter ''Multiplicity'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: parameter ''Threshold'' must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);

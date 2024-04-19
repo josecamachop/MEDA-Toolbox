@@ -153,7 +153,7 @@ end
 fig_h = [];
 if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
-        fig_h = [fig_h plot_vec(P(:,i), label, classes, {'',sprintf('Loadings %s %d',dim,model.lvs(i))})];
+        fig_h = [fig_h plot_vec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings %s %d',dim,model.lvs(i))})];
         title(tit);
     end
 else

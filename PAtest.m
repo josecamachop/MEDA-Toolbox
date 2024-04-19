@@ -40,8 +40,8 @@ function [NoComp, PERCENTILES, Eigs2test]  = PAtest(X,alpha,method,type,corrtype
 % SIGMA(1,1) = 5; SIGMA(2,2) = 3;
 % MU = zeros(1,10);
 % X = mvnrnd(MU,SIGMA,100)
-%
-%
+% 
+% 
 % [NoComp, PERCENTILES, Eigs2test]  = PAtest(X,0.05,'covariance','random','',1)
 % [NoComp, PERCENTILES, Eigs2test]  = PAtest(X,0.05,'correlation','random','pearson',1)
 

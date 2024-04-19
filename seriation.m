@@ -21,16 +21,15 @@ function [mapo,ord] = seriation(mapi)
 % EXAMPLE OF USE: Random data
 %
 % X = simuleMV(20,10,8);
-% Xcs = preprocess2D(X,2);
+% Xcs = preprocess2D(X,'Preprocessing',2);
 % mapo = seriation(cov(Xcs));
 % plot_map(mapo);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Mar/16.
+% last modification: 19/Apr/2024.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

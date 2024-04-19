@@ -15,7 +15,7 @@ function [npcf,Fratioreal,Fratioperm]=permsvd(x,varargin)
 %
 % x: [NxM] original data
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'Preprocessing': [1x1] 0 for no preprocessing on x; 1 for mean-centering; 2 for
 % auto-scaling. Default: 2
@@ -46,7 +46,7 @@ function [npcf,Fratioreal,Fratioperm]=permsvd(x,varargin)
 %
 %
 % codified by: Raffaele Vitale (rvitale86@gmail.com)
-% last modification: 11/Apr/2024
+% last modification: 19/Apr/2024
 %
 % Copyright (C) 2024  Universitat Politecnica de Valencia, Valencia
 % Copyright (C) 2024  Raffaele Vitale

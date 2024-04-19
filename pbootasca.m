@@ -19,7 +19,7 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 %
 % nfact: [1x1] factor where bootstrapping is performed
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'NRuns': [1x1] number of runs (1000 by default)
 %
@@ -72,7 +72,7 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 %
 % coded by: Rafa Vitale (raffaele.vitale@univ-lille.fr)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 10/Apr/2024
+% last modification: 19/Apr/2024
 %
 % Copyright (C) 2024  Raffael Vitale, Lille University
 % Copyright (C) 2024  José Camacho, Universidad de Granada
@@ -98,9 +98,7 @@ routine=dbstack;
 assert (nargin >= 4, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(X, 1);
 M = size(X, 2);
-% if nargin < 5 || isempty(nboot), nboot = 1000; end;
-% if nargin < 6 || isempty(opt), opt = 1; end;
-% if nargin < 7 || isempty(pvalue), pvalue = 0.01; end;
+
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -186,7 +184,7 @@ function evalboot(p,pboot,pvalue)
 
 for npc=1:size(pboot,3)
     
-    plot_vec(p(:,npc), [], [], {'',sprintf('Loadings PC %d',npc)});
+    plot_vec(p(:,npc), 'XYLabel', {'',sprintf('Loadings PC %d',npc)});
     hold on
     
     for nvar=1:size(p,1)

@@ -57,9 +57,9 @@ function [y_var,t_var] = var_pls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/May/2024
+% last modification: 19/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -82,10 +82,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
-% if nargin < 4 || isempty(prepx), prepx = 2; end;
-% if nargin < 5 || isempty(prepy), prepy = 2; end;
-% if nargin < 6 || isempty(opt), opt = '10'; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -152,9 +148,9 @@ end
            
 if opt(1) == '1'
     if opt(2) == '1'
-        plot_vec(y_var,lvs,[],{'#PCs','% Residual Variance in Y'},[],0);
+        plot_vec(y_var,'EleLabel',lvs,'XYLabel',{'#PCs','% Residual Variance in Y'},'Option','01');
     else
-        plot_vec([y_var t_var],'EleLabel',lvs,'XYLabel',{'#PCs','% Residual Variance'},'Option',0,'VecLabel',{'Y','Scores'});
+        plot_vec([y_var t_var],'EleLabel',lvs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01','VecLabel',{'Y','Scores'});
         legend('show');
     end
 end

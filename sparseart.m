@@ -46,11 +46,11 @@ function [AngD, VarA] =  sparseart(X,sparseLoadings)
 % 
 % T = repmat(c(1:length(gp)),obs,1).*[[1 1 1 1 0];[1 0 1 0 1]]';
 % X = T*P';
-%
+% 
 % f = figure; subplot(2,1,1), hold on, plot(T,'o-'),
 % title('Simulated','FontSize',20), subplot(2,1,2), hold on, bar(P),axis tight 
-%
-% [p,t,bel] = gpca(X,groups,1:2);
+% 
+% [p,t,bel] = gpca(X,groups,'Pcs',1:2);
 % 
 % [AngD, VarA] = sparseart(X,p)
 % 
@@ -78,11 +78,11 @@ function [AngD, VarA] =  sparseart(X,sparseLoadings)
 % 
 % T = repmat(c(1:length(gp)),obs,1).*[[1 1 1 1 0];[1 0 1 0 1];[0 1 0 1 0]]';
 % X = T*P';
-%
+% 
 % f = figure; subplot(2,1,1), hold on, plot(T,'o-'),
 % title('Simulated','FontSize',20), subplot(2,1,2), hold on, bar(P),axis tight 
-%
-% [p,t,bel] = gpca(X,groups,1:3);
+% 
+% [p,t,bel] = gpca(X,groups,'Pcs',1:3);
 % 
 % [AngD, VarA] = sparseart(X,p)
 % 
@@ -91,10 +91,9 @@ function [AngD, VarA] =  sparseart(X,sparseLoadings)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 5/Oct/20
+% last modification: 19/Apr/20024
 %
-% Copyright (C) 2020  University of Granada, Granada
-% Copyright (C) 2020  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

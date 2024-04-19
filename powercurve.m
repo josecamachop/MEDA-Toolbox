@@ -30,7 +30,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % F: [NxF] design matrix, cell or array, where columns correspond to 
 % factors and rows to levels
 %
-% Option INPUTS:
+% Option INPUTS (parameters):
 %
 % 'Model': This paremeter is similar to 'model' of anovan. It could be:
 %       'linear': only main effects are provided (by default)
@@ -123,7 +123,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % legend('Factor A','Factor B','Interaction')
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 11/Apr/24
+% last modification: 19/Apr/24
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -259,16 +259,16 @@ end
 if iscell(model), interactions = model; end
 
 % Validate dimensions of input data
-assert (isequal(size(type), [1 1]), 'Dimension Error: 3th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(n_rep), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(alpha), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 10th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 11th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(ts), [1 1]), 'Dimension Error: 12th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(ordinal), [1 size(F,2)]), 'Dimension Error: 13th argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(fmtc), [1 1]), 'Dimension Error: 14th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: 15th argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(replicates), [1 1]), 'Dimension Error: 17th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(type), [1 1]), 'Dimension Error: parameter ''Type'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(n_rep), [1 1]), 'Dimension Error: parameter ''Repetitions'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(alpha), [1 1]), 'Dimension Error: parameter ''Alpha'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(n_perm), [1 1]), 'Dimension Error: parameter ''Permutations'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(ts), [1 1]), 'Dimension Error: parameter ''Ts'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(ordinal), [1 size(F,2)]), 'Dimension Error: parameter ''Ordinal'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(fmtc), [1 1]), 'Dimension Error: parameter ''Fmtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Coding'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(replicates), [1 1]), 'Dimension Error: parameter ''Replicates'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -310,7 +310,7 @@ powercurveo.Dvars = [0];
 
 for f = 1 : n_factors
     if ordinal(f)
-        D(:,n+1) = preprocess2D(F(:,f),1);
+        D(:,n+1) = preprocess2D(F(:,f),'Preprocessing',1);
         powercurveo.factors{f}.Dvars = n+1;
         n = n + 1;
         powercurveo.factors{f}.order = 1;
@@ -401,7 +401,7 @@ end
 if ~isstruct(X) % Sample PCs
     
     % preprocess the data
-    [Xs,m,dt] = preprocess2D(X,prep);
+    [Xs,m,dt] = preprocess2D(X,'Preprocessing',prep);
     X = X./(ones(size(X,1),1)*dt);
 
     % Handle missing data 

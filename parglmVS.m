@@ -19,7 +19,7 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 % F: [NxF] design matrix, cell or array, where columns correspond to 
 % factors and rows to levels.
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'Model': This paremeter is similar to 'model' of anovan. It could be:
 %       'linear': only main effects are provided (by default)
@@ -99,7 +99,7 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 18/Apr/24
+% last modification: 19/Apr/24
 %
 % Copyright (C) 2024  Universidad de Granada
 %

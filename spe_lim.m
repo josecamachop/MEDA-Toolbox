@@ -22,18 +22,17 @@ function lim = spe_lim(res,p_value)
 %   observations:
 %
 % X = simuleMV(100,10,8);
-% Xcs = preprocess2D(X,2);
+% Xcs = preprocess2D(X,'preprocessing',2);
 % pcs = 1:2;
-% [p,t] = pca_pp(Xcs,pcs);
+% [p,t] = pca_pp(Xcs,'Pcs',pcs);
 % res = Xcs - t*p'; 
 % lim = spe_lim(res,0.01)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 29/Mar/16
+% last modification: 19/Apr/2024
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2024 University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
