@@ -33,7 +33,7 @@ function vascao = vasca(parglmoVS,siglev)
 % n_vars = 400;
 % 
 % class = (randn(n_obs,1)>0)+1;
-% X = simuleMV(n_obs,n_vars,8);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
 % X(class==2,1:3) = X(class==2,1:3) + 10;
 % 
 % [TVS, parglmoVS] = parglmVS(X, class); % With variable selection
@@ -45,12 +45,11 @@ function vascao = vasca(parglmoVS,siglev)
 %    scores(vascao.factors{1},'Title',sprintf('Factor %d',1),'ObsClass',vascao.design(:,1));
 %    loadings(vascao.factors{1},'Title',sprintf('Factor %d',1));
 % end
-
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 30/Nov/23
+% last modification: 19/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

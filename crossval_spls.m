@@ -48,7 +48,7 @@ function [cumpress,press,nze] = crossval_spls(x,y,varargin)
 %
 % EXAMPLE OF USE: Random data with structural relationship
 % 
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % keepXs = 1:10;
 % [cumpress,press,nze] = crossval_spls(X,Y,'KeepXBlock',keepXs);

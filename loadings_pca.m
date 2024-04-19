@@ -55,7 +55,7 @@ function P = loadings_pca(x,varargin)
 %     A{i} = ['A_{', num2str(i), '}'];
 % end
 % 
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % P = loadings_pca(X,'Pcs',1:3,'VarsLabel',A);
 %
 %

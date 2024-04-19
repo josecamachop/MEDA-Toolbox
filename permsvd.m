@@ -41,7 +41,7 @@ function [npcf,Fratioreal,Fratioperm]=permsvd(x,varargin)
 %
 % EXAMPLE OF USE: Random data
 %
-% x = simuleMV(20,10,8);
+% x = simuleMV(20,10,'LevelCorr',8);
 % npcf = permsvd(x,'MaxPerm',400);
 %
 %

@@ -27,7 +27,7 @@ function model = pca_eig(xcs,varargin)
 %
 % EXAMPLE OF USE: Random data:
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:3;
 % model = pca_eig(Xcs,'Pcs',pcs)

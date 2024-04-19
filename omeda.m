@@ -44,13 +44,13 @@ function omeda_vec = omeda(testcs,dummy,R,varargin)
 % n_obs = 100;
 % n_vars = 10;
 % n_PCs = 10;
-% X = simuleMV(n_obs,n_vars,6);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',6);
 % [Xcs, m, sc] = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:n_PCs;
 % p = pca_pp(Xcs,'Pcs',pcs);
 % 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
+% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
 % test(1,1:2) = 10*max(abs(X(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;

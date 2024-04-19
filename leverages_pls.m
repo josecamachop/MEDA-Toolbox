@@ -51,7 +51,7 @@ function L = leverages_pls(x,y,varargin)
 %     A{i} = ['A_{', num2str(i), '}'];
 % end
 % 
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % L = leverages_pls(X,Y,'LatVars',1:3,'VarsLabel',A);
 %

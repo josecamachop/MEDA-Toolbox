@@ -36,7 +36,7 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 %
 % EXAMPLE OF USE: Random curve, two examples of use.
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % [P,T] = pca_pp(X);
 % 
 % % Plot ('Option' default 1)

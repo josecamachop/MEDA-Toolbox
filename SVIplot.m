@@ -4,7 +4,7 @@ function [r2,alpha,q2,res_cross,alpha_cross,betas] = SVIplot(x,varargin)
 % Chemometrics and Intelligent Laboratory Systems 100, 2010, pp. 48-56. 
 %
 % r2 = SVIplot(x) % minimum call
-% [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(x,pcs,var,groups,prep,opt) %complete call
+% [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(x,'PCs',pcs,'Vars',var,groups,prep,opt) %complete call
 %
 %
 % INPUTS:
@@ -52,7 +52,7 @@ function [r2,alpha,q2,res_cross,alpha_cross,betas] = SVIplot(x,varargin)
 %
 % EXAMPLE OF USE: Random data
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % var = 1;
 % [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(X,'PCs',1:3,'Vars',var);
 %

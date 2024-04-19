@@ -68,7 +68,7 @@ function fig_h = scores(model,varargin)
 %
 % EXAMPLE OF USE: Random scores
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % 
 % model.lvs = 1:3;
 % [Xcs,model.av,model.sc] = preprocess2D(X);
@@ -82,7 +82,7 @@ function fig_h = scores(model,varargin)
 %
 % n_obs = 100;
 % n_vars = 10;
-% X = simuleMV(n_obs,n_vars,8);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
 % 
 % model.lvs = 1:2;
 % [Xcs,model.av,model.sc] = preprocess2D(X);
@@ -90,10 +90,10 @@ function fig_h = scores(model,varargin)
 % [model.loads,model.scores] = pca_pp(Xcs,'Pcs',model.lvs);
 % 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',corr(X)*(n_obst-1)/(n_obs-1));
 % 
 % scores(model,'ObsTest',test);
-%
+
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 12/Apr/2024

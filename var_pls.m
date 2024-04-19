@@ -50,7 +50,7 @@ function [y_var,t_var] = var_pls(x,y,varargin)
 %
 % EXAMPLE OF USE: Random data
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
 % x_var = var_pls(X,Y,'LatVars',lvs);

@@ -37,7 +37,7 @@ function apcao = apca(parglmo)
 % 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
-%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
+%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,'LevelCorr',8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
 % 
 % [table, parglmo] = parglm(X, F);
@@ -69,7 +69,7 @@ function apcao = apca(parglmo)
 % end
 % for i = 1:length(levels{1}),
 %     for j = 1:length(levels{2}),
-%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(fi{i} + fj{j},reps,1);
+%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,'LevelCorr',8) + repmat(fi{i} + fj{j},reps,1);
 %     end
 % end
 % 
@@ -97,7 +97,7 @@ function apcao = apca(parglmo)
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     for j = 1:length(levels{2}),
-%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(randn(1,vars),reps,1);
+%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,'LevelCorr',8) + repmat(randn(1,vars),reps,1);
 %     end
 % end
 % 

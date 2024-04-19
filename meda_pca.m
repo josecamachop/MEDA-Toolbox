@@ -55,7 +55,7 @@ function [meda_map,ind,ord] = meda_pca(x,varargin)
 %
 % EXAMPLE OF USE: Seriation and discarding uninformative variables
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % pcs = 1:3;
 % map = meda_pca(X,'Pcs',pcs,'Threshold',0.3,'Option','111');
 %

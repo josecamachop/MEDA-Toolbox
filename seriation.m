@@ -20,7 +20,7 @@ function [mapo,ord] = seriation(mapi)
 %
 % EXAMPLE OF USE: Random data
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % mapo = seriation(cov(Xcs));
 % plot_map(mapo);

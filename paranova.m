@@ -66,7 +66,7 @@ function paranovao = paranova(X, F,varargin)
 % 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
-%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
+%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,'LevelCorr',8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
 % 
 % paranovao = paranova(X, F);

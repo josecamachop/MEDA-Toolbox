@@ -44,7 +44,7 @@ function [Dst,Qst] = mspc(testcs,varargin)
 % n_obs = 100;
 % n_vars = 10;
 % n_PCs = 1;
-% X = simuleMV(n_obs,n_vars,6);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',6);
 % [Xcs, m, sc] = preprocess2D(X,'Preprocessing',2);
 % 
 % pcs = 1:n_PCs;

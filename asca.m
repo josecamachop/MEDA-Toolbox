@@ -35,7 +35,7 @@ function ascao = asca(parglmo)
 % 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
-%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
+%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,'LevelCorr',8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
 % 
 % [table, parglmo] = parglm(X, F);
@@ -44,8 +44,8 @@ function ascao = asca(parglmo)
 % ascao = asca(parglmo);
 % 
 % for i=1:2, % Note, the second factor is only shown for the sake of illustration, but non-significant factors should not be visualized
-%   scores(ascao.factors{i},[],[],sprintf('Factor %d',i),[],ascao.design(:,i));
-%   loadings(ascao.factors{i},[],sprintf('Factor %d',i));
+%   scores(ascao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',ascao.design(:,i));
+%   loadings(ascao.factors{i},'Title',sprintf('Factor %d',i));
 % end
 %
 %
@@ -67,7 +67,7 @@ function ascao = asca(parglmo)
 % end
 % for i = 1:length(levels{1}),
 %     for j = 1:length(levels{2}),
-%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(fi{i} + fj{j},reps,1);
+%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,'LevelCorr',8) + repmat(fi{i} + fj{j},reps,1);
 %     end
 % end
 % 
@@ -95,7 +95,7 @@ function ascao = asca(parglmo)
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     for j = 1:length(levels{2}),
-%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(randn(1,vars),reps,1);
+%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,'LevelCorr',8) + repmat(randn(1,vars),reps,1);
 %     end
 % end
 % 

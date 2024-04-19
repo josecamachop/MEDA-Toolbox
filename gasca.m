@@ -44,10 +44,7 @@ function gascao = gasca(paranovao_st,c)
 %   X(find(F(:,2) == levels{2}(i)),int2) = X(find(F(:,2) == levels{2}(i)),int2) + simuleMV(reps*length(levels{1}),length(int2),8) + repmat(randn(1,length(int2)),reps*length(levels{1}),1);
 % end
 % 
-% [table, paranovao_st] = parglm(X, F); %He añadido table para intentar
-% %imitar apca y asca para probar si funcionaba, antes no tenia table
-% %añadido pero daba error en que no reconocia .factors de paranovao.st
-% table
+% [table, paranovao_st] = parglm(X, F);
 % 
 % for i=1:length(paranovao_st.factors)
 %   map = corr(paranovao_st.factors{i}.matrix);

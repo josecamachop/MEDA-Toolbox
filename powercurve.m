@@ -122,6 +122,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % PCmean = powercurve(X, F, 'Model',{[1 2]},'Type',1,'Repetitions',200)
 % legend('Factor A','Factor B','Interaction')
 %
+%
 % coded by: José Camacho (josecamacho@ugr.es)
 % last modification: 19/Apr/24
 %
@@ -636,7 +637,7 @@ for i2=1:n_rep
             Xm = Xnoise + Xstruct;
             
             % Parallel GLM
-            [T, parglmo] = parglm(Xm, F, model, prep, n_perm, ts, ordinal, fmtc, coding, nested);
+            [T, parglmo] = parglm(Xm, F, 'Model',model, 'preprocessing',prep, 'Permutations',n_perm, 'Ts',ts, 'Ordinal',ordinal, 'Fmtc',fmtc, 'Coding',coding, 'Nested',nested);
             
             powercurveo.T{i2,a} = T;
             

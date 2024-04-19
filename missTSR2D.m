@@ -35,13 +35,13 @@ function rec = missTSR2D(x,pc,varargin)
 %
 % EXAMPLE FO USE:
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % pc = 2;
 % 
 % rec = missTSR2D(X,pc,'Iterations',50);
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/2024
+% last modification: 19/Apr/2024
 % major change: include nipls
 %
 % Copyright (C) 2024  University of Granada, Granada

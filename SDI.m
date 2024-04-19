@@ -36,7 +36,7 @@ function [SDImap,best] = SDI(T,classes,varargin)
 %
 % EXAMPLE OF USE: Random data with structural relationship  (copy, paste and enjoy)
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
 % lvs = 0:10;
 % [beta,W,P,Q,R] = simpls(X,Y,'LatVars',lvs);

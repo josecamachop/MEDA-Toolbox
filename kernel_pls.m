@@ -39,7 +39,7 @@ function [beta,W,P,Q,R,model] = kernel_pls(XX,XY,varargin)
 %
 % EXAMPLE OF USE: Random data with structural relationship
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % Ycs = preprocess2D(Y,'Preprocessing',2);

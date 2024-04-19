@@ -26,7 +26,7 @@ function fig_h = plot_map(map,varargin)
 %
 % EXAMPLE OF USE: Random data
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % plot_map(corr(X));
 %
 %

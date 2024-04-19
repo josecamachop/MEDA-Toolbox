@@ -35,7 +35,7 @@ function [p,t,bel,e] = gpca(xcs,states,varargin)
 %
 % EXAMPLE OF USE: Random data:
 %
-% x = simuleMV(20,10,8);
+% x = simuleMV(20,10,'LevelCorr',8);
 % pcs = 1:2;
 % map = meda_pca(x,'Pcs',pcs,'Option',0);
 % [map,ord] = seriation(map);

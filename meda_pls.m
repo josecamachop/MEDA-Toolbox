@@ -63,14 +63,14 @@ function [meda_map,ind,ord] = meda_pls(x,y,varargin)
 %
 % EXAMPLE OF USE: Seriation and discarding uninformative variables
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 1:3;
 % map = meda_pls(X,Y,'LatVars',lvs,'Threshold',0.3,'Option','111');
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/24
+% last modification: 19/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

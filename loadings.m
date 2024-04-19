@@ -51,7 +51,7 @@ function fig_h =loadings(model,varargin)
 %     A{i} = ['A_{', num2str(i), '}'];
 % end
 % 
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % [~,~,model] = pca_pp(X,'Pcs',1:2);
 % 
 % P = loadings(model,'VarsLabel',A);

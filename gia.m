@@ -40,7 +40,7 @@ function [bel,states,stree] = gia(map,varargin)
 %
 % EXAMPLE OF USE: Random data. Check the value in states:
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % pcs = 1:3;
 % map = meda_pca(X,'Pcs',pcs);
 % [bel,states] = gia(map,'Gamma',0.3);

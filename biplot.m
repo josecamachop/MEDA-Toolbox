@@ -45,7 +45,7 @@ function fig_h = biplot(model,varargin)
 % EXAMPLE OF USE: Random scores and loadings, two percentages of loading 
 % arrows displayed 
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % [~,~,model] = pca_pp(X,'Pcs',1:2);
 % 
 % A = cell(1, 20);
@@ -59,7 +59,7 @@ function fig_h = biplot(model,varargin)
 % T = biplot(model, 'Title', 'Random Biplot 20%', 'ObsLabel', A, 'PercArrows',25); 
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 16/Apr/2024
+% last modification: 19/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

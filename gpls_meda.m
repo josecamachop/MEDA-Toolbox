@@ -55,7 +55,7 @@ function  [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,varargin)
 %
 % obs = 20;
 % vars = 100;
-% X = simuleMV(obs,vars,5);
+% X = simuleMV(obs,vars,'LevelCorr',5);
 % X = [0.1*randn(obs,5)+X(:,1)*ones(1,5) X(:,6:end)];
 % Y = sum((X(:,1:5)),2);
 % Y = 0.1*randn(obs,1)*std(Y) + Y;

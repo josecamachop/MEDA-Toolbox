@@ -65,7 +65,7 @@ function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,varargin)
 %
 % EXAMPLE OF USE: Random data with structural relationship
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % X = [X 0.1*randn(20,10) + X];
 % Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
 % lvs = 0:10;

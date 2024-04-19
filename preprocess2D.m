@@ -30,7 +30,7 @@ function [xcs,average,scale] = preprocess2D(x,varargin)
 %
 % EXAMPLE OF USE: Random data:
 %
-% X = simuleMV(10,10,8);
+% X = simuleMV(10,10,'LevelCorr',8);
 % [Xcs,av,sc] = preprocess2D(X);
 % fig_h = plot_vec([av' sc'],'XYLabel',{'Avergae','Std Dev'},'Option','11');
 %

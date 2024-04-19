@@ -15,7 +15,7 @@ function [x_var,cumpress] = var_pca(x,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% 'PCs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(x). The value for 0 PCs is
 %   added at the begining if not specified.
 %
@@ -45,13 +45,13 @@ function [x_var,cumpress] = var_pca(x,varargin)
 %
 % EXAMPLE OF USE: Random data
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % pcs = 0:10;
 % x_var = var_pca(X,'Pcs',pcs);
 %
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Apr/2024
+% last modification: 19/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

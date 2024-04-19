@@ -46,7 +46,7 @@ function [cumpress,press] = crossval_pca(x,pcs,varargin)
 %
 % EXAMPLE OF USE: Random data using mean centering
 % 
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % pcs = 0:10;
 % cumpress = crossval_pca(X,pcs,'ValProcedure','rkf','Preprocessing', 1);
 %

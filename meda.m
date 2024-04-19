@@ -35,7 +35,7 @@ function meda_map = meda(XX,R,varargin)
 %
 % EXAMPLE OF USE: MEDA on PCA
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:3;
 % p = pca_pp(Xcs,'Pcs',pcs);
@@ -48,7 +48,7 @@ function meda_map = meda(XX,R,varargin)
 %
 % EXAMPLE OF USE: MEDA on PLS
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % Ycs = preprocess2D(Y,'Preprocessing',2);

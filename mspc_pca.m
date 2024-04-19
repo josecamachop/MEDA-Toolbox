@@ -79,7 +79,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,varargin)
 % n_obs = 100;
 % n_vars = 10;
 % n_PCs = 1;
-% X = simuleMV(n_obs,n_vars,6);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',6);
 % 
 % pcs = 1:n_PCs;
 % 

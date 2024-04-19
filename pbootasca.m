@@ -45,7 +45,7 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 % n_vars = 400;
 % 
 % class = (randn(n_obs,1)>0)+1;
-% X = simuleMV(n_obs,n_vars,8);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
 % X(class==2,1:3) = X(class==2,1:3) + 10;
 % 
 % S = rng; % Use same seed for random generators to improve comparability of results

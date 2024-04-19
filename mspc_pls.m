@@ -91,13 +91,13 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,varargin)
 % n_obs = 100;
 % n_vars = 10;
 % n_PCs = 1;
-% X = simuleMV(n_obs,n_vars,6);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',6);
 % Y = 0.1*randn(100,2) + X(:,1:2);
 % 
 % lvs = 1:n_PCs;
 % 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
+% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
 % [Dst,Qst,Dstt,Qstt] = mspc_pls(X,Y,'LatVars',lvs,'ObsTest',test);

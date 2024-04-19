@@ -44,7 +44,7 @@ function [cumpress,press] = crossval_pls(x,y,varargin)
 % EXAMPLE OF USE: Random data with structural relationship, two examples
 % of plot.
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
 % cumpress = crossval_pls(X,Y,'LatVars',lvs);

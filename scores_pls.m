@@ -68,7 +68,7 @@ function [T,TT] = scores_pls(x,y,varargin)
 %
 % EXAMPLE OF USE: Random scores
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % T = scores_pls(X,Y,'LatVars',1:3);
 %
@@ -78,11 +78,11 @@ function [T,TT] = scores_pls(x,y,varargin)
 % n_obs = 100;
 % n_vars = 10;
 % n_PCs = 10;
-% X = simuleMV(n_obs,n_vars,8);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
 % Y = 0.1*randn(n_obs,2) + X(:,1:2);
 % 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',corr(X)*(n_obst-1)/(n_obs-1));
 % 
 % scores_pls(X,Y,'LatVars',1,'ObsTest',test);
 % scores_pls(X,Y,'LatVars',1:2,'ObsTest',test);

@@ -1,4 +1,4 @@
-function X = simuleMV(obs,vars,lcorr,corM)
+function X = simuleMV(obs,vars,varargin)
 % LAST FUNCTION TO PARSE INPUTS
 % Simulation of multivariate data with ADICOV. Reference: Camacho, J. On 
 % the Generation of Random Multivariate Data. Chemometrics and Intelligent
@@ -14,9 +14,11 @@ function X = simuleMV(obs,vars,lcorr,corM)
 %
 % vars: [1x1] number of variables (columns) in the output.
 %
-% lcorr: [1x1] level of correlation among variables in [0,10] (5 by default) 
+% Optional INPUTS (parameter):
 %
-% corM: [vars x vars] covariance for simulation (empty by default) 
+% 'LevelCorr': [1x1] level of correlation among variables in [0,10] (5 by default) 
+%
+% 'Covar': [vars x vars] covariance for simulation (empty by default) 
 %
 %
 % OUTPUTS:
@@ -27,7 +29,7 @@ function X = simuleMV(obs,vars,lcorr,corM)
 % EXAMPLE OF USE: To obtain a matrix 100x10 with random covariance matrix, 
 % use the following call:
 %
-% X = simuleMV(100,10,6);
+% X = simuleMV(100,10,'LevelCorr',6);
 % plot_map(corr(X)); % visualization 
 % var_pca(X)
 %
@@ -35,16 +37,15 @@ function X = simuleMV(obs,vars,lcorr,corM)
 % EXAMPLE OF USE: To obtain a matrix 100x10 with random covariance matrix 
 %   of complete rank:
 %
-% X = simuleMV(100,10,8) + 0.1*randn(100,10);
+% X = simuleMV(100,10,'LevelCorr',8) + 0.1*randn(100,10);
 % plot_map(corr(X)); % visualization 
 % var_pca(X)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 28/Jul/23
+% last modification: 19/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
-% Copyright (C) 2023  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -64,8 +65,20 @@ function X = simuleMV(obs,vars,lcorr,corM)
 % Set default values
 routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-if nargin < 3 || isempty(lcorr), lcorr = 5; end;
-if nargin < 4 || isempty(corM), 
+
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'LevelCorr',5);   
+addParameter(p,'Covar',[]);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+lcorr = p.Results.LevelCorr;
+corM = p.Results.Covar;
+
+if isempty(lcorr) lcorr = 5; end;
+if isempty(corM) 
     uselevel = true; 
     corM = eye(vars); 
 else
@@ -75,8 +88,8 @@ end;
 % Validate dimensions of input data
 assert (isequal(size(obs), [1 1]), 'Dimension Error: 1st argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(vars), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lcorr), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(corM), [vars vars]), 'Dimension Error: 4th argument must be vars-by-vars. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lcorr), [1 1]), 'Dimension Error: parameter ''LevelCorr'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(corM), [vars vars]), 'Dimension Error: parameter ''Covar'' must be vars-by-vars. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (obs>0, 'Value Error: 1st argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
