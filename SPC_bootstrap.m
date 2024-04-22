@@ -50,7 +50,7 @@ function err = SPC_bootstrap(theta,PCreps,varargin)
 %     end
 % end
 % 
-% PCreps = powercurve(X, F,'Model',{[1 2]},'Type',1);
+% PCreps = powercurve(X, F,'Model',{[1 2]},'Type',2);
 % SPC_bootstrap(PCreps,100,true,0.05,false,['A','B']);
 %
 % coded by: Michael Sorochan Armstorng (mdarmstr@ugr.es)

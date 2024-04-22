@@ -20,7 +20,7 @@ function meda_map = meda(XX,R,varargin)
 %   For PLS (X = App*W*inv(P'*W)*Q'), this matrix is W*inv(P'*W). For the 
 %   original space (default) the identity matrix is used. 
 %
-% Optional INPUTS:
+% Optional INPUTS (parameter):
 %
 % 'OutSubspace': [MxA] Matrix to perform the projection from the latent subspace to 
 %   the original space. For PCA (X = T*P'), this is the matrix of loadings 
@@ -34,7 +34,7 @@ function meda_map = meda(XX,R,varargin)
 %
 %
 % EXAMPLE OF USE: MEDA on PCA
-%
+% 
 % X = simuleMV(20,10,'LevelCorr',8);
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:3;
@@ -62,7 +62,7 @@ function meda_map = meda(XX,R,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 18/Apr/2024.
+% last modification: 22/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -86,7 +86,6 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(XX, 1);
 A = size(R, 2);
-% if nargin < 3 || isempty(Q), Q = R; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -97,9 +96,9 @@ parse(p,varargin{:});
 Q = p.Results.OutSubspace;
 
 % Validate dimensions of input data
-assert (isequal(size(XX), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(R), [M A]), 'Dimension Error: 2nd argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Q), [M A]), 'Dimension Error: 3rd argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(XX), [M M]), 'Dimension Error: parameter ''XX'' must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(R), [M A]), 'Dimension Error: parameter ''R'' must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Q), [M A]), 'Dimension Error: parameter ''OutSubspace'' must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

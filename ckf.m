@@ -46,7 +46,7 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 % cumpress = ckf(X,T,P,'Option',0);
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 18/Apr/2024
+% last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -85,12 +85,12 @@ opt = p.Results.Option;
 if isnumeric(opt), opt=num2str(opt); end
 
 % Validate dimensions of input data
-assert (isequal(size(T), [N A]), 'Dimension Error: 2nd argument must be N-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(P), [M A]), 'Dimension Error: 3rd argument must be M-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(T), [N A]), 'Dimension Error: parameter ''T'' must be N-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(P), [M A]), 'Dimension Error: parameter ''P'' must be M-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: paramter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

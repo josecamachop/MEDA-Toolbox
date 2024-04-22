@@ -23,7 +23,7 @@ function omeda_vec = omeda(testcs,dummy,R,varargin)
 %   P. For PLS (Y = testcs*W*inv(P'*W)*Q), this matrix is W*inv(P'*W). For the 
 %   original space (default) the identity matrix is used.  
 %
-% Optional INPUTS:
+% Optional INPUTS (parameter):
 %
 % 'OutSubspace': [MxA] Matrix to perform the projection from the latent subspace to 
 %   the original space. For PCA (testcs = T*P'), this is the matrix of 
@@ -62,7 +62,7 @@ function omeda_vec = omeda(testcs,dummy,R,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 18/Apr/2024.
+% last modification: 22/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -87,7 +87,6 @@ assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(testcs, 1);
 M = size(testcs, 2);
 A = size(R, 2);
-% if nargin < 4 || isempty(Q), Q = R; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -102,9 +101,9 @@ if isempty(Q), Q = R; end;
 if size(dummy,1) == 1, dummy = dummy'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(dummy), [N 1]), 'Dimension Error: 2nd argument must be 1-by-N. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(R), [M A]), 'Dimension Error: 3rd argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Q), [M A]), 'Dimension Error: 4th argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(dummy), [N 1]), 'Dimension Error: parameter ''dummy'' must be 1-by-N. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(R), [M A]), 'Dimension Error: parameter ''R'' must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Q), [M A]), 'Dimension Error: parameter ''OutSubspace'' must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
 
 
 

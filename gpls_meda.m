@@ -66,7 +66,7 @@ function  [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 18/Apr/2024.
+% last modification: 22/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -92,9 +92,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(xcs, 1);
 M = size(xcs, 2);
 O = size(ycs, 2);
-% if nargin < 3 || isempty(lvs), lvs = 0:rank(xcs); end;
-% if nargin < 4 || isempty(gamma), gamma=0.7; end;
-% if nargin < 5 || isempty(stree), stree={}; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -120,13 +117,13 @@ lvs(find(lvs>M)) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (isequal(size(ycs), [N O]), 'Dimension Error: 2nd argument must be N-by-O. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(gamma), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(ycs), [N O]), 'Dimension Error: parameter ''ycs'' must be N-by-O. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(gamma), [1 1]), 'Dimension Error: parameter ''Gamma'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
-assert (gamma>=0 && gamma<=1, 'Value Error: 2nd argument must be between 0 and 1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine.name);
+assert (gamma>=0 && gamma<=1, 'Value Error: parameter ''Gamma'' must be between 0 and 1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

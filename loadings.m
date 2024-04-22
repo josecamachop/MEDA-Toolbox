@@ -14,7 +14,7 @@ function fig_h =loadings(model,varargin)
 %   loads: [MxA] model parameters.
 %   scores: [NxA] data scores. 
 %
-% Optional Inputs:
+% Optional Inputs (parameter):
 %
 % 'Option': (str) options for data plotting: binary code of the form 'ab' for:
 %       a:
@@ -58,7 +58,7 @@ function fig_h =loadings(model,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 18/Apr/2024
+% last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -83,19 +83,6 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(model.scores, 1);
 M = size(model.loads, 1);
 
-% if nargin < 2 || isempty(opt), opt = 0; end; 
-
-% Convert int arrays to str
-% if isnumeric(opt), opt=num2str(opt); end
-% 
-% % Complete opt
-% while length(opt)<2, opt = strcat(opt,'0'); end
-% if opt(2) == '0', opt(2) = '1'; else,  opt(2) = '0'; end
-
-% if nargin < 3, tit = ''; end 
-% if nargin < 4 || isempty(label), label = 1:M; end
-% if nargin < 5 || isempty(classes), classes = ones(M,1); end
-% if nargin < 6 || isempty(blur),    blur    = 1;       end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -126,13 +113,13 @@ if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
 
 % Validate dimensions of input data
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: 2nd argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [M 1]), 'Dimension Error: 4th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [M 1]), 'Dimension Error: 5th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [M 1]), 'Dimension Error: parameter''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''ObsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

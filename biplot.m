@@ -59,7 +59,7 @@ function fig_h = biplot(model,varargin)
 % T = biplot(model, 'Title', 'Random Biplot 20%', 'ObsLabel', A, 'PercArrows',25); 
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -84,13 +84,6 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(model.scores, 1);
 M = size(model.loads,1);
 
-% if nargin < 2 || isempty(opt), opt = 1; end; 
-% if nargin < 3, tit = ''; end 
-% if nargin < 4 || isempty(label), label = 1:N; end
-% if nargin < 5 || isempty(classes), classes = ones(N,1); end
-% if nargin < 6 || isempty(vlabel), vlabel = 1:M; end
-% if nargin < 7 || isempty(blur),    blur    = 1;       end;
-% if nargin < 8 || isempty(arrows),    arrows    = 10;       end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -122,15 +115,15 @@ if size(vlabel,1) == 1,     vlabel = vlabel'; end;
 if length(blur)==1, blur = [blur, blur]; end
 
 % Validate dimensions of input data
-assert (length(opt)==1, 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [N 1]), 'Dimension Error: 4th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [N 1]), 'Dimension Error: 5th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(blur), [1 2]), 'Dimension Error: 7th argument must be 1-by-2. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(arrows), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (length(opt)==1, 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [N 1]), 'Dimension Error: parameter ''ObsLabel'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [N 1]), 'Dimension Error: parameter ''ObsClass'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(vlabel), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(blur), [1 2]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-2. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(arrows), [1 1]), 'Dimension Error: parameter ''PercArrows'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
 % Validate values of input data
-assert (isempty(find(opt~=0 & opt~=1)), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~=0 & opt~=1)), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

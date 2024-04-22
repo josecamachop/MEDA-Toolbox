@@ -10,7 +10,7 @@ function F = create_design(levels,varargin)
 %
 % levels: {F} cell with the levels of the factors, specified as vectors.
 %
-% Optional INPUTS:
+% Optional INPUTS (parameter):
 %
 % 'Replicates': [1x1] number of replicates per combination of levels in the
 % factors.
@@ -29,7 +29,7 @@ function F = create_design(levels,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 4/Apr/24.
+% last modification: 22/Apr/24.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -51,7 +51,6 @@ function F = create_design(levels,varargin)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-%if nargin < 2 || isempty(reps), reps=1; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;

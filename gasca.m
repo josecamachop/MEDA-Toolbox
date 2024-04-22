@@ -89,8 +89,8 @@ function gascao = gasca(paranovao_st,c)
 % gascao = gasca(paranovao_st,c);
 % 
 % for i=1:2,
-%   scores(gascao.factors{i},[],[],sprintf('Factor %d',i),[],gascao.design(:,i));
-%   loadings(gascao.factors{i},[],sprintf('Factor %d',i));
+%   scores(gascao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',gascao.design(:,i));
+%   loadings(gascao.factors{i},'Title',sprintf('Factor %d',i));
 % end
 %
 %

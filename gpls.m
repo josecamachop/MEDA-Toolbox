@@ -16,7 +16,7 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 %
 % states: {Sx1} Cell with the groups of variables.
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(xcs)
@@ -60,7 +60,7 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 % plot_vec(beta,'XYLabel',{'','Regression coefficients'});
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 18/Apr/2024
+% last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -85,8 +85,6 @@ assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(xcs, 1);
 M = size(xcs, 2);
 O = size(ycs, 2);
-% if nargin < 4 || isempty(lvs), lvs = 0:rank(xcs); end;
-% if nargin < 5 || isempty(tol), tol = 1e-15; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -110,16 +108,16 @@ lvs(find(lvs>M)) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (isequal(size(ycs), [N O]), 'Dimension Error: 2nd argument must be N-by-O. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: 4th argument must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(ycs), [N O]), 'Dimension Error: parameter ''ycs'' must be N-by-O. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine.name);
 
 % Validate values of input data
-assert (iscell(states), 'Value Error: 3rd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine.name);
+assert (iscell(states), 'Value Error: parameter ''states'' must be a cell of positive integers. Type ''help %s'' for more info.', routine.name);
 for i=1:length(states),
     assert (isempty(find(states{i}<1)) && isequal(fix(states{i}), states{i}), 'Value Error: 3rd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine.name);
-    assert (isempty(find(states{i}>M)), 'Value Error: 3rd argument must contain values not higher than M. Type ''help %s'' for more info.', routine.name);
+    assert (isempty(find(states{i}>M)), 'Value Error: parameter ''states'' must contain values not higher than M. Type ''help %s'' for more info.', routine.name);
 end
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 4th argument must contain positive integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine.name);
 
 
 

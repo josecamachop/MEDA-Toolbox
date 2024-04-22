@@ -16,7 +16,7 @@ function [cumpress,press] = crossval_pca(x,pcs,varargin)
 % pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(x)
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'ValProcedure': (str) cross-validation procedure:
 %   'rkf': row-wise k fold (default)
@@ -32,7 +32,7 @@ function [cumpress,press] = crossval_pca(x,pcs,varargin)
 %       1: mean-centering 
 %       2: auto-scaling (default)  
 %
-% 'Plot': (bool) plot results.
+% 'Option': (bool) plot results.
 %       false: no plots.
 %       true: plot (default)
 %
@@ -52,7 +52,7 @@ function [cumpress,press] = crossval_pca(x,pcs,varargin)
 %
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 16/Apr/2024
+% last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -101,27 +101,27 @@ opt = p.Results.Plot;
 if size(pcs,2) == 1, pcs = pcs'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(leave_m), 'Dimension Error: 3rd argument must be a string. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_c), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(leave_m), 'Dimension Error: parameter ''ValProcedure'' must be a string. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxSampleBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocks_c), [1 1]), 'Dimension Error: parameter ''MaxVarBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Plot'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 pcs = unique(pcs);
 
 % Validate values of input data
-assert (isempty(find(pcs<0)), 'Value Error: 2nd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(pcs), pcs), 'Value Error: 2nd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
-assert (~isempty(strmatch(leave_m,char('rkf','ekf','cekf'))), 'Value Error: 3rd argument must be one of the possible strings. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 4th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(blocks_c), blocks_c), 'Value Error: 5th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r>2, 'Value Error: 4th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_c>2, 'Value Error: 5th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r<=N, 'Value Error: 4th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_c<=M, 'Value Error: 5th argument must be at most M. Type ''help %s'' for more info.', routine(1).name);
-assert (islogical(opt), 'Value Error: 7th argument must contain a boolean. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)), 'Value Error: parameter ''pcs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(pcs), pcs), 'Value Error: parameter ''pcs'' contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (~isempty(strmatch(leave_m,char('rkf','ekf','cekf'))), 'Value Error: parameter ''ValProcedure'' must be one of the possible strings. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxSampleBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocks_c), blocks_c), 'Value Error: parameter ''MaxVarBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r>2, 'Value Error: parameter ''MaxSampleBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_c>2, 'Value Error: parameter ''MaxVarBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r<=N, 'Value Error: parameter ''MaxSampleBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_c<=M, 'Value Error: parameter ''MaxVarBlock'' must be at most M. Type ''help %s'' for more info.', routine(1).name);
+assert (islogical(opt), 'Value Error: parameter ''Plot'' must contain a boolean. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

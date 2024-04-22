@@ -41,7 +41,7 @@ function rec = missTSR2D(x,pc,varargin)
 % rec = missTSR2D(X,pc,'Iterations',50);
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 22/Apr/2024
 % major change: include nipls
 %
 % Copyright (C) 2024  University of Granada, Granada
@@ -67,19 +67,6 @@ s = size(x);
 if find(s<1), error('Incorrect content of x.'); end;
 if pc<0, error('Incorrect value of pc.'); end;
 
-% if nargin < 3, prep = 2; end;
-% if (prep<0||prep>2), error('Incorrect value of prep.'); end;
-% if nargin < 4, perc = 0.3; end; 
-% if (perc<0||perc>1), error('Incorrect value of perc.'); end;
-% 
-% if nargin < 5, ac = 0; end;
-% if (ac<0||ac>1), error('Incorrect value of ac.'); end;
-% 
-% if nargin < 6, iter = 100; end;
-% if (iter<1), error('Incorrect value of iter.'); end;
-% 
-% if nargin < 7, conv = 1e-5; end;
-% if (conv<0), error('Incorrect value of conv.'); end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -97,15 +84,15 @@ ac = p.Results.AutoCorrData;
 iter = p.Results.Iterations;
 conv = p.Results.Convergence;
 
-if (prep<0||prep>2), error('Incorrect value of prep.'); end;
+if (prep<0||prep>2), error('Incorrect value of Preprocessing.'); end;
 
-if (perc<0||perc>1), error('Incorrect value of perc.'); end;
+if (perc<0||perc>1), error('Incorrect value of Percentage.'); end;
 
-if (ac<0||ac>1), error('Incorrect value of ac.'); end;
+if (ac<0||ac>1), error('Incorrect value of AutoCorrData.'); end;
 
-if (iter<1), error('Incorrect value of iter.'); end;
+if (iter<1), error('Incorrect value of Iterations.'); end;
 
-if (conv<0), error('Incorrect value of conv.'); end;
+if (conv<0), error('Incorrect value of Convergence.'); end;
 
 % Main code
 

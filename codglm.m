@@ -16,11 +16,11 @@ function [D, parglmo, anovast] = codglm(F, parglmi, varargin)
 % parglmi (structure): structure with the number of factors and the number 
 % of levels for each of them.
 %
-% Optional INPUTS (parameter):
+% Optional INPUTS (parameters):
 %
 % 'Anovast' (structure): structure with the anova choices.
 %
-% 	model: This paremeter is similar to 'model' of anovan. It could be:
+%   'Model': This paremeter is similar to 'model' of anovan. It could be:
 %       'linear': only main effects are provided (by default)
 %       'interaction': two order interactions are provided
 %       'full': all potential interactions are provided
@@ -28,15 +28,15 @@ function [D, parglmo, anovast] = codglm(F, parglmi, varargin)
 %       [ix2]: array with two order interactions
 %       cell: with each element a vector of factors
 %
-% 	ordinal: [1xF] whether factors are nominal or ordinal
+% 	'Ordinal': [1xF] whether factors are nominal or ordinal
 %       0: nominal (default)
 %       1: ordinal
 %
-%   coding: [1xF] type of coding of factors
+%   'Coding': [1xF] type of coding of factors
 %       0: sum/deviation coding (default)
 %       1: reference coding (reference is the last level)
 %
-%   nested: [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
+%   'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
 %   and 3 in 2, then nested = [1 2; 2 3]
 %
 %
@@ -63,7 +63,7 @@ function [D, parglmo, anovast] = codglm(F, parglmi, varargin)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 18/Apr/2024
+% last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -89,7 +89,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 n_factors = parglmi.n_factors;                 % number of factors
 levels = parglmi.levels;
 
-% if nargin < 3 || isempty(anovast), anovast = []; end
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -128,8 +127,8 @@ if ~isfield(anovast,'coding') || isempty(anovast.coding), anovast.coding = zeros
 if ~isfield(anovast,'nested'), anovast.nested = []; end;
 
 % Validate dimensions of input data
-assert (isequal(size(anovast.ordinal), [1 n_factors]), 'Dimension Error: ordinal argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(anovast.coding), [1 n_factors]), 'Dimension Error: coding argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(anovast.ordinal), [1 n_factors]), 'Dimension Error: parameter ''Ordinal''  must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(anovast.coding), [1 n_factors]), 'Dimension Error: parameter ''Coding''  must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

@@ -14,7 +14,7 @@ function [Dst,Qst] = mspc(testcs,varargin)
 %   monitored.
 %
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'InvCovarT': [AxA] inverse of covariance matrix of T, where T are the 
 %   calibration scores.
@@ -63,7 +63,7 @@ function [Dst,Qst] = mspc(testcs,varargin)
 % plot_scatter([Dst,Qst],'ObsClass',[ones(5,1);2*ones(5,1)],'XYLabel',{'D-st','Q-st'},'LimCont',{UCLd,UCLq}); 
 
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 18/Apr/2024.
+% last modification: 22/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -103,9 +103,9 @@ if isempty(Q), Q = R; end;
 
 
 % Validate dimensions of input data
-assert (isequal(size(invCT), [A A]), 'Dimension Error: 2nd argument must be LVs-by-LVs. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(R), [M A]), 'Dimension Error: 3rd argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Q), [M A]), 'Dimension Error: 4th argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(invCT), [A A]), 'Dimension Error: parameter ''InCovarT'' must be LVs-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(R), [M A]), 'Dimension Error: parameter ''InSubspace'' must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Q), [M A]), 'Dimension Error: parameter ''OutSubspace'' must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

@@ -16,7 +16,7 @@ function [beta,W,P,Q,R,model] = kernel_pls(XX,XY,varargin)
 %
 % XY: [MxO] cross-product X'*Y
 %
-% Optional INPUTS:
+% Optional INPUTS (parameter):
 %
 % 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:size(XX)
@@ -48,7 +48,7 @@ function [beta,W,P,Q,R,model] = kernel_pls(XX,XY,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 9/Apr/24
+% last modification: 22/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -73,7 +73,6 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(XX, 1);
 O = size(XY, 2);
-% if nargin < 3 || isempty(lvs), lvs = 0:size(XX,1); end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -94,12 +93,12 @@ lvs(find(lvs>size(XX,1))) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (isequal(size(XX), [M M]), 'Dimension Error: 1st argument must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(XY), [M O]), 'Dimension Error: 2nd argument must be M-by-O. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(XX), [M M]), 'Dimension Error: parameter ''XX'' must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(XY), [M O]), 'Dimension Error: parameter ''YY'' must be M-by-O. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

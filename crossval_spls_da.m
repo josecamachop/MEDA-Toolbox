@@ -7,7 +7,7 @@ function [AUC,nze] = crossval_spls_da(x,y,varargin)
 %
 % AAUC = crossval_spls_da(x,y) % minimum call
 % [AAUC, AUC,nze] =
-% crossval_spls_da(x,y,lvs,keepXs,blocks_r,prepx,prepy,opt) % complete call
+% crossval_spls_da(x,y,'LatVars',lvs,'KeepXBlock',keepXs,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -61,7 +61,7 @@ function [AUC,nze] = crossval_spls_da(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 4/Apr/24
+% last modification: 22/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -87,11 +87,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-
-% if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
-% A = length(lvs);
-% if nargin < 4 || isempty(keepXs), keepXs = 1:M; end;
-% J =  length(keepXs);
 
 ind = (size(y,2)+1)*ones(size(y,1),1);
 [r,c]=find(y==1);
@@ -131,27 +126,27 @@ if size(lvs,2) == 1, lvs = lvs'; end;
 if size(keepXs,2) == 1, keepXs = keepXs'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(y), [N O]), 'Dimension Error: 2nd argument must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(keepXs), [1 J]), 'Dimension Error: 4th argument must be 1-by-J. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prepx), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prepy), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(keepXs), [1 J]), 'Dimension Error: parameter ''KeepXBlock'' must be 1-by-J. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
 keepXs = unique(keepXs);
 
 % Validate values of input data
-assert (isempty(find(y~=1 & y~=-1)), 'Value Error: 2rd argument must not contain values different to 1 or -1. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(lvs<0)), 'Value Error: 3rd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(keepXs), keepXs), 'Value Error: 4th argument must contain integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 5th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r>1, 'Value Error: 5th argument must be above 1. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r<=N2, 'Value Error: 5th argument must be at most %d. Type ''help %s'' for more info.', N2, routine(1).name);
+assert (isempty(find(y~=1 & y~=-1)), 'Value Error: parameter ''y'' must not contain values different to 1 or -1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)), 'Value Error: parameter ''LatVars'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(keepXs), keepXs), 'Value Error: parameter ''KeepXBlock'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r>1, 'Value Error: parameter ''MaxBlock'' must be above 1. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r<=N2, 'Value Error: parameter ''MaxBlock'' must be at most %d. Type ''help %s'' for more info.', N2, routine(1).name);
 
 %% Main code
 
@@ -165,7 +160,7 @@ ind = (size(y,2)+1)*ones(size(y,1),1);
 [r1,r2]=sort(r);
 ind(r1) = c(r2);
 vals = unique(ind);
-for i=1:length(vals),
+for i=1:length(vals)
     y1{i} = find(ind==vals(i));
     rows = rand(1,length(y1{i}));
     [a,r_indn{i}]=sort(rows);
@@ -174,7 +169,7 @@ end
 
 % Cross-validation
         
-for i=1:blocks_r,
+for i=1:blocks_r
     
     cal = [];
     test = [];
@@ -201,7 +196,7 @@ for i=1:blocks_r,
     vals = unique(ind);    
     for j=1:length(vals)
         ind2 = find(ind==vals(j));
-        if ~isempty(ind2),
+        if ~isempty(ind2)
             [kk,m(j,:)] = preprocess2D(ccs(ind2,:),'Preprocessing',1);  % additional subtraction of class mean
         end
     end
@@ -212,13 +207,13 @@ for i=1:blocks_r,
 
     %[ccs,PR] = reduce2(ccs,coef);
     
-    if  ~isempty(find(lvs)),
+    if  ~isempty(find(lvs))
         
-        for lv=1:length(lvs),
+        for lv=1:length(lvs)
 
-            for keepX=1:length(keepXs),
+            for keepX=1:length(keepXs)
                 
-                if lvs(lv),
+                if lvs(lv)
                     model = sparsepls2(ccs, ccs_y, lvs(lv), keepXs(keepX)*ones(size(1:lvs(lv))), O*ones(size(1:lvs(lv))), 500, 1e-10, 1, 0);
                     beta = model.R*model.Q';
                    
@@ -240,9 +235,9 @@ for i=1:blocks_r,
     
 end
 
-for lv=1:size(srec1,2),
-    for keepX=1:size(srec1,3),
-        for o = 1:O,
+for lv=1:size(srec1,2)
+    for keepX=1:size(srec1,3)
+        for o = 1:O
             [~,~,~,AUC(lv,keepX,o)] = perfcurve(y(:,o),srec1(:,lv,keepX,o),1);
         end
     end
@@ -253,7 +248,7 @@ AAUC =  mean(AUC,3);
 
 %% Show results
 
-if opt == 1,
+if opt == 1
     fig_h = plot_vec(AAUC','EleLabel',keepXs,'XYLabel',{'#NZV','AUC'},'Option','01','VecLabel',lvs); 
     legend('show')
 end
