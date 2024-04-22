@@ -121,13 +121,13 @@ assert (isequal(fix(siz), siz), 'Value Error: 3rd argument must be an integer. T
 
 %% Main code
 
-if gamma == 0,
+if gamma == 0
     states = {1:M};
     bel = ones(M,1);
     return
 end
 
-if gamma == 1,
+if gamma == 1
     states = {};
     bel = cell(M,1);
     return
@@ -135,7 +135,7 @@ end
 
 map2 = map;
 
-if isempty(stree),
+if isempty(stree)
     indm = find(max(map)>gamma); % reduce map
 else
     indm = stree.indm;
@@ -143,7 +143,7 @@ end
 M2 = M;
 M = length(indm);
 
-if isempty(stree),
+if isempty(stree)
     
     map = abs(map);
     map = map(indm,indm);
@@ -161,14 +161,14 @@ if isempty(stree),
     ind = find(map_v==max(map_v),1);
     tree = {};
     index = [];
-    while map_v(ind)>=gamma,
+    while map_v(ind)>=gamma
         
         val = map_v(ind);
         
         r = rows_v(ind); % r is always minor than c
         c = columns_v(ind);
         
-        if c==r,
+        if c==r
             if isempty(bel{r})
                 states{end+1} = r;
                 bel{r} = [bel{r} length(states)];
@@ -178,11 +178,11 @@ if isempty(stree),
             
             mod = [];
             
-            for i=1:length(bel_r), % Should c be added to an state of r?
+            for i=1:length(bel_r) % Should c be added to an state of r?
                 state_rec = states{bel_r(i)};
                 
                 j = 1;
-                while j<=length(state_rec) && map(state_rec(j),c)> val-1e-10,
+                while j<=length(state_rec) && map(state_rec(j),c)> val-1e-10
                     j = j+1;
                 end
                 
@@ -195,9 +195,9 @@ if isempty(stree),
                      
             dup = [];
             modbel = bel{c};
-            for i=1:length(mod),
+            for i=1:length(mod)
                 l = find(ismember(modbel,mod(i)),1);
-                for j=[1:l-1 l+1:length(modbel)],
+                for j=[1:l-1 l+1:length(modbel)]
                     if isempty(find(map(states{mod(i)},states{modbel(j)}) < val,1)),
                         dup = [dup modbel(j)];
                         modbel(j) = [];
@@ -206,14 +206,14 @@ if isempty(stree),
                 end,
             end
                 
-            if ~isempty(dup),
+            if ~isempty(dup)
                 indd = 1:length(states);
                 states(dup) = [];
-                for k=1:length(dup),
+                for k=1:length(dup)
                     indd((dup(k)+1):end) = indd((dup(k)+1):end)-1;
                 end
                 indd(dup) = 0;
-                for k=1:M,
+                for k=1:M
                     bel{k} = indd(bel{k});
                     bel{k}(find(bel{k}==0)) = [];
                 end
@@ -221,7 +221,7 @@ if isempty(stree),
             
             bel_c = setdiff(bel{c},bel{r});
             
-            for i=1:length(bel_c), % Should r be added to an state of c?
+            for i=1:length(bel_c) % Should r be added to an state of c?
                 state_rec = states{bel_c(i)};
                 
                 j = 1;
@@ -229,7 +229,7 @@ if isempty(stree),
                     j = j+1;
                 end
                 
-                if j > length(state_rec),
+                if j > length(state_rec)
                     states{bel_c(i)} = [state_rec r];
                     bel{r} = [bel{r} bel_c(i)];
                     mod(end+1) = bel_c(i);
@@ -237,7 +237,7 @@ if isempty(stree),
                 end
             end
             
-            if isempty(mod) && isempty(intersect(bel{r},bel{c})),   
+            if isempty(mod) && isempty(intersect(bel{r},bel{c}))   
                 states{end+1} = [r,c];
                 bel{r} = [bel{r} length(states)];
                 bel{c} = [bel{c} length(states)];
@@ -256,7 +256,7 @@ if isempty(stree),
     end
 else
     j = find(stree.index>=gamma);
-    if isempty(j),
+    if isempty(j)
         states = {};
         bel = cell(M,1);
         return
@@ -269,16 +269,16 @@ end
 vs = [];
 om = ceil(log10(M));
 j=1;
-for i=1:length(states),
+for i=1:length(states)
     is = 0;
     l = 1;
-    while ~is && l<j,
-        if isequal(stateso{l},sort(indm(states{i}))),
+    while ~is && l<j
+        if isequal(stateso{l},sort(indm(states{i})))
             is = true;
         end
         l = l+1;
     end
-    if ~is && length(states{i})>=siz,
+    if ~is && length(states{i})>=siz
         stateso{j} = sort(indm(states{i}));
         vs(j) = sum(stateso{j}.*(10.^(-1*(1:om:om*length(states{i})))));  
         j = j+1;
@@ -293,13 +293,13 @@ else
 end
 
 bel = cell(M2,1);
-for j=1:length(states),
-    for i=1:length(states{j}),
+for j=1:length(states)
+    for i=1:length(states{j})
         bel{states{j}(i)} = [bel{states{j}(i)} j];
     end
 end
 
-if isempty(stree),
+if isempty(stree)
     stree.tree = tree;
     stree.indm = indm;
     stree.index = index;
