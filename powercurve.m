@@ -12,7 +12,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % Related routines: parglm, asca, apca, parglmVS, parglmMC, create_design
 %
 % PCmean = powercurve(X, F)   % minimum call
-% [PCmean, PCrep] = powercurve(X, F, model, type, n_rep, randg, randgC, theta, alpha, prep, n_perm, ts, ordinal, fmtc, coding, nested, replicates)   % complete call
+% [PCmean, PCrep] = powercurve(X, F, 'Model',model, 'Type',type, 'Repetitions',n_rep, 'RandomGen',randg, 'RandomGenC',randgC, 'Theta',theta, 'ALpha',alpha,'Preprocessing',prep, 'Permutations',n_perm, 'Ts',ts, 'Ordinal',ordinal, 'Fmtc',fmtc, 'Coding',coding, nested, 'Replicates',replicates)   % complete call
 %
 %
 % INPUTS:
@@ -124,7 +124,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 19/Apr/24
+% last modification: 23/Apr/24
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -157,17 +157,6 @@ else
     N = size(X, 1);
     M = size(X, 2);
 end
-
-% if nargin < 3 || isempty(type) 
-    % if isstruct(X), type = 1; 
-    % else, type = 2;
-    % end
-% end
-
-% if nargin < 4 || isempty(model), model = 'linear'; end;
-% if nargin < 5 || isempty(n_rep), n_rep = 1000; end;
-% if nargin < 6 || isempty(randg), randg = @randn; end;
-% if nargin < 7 || isempty(randgC), randgC = @()0.1*randn+1; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -212,26 +201,8 @@ fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
 replicates = p.Results.Replicates;
-
-% if nargin < 8 || isempty(theta) 
-    % if type == 2
-    %     theta = 1:10; 
-    % else
-    %     theta = 0:0.1:1; 
-    % end
-% end
-
 theta = sort(theta,'ascend');
 
-% if nargin < 9 || isempty(alpha), alpha = 0.01; end;
-% if nargin < 10 || isempty(prep), prep = 2; end;
-% if nargin < 11 || isempty(n_perm), n_perm = 1000; end;
-% if nargin < 12 || isempty(ts), ts = 1; end;
-% if nargin < 13 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
-% if nargin < 14 || isempty(fmtc), fmtc = 0; end;
-% if nargin < 15 || isempty(coding), coding = zeros(1,size(F,2)); end;
-% if nargin < 16 || isempty(nested), nested = []; end;
-% if nargin < 17 || isempty(replicates), replicates = 0; end;
 
 if isequal(model,'linear')
     interactions = [];

@@ -25,7 +25,7 @@ function testcs = preprocess2Dapp(test,average,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -69,9 +69,9 @@ if size(scale,2) == 1, scale = scale'; end;
 if size(weight,2) == 1, weight = weight'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(average), [1 M]), 'Dimension Error in parameter ''average'' must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(scale), [1 M]), 'Dimension Errorin parameter ''scale'' must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(weight), [1 M]), 'Dimension Error  in parameter ''weight'' must be 1-by-M. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(average), [1 M]), 'Dimension Error: parameter ''average'' must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(scale), [1 M]), 'Dimension Error: parameter ''SDivideTest'' must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(weight), [1 M]), 'Dimension Error: parameter ''Weight'' must be 1-by-M. Type ''help %s'' for more info.', routine(1).name); 
 
 
 %% Main code

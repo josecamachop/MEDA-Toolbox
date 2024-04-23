@@ -30,7 +30,7 @@ function lim = spe_lim(res,p_value)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024 University of Granada, Granada
 % 
@@ -56,10 +56,10 @@ N = size(res, 1);
 M = size(res, 2);
 
 % Validate dimensions of input data
-assert (isequal(size(p_value), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(p_value), [1 1]), 'Dimension Error: paramter ''p_value'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (p_value>=0 && p_value<1, 'Value Error: 2nd argument must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
+assert (p_value>=0 && p_value<1, 'Value Error: paramter ''p_value'' must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

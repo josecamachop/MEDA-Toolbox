@@ -19,7 +19,7 @@ function [T, parglmo] = parglmMC(X, F, varargin)
 % F: [NxF] design matrix, cell or array, where columns correspond to 
 % factors and rows to levels.
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'Model': This paremeter is similar to 'model' of anovan. It could be:
 %       'linear': only main effects are provided (by default)
@@ -101,7 +101,7 @@ function [T, parglmo] = parglmMC(X, F, varargin)
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -127,16 +127,6 @@ N = size(X, 1);
 M = size(X, 2);
 
 n_factors = size(F,2);                 % number of factors
-
-% if nargin < 3 || isempty(model), model = 'linear'; end;
-% if nargin < 4 || isempty(prep), prep = 2; end;
-% if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
-% if nargin < 6 || isempty(ts), ts = 1; end;
-% if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
-% if nargin < 8 || isempty(mtc), mtc = 3; end;
-% if nargin < 9 || isempty(fmtc), fmtc = 0; end;
-% if nargin < 10 || isempty(coding), coding = zeros(1,size(F,2)); end;
-% if nargin < 11 || isempty(nested), nested = []; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -189,12 +179,12 @@ end
 if iscell(model), interactions = model; end
 
 % Validate dimensions of input data
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(mtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(fmtc), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: 10th argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(n_perm), [1 1]), 'Dimension Error: parameter ''Permutations'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(ts), [1 1]), 'Dimension Error: parameter ''Ts'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(mtc), [1 1]), 'Dimension Error: parameter ''Mtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(fmtc), [1 1]), 'Dimension Error: parameter ''Fmtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Coding'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 
 %% Main code
 

@@ -5,7 +5,7 @@ function [x_var,cumpress] = var_pca(x,varargin)
 % algorithm.
 %
 % var_pca(x,pcs) % minimum call
-% var_pca(x,pcs,prep,opt) %complete call
+% var_pca(x,'Pcs',pcs,'Preprocessing',prep,'Option',opt) %complete call
 %
 %
 % INPUTS:
@@ -15,7 +15,7 @@ function [x_var,cumpress] = var_pca(x,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'PCs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(x). The value for 0 PCs is
 %   added at the begining if not specified.
 %
@@ -51,7 +51,7 @@ function [x_var,cumpress] = var_pca(x,varargin)
 %
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -75,9 +75,6 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-% if nargin < 2 || isempty(pcs), pcs = 0:rank(x); end;
-% if nargin < 3 || isempty(prep), prep = 2; end;
-% if nargin < 4 || isempty(opt), opt = '10'; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -105,18 +102,18 @@ pcs = unique(pcs);
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: 2nd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: 4th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (A>0, 'Dimension Error: parameter ''Pcs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 pcs = unique([0 pcs]);
 
 % Validate values of input data
-assert (isempty(find(pcs<0)), 'Value Error: 2nd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(pcs), pcs), 'Value Error: 2nd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)), 'Value Error: parameter ''Pcs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -129,13 +126,13 @@ pcs(find(pcs>size(P,2))) = [];
 totalVx = sum(sum(xcs.^2));
 x_var = ones(length(pcs),1);
 
-for i = 1:length(pcs),
+for i = 1:length(pcs)
     x_var(i) = x_var(i) - sum(eig(T(:,1:pcs(i))'*T(:,1:pcs(i))))/totalVx;
 end
 
 cumpress = zeros(length(pcs),1);
-if nargout>1 || opt(2) == '0',
-    for i = 1:length(pcs),
+if nargout>1 || opt(2) == '0'
+    for i = 1:length(pcs)
          c = ckf(xcs,T(:,1:pcs(i)),P(:,1:pcs(i)),'Option',0);
          cumpress(i) = c(end);
     end
@@ -144,8 +141,8 @@ end
     
 %% Show results
 
-if opt(1) == '1',
-    if opt(2) == '1',
+if opt(1) == '1'
+    if opt(2) == '1'
         plot_vec(x_var,'EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01');
     else
         plot_vec([x_var cumpress/cumpress(1)],'EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01','VecLabel',{'X','ckf'});

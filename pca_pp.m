@@ -10,7 +10,7 @@ function [p,t,model] = pca_pp(xcs,varargin)
 %
 % xcs: [NxM] preprocessed billinear data set 
 %
-% Optional INPUTS:
+% Optional INPUTS (parameter):
 %
 % 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:min(size(xcs))
@@ -34,7 +34,7 @@ function [p,t,model] = pca_pp(xcs,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -58,7 +58,6 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(xcs, 1);
 M = size(xcs, 2);
-% if nargin < 2 || isempty(pcs), pcs = 0:rank(xcs); end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -79,10 +78,10 @@ pcs(find(pcs>rank(xcs))) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

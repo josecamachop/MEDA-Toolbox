@@ -32,7 +32,7 @@ function fig_h = plot_map(map,varargin)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % Copyright (C) 2024  Jose Camacho Paez, Alejandro Perez Villegas
@@ -56,9 +56,6 @@ function fig_h = plot_map(map,varargin)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 M = size(map,2);
-% if nargin < 2 || isempty(label), label= 1:M; end
-% if nargin < 3 || isempty(int), int = [-1;1]; end;
-% if nargin < 4 || isempty(ind), ind = [0:.2:0.79 0.8:0.04:1]'; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;

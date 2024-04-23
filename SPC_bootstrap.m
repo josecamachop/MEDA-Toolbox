@@ -54,7 +54,7 @@ function err = SPC_bootstrap(theta,PCreps,varargin)
 % SPC_bootstrap(PCreps,100,true,0.05,false,['A','B']);
 %
 % coded by: Michael Sorochan Armstorng (mdarmstr@ugr.es)
-% last modification: 30/Feb/24
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %

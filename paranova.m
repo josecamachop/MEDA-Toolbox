@@ -7,7 +7,7 @@ function paranovao = paranova(X, F,varargin)
 % (please, use the latter)
 %
 % paranovao = paranova(X, F)   % minimum call
-% paranovao = paranova(X, F, interactions, center, n_perm)   % complete call
+% paranovao = paranova(X, F, 'Interactions',interactions, 'Preprocessing',center, 'Permutations',n_perm)   % complete call
 %
 %
 % INPUTS:
@@ -18,7 +18,7 @@ function paranovao = paranova(X, F,varargin)
 % F: [NxF] design matrix, where columns correspond to factors and rows to
 % levels. Levels start at 1 and should be correlative.
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'Interactions': [Ix2] matrix where rows contain the factors for which
 % interactions are to be calculated.
@@ -74,7 +74,7 @@ function paranovao = paranova(X, F,varargin)
 %
 % coded by: Gooitzen Zwanenburg (G.Zwanenburg@uva.nl)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 18/Apr/24
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  Gooitzen Zwanenburg, University of Amsterdam
 %
@@ -98,9 +98,6 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(X, 1);
 M = size(X, 2);
-% if nargin < 3 || isempty(interactions), interactions = []; end;
-% if nargin < 4 || isempty(center), center = 2; end;
-% if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -115,8 +112,8 @@ center = p.Results.Preprocessing;
 n_perm = p.Results.Permutations;
 
 % Validate dimensions of input data
-assert (isequal(size(center), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(center), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(n_perm), [1 1]), 'Dimension Error: parameter ''Permutations'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

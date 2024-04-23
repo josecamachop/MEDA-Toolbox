@@ -47,7 +47,7 @@ function [SDImap,best] = SDI(T,classes,varargin)
 % SDImap = SDI(T,class);
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -88,7 +88,7 @@ if size(classes,1) == 1, classes = classes'; end;
 assert (isequal(size(classes), [N 1]), 'Dimension Error: parameter ''Classes'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
 % Validate values of input data
-assert (isempty(find(opt<0 | opt>2)), 'Value Error: 3rd argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt<0 | opt>2)), 'Value Error: parameter ''Option'' must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -141,8 +141,8 @@ end
     
 %% Show results
 
-if opt==1,
-    for k=1:length(ucl),
+if opt==1
+    for k=1:length(ucl)
         Mv = max(max(squeeze(SDImap(:,:,k))));
        % plot_map(SDImap(:,:,k),[],[0,Mv]);
        plot_map(SDImap(:,:,k),'ColorInt',[0,Mv]);

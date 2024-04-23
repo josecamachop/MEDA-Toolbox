@@ -43,7 +43,7 @@ function X = simuleMV(obs,vars,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -86,28 +86,28 @@ else
 end;
     
 % Validate dimensions of input data
-assert (isequal(size(obs), [1 1]), 'Dimension Error: 1st argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(vars), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(obs), [1 1]), 'Dimension Error: parameter ''obs'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(vars), [1 1]), 'Dimension Error: parameter ''vars'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lcorr), [1 1]), 'Dimension Error: parameter ''LevelCorr'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(corM), [vars vars]), 'Dimension Error: parameter ''Covar'' must be vars-by-vars. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (obs>0, 'Value Error: 1st argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(obs), obs), 'Value Error: 1st argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (vars>0, 'Value Error: 2nd argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(vars), vars), 'Value Error: 2nd argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (lcorr >= 0, 'Value Error: 3rd argument must be above or equal to 0. Type ''help %s'' for more info.', routine(1).name);
-assert (lcorr<=10, 'Value Error: 3rd argument must be equal to or below 10. Type ''help %s'' for more info.', routine(1).name);
+assert (obs>0, 'Value Error: parameter ''obs'' must be above 0. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(obs), obs), 'Value Error: parameter ''obs'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (vars>0, 'Value Error: parameter ''vars'' must be above 0. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(vars), vars), 'Value Error: parameter ''vars'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (lcorr >= 0, 'Value Error: parameter ''LevelCorr'' must be above or equal to 0. Type ''help %s'' for more info.', routine(1).name);
+assert (lcorr<=10, 'Value Error: parameter ''LevelCorr'' must be equal to or below 10. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
-if uselevel,
-    if lcorr>0,
+if uselevel
+    if lcorr>0
         x = [0.2837   17.9998   19.3749    2.0605    0.3234 0.4552   12.0737   16.6831    5.2423    0.5610 0.3000   14.7440 4.4637e+04 7.1838    0.8429];
         obs2 = round(Floc(x,[lcorr,vars]).^2);
         obs2 = max(2,obs2);
-        if obs < obs2,
+        if obs < obs2
             disp('Warning: correlation level too low. Resulting matrix may show a higher correlation due to structural constraints.')
         end
         X = real(ADICOV(eye(vars),randn(obs2,vars),vars));
@@ -115,7 +115,7 @@ if uselevel,
         COV = Xs'*Xs/(size(X,1)-1);
         corM = COV + 0.01*eye(vars);
     else
-        if obs < vars,
+        if obs < vars
             disp('Warning: correlation level too low. Resulting matrix may show a higher correlation due to structural constraints.')
         end
     end
@@ -128,15 +128,15 @@ function y = Floc(x,xdata)
 
 y = zeros(size(xdata,1),1);
 
-for i=1:size(xdata,1),
+for i=1:size(xdata,1)
     
-    switch xdata(i,1),
+    switch xdata(i,1)
     
-        case {1, 2, 3},
+        case {1, 2, 3}
             y(i) = (x(1)*(x(2)-xdata(i,1)).*((log(xdata(i,2))/log(x(3))).^(x(4)*exp(-x(5)*xdata(i,1)))));
-        case {4, 5, 6, 7},
+        case {4, 5, 6, 7}
             y(i) = (x(6)*(x(7)-xdata(i,1)).*((log(xdata(i,2))/log(x(8))).^(x(9)*exp(-x(10)*xdata(i,1)))));
-        case {8, 9, 10},
+        case {8, 9, 10}
             y(i) = (x(11)*(x(12)-xdata(i,1)).*((log(xdata(i,2))/log(x(13))).^(x(14)*exp(-x(15)*xdata(i,1)))));
             
     end

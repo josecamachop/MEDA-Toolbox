@@ -91,7 +91,7 @@ function [AngD, VarA] =  sparseart(X,sparseLoadings)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/20024
+% last modification: 23/Apr/20024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -118,7 +118,7 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 [obs, vars] = size(X);
 
 % Validate dimensions of input data
-assert (isequal(size(sparseLoadings,1), vars), 'Dimension Error: 2nd argument must be A-by-M. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(sparseLoadings,1), vars), 'Dimension Error: parameter ''sparseLoadings'' must be A-by-M. Type ''help %s'' for more info.', routine(1).name); 
 
 % Get number of components
 pcs = 1:size(sparseLoadings,2);

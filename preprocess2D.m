@@ -35,7 +35,7 @@ function [xcs,average,scale] = preprocess2D(x,varargin)
 % fig_h = plot_vec([av' sc'],'XYLabel',{'Avergae','Std Dev'},'Option','11');
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/May/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

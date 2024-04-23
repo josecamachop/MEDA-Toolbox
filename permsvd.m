@@ -46,7 +46,7 @@ function [npcf,Fratioreal,Fratioperm]=permsvd(x,varargin)
 %
 %
 % codified by: Raffaele Vitale (rvitale86@gmail.com)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  Universitat Politecnica de Valencia, Valencia
 % Copyright (C) 2024  Raffaele Vitale
@@ -69,18 +69,6 @@ function [npcf,Fratioreal,Fratioperm]=permsvd(x,varargin)
 if nargin<1
     error('Error in the number of arguments. Type ''help permsvd'' for more info.')
 end
-% if nargin<2 || isempty(flagprep)
-%     flagprep=2;
-% end
-% if nargin<3 || isempty(npermmax)
-%     npermmax=300;
-% end
-% if nargin<4 || isempty(flagproj)
-%     flagproj=3;
-% end
-% if nargin<5 || isempty (conf)
-%     conf=95;
-% end
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;

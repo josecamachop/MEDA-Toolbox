@@ -7,7 +7,7 @@ function vascao = vasca(parglmoVS,siglev)
 %
 % Related routines: parglmVS, parglm, asca
 %
-% vascao = vasca(parglmVS)   % complete call
+% vascao = vasca(parglmVS,singlev)   % complete call
 %
 %
 % INPUTS:
@@ -47,7 +47,7 @@ function vascao = vasca(parglmoVS,siglev)
 % end
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -72,7 +72,7 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 if nargin < 2 || isempty(siglev), siglev = 0.01; end;
 
 % Validate dimensions of input data
-assert (isequal(size(siglev), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(siglev), [1 1]), 'Dimension Error: parameter ''singlev'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 %% Main code
 

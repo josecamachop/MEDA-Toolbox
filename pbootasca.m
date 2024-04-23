@@ -72,7 +72,7 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 %
 % coded by: Rafa Vitale (raffaele.vitale@univ-lille.fr)
 %           José Camacho (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  Raffael Vitale, Lille University
 % Copyright (C) 2024  José Camacho, Universidad de Granada
@@ -117,10 +117,10 @@ pvalue = p.Results.PlotVal;
 if isnumeric(opt), opt=num2str(opt); end
 
 % Validate dimensions of input data
-assert (isequal(size(nfact), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(nboot), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(pvalue), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(nfact), [1 1]), 'Dimension Error: parameter ''nfact'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(nboot), [1 1]), 'Dimension Error: parameter ''NRuns'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pvalue), [1 1]), 'Dimension Error: parameter ''PlotVal'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

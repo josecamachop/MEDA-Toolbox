@@ -6,7 +6,7 @@ function [T,TT] = scores_pca(x,varargin)
 % by scores.m (please, use the latter)
 %
 % T = scores_pca(x) % minimum call
-% [T,TT] = scores_pca(x,'Pcs',pcs,'ObsTest',test,prep,opt,label,classes,blur) % complete call
+% [T,TT] = scores_pca(x,'Pcs',pcs,'ObsTest',test,'Preprocessing',prep,'Option',opt,'ObsLabel',label, 'ObsClass',classes,'BlurIndex',blur) % complete call
 %
 % INPUTS:
 %
@@ -81,7 +81,7 @@ function [T,TT] = scores_pca(x,varargin)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024 University of Granada, Granada
 % 
@@ -154,7 +154,7 @@ if isempty(classes)
         classes = [ones(N,1);2*ones(L,1)];  
     end
 end
-% if nargin < 8 || isempty(blur),    blur    = 1;       end;
+
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -169,18 +169,18 @@ pcs(find(pcs==0)) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: 2nd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 3rd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==4, 'Dimension Error: 5th argument must be a string or num of 4 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [K 1]), 'Dimension Error: 6th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [K 1]), 'Dimension Error: 7th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
-if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+assert (A>0, 'Dimension Error: parameter ''Pcs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
+assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==4, 'Dimension Error: parameter ''Option'' must be a string or num of 4 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [K 1]), 'Dimension Error: parameter ''ObsLabel'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [K 1]), 'Dimension Error: parameter ''ObsClass'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

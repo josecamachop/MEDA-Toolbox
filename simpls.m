@@ -46,7 +46,7 @@ function [beta,W,P,Q,R,model] = simpls(X,Y,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -89,12 +89,12 @@ lvs(find(lvs>M)) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (isequal(size(X), [N M]), 'Dimension Error: 1st argument must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Y), [N O]), 'Dimension Error: 2nd argument must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(X), [N M]), 'Dimension Error: parameter ''X'' must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Y), [N O]), 'Dimension Error: parameter ''Y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

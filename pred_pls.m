@@ -12,7 +12,7 @@ function [ypred,testypred] = pred_pls(x,y,varargin)
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% Optional INPUTS:
+% Optional INPUTS (parameters):
 %
 % 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 1:rank(x)
@@ -80,7 +80,7 @@ function [ypred,testypred] = pred_pls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -105,13 +105,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-% if nargin < 3 || isempty(lvs), lvs = 1:rank(x); end;
-% if nargin < 4, test = []; end;
-% L = size(test, 1);
-% K = N+L;
-% if nargin < 5 || isempty(prepx), prepx = 2; end;
-% if nargin < 6 || isempty(prepy), prepy = 2; end;
-% if nargin < 7 || isempty(opt), opt = '100'; end; 
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -121,8 +114,8 @@ L = size('ObsTest', 1);
 addParameter(p,'PreprocessingX',2);  
 addParameter(p,'PreprocessingY',2); 
 addParameter(p,'Option','100'); 
-addParameter(p,'ObsLabel',ones(N+L,1));
-addParameter(p,'ObsClass',ones(N,1));
+addParameter(p,'ObsLabel',[]);
+addParameter(p,'ObsClass',[]);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -148,14 +141,14 @@ else
     K = N+L;
 end
 
-if nargin < 8 || isempty(label) 
+if isempty(label) 
     if opt(3) == 1 || opt(3) == '1'
         label = 1:L;
     else
         label = [1:N 1:L]; 
     end
 end
-if nargin < 9 || isempty(classes)
+if isempty(classes)
     if opt(3) == 1 || opt(3) == '1' 
         classes = ones(L,1); 
     else
@@ -176,30 +169,30 @@ lvs(find(lvs==0)) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: 3rd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 4th argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
-assert (isequal(size(prepx), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prepy), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 7th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [K 1]), 'Dimension Error: 8th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [K 1]), 'Dimension Error: 9th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (A>0, 'Dimension Error: parameter ''LatVars'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
+assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [K 1]), 'Dimension Error: parameter ''ObsLabel'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [K 1]), 'Dimension Error: parameter ''ObsClass'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
-[xcs,m,sd] = preprocess2D(x,prepx);
-[ycs,my,sdy] = preprocess2D(y,prepy);
+[xcs,m,sd] = preprocess2D(x,'Preprocessing',prepx);
+[ycs,my,sdy] = preprocess2D(y,'Preprocessing',prepy);
 
-beta = simpls(xcs,ycs,lvs);
+beta = simpls(xcs,ycs,'LatVars',lvs);
 ypred = (xcs*beta).*(ones(N,1)*sdy) + (ones(N,1)*my);
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,m,sd);
+    testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
     testypred = (testcs*beta).*(ones(L,1)*sdy) + (ones(L,1)*my);
 else
     testypred = [];
@@ -220,7 +213,7 @@ if opt(1) == '1'
     
     if opt(2) == '1'
         for i=1:O
-            plot_vec(predt(:,i), label, classes, {'',sprintf('Prediction Y-var %d',i)});
+            plot_vec(predt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Prediction Y-var %d',i)});
         end
     else
         for i=1:O

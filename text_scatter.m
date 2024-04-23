@@ -3,7 +3,7 @@ function text_scatter(fig_h,bdata,varargin)
 % Print text in a Scatter plot.
 %
 % text_scatter(fig_h,bdata) % minimum call
-% text_scatter(fig_h,bdata,elabel,classes,opt,mult,blur) % complete call
+% text_scatter(fig_h,bdata,'EleLabel',elabel,'ObsClass',classes,'Option',opt,'Multiplicity',mult,'BlurIndex',blur) % complete call
 %
 %
 % INPUTS:
@@ -46,7 +46,7 @@ function text_scatter(fig_h,bdata,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 18/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -72,8 +72,6 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 figure(fig_h);
 
 N = size(bdata, 1);
-
-
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -112,15 +110,15 @@ if ischar(elabel),  elabel = cellstr(elabel); end;
 if ischar(classes), classes = cellstr(classes); end;
 
 % Validate dimensions of input data
-assert(size(bdata,2) == 2, 'Dimension Error: 2nd argument must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 4th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 5th argument must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: 6th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+assert(size(bdata,2) == 2, 'Dimension Error: paramter ''bdata'' must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
+if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: paramter ''EleLabel'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: parameter ''ObsClass'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
+if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: parameter ''Multiplicity'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 
 % Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

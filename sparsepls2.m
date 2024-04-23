@@ -372,7 +372,7 @@ if mode == 1
 elseif mode == 2
     lY = e_matrix;
 end
-while isnan(rcond(((c_matrix(:, 1:nlv))' * a_matrix(:, 1:nlv)))),
+while isnan(rcond(((c_matrix(:, 1:nlv))' * a_matrix(:, 1:nlv))))
     nlv=nlv-1;
 end
 R = a_matrix(:, 1:nlv) / ((c_matrix(:, 1:nlv))' * a_matrix(:, 1:nlv));

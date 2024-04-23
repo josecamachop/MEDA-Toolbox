@@ -5,7 +5,7 @@ function [T,TT] = scores_pls(x,y,varargin)
 % by scores.m (please, use the latter)
 %
 % T = scores_pls(x,y) % minimum call
-% [T,TT] = scores_pls(x,y,lvs,test,prepx,prepy,opt,label,classes,blur) % complete call
+% [T,TT] = scores_pls(x,y,'LatVars',lvs,'ObsTest',test,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt,'ObsLabel',label,'ObsClass',classes,'BlurIndex',blur) % complete call
 %
 % INPUTS:
 %
@@ -90,7 +90,7 @@ function [T,TT] = scores_pls(x,y,varargin)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -182,7 +182,7 @@ lvs(find(lvs==0)) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: 3rd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (A>0, 'Dimension Error: parameter ''LatVars'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -193,8 +193,8 @@ assert (isequal(size(classes), [K 1]), 'Dimension Error: parameter ''ObsClass'' 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

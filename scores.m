@@ -96,7 +96,7 @@ function fig_h = scores(model,varargin)
 
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 12/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -120,9 +120,7 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(model.scores, 1);
 M = size(model.loads,1);
-% if nargin < 2, test = []; end;
-% L = size(test, 1);
-% if nargin < 3 || isempty(opt), opt = 0; end; 
+
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -182,14 +180,14 @@ if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
 
 % Validate dimensions of input data
-if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 2nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
-assert (ischar(opt) && length(opt)>=5, 'Dimension Error: 3rd argument must be a string or num of at least 5 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [K 1]), 'Dimension Error: 5th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [K 1]), 'Dimension Error: 6th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
-if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
+assert (ischar(opt) && length(opt)>=5, 'Dimension Error: parameter ''Option'' must be a string or num of at least 5 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [K 1]), 'Dimension Error: parameter ''ObsLabel'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [K 1]), 'Dimension Error: parameter ''ObsClass'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

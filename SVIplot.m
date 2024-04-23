@@ -58,7 +58,7 @@ function [r2,alpha,q2,res_cross,alpha_cross,betas] = SVIplot(x,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2024
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -116,15 +116,15 @@ pcs(find(pcs>min(size(x)))) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(var), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(groups), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: 6th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''PCs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(var), [1 1]), 'Dimension Error: parameter ''Vars'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(groups), [1 1]), 'Dimension Error: parameter ''Groups'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==2, 'Dimension Error:parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
   
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''PCs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
