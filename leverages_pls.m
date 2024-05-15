@@ -49,9 +49,9 @@ function L = leverages_pls(x,y,lvs,prepx,prepy,opt,label,classes)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/May/2023
+% last modification: 15/May/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -117,8 +117,8 @@ ycs = preprocess2D(y,prepy);
 
 [beta,W,P,Q] = simpls(xcs,ycs,lvs);
 
-L = diag(W*W');
-
+%L = diag(W*W');
+L = sum((xcs*W*P').^2)./sum(xcs.^2);
 
 %% Show results
 
