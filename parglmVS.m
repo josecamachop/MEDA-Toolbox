@@ -91,7 +91,7 @@ function [T, parglmo] = parglmVS(X, F, model, prep, n_perm, ts, ordinal, fmtc, c
 %
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 19/Feb/24
+% last modification: 20/Apr/24
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -303,7 +303,7 @@ B = pD*X;
 X_residuals = X - D*B;
 parglmo.D = D;
 parglmo.B = B;
-%parglmo.mean = parglmo.D*parglmo.B(:,1);
+parglmo.mean = parglmo.D*parglmo.B(:,1);
 
 % Create Effect Matrices
 parglmo.inter = D(:,1)*B(1,:);
