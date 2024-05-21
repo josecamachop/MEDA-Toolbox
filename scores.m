@@ -94,7 +94,7 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 29/Sep/2023
+% last modification: 21/May/2024
 %
 % Copyright (C) 2023  University of Granada, Granada
 % 
@@ -179,7 +179,11 @@ if isfield(model,'scoresV')
 end
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,model.av,model.sc);
+    if isfield(model,'av')
+        testcs = preprocess2Dapp(test,model.av,model.sc);
+    else
+        testcs = test;
+    end
     TT = testcs*model.loads;
 else
     TT = [];
