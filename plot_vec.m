@@ -38,7 +38,7 @@ function fig_h = plot_vec(vec,varargin)
 %
 % 'Markers': [1x3] thresholds for the different marker size (20, 50 and 100 by default)
 %
-%
+% 'Color': Choose the color for your plot. okabe_ito by default.
 % OUTPUTS:
 %
 % fig_h: (1x1) figure handle.
@@ -97,6 +97,7 @@ addParameter(p,'Option','11');
 addParameter(p,'Multiplicity',ones(N,1));
 addParameter(p,'Markers',[20 50 100]);
 addParameter(p,'VecLabel',1:M);
+addParameter(p,'Color',[]);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -108,6 +109,7 @@ opt = p.Results.Option;
 mult = p.Results.Multiplicity;
 maxv = p.Results.Markers;
 vlabel = p.Results.VecLabel;
+color=p.Results.Color;
 
 % Convert num arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -203,10 +205,36 @@ for j=1:length(bins)-1
 end
 
 if ~isempty(classes)
-    if opt(2) == '0'
-        color_list = parula(length(unique_ord_classes));
-    else
-        color_list = hsv(length(unique_ord_classes));
+    % if opt(2) == '0'
+    %     color_list = parula(length(unique_ord_classes));
+    % else
+    %     color_list = hsv(length(unique_ord_classes));
+    % end
+    
+    %Choosing the color
+    if(isempty(color))
+     okabe_ito = [0.1,0.1,0.1;
+     0.902,0.624,0;
+     0.337,0.706,0.914;
+     0,0.620,0.451;
+     0.941,0.894,0.259;
+     0,0.447,0.698;
+     0.835,0.369,0;
+     0.8,0.475,0.655];
+
+     color_list = okabe_ito;
+     colors = color_list(ord_classes, :);
+
+        else if (color == '1')
+             color_list = parula(length(unique_ord_classes));
+             colors = color_list(ord_classes, :);
+
+             else if (color == '2')
+                         color_list = hsv(length(unique_ord_classes));
+                         colors = color_list(ord_classes, :);
+             end
+         end
+   
     end
     for i=1:length(unique_ord_classes)
         ind = ord_classes == unique_ord_classes(i);

@@ -52,6 +52,7 @@ function fig_h = plot_scatter(bdata,varargin)
 % 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
+%   'Color': Choose a color for your data.
 %
 % OUTPUTS:
 %
@@ -79,7 +80,7 @@ function fig_h = plot_scatter(bdata,varargin)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 23/Apr/2024
+% last modification: 22/May/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -116,6 +117,7 @@ addParameter(p,'Option','100');
 addParameter(p,'Multiplicity',ones(N,1));
 addParameter(p,'Threshold',[20 50 100]);
 addParameter(p,'BlurIndex',1);
+addParameter(p,'Color',[]);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -127,6 +129,29 @@ opt = p.Results.Option;
 mult = p.Results.Multiplicity;
 maxv = p.Results.Threshold;
 blur = p.Results.BlurIndex;
+color=p.Results.Color;
+
+%Choosing the color
+% if(isempty(color))
+%     okabe_ito = [0.1,0.1,0.1;
+%     0.902,0.624,0;
+%     0.337,0.706,0.914;
+%     0,0.620,0.451;
+%     0.941,0.894,0.259;
+%     0,0.447,0.698;
+%     0.835,0.369,0;
+%     0.8,0.475,0.655];
+% 
+%     colors = okabe_ito;
+% 
+%     else if (color == '1')
+%         colors = parula(length(unique_ord_classes));
+% 
+%         else if (color == '2')
+%                          colors = hsv(length(unique_ord_classes));
+%         end
+%     end
+% end
 
 % Convert row arrays to column arrays
 if size(elabel,1)  == 1, elabel  = elabel';  end;
@@ -197,13 +222,40 @@ unique_ord_classes = unique(ord_classes);
 bins = [0 1 maxv Inf];
 markers = ['^','v','d','o','s'];
 
-if opt(1) == '0'
-    color_list = parula(length(unique_ord_classes));
-else
-    color_list = hsv(length(unique_ord_classes));
+%Choosing the color
+if(isempty(color))
+    okabe_ito = [0.1,0.1,0.1;
+    0.902,0.624,0;
+    0.337,0.706,0.914;
+    0,0.620,0.451;
+    0.941,0.894,0.259;
+    0,0.447,0.698;
+    0.835,0.369,0;
+    0.8,0.475,0.655];
+
+    color_list = okabe_ito;
+    colors = color_list(ord_classes, :);
+
+    else if (color == '1')
+        color_list = parula(length(unique_ord_classes));
+        colors = color_list(ord_classes, :);
+
+        else if (color == '2')
+                         color_list = hsv(length(unique_ord_classes));
+                         colors = color_list(ord_classes, :);
+        end
+    end
+   
 end
-    
-colors = color_list(ord_classes, :);
+
+
+% if opt(1) == '0'
+%     color_list = parula(length(unique_ord_classes));
+% else
+%     color_list = hsv(length(unique_ord_classes));
+% end
+% 
+% colors = color_list(ord_classes, :);
 
 sizes = zeros(size(mult));
 for i=1:length(bins)-1
