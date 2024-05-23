@@ -891,7 +891,7 @@ classcore={'emptyclasses'};
 set(hObject,'String',classcore);
 
 handles.data.WorkSpace=evalin('base','who');
-if ~isempty(handles.data.WorkSpace
+if ~isempty(handles.data.WorkSpace)
     for i=1:length(handles.data.WorkSpace)
         classcore=[classcore handles.data.WorkSpace(i,:)];
     end
@@ -1383,7 +1383,7 @@ if isequal(handles.data.dummy{1,ID},zeros(1,size(handles.data.dummy{1,ID},2))) &
     return;
 end
 
-if ~isempty(handles.data.weightDummy{1,ID}),
+if ~isempty(handles.data.weightDummy{1,ID})
     handles.data.weightDummy{1,ID}=handles.data.weightDummy{1,ID}./abs(max(handles.data.weightDummy{1,ID}));
     omeda_pca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.weightDummy{1,ID}',handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
 else
