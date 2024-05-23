@@ -38,7 +38,9 @@ function fig_h = plot_vec(vec,varargin)
 %
 % 'Markers': [1x3] thresholds for the different marker size (20, 50 and 100 by default)
 %
-% 'Color': Choose the color for your plot. okabe_ito by default.
+% 'Color': Choose a color for your data. By default will use Okabe_ito. 
+%   'parula' for parula palette, 'hsv' for hsv palette.
+%
 % OUTPUTS:
 %
 % fig_h: (1x1) figure handle.
@@ -46,7 +48,7 @@ function fig_h = plot_vec(vec,varargin)
 %
 % EXAMPLE OF USE: To plot three lines with constant control limits:
 %
-% fig_h = plot_vec(randn(100,3),'XYLabel',{'Functions','Time'},'LimCont',[1, -1, 3]);
+% fig_h = plot_vec(randn(100,3),'XYLabel',{'Functions','Time'},'LimCont',[1, -1, 3],'Color','parula');
 %
 %
 % EXAMPLE OF USE: with labels and classes in observations and variable limit:
@@ -61,7 +63,7 @@ function fig_h = plot_vec(vec,varargin)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 23/Apr/2024
+% last modification: 23/May/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -225,17 +227,18 @@ if ~isempty(classes)
      color_list = okabe_ito;
      colors = color_list(ord_classes, :);
 
-        else if (color == '1')
+       elseif strcmp(color, 'parula')
              color_list = parula(length(unique_ord_classes));
              colors = color_list(ord_classes, :);
 
-             else if (color == '2')
+             elseif strcmp(color, 'hsv')
                          color_list = hsv(length(unique_ord_classes));
                          colors = color_list(ord_classes, :);
-             end
-         end
-   
+             
+  
     end
+
+
     for i=1:length(unique_ord_classes)
         ind = ord_classes == unique_ord_classes(i);
         if isnumeric(elabel) && length(elabel)==length(unique(elabel))

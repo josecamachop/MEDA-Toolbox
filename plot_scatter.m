@@ -52,7 +52,8 @@ function fig_h = plot_scatter(bdata,varargin)
 % 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
-%   'Color': Choose a color for your data.
+% 'Color': Choose a color for your data. By default will use Okabe_ito. 
+%   'parula' for parula palette, 'hsv' for hsv palette.
 %
 % OUTPUTS:
 %
@@ -66,7 +67,7 @@ function fig_h = plot_scatter(bdata,varargin)
 %
 % EXAMPLE OF USE: with labels and classes in elements:
 %
-% fig_h = plot_scatter(randn(5,2),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'});
+% fig_h = plot_scatter(randn(5,2),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'Color','hsv');
 %
 %
 % EXAMPLE OF USE: with labels, multilicity and classes in elements:
@@ -80,7 +81,7 @@ function fig_h = plot_scatter(bdata,varargin)
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 22/May/2024
+% last modification: 23/May/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -131,27 +132,6 @@ maxv = p.Results.Threshold;
 blur = p.Results.BlurIndex;
 color=p.Results.Color;
 
-%Choosing the color
-% if(isempty(color))
-%     okabe_ito = [0.1,0.1,0.1;
-%     0.902,0.624,0;
-%     0.337,0.706,0.914;
-%     0,0.620,0.451;
-%     0.941,0.894,0.259;
-%     0,0.447,0.698;
-%     0.835,0.369,0;
-%     0.8,0.475,0.655];
-% 
-%     colors = okabe_ito;
-% 
-%     else if (color == '1')
-%         colors = parula(length(unique_ord_classes));
-% 
-%         else if (color == '2')
-%                          colors = hsv(length(unique_ord_classes));
-%         end
-%     end
-% end
 
 % Convert row arrays to column arrays
 if size(elabel,1)  == 1, elabel  = elabel';  end;
@@ -236,15 +216,15 @@ if(isempty(color))
     color_list = okabe_ito;
     colors = color_list(ord_classes, :);
 
-    else if (color == '1')
+    elseif strcmp(color, 'parula')
         color_list = parula(length(unique_ord_classes));
         colors = color_list(ord_classes, :);
 
-        else if (color == '2')
+        elseif strcmp(color, 'hsv')
                          color_list = hsv(length(unique_ord_classes));
                          colors = color_list(ord_classes, :);
-        end
-    end
+        
+    
    
 end
 
