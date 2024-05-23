@@ -30,13 +30,13 @@ function varargout = PLS(varargin)
 %       2: auto-scaling 
 %
 %
-% coded by: Elena Jim�nez Ma�as (elenajm@correo.ugr.es).
+% coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
-%           Jos� Camacho (josecamacho@ugr.es)
+%           José Camacho (josecamacho@ugr.es)
 % last modification: 30/May/18.
 %
 % Copyright (C) 2018 University of Granada, Granada
-% Copyright (C) 2018 Elena Jim�nez Ma�as, Rafael Rodriguez Gomez, Jos� Camacho
+% Copyright (C) 2018 Elena Jiménez Mañas, Rafael Rodriguez Gomez, José Camacho
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ function varargout = PLS(varargin)
 
 % Edit the above text to modify the response to help PLS
 
-% Last Modified by GUIDE v2.5 06-Apr-2016 10:23:01
+% Last Modified by GUIDE v2.5 23-May-2024 17:21:35
 % Fixing some minor bugs on the GUI
 
 % Begin initialization code - DO NOT EDIT
@@ -350,7 +350,7 @@ if isequal(get(hObject,'Enable'),'on')
     handles = guidata(handles.generalPopup);
     
     incoming_data=get(hObject,'Value');%Incoming data position
-    string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posición
+    string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posiciÃ³n
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
     handles.data.data_matrixX=data_matrix;
     
@@ -386,7 +386,7 @@ handles.data.WorkSpace=evalin('base','who');%nombres de las variables
 
 if ~isempty(handles.data.WorkSpace)
     set(hObject,'String',handles.data.WorkSpace);
-    string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posición
+    string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posiciÃ³n
     handles.data.nameData=string_evaluation;
 else
     set(hObject,'String',' ');
@@ -421,7 +421,7 @@ if isequal(get(hObject,'Enable'),'on')
 %     handles = guidata(handles.generalPopup);
     
     incoming_data=get(hObject,'Value');%Incoming data position
-    string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posición
+    string_evaluation=handles.data.WorkSpace{incoming_data};%Nombre correspondiente a la posiciÃ³n
     data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
     handles.data.data_matrixY=data_matrix;
 
@@ -457,7 +457,7 @@ handles.data.WorkSpace=evalin('base','who');%nombres de las variables
 
 if ~isempty(handles.data.WorkSpace),
     set(hObject,'String',handles.data.WorkSpace);
-    string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posición
+    string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posiciÃ³n
     handles.data.nameDatay=string_evaluation; 
 else
     set(hObject,'String',' ');
@@ -514,12 +514,12 @@ if ~isempty(handles.data.WorkSpace)
     end
     
     if handles.data.control_Refresh==0 && isempty(handles.data.data_matrixX) && isempty(handles.data.data_matrixY),
-        string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posición
+        string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posiciÃ³n
         data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
         handles.data.data_matrixX=data_matrix;
         handles.data.nameData=string_evaluation;
         
-        string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posición
+        string_evaluation=handles.data.WorkSpace{1};%Nombre correspondiente a la posiciÃ³n
         data_matrix=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
         handles.data.data_matrixY=data_matrix;
         handles.data.nameDatay=string_evaluation;
@@ -858,7 +858,7 @@ end
 
 
 handles.data.LVs = [1:LVs_num];
-%Si la variable handles.data.LVs es distinta de vacía, imprimir en xlvscorePopup,
+%Si la variable handles.data.LVs es distinta de vacÃ­a, imprimir en xlvscorePopup,
 %xlvloadingPopup, ylvloadingPopup y ylvscorePopup las LVs posibles.
 if ~isempty(handles.data.LVs)
     set(handles.xlvscorePopup, 'Value',1);
@@ -940,7 +940,7 @@ function labscorePopup_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from labscorePopup
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.labscore{incoming_data};%Nombre correspondiente a la posición
+string_evaluation=handles.data.labscore{incoming_data};%Nombre correspondiente a la posiciÃ³n
 handles.data.nameLabscore=string_evaluation;
 if strcmp(string_evaluation,'emptylabel')
     label={};
@@ -1013,7 +1013,7 @@ function classcorePopup_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from classcorePopup
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.classcore{incoming_data};%Nombre correspondiente a la posición
+string_evaluation=handles.data.classcore{incoming_data};%Nombre correspondiente a la posiciÃ³n
 handles.data.nameClasscore=string_evaluation;
 if strcmp(string_evaluation,'emptyclasses')
     classes=[];
@@ -1177,7 +1177,7 @@ end
 
 %Ahora vamos a recuperar su matriz:
 %Voy a recorrer el vector de gcfs de score plots
-%handles.data.sp_ID_figures, para buscar en que posición esta el gcf ID.
+%handles.data.sp_ID_figures, para buscar en que posiciÃ³n esta el gcf ID.
 for i=1:length(handles.data.sp_ID_figures)
     if handles.data.sp_ID_figures(i)==ID
         matrix_2LVs=handles.data.sp_matrix{:,i};
@@ -1186,27 +1186,27 @@ end
 
 irr_pol=impoly;
 vertex=getPosition(irr_pol);
-N=size(vertex,1);%Tamaño de la matriz:
-%filas: número de vértices del polinomio irregular
+N=size(vertex,1);%TamaÃ±o de la matriz:
+%filas: nÃºmero de vÃ©rtices del polinomio irregular
 %columnas: contiene 2 columnas: coordenada x y coordenada y de cada
-%vértice.
+%vÃ©rtice.
 
 %PASO 1:
-%Calcular los parámetros A, B y C de la ecuación normal de la recta, para
+%Calcular los parÃ¡metros A, B y C de la ecuaciÃ³n normal de la recta, para
 %todas las rectas que formen el polinomio irregular dibujado por el usuario
 A=[];
 B=[];
 C=[];
-for i=1:N,%Desde 1 hasta el número de vértices que tenga el polinomio
+for i=1:N,%Desde 1 hasta el nÃºmero de vÃ©rtices que tenga el polinomio
     %irregular, voy a hacer lo siguiente:
     
-    %Coordenadas de un vértice
+    %Coordenadas de un vÃ©rtice
     x1=vertex(i,1);
     y1=vertex(i,2);
     
-    %Cooredenadas del siguiente vértice:
-    %El if controla el caso en que ya se hayan cogido todos los vértices,
-    %el vértce en ese caso será el primero de ellos, para cerrar la figura.
+    %Cooredenadas del siguiente vÃ©rtice:
+    %El if controla el caso en que ya se hayan cogido todos los vÃ©rtices,
+    %el vÃ©rtce en ese caso serÃ¡ el primero de ellos, para cerrar la figura.
     if i==N
         x2=vertex(1,1);
         y2=vertex(1,2);
@@ -1215,14 +1215,14 @@ for i=1:N,%Desde 1 hasta el número de vértices que tenga el polinomio
         y2=vertex(i+1,2);
     end
     
-    %Coordenadas del vector director de la recta que une ambos vértices:
+    %Coordenadas del vector director de la recta que une ambos vÃ©rtices:
     u1=x2-x1;
     u2=y2-y1;
     
     A=[A,u2];%Lista de u2(segunda coordenada del vector director)
     B=[B,-u1];%Lista de u1 (primera coordenada del vector director)
-    c=(u1*y1)-(u2*x1);%Cálculo del parámetro C de la ec.normal de la recta.
-    C=[C,c];%Lista del parámetro C, uno por recta.
+    c=(u1*y1)-(u2*x1);%CÃ¡lculo del parÃ¡metro C de la ec.normal de la recta.
+    C=[C,c];%Lista del parÃ¡metro C, uno por recta.
 end
 
 %PASO 2:
@@ -1399,17 +1399,17 @@ y1=vertex_line(1,2);
 x2=vertex_line(2,1);
 y2=vertex_line(2,2);
 
-%Coordenadas del vector director de la recta que une ambos vértices:
+%Coordenadas del vector director de la recta que une ambos vÃ©rtices:
 u1=x2-x1;
 u2=y2-y1;
 
-%La ecuación de la recta tendencia es:
+%La ecuaciÃ³n de la recta tendencia es:
 A=u2;
 B=-u1;
 C=(u1*y1)-(u2*x1);
 
-%Quiero el punto de corte de la tendencia con la recta que va de la observación
-%a la línea tendencia en perpendicular. Esto para cada una de las
+%Quiero el punto de corte de la tendencia con la recta que va de la observaciÃ³n
+%a la lÃ­nea tendencia en perpendicular. Esto para cada una de las
 %observaciones.
 Cutoff_points=[];
 M=size(handles.data.data_matrixX,1);
@@ -1422,7 +1422,7 @@ for m=1:M
     v1=A;
     v2=B;
     
-    %La ecuacuación de la recta es:
+    %La ecuacuaciÃ³n de la recta es:
     A2=v2;
     B2=-v1;
     C2=(v1*p2)-(v2*p1);
@@ -1463,14 +1463,14 @@ for k=1:M
     end
 end
 
-%Construcción de la nueva DUMMY con pesos:
-%Calcular el punto medio entre las observaciones más alejadas obtenidas
-%enteriormente, este será el nuevo cero para asignar pesos.
+%ConstrucciÃ³n de la nueva DUMMY con pesos:
+%Calcular el punto medio entre las observaciones mÃ¡s alejadas obtenidas
+%enteriormente, este serÃ¡ el nuevo cero para asignar pesos.
 c1=Cutoff_points(ind1,:);
 c2=Cutoff_points(ind2,:);
 NewCenter=(c1+c2)/2;
 
-%Asignación de pesos
+%AsignaciÃ³n de pesos
 for m=1:M
     weights(m)=sum((Cutoff_points(m,:)-NewCenter).^2);
 end
@@ -1598,7 +1598,7 @@ function labloadingPopup_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from labloadingPopup
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.labvar{incoming_data};%Nombre correspondiente a la posición
+string_evaluation=handles.data.labvar{incoming_data};%Nombre correspondiente a la posiciÃ³n
 handles.data.nameLabvar=string_evaluation;
 if strcmp(string_evaluation,'emptylabel')
     label_LP={};
@@ -1670,7 +1670,7 @@ function clasloadingPopup_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from clasloadingPopup
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.clasvar{incoming_data};%Nombre correspondiente a la posición
+string_evaluation=handles.data.clasvar{incoming_data};%Nombre correspondiente a la posiciÃ³n
 handles.data.nameClasvar=string_evaluation;
 if strcmp(string_evaluation,'emptyclasses')
     classes_LP={};
@@ -1823,7 +1823,7 @@ function discardRadio_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % Hint: get(hObject,'Value') returns toggle state of discardRadio
-%Si radio button señalado q ecit 6 este ON si no señalado q este OFF
+%Si radio button seÃ±alado q ecit 6 este ON si no seÃ±alado q este OFF
 if get(handles.discardRadio, 'Value')
     set(handles.thresEdit, 'Enable', 'on');
     set(handles.text5, 'Enable', 'on');
@@ -1845,7 +1845,7 @@ function medaPopup_Callback(hObject, eventdata, handles)
 
 LVs_MEDA_position=get(hObject,'Value');%Incoming data position
 contents=get(hObject,'String');%Incoming data position
-LVs_MEDA=contents(LVs_MEDA_position,:);%Nombre correspondiente a la posición
+LVs_MEDA=contents(LVs_MEDA_position,:);%Nombre correspondiente a la posiciÃ³n
 
 handles.data.LVs_MEDA=LVs_MEDA;
 
@@ -1900,7 +1900,7 @@ end
 
 %Ahora vamos a recuperar su matriz:
 %Voy a recorrer el vector de gcfs de score plots
-%handles.data.sp_ID_figures, para buscar en que posición esta el gcf ID.
+%handles.data.sp_ID_figures, para buscar en que posiciÃ³n esta el gcf ID.
 for i=1:length(handles.data.lp_ID_figures)
     if handles.data.lp_ID_figures(i)==ID
         matrix_2LVs=handles.data.lp_matrix{:,i};
@@ -1916,21 +1916,21 @@ N=size(vertex,1);%Matrix size:
 %vertex.
 
 %PASO 1:
-%Calcular los parámetros A, B y C de la ecuación normal de la recta, para
+%Calcular los parÃ¡metros A, B y C de la ecuaciÃ³n normal de la recta, para
 %todas las rectas que formen el polinomio irregular dibujado por el usuario
 A=[];
 B=[];
 C=[];
-for i=1:N%Desde 1 hasta el número de vértices que tenga el polinomio
+for i=1:N%Desde 1 hasta el nÃºmero de vÃ©rtices que tenga el polinomio
     %irregular, voy a hacer lo siguiente:
     
-    %Coordenadas de un vértice
+    %Coordenadas de un vÃ©rtice
     x1=vertex(i,1);
     y1=vertex(i,2);
     
-    %Cooredenadas del siguiente vértice:
-    %El if controla el caso en que ya se hayan cogido todos los vértices,
-    %el vértce en ese caso será el primero de ellos, para cerrar la figura.
+    %Cooredenadas del siguiente vÃ©rtice:
+    %El if controla el caso en que ya se hayan cogido todos los vÃ©rtices,
+    %el vÃ©rtce en ese caso serÃ¡ el primero de ellos, para cerrar la figura.
     if i==N
         x2=vertex(1,1);
         y2=vertex(1,2);
@@ -1939,14 +1939,14 @@ for i=1:N%Desde 1 hasta el número de vértices que tenga el polinomio
         y2=vertex(i+1,2);
     end
     
-    %Coordenadas del vector director de la recta que une ambos vértices:
+    %Coordenadas del vector director de la recta que une ambos vÃ©rtices:
     u1=x2-x1;
     u2=y2-y1;
     
     A=[A,u2];%Lista de u2(segunda coordenada del vector director)
     B=[B,-u1];%Lista de u1 (primera coordenada del vector director)
-    c=(u1*y1)-(u2*x1);%Cálculo del parámetro C de la ec.normal de la recta.
-    C=[C,c];%Lista del parámetro C, uno por recta.
+    c=(u1*y1)-(u2*x1);%CÃ¡lculo del parÃ¡metro C de la ec.normal de la recta.
+    C=[C,c];%Lista del parÃ¡metro C, uno por recta.
 end
 
 
@@ -2173,4 +2173,3 @@ child=get(handles.uipanelPLS,'Children');
 for i=1:length(child)
     set(child(i),'Enable',state_gen);
 end
-
