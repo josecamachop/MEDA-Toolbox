@@ -97,8 +97,10 @@ parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 invCT = p.Results.InvCovarT;
+A = size(invCT, 1);
 R = p.Results.InSubspace;
 Q = p.Results.OutSubspace;
+if isempty(R), zeros(M,A); end;
 if isempty(Q), Q = R; end;
 
 

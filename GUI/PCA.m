@@ -1709,7 +1709,7 @@ else if get(handles.serRadio,'Value')==1 && get(handles.discardRadio,'Value')==0
     end
 end
 
-[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,pcs,handles.data.prep,handles.data.thres,handles.data.opt,handles.data.label_LP);
+[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,'Pcs',pcs,'Preprocessing',handles.data.prep,'Threshold',handles.data.thres,'Option',handles.data.opt,'VarsLabel',handles.data.label_LP);
 
 guidata(hObject,handles);
 
@@ -1860,7 +1860,7 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 size_x = size(handles.data.data_matrix);
 PCs = 1:size_x(2);
 PCs(handles.data.PCs) = [];
-E=leverages_pca(handles.data.data_matrix,PCs,handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
+E=leverages_pca(handles.data.data_matrix,'Pcs',PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'ObsClass',handles.data.classes_LP);
 ylabel('Residuals', 'FontSize', 16);
 
 % --- Executes on button press in modelomedaButton.
@@ -1877,7 +1877,7 @@ function modelmedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %E=leverage_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),handles.data.prep,1,handles.data.label_LP,handles.data.classes);
-E=leverages_pca(handles.data.data_matrix,handles.data.PCs,handles.data.prep,1,handles.data.label_LP);
+E=leverages_pca(handles.data.data_matrix,'Pcs',handles.data.PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP);
 
 
 % --- Executes on button press in nextButton.
