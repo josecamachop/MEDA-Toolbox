@@ -707,15 +707,15 @@ end
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
     case 'Var Y'
-        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,1:lvs,handles.data.prepX,handles.data.prepY,'11');
+        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',1:lvs,'PreprocessingX',handles.data.prepX,'Preprocessingy',handles.data.prepY,'Option','11');
     case 'Var Y + scores'
-        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,1:lvs,handles.data.prepX,handles.data.prepY,'10');
+        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',1:lvs,'PreprocessingX',handles.data.prepX,'Preprocessingy',handles.data.prepY,'Option','10');
     case 'Y-SVI plot'
         chosenVar = str2num(getCurrentPopupString(handles.selectPopup));
-        SVIplot([handles.data.data_matrixY handles.data.data_matrixX],1:lvs,1,7,handles.data.prepX);
+        SVIplot([handles.data.data_matrixY handles.data.data_matrixX],'Pcs',1:lvs,'Vars',1,'Groups',7,'Preprocessing',handles.data.prepX);
     case 'Y-crossval'
         [blocks_r blocks_c] = size(handles.data.data_matrixX);
-        crossval_pls(handles.data.data_matrixX,handles.data.data_matrixY,0:lvs,blocks_r,handles.data.prepX,handles.data.prepY,1);
+        crossval_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',0:lvs,'MaxBlock',blocks_r,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1);
     otherwise
         disp('No case detected')
 end
@@ -1117,15 +1117,15 @@ handles.data.sp_ID_figures=new_sp_ID_figures;%Identificadores de los Score Plots
 handles.data.sp_matrix=new_sp_matrix;
 
 if isempty(handles.data.label) && isempty(handles.data.classes)
-    [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1);
+    [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',[LV1 LV2],'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1);
 else
     if ~isempty(handles.data.label) && isempty(handles.data.classes)
-        [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1,handles.data.label);
+        [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',[LV1 LV2],'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'ObsLabel',handles.data.label);
     else
         if isempty(handles.data.label) && ~isempty(handles.data.classes)
-            [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1,[],handles.data.classes);
+            [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',[LV1 LV2],'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'ObsClass',handles.data.classes);
         else
-            [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,[LV1 LV2],[],handles.data.prepX,handles.data.prepY,1,handles.data.label,handles.data.classes);
+            [T,TT]=scores_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',[LV1 LV2],'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
         end
     end
 end
@@ -1547,9 +1547,9 @@ end
 
 if ~isempty(handles.data.weightDummy{1,ID})
     handles.data.weightDummy{1,ID}=handles.data.weightDummy{1,ID}./abs(max(handles.data.weightDummy{1,ID}));
-    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.weightDummy{1,ID}',handles.data.prepX,handles.data.prepY,1,handles.data.label_LP,handles.data.classes_LP);
+    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.weightDummy{1,ID}','PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
 else
-    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.dummy{1,ID}',handles.data.prepX,handles.data.prepY,1,handles.data.label_LP,handles.data.classes_LP);
+    omeda_pls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.dummy{1,ID}','PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
 end
 
 guidata(hObject,handles);
@@ -1559,8 +1559,8 @@ function resomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,0,handles.data.label,handles.data.classes);
-plot_vec(Qst, handles.data.label,handles.data.classes, {[],'Q-st'},UCLq);
+[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',min(handles.data.LVs):max(handles.data.LVs),'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+plot_vec(Qst,'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'Q-st'},'LimCont',UCLq);
 
 % --- Executes on selection change in xlvloadingPopup.
 function xlvloadingPopup_Callback(hObject, eventdata, handles)
@@ -1758,12 +1758,12 @@ end
 handles.data.lp_ID_figures=new_lp_ID_figures;%Identificadores de los Loadings Plots abiertos actualizado
 handles.data.lp_matrix=new_lp_matrix;
 if isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
-    P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY, [LV1_LP LV2_LP], handles.data.prepX, handles.data.prepY, 1);
+    P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY, 'LatVars',[LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1);
 else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
-        P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY, [LV1_LP LV2_LP], handles.data.prepX, handles.data.prepY, 1, handles.data.label_LP);
+        P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY,'LatVars', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1, 'VarsLabel',handles.data.label_LP);
     else if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP)
-            P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY, [LV1_LP LV2_LP], handles.data.prepX, handles.data.prepY, 1, [], handles.data.classes_LP);
-        else         P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY, [LV1_LP LV2_LP], handles.data.prepX, handles.data.prepY, 1, handles.data.label_LP, handles.data.classes_LP);
+            P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY,'LatVars', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1, 'ObsClass',handles.data.classes_LP);
+        else         P = loadings_pls (handles.data.data_matrixX, handles.data.data_matrixY,'LatVars', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1, 'VarsLabel',handles.data.label_LP, 'ObsClass',handles.data.classes_LP);
         end
     end
 end
@@ -1876,7 +1876,7 @@ else if get(handles.serRadio,'Value')==1 && get(handles.discardRadio,'Value')==0
     end
 end
 
-[meda_map,meda_dis]=meda_pls(handles.data.data_matrixX,handles.data.data_matrixY,lvs,handles.data.prepX,handles.data.prepY,handles.data.thres,handles.data.opt,handles.data.label_LP);
+[meda_map,meda_dis]=meda_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',lvs,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Threshold',handles.data.thres,'Option',handles.data.opt,'VarsLabel',handles.data.label_LP);
 guidata(hObject,handles);
 
 % --- Executes on button press in selmedaButton.
@@ -2021,7 +2021,7 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 size_x = size(handles.data.data_matrixX);
 PCs = 1:size_x(2);
 PCs(handles.data.LVs) = [];
-E=leverages_pls(handles.data.data_matrixX,handles.data.data_matrixY,PCs,handles.data.prepX,handles.data.prepY,1,handles.data.label_LP,handles.data.classes_LP);
+E=leverages_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',PCs,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'VarsLabel',handles.data.label_LP,'ObsClass',handles.data.classes_LP);
 ylabel('Residuals')
 
 % --- Executes on button press in modelmedaButton.
@@ -2029,15 +2029,15 @@ function modelmedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-E=leverages_pls(handles.data.data_matrixX,handles.data.data_matrixY,handles.data.LVs,handles.data.prepX,handles.data.prepY,1,handles.data.label_LP,handles.data.classes_LP);
+E=leverages_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',handles.data.LVs,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'VarsLabel',handles.data.label_LP,'ObsClass',handles.data.classes_LP);
 
 % --- Executes on button press in modelomedaButton.
 function modelomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(handles.data.data_matrixX,handles.data.data_matrixY,min(handles.data.LVs):max(handles.data.LVs),[],handles.data.prepX,handles.data.prepY,0,handles.data.label,handles.data.classes);
-plot_vec(Dst, handles.data.label,handles.data.classes, {[],'D-st'},UCLd);
+[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LatVars',min(handles.data.LVs):max(handles.data.LVs),'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+plot_vec(Dst, 'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'D-st'},'LimCont',UCLd);
 
 % --- Executes on selection change in generalPopup.
 function generalPopup_Callback(hObject, eventdata, handles)
