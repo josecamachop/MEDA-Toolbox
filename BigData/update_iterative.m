@@ -768,7 +768,7 @@ if Lmodel.type==1 || Lmodel.type==2
                 if isnumeric(obs_l), obs_l = cellstr(num2str(obs_l)); end
             else
                 obs_l = cellstr(num2str((1:size(x,1))'));
-                for o = 1:length(obs_l), obs_l{o} = strtrim([num2str(t) '-' obs_l{o}]); end
+                for o = 1:length(obs_l), obs_l{o} = [num2str(t) '-' strtrim(obs_l{o})]; end
             end
         else
             load([path list{t}],'x')
@@ -783,7 +783,7 @@ if Lmodel.type==1 || Lmodel.type==2
                 if isnumeric(obs_l), obs_l = cellstr(num2str(obs_l)); end
             else
                 obs_l = cellstr(num2str((1:size(x,1))'));
-                for o = 1:length(obs_l), obs_l{o} = strtrim([num2str(t) '-' obs_l{o}]); end
+                for o = 1:length(obs_l), obs_l{o} = [num2str(t) '-' strtrim(obs_l{o})]; end
             end
         end
         
