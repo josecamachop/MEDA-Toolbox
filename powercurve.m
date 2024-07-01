@@ -90,7 +90,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, model, type, n_rep, ran
 %   and 3 in 2, then nested = [1 2; 2 3]
 %
 % replicates: [1x1] index of the factor with replicates (only used for type
-% 3), 0 by default, meaning no factor with replicates
+% 2), 0 by default, meaning no factor with replicates
 %
 %
 % OUTPUTS:
@@ -573,15 +573,18 @@ for i2=1:n_rep
                         powercurveo.interactions{i}.matrix(n,:) = mati(Fi(n,:)*[1 Li(1:end-1)]',:);
                     end
                 end
+                repa = 1; % NOT SURE THIS SOLVES THE ISSUE
+            else
+                repa = theta(a);
             end
 
             Xstruct = zeros(N,M);
             for f = 1 : n_factors
-                Xstruct = Xstruct + randgC() * powercurveo.coeffs(f) * powercurveo.factors{f}.matrix;
+                Xstruct = Xstruct + randgC() * powercurveo.coeffs(f) * repmat(powercurveo.factors{f}.matrix,repa,1);
             end
             
             for i = 1 : n_interactions
-                Xstruct = Xstruct + randgC() * powercurveo.coeffs(n_factors+i) * powercurveo.interactions{i}.matrix;
+                Xstruct = Xstruct + randgC() * powercurveo.coeffs(n_factors+i) * repmat(powercurveo.interactions{i}.matrix,repa,1);
             end
             
             Xnoise = randg(N,M);
