@@ -472,7 +472,7 @@ for i2=1:n_rep
         
         for a = 1:length(theta)
 
-            Xm = (1-theta(a))*Xnoise;
+            Xm = Xnoise; %Xm = (1-theta(a))*Xnoise;
             Xm = Xm + theta(a)*Xstruct;
 
             for f = 1 : n_factors
