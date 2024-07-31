@@ -51,13 +51,14 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %   - @rand: uniform (moderately non-normal)
 %   - @(N,M)exprnd(1,N,M).^3: very non-normal 
 %
-% 'RandomGenC': (func) random generator in effect size coefficients (@()0.1*randn+1 by default)
+% 'RandomGenC': (func) random generator in effect size coefficients (@()1 by default)
+%    - To generate randomness use, e.g., @()0.1*randn+1 
 %
 % 'Theta': [1xT] For type equal to 1, theta controls the compromise of 
 %   true significance vs random (0:0.1:1 by default). For type equal to 2, 
 %   theta controls the number of replicates (1:10 by default)
 %
-% 'Alpha': [1x1] significance level (0.01 by defult)
+% 'Alpha': [1x1] significance level (0.05 by defult)
 %
 % 'Preprocessing': [1x1] preprocesing:
 %       0: no preprocessing 
@@ -69,8 +70,8 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % 'Ts': [1x1] Use SSQ (0) or the F-value (otherwise, by default) as test statistic  
 %       0: Sum-of-squares of the factor/interaction
 %       1: F-ratio of the SS of the factor/interaction divided by the SS of 
-%       the residuals (by default)
-%       2: F-ratio following the factors/interactions hierarchy
+%       the residuals 
+%       2: F-ratio following the factors/interactions hierarchy (by default)
 %
 % 'Ordinal': [1xF] whether factors are nominal or ordinal
 %       0: nominal (default)
@@ -124,7 +125,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 23/Apr/24
+% last modification: 31/Jul/24
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -167,17 +168,17 @@ addParameter(p,'Type',tip);
 addParameter(p,'Model','linear');
 addParameter(p,'RandomGen',@randn);
 addParameter(p,'Repetitions',1000);
-addParameter(p,'RamdonGenC',@()0.1*randn+1);
+addParameter(p,'RamdonGenC',@()1);
     if tip == 2
         THeta = 1:10; 
     else
         THeta = 0:0.1:1; 
     end
 addParameter(p,'Theta',THeta);
-addParameter(p,'Alpha',0.01);
+addParameter(p,'Alpha',0.05);
 addParameter(p,'Preprocessing',2);
 addParameter(p,'Permutations',1000);
-addParameter(p,'Ts',1);
+addParameter(p,'Ts',2);
 addParameter(p,'Ordinal',zeros(1,size(F,2)));
 addParameter(p,'Fmtc',0);
 addParameter(p,'Coding',zeros(1,size(F,2)));
