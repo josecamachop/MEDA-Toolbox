@@ -92,7 +92,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % 'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
 %   and 3 in 2, then nested = [1 2; 2 3]
 %
-% 'Replicates': [1x1] index of the factor with replicates (only used for type
+% 'RepFactor': [1x1] index of the factor with replicates (only used for type
 % 3), 0 by default, meaning no factor with replicates
 %
 %
@@ -114,7 +114,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % reps = 4;
 % levels = {[1,2,3,4],[1,2,3]};
 % 
-% F = create_design(levels,'Replicates',reps);
+% F = create_design(levels,'RepFactor',reps);
 % 
 % X.N = size(F,1);
 % X.M = 400;
@@ -183,7 +183,7 @@ addParameter(p,'Ordinal',zeros(1,size(F,2)));
 addParameter(p,'Fmtc',0);
 addParameter(p,'Coding',zeros(1,size(F,2)));
 addParameter(p,'Nested',[]);
-addParameter(p,'Replicates',0);
+addParameter(p,'RepFactor',0);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -201,7 +201,7 @@ ordinal = p.Results.Ordinal;
 fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
-replicates = p.Results.Replicates;
+replicates = p.Results.RepFactor;
 theta = sort(theta,'ascend');
 
 
