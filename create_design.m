@@ -1,18 +1,19 @@
-function F = create_design(levels,reps)
+function F = create_design(levels,varargin)
 
 % Creates a balanced design matrix according to an experimental design.
 %
 % F = create_design(levels)   % minimum call
-% F = create_design(levels,reps)   % complete call
+% F = create_design(levels,'Replicates',reps)   % complete call
 %
 %
 % INPUTS:
 %
 % levels: {F} cell with the levels of the factors, specified as vectors.
 %
-% reps: [1x1] number of replicates per combination of levels in the
-% factors.
+% Optional INPUTS (parameter):
 %
+% 'Replicates': [1x1] number of replicates per combination of levels in the
+% factors.
 %
 % OUTPUTS:
 %
@@ -23,15 +24,14 @@ function F = create_design(levels,reps)
 %
 % reps = 4;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
+% 
+% F = create_design(levels,'Replicates',reps);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 20/Feb/18.
+% last modification: 22/Apr/24.
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -51,7 +51,14 @@ function F = create_design(levels,reps)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-if nargin < 2 || isempty(reps), reps=1; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Replicates',1);    
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+reps = p.Results.Replicates;
 
 %% Main code
 

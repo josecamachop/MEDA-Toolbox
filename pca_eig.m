@@ -1,16 +1,18 @@
-function model = pca_eig(xcs,pcs)
+function model = pca_eig(xcs,varargin)
 
 % Principal Component Analysis based on the eigendecompostion of XX.
 %
 % p = pca_pp(xcs)     % minimum call
-% [p,t,model] = pca_pp(xcs,pcs)     % complete call
+% [p,t,model] = pca_pp(xcs,'Pcs',pcs)     % complete call
 %
 %
 % INPUTS:
 %
 % xcs: [NxM] preprocessed billinear data set 
 %
-% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% Optional INPUTS (parameter):
+%
+% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:min(size(xcs))
 %
 %
@@ -25,16 +27,16 @@ function model = pca_eig(xcs,pcs)
 %
 % EXAMPLE OF USE: Random data:
 %
-% X = simuleMV(20,10,8);
-% Xcs = preprocess2D(X,2);
+% X = simuleMV(20,10,'LevelCorr',8);
+% Xcs = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:3;
-% [p,t] = pca_pp(Xcs,pcs);
+% model = pca_eig(Xcs,'Pcs',pcs)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/Apr/2023
+% last modification: 23/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -56,7 +58,15 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(xcs, 1);
 M = size(xcs, 2);
-if nargin < 2 || isempty(pcs), pcs = 0:rank(xcs); end;
+
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Pcs',0:rank(xcs));   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+pcs = p.Results.Pcs;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -69,10 +79,10 @@ pcs(find(pcs>rank(xcs))) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

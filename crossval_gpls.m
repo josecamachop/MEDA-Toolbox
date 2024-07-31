@@ -1,11 +1,11 @@
-function [cumpress,press,nze] = crossval_gpls(x,y,lvs,gammas,blocks_r,prepx,prepy,opt)
+function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
+%function [cumpress,press,nze] = crossval_gpls(x,y,lvs,gammas,blocks_r,prepx,prepy,opt)
 
 % Row-wise k-fold (rkf) cross-validation for square-prediction-errors
 % computing in GPLS. 
 %
 % [cumpress,press] = crossval_gpls(x,y) % minimum call
-% [cumpress,press,nze] =
-% crossval_pls(x,y,lvs,gammas,blocks_r,prepx,prepy,opt) % complete call
+% [cumpress,press,nze] = crossval_pls(x,y,'LatVars',lvs,'Gamma',gammas,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -14,24 +14,26 @@ function [cumpress,press,nze] = crossval_gpls(x,y,lvs,gammas,blocks_r,prepx,prep
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional INPUTS (parameters):
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
-% gammas: [1xJ] gamma values considered. By default, gammas = 0:0.1:1
+% 'Gamma': [1xJ] gamma values considered. By default, gammas = 0:0.1:1
 %
-% blocks_r: [1x1] maximum number of blocks of samples (N by default)
+% 'MaxBlock': [1x1] maximum number of blocks of samples (N by default)
 %
-% prepx: [1x1] preprocesing of the x-block
+% 'PreprocessingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: [1x1] preprocesing of the y-block
+% 'PreprocessingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% opt: [1x1] options for data plotting
+% 'Option': [1x1] options for data plotting
 %       0: no plots
 %       1: bar plot (default)
 %
@@ -45,26 +47,29 @@ function [cumpress,press,nze] = crossval_gpls(x,y,lvs,gammas,blocks_r,prepx,prep
 % nze: [A x gammas x 1] Average number of non-zero elements
 %
 %
-% EXAMPLE OF USE: Random data
+% EXAMPLE OF USE: Random data, two examples of use.
 %
 % obs = 20;
 % vars = 100;
-% X = simuleMV(obs,vars,5);
+% X = simuleMV(obs,vars,'LevelCorr',5);
 % X = [0.1*randn(obs,5)+X(:,1)*ones(1,5) X(:,6:end)];
 % Y = sum((X(:,1:5)),2);
 % Y = 0.1*randn(obs,1)*std(Y) + Y;
-%
+% gammas=[0 0.5:0.1:1];
 % lvs = 0:10;
-% gammas = [0 0.5:0.1:1];
-% [cumpress,press,nze] = crossval_gpls(X,Y,lvs,gammas);
+% 
+% % Mean Centering example with default gammas
+% [cumpress,press,nze] = crossval_gpls(X,Y,'LatVars',lvs,'PreprocessingX',1,'PreprocessingY',1);
+% legend('show')
+% 
+% % Auto scaling example with gammas
+% [cumpress,press,nze] = crossval_gpls(X,Y,'LatVars',lvs,'Gamma',gammas);
 % legend('show')
 %
-%
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 1/Nov/17.
+% last modification: 22/Apr/24.
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -88,39 +93,56 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-if nargin < 3 || isempty(lvs), lvs = 0:rank(x); end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+lat=0:rank(x);
+addParameter(p,'LatVars',lat'); 
+gam = 0:0.1:1;
+addParameter(p,'Gamma',gam);
+addParameter(p,'MaxBlock',N);
+addParameter(p,'PreprocessingX',2);   
+addParameter(p,'PreprocessingY',2);
+addParameter(p,'Option',1);   
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+
+lvs = p.Results.LatVars;
+gammas = p.Results.Gamma;
+blocks_r = p.Results.MaxBlock;
+prepx = p.Results.PreprocessingX;
+prepy = p.Results.PreprocessingY;
+opt = p.Results.Option;
+
+% Extract LatVars and Gamma length
 A = length(lvs);
-if nargin < 4 || isempty(gammas), gammas = 0:0.1:1; end;
 J =  length(gammas);
-if nargin < 5 || isempty(blocks_r), blocks_r = N; end;
-if nargin < 6 || isempty(prepx), prepx = 2; end;
-if nargin < 7 || isempty(prepy), prepy = 2; end;
-if nargin < 8 || isempty(opt), opt = 1; end;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
 if size(gammas,2) == 1, gammas = gammas'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(y), [N O]), 'Dimension Error: 2nd argument must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(gammas), [1 J]), 'Dimension Error: 4th argument must be 1-by-J. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prepx), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prepy), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(gammas), [1 J]), 'Dimension Error: parameter ''Gamma'' must be 1-by-J. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: paramter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
 gammas = unique(gammas);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)), 'Value Error: 3rd argument must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(lvs), lvs), 'Value Error: 3rd argumentmust contain integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(gammas<0 | gammas>1)), 'Value Error: 4th argument must not contain values out of [0,1]. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(blocks_r), blocks_r), 'Value Error: 5th argument must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r>2, 'Value Error: 5th argument must be above 2. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r<=N, 'Value Error: 5th argument must be at most N. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)), 'Value Error: parameter ''LatVars'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(gammas<0 | gammas>1)), 'Value Error: parameter ''Gamma'' must not contain values out of [0,1]. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r>2, 'Value Error: parameter ''MaxBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
+assert (blocks_r<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -146,25 +168,25 @@ for i=1:blocks_r,
     sample_y = y(ind_i,:);
     calibr_y = y(find(i2),:); 
 
-    [ccs,av,st] = preprocess2D(calibr,prepx);
-    [ccs_y,av_y,st_y] = preprocess2D(calibr_y,prepy);
+    [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);
+    [ccs_y,av_y,st_y] = preprocess2D(calibr_y,'Preprocessing',prepy);
         
-    scs = preprocess2Dapp(sample,av,st);
-    scs_y = preprocess2Dapp(sample_y,av_y,st_y);
+    scs = preprocess2Dapp(sample,av,'SDivideTest',st);
+    scs_y = preprocess2Dapp(sample_y,av_y,'SDivideTest',st_y);
      
     gammas2 = gammas;
     gammas2(find(gammas==0)) = [];  
     if ~isempty(gammas2)
-        [kk,kk,kk,kk,kk,kk,stree] = gpls_meda(ccs,ccs_y,1:max(lvs),min(gammas2));
+        [kk,kk,kk,kk,kk,kk,stree] = gpls_meda(ccs,ccs_y,'LatVars',1:max(lvs),'Gamma',min(gammas2));
     else
         stree = [];
     end
 
-    for gamma=1:length(gammas),
+    for gamma=1:length(gammas)
         
-        [beta,W,P,Q,R] = gpls_meda(ccs,ccs_y,1:max(lvs),gammas(gamma),stree);
+        [beta,W,P,Q,R] = gpls_meda(ccs,ccs_y,'LatVars',1:max(lvs),'Gamma',gammas(gamma),'Stree',stree);
             
-        for lv=1:length(lvs),
+        for lv=1:length(lvs)
                 
             if lvs(lv) > 0,
                 Q2 = Q(:,1:min(lvs(lv),size(Q,2)));
@@ -190,7 +212,7 @@ cumpress = sum(press,3);
 
 %% Show results
 
-if opt == 1,
-    fig_h = plot_vec(cumpress',gammas,[],{'\gamma','PRESS'},[],0,lvs); 
+if opt == 1
+    fig_h = plot_vec(cumpress','EleLabel',gammas,'XYLabel',{'\gamma','PRESS'},'Option','01','VecLabel',lvs); 
 end
 

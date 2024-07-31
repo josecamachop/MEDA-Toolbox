@@ -32,22 +32,22 @@ function apcao = apca(parglmo)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
-%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
+%     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,'LevelCorr',8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
-%
+% 
 % [table, parglmo] = parglm(X, F);
 % table
 % 
 % apcao = apca(parglmo);
-%
-% for i=1:2, % Note, the second factor is only shown for the sake of illustration, but non-significant factors should not be visualized
-%   scores(apcao.factors{i},[],[],sprintf('Factor %d',i),[],apcao.design(:,i));
-%   loadings(apcao.factors{i},[],sprintf('Factor %d',i));
+% 
+% for i=1:2,
+%   scores(apcao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',apcao.design(:,i));
+%   loadings(apcao.factors{i},'Title',sprintf('Factor %d',i));
 % end
 %
 %
@@ -57,9 +57,9 @@ function apcao = apca(parglmo)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     fi{i} = randn(1,vars);
@@ -69,18 +69,18 @@ function apcao = apca(parglmo)
 % end
 % for i = 1:length(levels{1}),
 %     for j = 1:length(levels{2}),
-%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(fi{i} + fj{j},reps,1);
+%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,'LevelCorr',8) + repmat(fi{i} + fj{j},reps,1);
 %     end
 % end
-%
-% [table, parglmo] = parglm(X, F, [1 2]);
+% 
+% [table, parglmo] = parglm(X, F, 'Model',[1 2]);
 % table
 % 
 % apcao = apca(parglmo);
-%
+% 
 % for i=1:2,
-%   scores(apcao.factors{i},[],[],sprintf('Factor %d',i),[],apcao.design(:,i));
-%   loadings(apcao.factors{i},[],sprintf('Factor %d',i));
+%   scores(apcao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',apcao.design(:,i));
+%   loadings(apcao.factors{i},'Title',sprintf('Factor %d',i));
 % end
 %
 %
@@ -91,34 +91,34 @@ function apcao = apca(parglmo)
 % reps = 4;
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = zeros(size(F,1),vars);
 % for i = 1:length(levels{1}),
 %     for j = 1:length(levels{2}),
-%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,8) + repmat(randn(1,vars),reps,1);
+%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,'LevelCorr',8) + repmat(randn(1,vars),reps,1);
 %     end
 % end
-%
-% [table, parglmo] = parglm(X, F, [1 2]);
+% 
+% [table, parglmo] = parglm(X, F, 'Model',[1 2]);
 % table
 % 
 % apcao = apca(parglmo);
-%
+% 
 % M = apcao.factors{1}.matrix + apcao.factors{2}.matrix + apcao.interactions{1}.matrix;
 % code_levels = {};
 % for i=1:size(F,1), code_levels{i} = sprintf('F1:%d,F2:%d',F(i,1),F(i,2));end;
-% scores_pca(M,1:2,X,0,101,[],code_levels);
+% scores_pca(M,'Pcs',1:2,'ObsTest',X,'Preprocessing',0,'Option',101,'ObsClass',code_levels);
 % legend(unique(code_levels))
+% 
+% loadings_pca(M,'Pcs',1:2,'Preprocessing',0);
 %
-% loadings_pca(M,1:2,0);
 %
+% coded by: Jos  Camacho (josecamacho@ugr.es)
+% last modification: 18/Apr/2024
 %
-% coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 04/Sep/23
-%
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -148,7 +148,7 @@ apcao = parglmo;
 for factor = 1 : apcao.n_factors
     
     xf = apcao.factors{factor}.matrix+apcao.residuals;
-    [p,t] = pca_pp(xf,1:rank(apcao.factors{factor}.matrix));
+    [p,t] = pca_pp(xf,'Pcs',1:rank(apcao.factors{factor}.matrix));
     
     apcao.factors{factor}.var = trace(xf'*xf);
     apcao.factors{factor}.lvs = 1:size(p,2);
@@ -160,7 +160,7 @@ end
 for interaction = 1 : apcao.n_interactions
     
     xf = apcao.interactions{interaction}.matrix+apcao.residuals;
-    p = pca_pp(xf,1:rank(apcao.interactions{interaction}.matrix));
+    p = pca_pp(xf,'Pcs',1:rank(apcao.interactions{interaction}.matrix));
     
     apcao.factors{factor}.var = trace(xf'*xf);
     apcao.interactions{interaction}.lvs = 1:size(p,2);

@@ -21,19 +21,18 @@ function lim = spe_lim(res,p_value)
 % EXAMPLE OF USE: Compute the 99% confidence limit for 2 PCs and 100 
 %   observations:
 %
-% X = simuleMV(100,10,8);
-% Xcs = preprocess2D(X,2);
+% X = simuleMV(100,10,'LevelCorr',8);
+% Xcs = preprocess2D(X,'preprocessing',2);
 % pcs = 1:2;
-% [p,t] = pca_pp(Xcs,pcs);
+% [p,t] = pca_pp(Xcs,'Pcs',pcs);
 % res = Xcs - t*p'; 
 % lim = spe_lim(res,0.01)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 29/Mar/16
+% last modification: 23/Apr/2024
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2024 University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -57,10 +56,10 @@ N = size(res, 1);
 M = size(res, 2);
 
 % Validate dimensions of input data
-assert (isequal(size(p_value), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(p_value), [1 1]), 'Dimension Error: paramter ''p_value'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (p_value>=0 && p_value<1, 'Value Error: 2nd argument must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
+assert (p_value>=0 && p_value<1, 'Value Error: paramter ''p_value'' must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

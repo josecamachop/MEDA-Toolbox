@@ -1,9 +1,9 @@
-function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,opt)
-
+function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
+%
 % CKF Algorithm: Journal of Chemometrics, 29(8): 467-478, 2015
 %
 % cumpress = ckf(xcs,T,P) % minimum call
-% [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,opt) % complete call
+% [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -14,7 +14,9 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,opt)
 %
 % P: [MxA] loadings.
 %
-% opt: (str or num) options for data plotting.
+% Optional INPUTS (Parameter):
+%
+% 'Option': (str or num) options for data plotting.
 %       0: no plots.
 %       1: plot (default)
 %
@@ -32,18 +34,21 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,opt)
 % term3: [NxM] third error term, according to referred paper.
 %
 %
-% EXAMPLE OF USE: Random curve
+% EXAMPLE OF USE: Random curve, two examples of use.
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % [P,T] = pca_pp(X);
+% 
+% % Plot ('Option' default 1)
 % cumpress = ckf(X,T,P);
-%
+% 
+% % Not plot
+% cumpress = ckf(X,T,P,'Option',0);
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 22/Apr/2024
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -66,18 +71,26 @@ assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(xcs, 1);
 M = size(xcs, 2);
 A = size(T, 2);
-if nargin < 4 || isempty(opt), opt=1; end;
+
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Option',1);             
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+opt = p.Results.Option;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
 
 % Validate dimensions of input data
-assert (isequal(size(T), [N A]), 'Dimension Error: 2nd argument must be N-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(P), [M A]), 'Dimension Error: 3rd argument must be M-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(T), [N A]), 'Dimension Error: parameter ''T'' must be N-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(P), [M A]), 'Dimension Error: parameter ''P'' must be M-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(opt), [1 1]), 'Dimension Error: paramter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -112,8 +125,10 @@ end
     
 %% Show results
 
-if opt == '1',    
-    fig_h = plot_vec(cumpress/cumpress(1),0:A,[],{'#PCs','ckf'},[],0); 
+if opt == '1'
+    A = size(T, 2);
+    Z = 0:A;
+    fig_h = plot_vec(cumpress/cumpress(1),'EleLabel',Z,'XYLabel',{'#PCs','ckf'},'Option','01'); 
 end
 
         

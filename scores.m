@@ -1,10 +1,10 @@
 
-function fig_h = scores(model,test,opt,tit,label,classes,blur)
+function fig_h = scores(model,varargin)
 
 % Compute and plot scores.
 %
 % fig_h = scores(model) % minimum call
-% fig_h = scores(model,test,opt,tit,label,classes,blur) % complete call
+% fig_h = scores(model,'ObsTest',test,'Option',opt,'Title',tit,'ObsLabel',label,'ObsClass',classes,'BlurIndex',blur) % complete call
 %
 % INPUTS:
 %
@@ -17,10 +17,12 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 %   loads: [MxA] model parameters.
 %   scores: [NxA] data scores.
 %
-% test: [LxM] data set with the observations to be visualized in the model
+% Optional INPUTS(parameters):
+%
+% 'ObsTest': [LxM] data set with the observations to be visualized in the model
 %   space. By default, model.scores are plotted.
 %
-% opt: (str) options for data plotting: binary code of the form 'abcde' for:
+% 'Option': (str) options for data plotting: binary code of the form 'abcde' for:
 %       a:
 %           0: scatter plot of pairs of LVs 
 %           1: bar plot of each single LV
@@ -47,15 +49,15 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0, d=0
 %   and e=0.
 %
-% tit: (str) title for the plots. Empty by default;
+% 'Title': (str) title for the plots. Empty by default;
 %
-% label: [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
+% 'ObsLabel': [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
 %   are used by default)
 %
-% classes: [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
+% 'ObsClass': [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
 %   visualization (a single group by default per calibration and test)
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels (1 by default)
 %
 %
@@ -66,13 +68,13 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 %
 % EXAMPLE OF USE: Random scores
 %
-% X = simuleMV(20,10,8);
-%
+% X = simuleMV(20,10,'LevelCorr',8);
+% 
 % model.lvs = 1:3;
 % [Xcs,model.av,model.sc] = preprocess2D(X);
 % model.var = trace(Xcs'*Xcs);
-% [model.loads,model.scores] = pca_pp(Xcs,model.lvs);
-%
+% [model.loads,model.scores] = pca_pp(Xcs,'Pcs',model.lvs);
+% 
 % scores(model);
 %
 %
@@ -80,23 +82,23 @@ function fig_h = scores(model,test,opt,tit,label,classes,blur)
 %
 % n_obs = 100;
 % n_vars = 10;
-% X = simuleMV(n_obs,n_vars,8);
-%
+% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
+% 
 % model.lvs = 1:2;
 % [Xcs,model.av,model.sc] = preprocess2D(X);
 % model.var = trace(Xcs'*Xcs);
-% [model.loads,model.scores] = pca_pp(Xcs,model.lvs);
-%
+% [model.loads,model.scores] = pca_pp(Xcs,'Pcs',model.lvs);
+% 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
-%
-% scores(model,test);
-%
+% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',corr(X)*(n_obst-1)/(n_obs-1));
+% 
+% scores(model,'ObsTest',test);
+
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 21/May/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -118,9 +120,28 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(model.scores, 1);
 M = size(model.loads,1);
-if nargin < 2, test = []; end;
+
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'ObsTest',[]);
+addParameter(p,'Option','00000');
+addParameter(p,'Title',' ');  
+addParameter(p,'BlurIndex',1);
+addParameter(p,'ObsLabel',[]);
+addParameter(p,'ObsClass',[]);
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+
+test = p.Results.ObsTest;
+opt = p.Results.Option;
+tit = p.Results.Title;
+blur = p.Results.BlurIndex;
+label = p.Results.ObsLabel;
+classes = p.Results.ObsClass;
+
 L = size(test, 1);
-if nargin < 3 || isempty(opt), opt = 0; end; 
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -136,37 +157,37 @@ else
     K = N+L;
 end
 
-if nargin < 4, tit = ''; end 
-if nargin < 5 || isempty(label) 
+
+if isempty(label) 
     if opt(2) == 1 || opt(2) == '1'
         label = 1:L;
     else
         label = [1:N 1:L]; 
     end
 end
-if nargin < 6 || isempty(classes)
+if isempty(classes)
     if opt(2) == 1 || opt(2) == '1' 
         classes = ones(L,1); 
     else
         classes = [ones(N,1);2*ones(L,1)];  
     end
 end
-if nargin < 7 || isempty(blur),    blur    = 1;       end;
+
+
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
 
-
 % Validate dimensions of input data
-if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 2nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
-assert (ischar(opt) && length(opt)>=5, 'Dimension Error: 3rd argument must be a string or num of at least 5 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [K 1]), 'Dimension Error: 5th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [K 1]), 'Dimension Error: 6th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
-if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
+assert (ischar(opt) && length(opt)>=5, 'Dimension Error: parameter ''Option'' must be a string or num of at least 5 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [K 1]), 'Dimension Error: parameter ''ObsLabel'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [K 1]), 'Dimension Error: parameter ''ObsClass'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -180,7 +201,7 @@ end
 
 if ~isempty(test)
     if isfield(model,'av')
-        testcs = preprocess2Dapp(test,model.av,model.sc);
+        testcs = preprocess2Dapp(test,model.av,'SDivideTest',model.sc);
     else
         testcs = test;
     end
@@ -209,13 +230,13 @@ end
 fig_h = [];
 if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
-        fig_h = [fig_h plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var)})];
+        fig_h = [fig_h plot_vec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var)})];
         title(tit);
     end
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}',[],opt(3:end),[],[],blur)];
+            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}','Option',opt(3:end),'BlurIndex',blur)];
             title(tit);
         end
     end

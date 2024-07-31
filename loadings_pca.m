@@ -1,26 +1,28 @@
 
-function P = loadings_pca(x,pcs,prep,opt,label,classes,blur)
+function P = loadings_pca(x,varargin)
 
 
 % Compute and plot loadings in PCA. This routine is deprecated and superseded 
 % by loadings.m (please, use the latter)
 %
 % P = loadings_pca(x) % minimum call
-% P = loadings_pca(x,pcs,prep,opt,label,classes,blur) % complete call
+% P = loadings_pca(x,'Pcs',pcs,'Preprocessing',prep,'Option',opt,'VarsLabel',label,'ObsClass',classes,'BlurIndex',blur) % complete call
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
 %
-% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% Optional INPUTS (parameters):
+%
+% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 1:rank(xcs)
 %
-% prep: [1x1] preprocesing of the data
+% 'Preprocessing': [1x1] preprocesing of the data
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default) 
 %
-% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
 %       a:
 %           0: no plots
 %           1: plot loadings
@@ -31,12 +33,12 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes,blur)
 %   significant digit is set to 0, i.e. opt = 1 means a=1 and b=0. If a=0, 
 %   then b is ignored.
 %
-% label: [Mx1] name of the variables (numbers are used by default)
+% 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
-% classes: [Mx1] groups for different visualization (a single group 
+% 'ObsClass': [Mx1] groups for different visualization (a single group 
 %   by default)
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
 %
@@ -47,22 +49,27 @@ function P = loadings_pca(x,pcs,prep,opt,label,classes,blur)
 %
 % EXAMPLE OF USE: Scatter plot of random scores
 %
-% X = simuleMV(20,10,8);
-% P = loadings_pca(X,1:3);
+% A = cell(1, 10);
+% 
+% for i = 1:10
+%     A{i} = ['A_{', num2str(i), '}'];
+% end
+% 
+% X = simuleMV(20,10,'LevelCorr',8);
+% P = loadings_pca(X,'Pcs',1:3,'VarsLabel',A);
 %
 %
 % EXAMPLE OF USE: Line plot of random scores
 %
 % X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
-% P = loadings_pca(X,1:3,[],11);
+% P = loadings_pca(X,'Pcs',1:3,'Option',11);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 4/Nov/18.
+% last modification: 22/ Apr/2024.
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -84,12 +91,25 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
-if nargin < 3 || isempty(prep), prep = 2; end;
-if nargin < 4 || isempty(opt), opt = '10'; end; 
-if nargin < 5 || isempty(label), label = [1:M]; end
-if nargin < 6 || isempty(classes), classes = ones(M,1); end
-if nargin < 7 || isempty(blur),    blur    = 1;       end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+PCS = 1:rank(x);
+addParameter(p,'Pcs',PCS);  
+addParameter(p,'Preprocessing',2);
+addParameter(p,'Option',10);  
+addParameter(p,'VarsLabel',1:M);
+addParameter(p,'ObsClass',ones(M,1));   
+addParameter(p,'BlurIndex',1);     
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+pcs = p.Results.Pcs;
+prep = p.Results.Preprocessing;
+opt = p.Results.Option;
+label = p.Results.VarsLabel;
+classes = p.Results.ObsClass;
+blur = p.Results.BlurIndex;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -110,37 +130,37 @@ pcs(find(pcs==0)) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: 2nd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: 4th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [M 1]), 'Dimension Error: 5th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+assert (A>0, 'Dimension Error: parameter ''Pcs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''ObsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
-xcs = preprocess2D(x,prep);
-[P,T] = pca_pp(xcs,pcs);
+xcs = preprocess2D(x,'Preprocessing',prep);
+[P,T] = pca_pp(xcs,'Pcs',pcs);
 
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
-    if length(pcs) == 1 || opt(2) == '1',
-        for i=1:length(pcs),
-                plot_vec(P(:,i), label, classes, {'',sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+    if length(pcs) == 1 || opt(2) == '1'
+        for i=1:length(pcs)
+                plot_vec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
         end
     else
-        for i=1:length(pcs)-1,
-            for j=i+1:length(pcs),
-                plot_scatter([P(:,i),P(:,j)], label, classes, {sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Loadings PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}',[],[],[],[],blur);
+        for i=1:length(pcs)-1
+            for j=i+1:length(pcs)
+                plot_scatter([P(:,i),P(:,j)], 'EleLabel',label,'ObsClass' ,classes, 'XYLabel',{sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Loadings PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','BlurIndex',blur);
             end      
         end
     end

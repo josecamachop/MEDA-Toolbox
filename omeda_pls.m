@@ -1,5 +1,5 @@
 
-function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label,classes)
+function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,varargin)
 
 % Observation-based Missing data methods for Exploratory Data Analysis 
 % (oMEDA) for PLS. The original paper is Journal of Chemometrics, 2011, 25 
@@ -25,17 +25,19 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label,cl
 % dummy: [Lx1] dummy variable containing weights for the observations to 
 %   compare, and 0 for the rest of observations
 %
-% prepx: [1x1] preprocesing of the x-block
+% Optional INPUTS (parameter):
+% 
+% 'PreprocessingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: [1x1] preprocesing of the y-block
+% 'PreprocessingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
 %           1: plot oMEDA vector
@@ -49,9 +51,9 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label,cl
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
 %   If a=0, then b and c are ignored.
 %
-% label: [Mx1] name of the variables (numbers are used by default)
+% 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
-% classes: [Mx1] groups of variables (one group by default)
+% 'VarsClass': [Mx1] groups of variables (one group by default)
 %
 %
 % OUTPUTS:
@@ -66,24 +68,24 @@ function [omeda_vec,lim] = omeda_pls(x,y,lvs,test,dummy,prepx,prepy,opt,label,cl
 % n_obs = 100;
 % n_vars = 10;
 % n_LVs = 10;
-% X = simuleMV(n_obs,n_vars,6);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',6);
 % Y = 0.1*randn(n_obs,2) + X(:,1:2);
-%
+% 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
+% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
 % test(1,1:2) = 10*max(abs(X(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;
-%
+% 
 % lvs = 1:n_LVs;
-%
+% 
 % omeda_vec = omeda_pls(X,Y,lvs,test,dummy);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/May/2023
+% last modification: 22/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -110,11 +112,23 @@ if isempty(lvs), lvs = 1:rank(x); end;
 if isempty(test), test = x; end;
 L = size(test, 1);
 if isempty(dummy), dummy = ones(L,1); end;
-if nargin < 6 || isempty(prepx), prepx = 2; end;
-if nargin < 7 || isempty(prepy), prepy = 2; end;
-if nargin < 8 || isempty(opt), opt = '100'; end; 
-if nargin < 9 || isempty(label), label = 1:M; end
-if nargin < 10 || isempty(classes), classes = ones(M,1); end
+
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'PreprocessingX',2);     
+addParameter(p,'PreprocessingY',2);   
+addParameter(p,'Option','100');  
+addParameter(p,'VarsLabel',1:M);  
+addParameter(p,'VarsClass',ones(M,1));  
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+prepx = p.Results.PreprocessingX;
+prepy = p.Results.PreprocessingY;
+opt = p.Results.Option;
+label = p.Results.VarsLabel;
+classes = p.Results.VarsClass;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1, label = label'; end;
@@ -136,30 +150,30 @@ if length(opt)<2, opt = strcat(opt,'00'); end
 if length(opt)<3, opt = strcat(opt,'0'); end
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: 3rd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(test), [L M]), 'Dimension Error: 4th argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(dummy), [L 1]), 'Dimension Error: 5th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prepx), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prepy), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 8th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [M 1]), 'Dimension Error: 9th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(classes), [M 1]), 'Dimension Error: 10th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (A>0, 'Dimension Error: parameter ''lvs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''lvs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''test'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(dummy), [L 1]), 'Dimension Error: parameter ''dummy''t must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''VarsClass'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 8th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''lvs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
-[xcs,m,sd] = preprocess2D(x,prepx);
-ycs = preprocess2D(y,prepy);
+[xcs,m,sd] = preprocess2D(x,'preprocessing',prepx);
+ycs = preprocess2D(y,'preprocessing',prepy);
 
-[beta,W,P,Q,R] = simpls(xcs,ycs,lvs);
+[beta,W,P,Q,R] = simpls(xcs,ycs,'LatVars',lvs);
         
-testcs = preprocess2Dapp(test,m,sd);
-omeda_vec = omeda(testcs,dummy,R,P);
+testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
+omeda_vec = omeda(testcs,dummy,R,'OutSubspace',P);
     
 % heuristic: 95% limit for one-observation-dummy
 xr = xcs*R*P';
@@ -187,7 +201,7 @@ if opt(1) == '1'
         end
     end
     
-    plot_vec(vec,label,classes,{[],'d^2_A'},[limp -limp]);
+    plot_vec(vec,'EleLabel',label,'ObsClass',classes,'XYLabel',{[],'d^2_A'},'LimCont',[limp -limp]);
     
 end
 

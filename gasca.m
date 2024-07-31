@@ -33,33 +33,32 @@ function gascao = gasca(paranovao_st,c)
 % levels = {[1,2,3,4],[1,2,3]};
 % int1 = 10:15;
 % int2 = 30:37;
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = 0.1*randn(size(F,1),vars);
 % for i = 1:length(levels{1}),
-%   X(find(F(:,1) == levels{1}(i)),int1) = X(find(F(:,1) == levels{1}(i)),int1) + simuleMV(reps*length(levels{2}),length(int1),8) + repmat(randn(1,length(int1)),reps*length(levels{2}),1);
+%   X(find(F(:,1) == levels{1}(i)),int1) = X(find(F(:,1) == levels{1}(i)),int1) + simuleMV(reps*length(levels{2}),length(int1),'LevelCorr',8) + repmat(randn(1,length(int1)),reps*length(levels{2}),1);
 % end  
 % for i = 1:length(levels{2}),
-%   X(find(F(:,2) == levels{2}(i)),int2) = X(find(F(:,2) == levels{2}(i)),int2) + simuleMV(reps*length(levels{1}),length(int2),8) + repmat(randn(1,length(int2)),reps*length(levels{1}),1);
+%   X(find(F(:,2) == levels{2}(i)),int2) = X(find(F(:,2) == levels{2}(i)),int2) + simuleMV(reps*length(levels{1}),length(int2),'LevelCorr',8) + repmat(randn(1,length(int2)),reps*length(levels{1}),1);
 % end
-%
-% paranovao_st = parglm(X, F);
 % 
-% for i=1:length(paranovao_st.factors),
+% [table, paranovao_st] = parglm(X, F);
+% 
+% for i=1:length(paranovao_st.factors)
 %   map = corr(paranovao_st.factors{i}.matrix);
 %   plot_map(map);
 %   c = input('Introduce threshold for correlation in interval (0,1): ');
-%   [bel,paranovao_st.factors{i}.states] = gia(map,-c);
+%   [bel,paranovao_st.factors{i}.states] = gia(map,'Gamma',c);
 % end
-%         
-% gascao = gasca(paranovao_st);
-%
+% 
+% gascao = gasca(paranovao_st,c);
+% 
 % for i=1:2,
-%   scores(gascao.factors{i},[],[],sprintf('Factor %d',i),[],gascao.design(:,i));
-%   loadings(gascao.factors{i},[],sprintf('Factor %d',i));
+%   scores(gascao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',gascao.design(:,i));
+%   loadings(gascao.factors{i},'Title',sprintf('Factor %d',i));
 % end
-%
 %
 % EXAMPLE OF USE: Same example with MEDA:
 %
@@ -68,39 +67,39 @@ function gascao = gasca(paranovao_st,c)
 % levels = {[1,2,3,4],[1,2,3]};
 % int1 = 10:15;
 % int2 = 30:37;
-%
-% F = create_design(levels,reps);
-%
+% 
+% F = create_design(levels,'Replicates',reps);
+% 
 % X = 0.1*randn(size(F,1),vars);
 % for i = 1:length(levels{1}),
-%   X(find(F(:,1) == levels{1}(i)),int1) = X(find(F(:,1) == levels{1}(i)),int1) + simuleMV(reps*length(levels{2}),length(int1),8) + repmat(randn(1,length(int1)),reps*length(levels{2}),1);
+%   X(find(F(:,1) == levels{1}(i)),int1) = X(find(F(:,1) == levels{1}(i)),int1) + simuleMV(reps*length(levels{2}),length(int1),'LevelCorr',8) + repmat(randn(1,length(int1)),reps*length(levels{2}),1);
 % end  
 % for i = 1:length(levels{2}),
-%   X(find(F(:,2) == levels{2}(i)),int2) = X(find(F(:,2) == levels{2}(i)),int2) + simuleMV(reps*length(levels{1}),length(int2),8) + repmat(randn(1,length(int2)),reps*length(levels{1}),1);
+%   X(find(F(:,2) == levels{2}(i)),int2) = X(find(F(:,2) == levels{2}(i)),int2) + simuleMV(reps*length(levels{1}),length(int2),'LevelCorr',8) + repmat(randn(1,length(int2)),reps*length(levels{1}),1);
 % end
-%
-% paranovao_st = parglm(X, F);
+% 
+% [table, paranovao_st] = parglm(X, F);
 % 
 % for i=1:length(paranovao_st.factors),
-%   map = meda_pca(paranovao_st.factors{i}.matrix+paranovao_st.residuals,[],0,0.3,'100');
+%   map = meda_pca(paranovao_st.factors{i}.matrix+paranovao_st.residuals,'Preprocessing',0,'Threshold',0.3,'Option','100');
 %   c = input('Introduce threshold for correlation in interval (0,1): ');
-%   [bel,paranovao_st.factors{i}.states] = gia(map,c);
+%   [bel,paranovao_st.factors{i}.states] = gia(map,'Gamma',c);
 % end
-%         
-% gascao = gasca(paranovao_st);
-%
+% 
+% gascao = gasca(paranovao_st,c);
+% 
 % for i=1:2,
-%   scores(gascao.factors{i},[],[],sprintf('Factor %d',i),[],gascao.design(:,i));
-%   loadings(gascao.factors{i},[],sprintf('Factor %d',i));
+%   scores(gascao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',gascao.design(:,i));
+%   loadings(gascao.factors{i},'Title',sprintf('Factor %d',i));
 % end
 %
 %
 % Related routines: parglm, paranova, asca, apca, create_design 
 %
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 21/Jun/23
+% last modification: 22/Apr/24
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -130,7 +129,8 @@ gascao = paranovao_st;
 for factor = 1 : gascao.n_factors
     
     xf = gascao.factors{factor}.matrix;
-    map = meda_pca(xf,[],0,0.3,'0');
+    map = meda_pca(xf,'Preprocessing',0,'Threshold',0.3,'Option','000');
+    
     gascao.factors{factor}.states = transform_crit(map,c(factor));
     
     p = gpca(xf,gascao.factors{factor}.states,1:rank(xf));
@@ -146,7 +146,7 @@ end
 for interaction = 1 : gascao.n_interactions
     
     xf = gascao.interactions{interaction}.matrix;
-    map = meda_pca(xf,[],0,0.3,'0');
+    map = meda_pca(xf,'Preprocessing',0,'Threshold',0.3,'Option','000');
     gascao.interactions{interaction}.states = transform_crit(map,c(length(gascao.factors)+interaction));
     
     p = gpca(xf,gascao.interactions{interaction}.states,1:rank(xf));
@@ -169,18 +169,18 @@ function states = transform_crit(map,c)
 lim = 1e-5;
 
 if c<0
-    [bel,states] = gia(map,-c);
+    [bel,states] = gia(map,'Gamma',-c);
 else
     c2 = 0.99;
-    [bel,states] = gia(map,c2);
-    len = max(cellfun('length',states))
+    [bel,states] = gia(map,'Gamma',c2);
+    len = max(cellfun('length',states));
     if isempty(len), len=0; end
     while len~=c && c2 < 1-lim && c2 > lim
         diff = c - len;
         c2 = (-diff/(abs(diff)+10))*(1-c2) + c2;        
         if c2 < 1-lim && c2 > lim
-            [bel,states] = gia(map,c2);
-            len = max(cellfun('length',states))
+            [bel,states] = gia(map,'Gamma',c2);
+            len = max(cellfun('length',states));
             if isempty(len), len=0; end
         end
     end

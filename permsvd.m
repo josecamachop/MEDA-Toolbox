@@ -1,4 +1,4 @@
-function [npcf,Fratioreal,Fratioperm]=permsvd(x,flagprep,npermmax,flagproj,conf)
+function [npcf,Fratioreal,Fratioperm]=permsvd(x,varargin)
 
 % PCA component selection by permutation testing. If using this software please cite:
 % R. Vitale, J.A. Westerhuis, T. Naes, A.K. Smilde, O.E. de Noord, A.
@@ -7,7 +7,7 @@ function [npcf,Fratioreal,Fratioperm]=permsvd(x,flagprep,npermmax,flagproj,conf)
 % e2937
 %
 % npcf = permsvd(x) % minimum call
-% [npcf,Fratioreal,Fratioperm]=permsvd(x,flagprep,npermmax,flagproj,conf)
+% [npcf,Fratioreal,Fratioperm]=permsvd(x,'Preprocessing',flagprep,'MaxPerm',npermmax,'Proj',flagproj,'Confidence',conf)
 % % complete call
 % 
 %
@@ -15,15 +15,17 @@ function [npcf,Fratioreal,Fratioperm]=permsvd(x,flagprep,npermmax,flagproj,conf)
 %
 % x: [NxM] original data
 %
-% flagprep: [1x1] 0 for no preprocessing on x; 1 for mean-centering; 2 for
+% Optional INPUTS (parameters):
+%
+% 'Preprocessing': [1x1] 0 for no preprocessing on x; 1 for mean-centering; 2 for
 % auto-scaling. Default: 2
 %
-% npermmax: [1x1] maximum number of permutations. Default: 300
+% 'MaxPerm': [1x1] maximum number of permutations. Default: 300
 %
-% flagproj: [1x1] orthogonalisation approach. 1 for P1; 2 for P2; 3 for P3;
+% 'Proj': [1x1] orthogonalisation approach. 1 for P1; 2 for P2; 3 for P3;
 % 4 for P4; 5 for P5. Default: 3
 %
-% conf: [1x1] confidence level for the test (e.g. 95 for 95%). Default: 95
+% 'Confidence': [1x1] confidence level for the test (e.g. 95 for 95%). Default: 95
 %
 %
 % OUTPUTS:
@@ -39,15 +41,15 @@ function [npcf,Fratioreal,Fratioperm]=permsvd(x,flagprep,npermmax,flagproj,conf)
 %
 % EXAMPLE OF USE: Random data
 %
-% x = simuleMV(20,10,8);
-% npcf = permsvd(x,2,300,3,95);
+% x = simuleMV(20,10,'LevelCorr',8);
+% npcf = permsvd(x,'MaxPerm',400);
 %
 %
 % codified by: Raffaele Vitale (rvitale86@gmail.com)
-% last modification: 29/Aug/2018
+% last modification: 23/Apr/2024
 %
-% Copyright (C) 2016  Universitat Politecnica de Valencia, Valencia
-% Copyright (C) 2016  Raffaele Vitale
+% Copyright (C) 2024  Universitat Politecnica de Valencia, Valencia
+% Copyright (C) 2024  Raffaele Vitale
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -67,18 +69,21 @@ function [npcf,Fratioreal,Fratioperm]=permsvd(x,flagprep,npermmax,flagproj,conf)
 if nargin<1
     error('Error in the number of arguments. Type ''help permsvd'' for more info.')
 end
-if nargin<2 || isempty(flagprep)
-    flagprep=2;
-end
-if nargin<3 || isempty(npermmax)
-    npermmax=300;
-end
-if nargin<4 || isempty(flagproj)
-    flagproj=3;
-end
-if nargin<5 || isempty (conf)
-    conf=95;
-end
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Preprocessing',2);   
+addParameter(p,'MaxPerm',300);
+addParameter(p,'Proj',3);
+addParameter(p,'Confidence',95);
+
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+flagprep = p.Results.Preprocessing;
+npermmax = p.Results.MaxPerm;
+flagproj = p.Results.Proj;
+conf = p.Results.Confidence;
 
 %% Main code
 

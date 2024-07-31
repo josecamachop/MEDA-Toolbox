@@ -1,4 +1,4 @@
-function [p,t,bel,e] = gpca(xcs,states,pcs,tol)
+function [p,t,bel,e] = gpca(xcs,states,varargin)
 
 % Group-wise Principal Component Analysis. The original paper is Camacho, J., 
 % Rodríguez-Gómez, R., Saccenti, E. Group-wise Principal Component Analysis 
@@ -6,7 +6,7 @@ function [p,t,bel,e] = gpca(xcs,states,pcs,tol)
 % Statistics, 2017.
 %
 % p = gpca(xcs,states)     % minimum call
-% [p,t,bel,e] = gpca(xcs,states,pcs)     % complete call
+% [p,t,bel,e] = gpca(xcs,states,'Pcs',pcs,'Tolerance',tol)     % complete call
 %
 % INPUTS:
 %
@@ -14,10 +14,12 @@ function [p,t,bel,e] = gpca(xcs,states,pcs,tol)
 %
 % states: {Sx1} Cell with the groups of variables.
 %
-% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% Optional INPUTS (parameters):
+%
+% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(xcs)
 %
-% tol: [1x1] tolerance value
+% 'Tolerance': [1x1] tolerance value
 %
 %
 % OUTPUTS:
@@ -33,26 +35,24 @@ function [p,t,bel,e] = gpca(xcs,states,pcs,tol)
 %
 % EXAMPLE OF USE: Random data:
 %
-% x = simuleMV(20,10,8);
+% x = simuleMV(20,10,'LevelCorr',8);
 % pcs = 1:2;
-% map = meda_pca(x,pcs,[],[],0);
+% map = meda_pca(x,'Pcs',pcs,'Option',0);
 % [map,ord] = seriation(map);
 % plot_map(map);
 % x = x(:,ord);
-% [bel,states] = gia(map,0.3);
-% Xcs = preprocess2D(x,2);
-% [p,t,bel] = gpca(Xcs,states,pcs);
-% 
+% [bel,states] = gia(map,'Gamma',0.3);
+% Xcs = preprocess2D(x,'Preprocessing',2);
+% [p,t,bel] = gpca(Xcs,states,'Pcs',pcs);
 % for i=pcs,
-%   plot_vec(p(:,i),[],[],{'',sprintf('Loadings PC %d',i)});
-%   plot_vec(t(:,i),[],[],{'',sprintf('Scores PC %d',i)});
+%   plot_vec(p(:,i),'XYLabel',{'',sprintf('Loadings PC %d',i)});
+%   plot_vec(t(:,i),'XYLabel',{'',sprintf('Scores PC %d',i)});
 % end
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 25/Apr/2018
+% last modification: 22/Apr/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -78,8 +78,18 @@ if length(states)==0,
     states{1} = 1:M;
 end
 
-if nargin < 3 || isempty(pcs), pcs = 0:rank(xcs); end;
-if nargin < 4 || isempty(tol), tol = 1e-15; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+PCS = 0:rank(xcs);
+Tol = 1e-15;
+addParameter(p,'Pcs',PCS);  
+addParameter(p,'Tolerance',Tol);          
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+pcs = p.Results.Pcs;
+tol = p.Results.Tolerance;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -91,16 +101,16 @@ pcs(find(pcs==0)) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 
 % Validate values of input data
-assert (iscell(states), 'Value Error: 2nd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (iscell(states), 'Value Error: parameter ''states'' must be a cell of positive integers. Type ''help %s'' for more info.', routine(1).name);
 for i=1:length(states),
     assert (isempty(find(states{i}<1)) && isequal(fix(states{i}), states{i}), 'Value Error: 2nd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine(1).name);
-    assert (isempty(find(states{i}>M)), 'Value Error: 2nd argument must contain values not higher than M. Type ''help %s'' for more info.', routine(1).name);
+    assert (isempty(find(states{i}>M)), 'Value Error: parameter ''states'' must contain values not higher than M. Type ''help %s'' for more info.', routine(1).name);
 end
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 

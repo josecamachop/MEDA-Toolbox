@@ -7,7 +7,7 @@ function vascao = vasca(parglmoVS,siglev)
 %
 % Related routines: parglmVS, parglm, asca
 %
-% vascao = vasca(parglmVS)   % complete call
+% vascao = vasca(parglmVS,singlev)   % complete call
 %
 %
 % INPUTS:
@@ -31,26 +31,25 @@ function vascao = vasca(parglmoVS,siglev)
 %
 % n_obs = 40;
 % n_vars = 400;
-%
+% 
 % class = (randn(n_obs,1)>0)+1;
-% X = simuleMV(n_obs,n_vars,8);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
 % X(class==2,1:3) = X(class==2,1:3) + 10;
-%
+% 
 % [TVS, parglmoVS] = parglmVS(X, class); % With variable selection
 % TVS
-%
+% 
 % vascao = vasca(parglmoVS);
-%
+% 
 % if vascao.factors{1}.stasig
-%    scores(vascao.factors{1},[],[],sprintf('Factor %d',1),[],vascao.design(:,1));
-%    loadings(vascao.factors{1},[],sprintf('Factor %d',1));
+%    scores(vascao.factors{1},'Title',sprintf('Factor %d',1),'ObsClass',vascao.design(:,1));
+%    loadings(vascao.factors{1},'Title',sprintf('Factor %d',1));
 % end
 %
-%
 % coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 30/Nov/23
+% last modification: 23/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -73,7 +72,7 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 if nargin < 2 || isempty(siglev), siglev = 0.01; end;
 
 % Validate dimensions of input data
-assert (isequal(size(siglev), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(siglev), [1 1]), 'Dimension Error: parameter ''singlev'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 %% Main code
 
@@ -88,7 +87,7 @@ for factor = 1 : vascao.n_factors
         vascao.factors{factor}.stasig = true;
         ind = parglmoVS.ord_factors(factor,1:M);
         xf = vascao.factors{factor}.matrix(:,ind);
-        p = pca_pp(xf,1:rank(xf));
+        p = pca_pp(xf,'Pcs',1:rank(xf));
     
         vascao.factors{factor}.ind = ind;
         vascao.factors{factor}.var = trace(xf'*xf);

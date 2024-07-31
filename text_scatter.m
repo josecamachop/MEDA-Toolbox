@@ -1,9 +1,9 @@
-function text_scatter(fig_h,bdata,elabel,classes,opt,mult,blur)
+function text_scatter(fig_h,bdata,varargin)
 
 % Print text in a Scatter plot.
 %
 % text_scatter(fig_h,bdata) % minimum call
-% text_scatter(fig_h,bdata,elabel,classes,opt,mult,blur) % complete call
+% text_scatter(fig_h,bdata,'EleLabel',elabel,'ObsClass',classes,'Option',opt,'Multiplicity',mult,'BlurIndex',blur) % complete call
 %
 %
 % INPUTS:
@@ -12,12 +12,14 @@ function text_scatter(fig_h,bdata,elabel,classes,opt,mult,blur)
 %
 % bdata: (Nx2) bidimensional data 
 %
-% elabel: [Nx1] name of the elements (numbers are used by default)
+% Optional INPUTS (parameter):
 %
-% classes: [Nx1, str(N), {N}] groups for different visualization (a single
+% 'EleLabel': [Nx1] name of the elements (numbers are used by default)
+%
+% 'ObsClass': [Nx1, str(N), {N}] groups for different visualization (a single
 %   group by default)
 %
-% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
 %       a:
 %           0: do not plot multiplicity
 %           1: plot multiplicity
@@ -34,9 +36,9 @@ function text_scatter(fig_h,bdata,elabel,classes,opt,mult,blur)
 %   By deafult, opt = '00'. If less digits are specified, least significant
 %   digits are set to 0, i.e. opt = 1 means a=1, b=00.
 %
-% mult: [Nx1] multiplicity of each row (1s by default)
+% 'Multiplicity': [Nx1] multiplicity of each row (1s by default)
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
 %
@@ -44,9 +46,9 @@ function text_scatter(fig_h,bdata,elabel,classes,opt,mult,blur)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 21/Apr/2023
+% last modification: 23/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -70,11 +72,22 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 figure(fig_h);
 
 N = size(bdata, 1);
-if nargin < 3 || isempty(elabel), elabel = 1:N; end;
-if nargin < 4 || isempty(classes), classes = ones(N,1); end;
-if nargin < 5 || isempty(opt),     opt     = '000';                 end;
-if nargin < 6 || isempty(mult),    mult    = ones(N,1);         end;
-if nargin < 7 || isempty(blur),    blur    = 1;       end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'EleLabel',1:N);   
+addParameter(p,'ObsClass',ones(N,1));   
+addParameter(p,'Option','000');   
+addParameter(p,'Multiplicity',ones(N,1)); 
+addParameter(p,'BlurIndex',1);
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+elabel = p.Results.EleLabel;
+opt = p.Results.Option;
+classes = p.Results.ObsClass;
+mult = p.Results.Multiplicity;
+blur = p.Results.BlurIndex;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -97,15 +110,15 @@ if ischar(elabel),  elabel = cellstr(elabel); end;
 if ischar(classes), classes = cellstr(classes); end;
 
 % Validate dimensions of input data
-assert(size(bdata,2) == 2, 'Dimension Error: 2nd argument must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: 4th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 5th argument must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: 6th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+assert(size(bdata,2) == 2, 'Dimension Error: paramter ''bdata'' must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
+if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: paramter ''EleLabel'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: parameter ''ObsClass'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
+if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: parameter ''Multiplicity'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 
 % Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

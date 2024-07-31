@@ -157,7 +157,7 @@ if length(varargin) > 0 & ~isempty(varargin{1})
     
         handles.data.PCs = varargin{2};
          
-        if ~isempty(handles.data.PCs),
+        if ~isempty(handles.data.PCs)
             
             A = length(handles.data.PCs);
             if size(handles.data.PCs,2) == 1, handles.data.PCs = handles.data.PCs'; end;
@@ -176,7 +176,7 @@ if length(varargin) > 0 & ~isempty(varargin{1})
             
         end
         
-        if length(varargin) > 2 & ~isempty(varargin{3}),
+        if length(varargin) > 2 & ~isempty(varargin{3})
             
             handles.data.prep = varargin{3};
             
@@ -279,9 +279,9 @@ function dataPopup_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns dataPopup contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from dataPopup
 
-if isequal(get(handles.dataPopup,'Enable'),'on'),
+if isequal(get(handles.dataPopup,'Enable'),'on')
     
-    if ~isempty(handles.data.WorkSpace),
+    if ~isempty(handles.data.WorkSpace)
         handles = state_change(handles,1);
     else
         handles = state_change(handles,0);
@@ -299,7 +299,7 @@ if isequal(get(handles.dataPopup,'Enable'),'on'),
 
     [M N]=size(handles.data.data_matrix);
     %Summary Panel
-    if isa(data_matrix,'double'),    
+    if isa(data_matrix,'double')   
         sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(handles.data.data_matrix)),max(max(handles.data.data_matrix)));
         handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
     end
@@ -336,7 +336,7 @@ function dataPopup_CreateFcn(hObject, eventdata, handles)
 handles.data.nameData='';
 handles.data.WorkSpace=evalin('base','who');%name of the variables in the workspace
 
-if ~isempty(handles.data.WorkSpace),
+if ~isempty(handles.data.WorkSpace)
     set(hObject,'String',handles.data.WorkSpace);
     string_evaluation=handles.data.WorkSpace{1};%Name of the incoming data position
     handles.data.nameData=string_evaluation;
@@ -357,21 +357,21 @@ function refreshbutton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 handles.data.WorkSpace=evalin('base','who');
 
-if ~isempty(handles.data.WorkSpace),
+if ~isempty(handles.data.WorkSpace)
     
     dataPopup_Callback(handles.dataPopup, eventdata, handles);
     handles = guidata(handles.dataPopup);
     
     set(handles.dataPopup, 'String', handles.data.WorkSpace);
     nombres=cellstr(get(handles.dataPopup,'String'));
-    if ~isempty(handles.data.nameData),
+    if ~isempty(handles.data.nameData)
         val = 0;
-        for i=1:length(nombres),
-            if strcmp(nombres(i),handles.data.nameData),
+        for i=1:length(nombres)
+            if strcmp(nombres(i),handles.data.nameData)
                 val=i;
             end
         end
-        if val,
+        if val
             set(handles.dataPopup,'Value',val);
             handles.data.data_matrix=evalin('base',handles.data.WorkSpace{val});
         end
@@ -388,26 +388,26 @@ if ~isempty(handles.data.WorkSpace),
     %Refresh the Label and Classes popupmenus:
     contents=get(handles.classcorePopup,'String');
     aux=[];
-    for i=1:length(handles.data.WorkSpace),
+    for i=1:length(handles.data.WorkSpace)
         aux=[aux handles.data.WorkSpace(i,:)];
     end
     a1=contents(1,:);
-    for j=1:length(a1),
-        if ~isspace(a1(j)),
+    for j=1:length(a1)
+        if ~isspace(a1(j))
             b1(j)=a1(j);
         end
     end
     aux=[b1,aux];
     set(handles.classcorePopup,'String',strvcat(aux));
     nombres=cellstr(get(handles.classcorePopup,'String'));
-    if ~strcmp(handles.data.nameClasscore,'emptyclasses'),
+    if ~strcmp(handles.data.nameClasscore,'emptyclasses')
         val = 0;
-        for i=1:length(nombres),
-            if strcmp(nombres(i),handles.data.nameClasscore),
+        for i=1:length(nombres)
+            if strcmp(nombres(i),handles.data.nameClasscore)
                 val=i;
             end
         end
-        if val,
+        if val
             set(handles.classcorePopup,'Value',val);
             handles.data.classes=evalin('base',handles.data.WorkSpace{val-1});    
         end
@@ -415,26 +415,26 @@ if ~isempty(handles.data.WorkSpace),
     
     contents=get(handles.labscorePopup,'String');
     aux2=[];
-    for i=1:length(handles.data.WorkSpace),
+    for i=1:length(handles.data.WorkSpace)
         aux2=[aux2 handles.data.WorkSpace(i,:)];
     end
     a2=contents(1,:);
-    for j=1:length(a2),
-        if ~isspace(a2(j)),
+    for j=1:length(a2)
+        if ~isspace(a2(j))
             b2(j)=a2(j);
         end
     end
     aux2=[b2,aux2];
     set(handles.labscorePopup,'String',strvcat(aux2));
     nombres=cellstr(get(handles.labscorePopup,'String'));
-    if ~strcmp(handles.data.nameLabscore,'emptylabel'),
+    if ~strcmp(handles.data.nameLabscore,'emptylabel')
         val = 0;
-        for i=1:length(nombres),
-            if strcmp(nombres(i),handles.data.nameLabscore),
+        for i=1:length(nombres)
+            if strcmp(nombres(i),handles.data.nameLabscore)
                 val=i;
             end
         end
-        if val,
+        if val
             set(handles.labscorePopup,'Value',val);
             handles.data.label=evalin('base',handles.data.WorkSpace{val-1});  
         end
@@ -443,26 +443,26 @@ if ~isempty(handles.data.WorkSpace),
     
     contents=get(handles.clasvarPopup,'String');
     aux3=[];
-    for i=1:length(handles.data.WorkSpace),
+    for i=1:length(handles.data.WorkSpace)
         aux3=[aux3 handles.data.WorkSpace(i,:)];
     end
     a3=contents(1,:);
-    for j=1:length(a3),
-        if ~isspace(a3(j)),
+    for j=1:length(a3)
+        if ~isspace(a3(j))
             b3(j)=a3(j);
         end
     end
     aux3=[b3,aux3];
     set(handles.clasvarPopup,'String',strvcat(aux3));
     nombres=cellstr(get(handles.clasvarPopup,'String'));
-    if ~strcmp(handles.data.nameClasvar,'emptyclasses'),
+    if ~strcmp(handles.data.nameClasvar,'emptyclasses')
         val = 0;
-        for i=1:length(nombres),
-            if strcmp(nombres(i),handles.data.nameClasvar),
+        for i=1:length(nombres)
+            if strcmp(nombres(i),handles.data.nameClasvar)
                 val=i;
             end
         end
-        if val,
+        if val
             set(handles.clasvarPopup,'Value',val);
             handles.data.classes_LP=evalin('base',handles.data.WorkSpace{val-1});
         end
@@ -470,26 +470,26 @@ if ~isempty(handles.data.WorkSpace),
     
     contents=get(handles.labvarPopup,'String');
     aux4=[];
-    for i=1:length(handles.data.WorkSpace),
+    for i=1:length(handles.data.WorkSpace)
         aux4=[aux4 handles.data.WorkSpace(i,:)];
     end
     a4=contents(1,:);
-    for j=1:length(a4),
-        if ~isspace(a4(j)),
+    for j=1:length(a4)
+        if ~isspace(a4(j))
             b4(j)=a4(j);
         end
     end
     aux4=[b4,aux4];
     set(handles.labvarPopup,'String',strvcat(aux4));
     nombres=cellstr(get(handles.labvarPopup,'String'));
-    if ~strcmp(handles.data.nameLabvar,'emptylabel'),
+    if ~strcmp(handles.data.nameLabvar,'emptylabel')
         val = 0;
-        for i=1:length(nombres),
-            if strcmp(nombres(i),handles.data.nameLabvar),
+        for i=1:length(nombres)
+            if strcmp(nombres(i),handles.data.nameLabvar)
                 val=i;
             end
         end
-        if val,
+        if val
             set(handles.labvarPopup,'Value',val);
             handles.data.label_LP=evalin('base',handles.data.WorkSpace{val-1});
         end
@@ -599,15 +599,15 @@ end
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
     case 'Var X'
-        x_var = var_pca(handles.data.data_matrix,1:pcs,handles.data.prep,'11');
+        x_var = var_pca(handles.data.data_matrix,'Pcs',1:pcs,'Preprocessing',handles.data.prep,'Option','11');
     case 'Var X + ckf'
-        x_var = var_pca(handles.data.data_matrix,1:pcs,handles.data.prep,'10');
+        x_var = var_pca(handles.data.data_matrix,'Pcs',1:pcs,'Preprocessing',handles.data.prep,'Option','10');
     case 'ekf crossval '
         [blocks_r blocks_c] = size(handles.data.data_matrix);
-        x_var = crossval_pca(handles.data.data_matrix,0:pcs,'ekf',blocks_r,blocks_c,handles.data.prep);
+        x_var = crossval_pca(handles.data.data_matrix,0:pcs,'ValProcedure','ekf','MaxSampleBlock',blocks_r,'MaxVarBlock',blocks_c,'Preprocessing',handles.data.prep);
     case 'SVI plot'
         chosenVar = str2num(getCurrentPopupString(handles.selectPopup));
-        SVIplot(handles.data.data_matrix,1:pcs,chosenVar,7,handles.data.prep);
+        SVIplot(handles.data.data_matrix,'PCs',1:pcs,'Vars',chosenVar,'Groups',7,'Preprocessing',handles.data.prep);
     otherwise
         disp('No case detected')
 end
@@ -623,22 +623,22 @@ function prepPopup_Callback(hObject, eventdata, handles)
 nombres=cellstr(get(hObject,'String'));
 val=nombres{get(hObject,'Value')};
 
-switch val,
-    case 'no preprocessing',
+switch val
+    case 'no preprocessing'
         prep=0;
-        if handles.data.control==1,
+        if handles.data.control==1
             text = sprintf('Preprocessing of data matrix:\nNo preprocessing.');
             handles.data.sumtext=cprint(handles.sumText,text,handles.data.text,0);
         end
-    case 'mean centering',
+    case 'mean centering'
         prep=1;
-        if handles.data.control==1,
+        if handles.data.control==1
             text = sprintf('Preprocessing of data matrix:\nMean Centering.');
             handles.data.sumtext=cprint(handles.sumText,text,handles.data.text,0);
         end
-    case 'auto-scaling',
+    case 'auto-scaling'
         prep=2;
-        if handles.data.control==1,
+        if handles.data.control==1
             text = sprintf('Preprocessing of data matrix:\nAuto-scaling.');
             handles.data.sumtext=cprint(handles.sumText,text,handles.data.text,0);
         end
@@ -674,7 +674,7 @@ function pcaButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 %Information panel:
-if isempty(handles.data.data_matrix),
+if isempty(handles.data.data_matrix)
     errordlg('No data matrix selected, please select one.');
     return;
 end
@@ -696,7 +696,7 @@ handles.data.PCs=[1:pc_num];
 
 %Si la variable handles.data.PCs es distinta de vacía, imprimir en xpcscorePopup,
 %xpcvarPopup, ypcvarPopup y ypcscorePopup los PCs posibles.
-if ~isempty(handles.data.PCs),
+if ~isempty(handles.data.PCs)
     set(handles.xpcscorePopup, 'Value',1);
     set(handles.ypcscorePopup, 'Value',1);
     set(handles.xpcvarPopup, 'Value',1);
@@ -710,21 +710,21 @@ if ~isempty(handles.data.PCs),
     %para hacer MEDA
     k=min(handles.data.PCs);
     options=[];
-    for i=min(handles.data.PCs):max(handles.data.PCs),
-        for j=k:max(handles.data.PCs),
+    for i=min(handles.data.PCs):max(handles.data.PCs)
+        for j=k:max(handles.data.PCs)
             options=[options,i,j];
         end
         k=k+1;
     end
     
     set(handles.medaPopup,'String','');
-    for i=1:2:(length(options)-1),
+    for i=1:2:(length(options)-1)
         contents=get(handles.medaPopup,'String');
         set(handles.medaPopup,'String',strvcat(contents,sprintf('%d:%d',options(i),options(i+1))));
     end
 end
 
-if handles.data.auxPCs==0,
+if handles.data.auxPCs==0
 handles.data.PC1=min(handles.data.PCs);
 handles.data.PC2=min(handles.data.PCs);
 handles.data.PC1_LP=min(handles.data.PCs);
@@ -780,7 +780,7 @@ function labscorePopup_Callback(hObject, eventdata, handles)
 incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.labscore{incoming_data};
 handles.data.nameLabscore=string_evaluation;
-if strcmp(string_evaluation,'emptylabel'),
+if strcmp(string_evaluation,'emptylabel')
     label={};
     handles.data.label={};
 else
@@ -788,14 +788,14 @@ else
     handles.data.label=label;
 end
 
-if ~isempty(handles.data.label),
+if ~isempty(handles.data.label)
     if max(size(label))~=size(handles.data.data_matrix,1) || min(size(label))~=1,
         errordlg('Label must have as many tags as number of observations in the data matrix.');
         handles.data.nameLabscore='emptylabel';
         handles.data.label={};
         nombres=cellstr(get(hObject,'String'));
-        for i=1:length(nombres),
-            if strcmp(nombres(i),'emptylabel'),
+        for i=1:length(nombres)
+            if strcmp(nombres(i),'emptylabel')
                 val=i;
             end
         end
@@ -818,8 +818,8 @@ labscore={'emptylabel'};
 set(hObject,'String',labscore);
 
 handles.data.WorkSpace=evalin('base','who');
-if ~isempty(handles.data.WorkSpace),
-    for i=1:length(handles.data.WorkSpace),
+if ~isempty(handles.data.WorkSpace)
+    for i=1:length(handles.data.WorkSpace)
         labscore=[labscore handles.data.WorkSpace(i,:)];
     end
     set(hObject,'String',strvcat(labscore));
@@ -830,8 +830,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 nombres=cellstr(get(hObject,'String'));
-for i=1:length(nombres),
-    if strcmp(nombres(i),'emptylabel'),
+for i=1:length(nombres)
+    if strcmp(nombres(i),'emptylabel')
         val=i;
     end
 end
@@ -853,7 +853,7 @@ function classcorePopup_Callback(hObject, eventdata, handles)
 incoming_data=get(hObject,'Value');
 string_evaluation=handles.data.classcore{incoming_data};
 handles.data.nameClasscore=string_evaluation;
-if strcmp(string_evaluation,'emptyclasses'),
+if strcmp(string_evaluation,'emptyclasses')
     classes=[];
     handles.data.classes=[];
 else
@@ -861,14 +861,14 @@ else
     handles.data.classes=classes;
 end
 
-if ~isempty(handles.data.classes),
+if ~isempty(handles.data.classes)
     if max(size(classes))~=size(handles.data.data_matrix,1) || min(size(classes))~=1,
         errordlg('Classes must have as many tags as number of observations in the data matrix.');
         handles.data.nameClasscore='emptyclasses';
         handles.data.classes=[];
         nombres=cellstr(get(hObject,'String'));
-        for i=1:length(nombres),
-            if strcmp(nombres(i),'emptyclasses'),
+        for i=1:length(nombres)
+            if strcmp(nombres(i),'emptyclasses')
                 val=i;
             end
         end
@@ -891,8 +891,8 @@ classcore={'emptyclasses'};
 set(hObject,'String',classcore);
 
 handles.data.WorkSpace=evalin('base','who');
-if ~isempty(handles.data.WorkSpace),
-    for i=1:length(handles.data.WorkSpace),
+if ~isempty(handles.data.WorkSpace)
+    for i=1:length(handles.data.WorkSpace)
         classcore=[classcore handles.data.WorkSpace(i,:)];
     end
     set(hObject,'String',strvcat(classcore));
@@ -903,8 +903,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 nombres=cellstr(get(hObject,'String'));
-for i=1:length(nombres),
-    if strcmp(nombres(i),'emptyclasses'),
+for i=1:length(nombres)
+    if strcmp(nombres(i),'emptyclasses')
         val=i;
     end
 end
@@ -927,13 +927,13 @@ new_sp_matrix={};
 clean_ind=[];
 
 
-for i=1:length(handles.data.sp_ID_figures),
+for i=1:length(handles.data.sp_ID_figures)
     if ~isempty(find(handles.data.sp_ID_figures(i)==all_opened_graphs,1)),
         new_sp_ID_figures=[new_sp_ID_figures handles.data.sp_ID_figures(i)];
         new_sp_matrix={new_sp_matrix{:} handles.data.sp_matrix{:,i}};
     else
         clean_ind=[clean_ind i];%Identificadores de lo Score Plots cerrados
-        for j=1:length(clean_ind),
+        for j=1:length(clean_ind)
             aux=clean_ind(j);
             handles.data.clean_control(aux)=0;
             handles.data.CORTES{1,aux}=[];
@@ -953,15 +953,15 @@ handles.data.sp_ID_figures=new_sp_ID_figures;%Vector actualizado con los identif
 handles.data.sp_matrix=new_sp_matrix;
 
 if isempty(handles.data.label) && isempty(handles.data.classes)
-    [T,TT]=scores_pca(handles.data.data_matrix,[handles.data.PC1 handles.data.PC2],[],handles.data.prep,1);
+    [T,TT]=scores_pca(handles.data.data_matrix,'Pcs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1);
 else
     if ~isempty(handles.data.label) && isempty(handles.data.classes)
-        [T,TT]=scores_pca(handles.data.data_matrix,[handles.data.PC1 handles.data.PC2],[],handles.data.prep,1,handles.data.label);
+        [T,TT]=scores_pca(handles.data.data_matrix,'Pcs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsLabel',handles.data.label);
     else
         if isempty(handles.data.label) && ~isempty(handles.data.classes)
-            [T,TT]=scores_pca(handles.data.data_matrix,[handles.data.PC1 handles.data.PC2],[],handles.data.prep,1,[],handles.data.classes);
+            [T,TT]=scores_pca(handles.data.data_matrix,'Pcs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsClass',handles.data.classes);
         else
-            [T,TT]=scores_pca(handles.data.data_matrix,[handles.data.PC1 handles.data.PC2],[],handles.data.prep,1,handles.data.label,handles.data.classes);
+            [T,TT]=scores_pca(handles.data.data_matrix,'Pcs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
         end
     end
 end
@@ -969,7 +969,7 @@ fig=gcf;
 
 %matrixPCs_oMEDA=[T(:,handles.data.PC1),T(:,handles.data.PC2)];
 T_size = size(T);
-if T_size(2) > 1,
+if T_size(2) > 1
     matrixPCs_oMEDA=[T(:,1),T(:,2)];
     set(fig,'Tag','ScorePlot');%En la opci�n etiqueta se indica que el gr�fico es un Score Plot
 else
@@ -998,12 +998,12 @@ function selomedaButton_Callback(hObject, eventdata, handles)
 
 ID_list=get(0,'Children');
 ID=ID_list(2);%Identificador de la gr�fica seleccionada (debe ser un Score Plot).
-if ~isnumeric(ID),
+if ~isnumeric(ID)
     ID = ID.Number;
 end
 
 check_tag=get(ID,'Tag');
-if strcmp(check_tag,'ScorePlot'),
+if strcmp(check_tag,'ScorePlot')
     figure(ID);%Lanzar el Score Plot seleccionado para hacer oMEDA.
 else
     errordlg('To perform oMEDA you must select a Score Plot.');
@@ -1013,8 +1013,8 @@ end
 %Es necesario recuperar los datos del Score Plot seleccionado, es decir las observaciones ploteadas en el eje x e y:
 %Voy a recorrer el vector de gcfs de score plots que se llama
 %handles.data.sp_ID_figures, para buscar en que posici�n est� el gcf ID.
-for i=1:length(handles.data.sp_ID_figures),
-    if handles.data.sp_ID_figures(i)==ID,
+for i=1:length(handles.data.sp_ID_figures)
+    if handles.data.sp_ID_figures(i)==ID
         % codigo de compr de que est� vacio
 %         ID
 %         size(handles.data.sp_matrix)
@@ -1076,7 +1076,7 @@ for j=1:M %Se recorren todas las observaciones
     for k=1:N%Todas las rectas del poligono irregular
         X=(-(B(k)*Y)-C(k))/A(k);
         
-        if k+1>N,
+        if k+1>N
             if (Y>min(vertex(k,2),vertex(1,2)))&&(Y<max(vertex(k,2),vertex(1,2))),
                 if X>matrix_2PCs(j,1)
                     corte=corte+1;
@@ -1110,12 +1110,12 @@ function minusButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
-if ~isnumeric(ID),
+if ~isnumeric(ID)
     ID = ID.Number;
 end
 
 check_tag=get(ID,'Tag');
-if strcmp(check_tag,'ScorePlot'),
+if strcmp(check_tag,'ScorePlot')
     figure(ID);%Ya tengo el score plot pinchado(al que le quiero hacer oMEDA) en primera plana.
     hold on;
 else
@@ -1129,7 +1129,7 @@ matrix_2PCs=handles.data.matrix_2PCs{1,ID};
 
 handles.data.dummyRED = zeros(1,N);
 for l=1:N,
-    if mod(CortesVector(l),2)==1,
+    if mod(CortesVector(l),2)==1
         
         Xdata=matrix_2PCs(l,1);
         Ydata=matrix_2PCs(l,2);
@@ -1165,12 +1165,12 @@ function plusButton_Callback(hObject, eventdata, handles)
 
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
-if ~isnumeric(ID),
+if ~isnumeric(ID)
     ID = ID.Number;
 end
 
 check_tag=get(ID,'Tag');
-if strcmp(check_tag,'ScorePlot'),
+if strcmp(check_tag,'ScorePlot')
     figure(ID);%Ya tengo el score plot pinchado(al que le quiero hacer oMEDA) en primera plana.
     hold on;
 else
@@ -1183,8 +1183,8 @@ CortesVector=handles.data.CORTES{1,ID};
 matrix_2PCs=handles.data.matrix_2PCs{1,ID};
 
 handles.data.dummyGREEN = zeros(1,N);
-for l=1:N,
-    if mod(CortesVector(l),2)==1,
+for l=1:N
+    if mod(CortesVector(l),2)==1
         Xdata=matrix_2PCs(l,1);
         Ydata=matrix_2PCs(l,2);
         
@@ -1216,12 +1216,12 @@ function trendButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
-if ~isnumeric(ID),
+if ~isnumeric(ID)
     ID = ID.Number;
 end
 
 check_tag=get(ID,'Tag');
-if strcmp(check_tag,'ScorePlot'),
+if strcmp(check_tag,'ScorePlot')
     figure(ID);%Ya tengo el score plot pinchado(al que le quiero hacer oMEDA) en primera plana.
     hold on;
 else
@@ -1253,7 +1253,7 @@ C=(u1*y1)-(u2*x1);
 %observaciones.
 Cutoff_points=[];
 M=size(handles.data.data_matrix,1);
-for m=1:M,
+for m=1:M
     p1=matrix_2PCs(m,1);
     p2=matrix_2PCs(m,2);
     
@@ -1280,19 +1280,19 @@ lowest_dist=Inf;
 ind1=1;
 ind2=1;
 dummy=handles.data.dummy{1,ID};
-for k=1:M,
-    if dummy(k)==1,
+for k=1:M
+    if dummy(k)==1
         %Coordenadas del punto que tiene asignado un 1 en la variable
         %dummy
         p1=Cutoff_points(k,1);
         p2=Cutoff_points(k,2);
         
-        for l=1:M,
-            if dummy(l)==-1,
+        for l=1:M
+            if dummy(l)==-1
                 q1=Cutoff_points(l,1);
                 q2=Cutoff_points(l,2);
                 dist=sqrt((q1-p1)^2+(q2-p2)^2);
-                if dist< lowest_dist,
+                if dist< lowest_dist
                     lowest_dist=dist;
                     ind1=k;
                     ind2=l;
@@ -1311,7 +1311,7 @@ c2=Cutoff_points(ind2,:);
 NewCenter=(c1+c2)/2;
 
 %Asignaci�n de pesos
-for m=1:M,
+for m=1:M
     weights(m)=sum((Cutoff_points(m,:)-NewCenter).^2);
 end
 weightDummy=weights.*dummy;
@@ -1329,12 +1329,12 @@ function cleanButton_Callback(hObject, eventdata, handles)
 
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
-if ~isnumeric(ID),
+if ~isnumeric(ID)
     ID = ID.Number;
 end
 
 check_tag=get(ID,'Tag');
-if strcmp(check_tag,'ScorePlot'),
+if strcmp(check_tag,'ScorePlot')
     figure(ID);%Ya tengo el score plot pinchado(al que le quiero hacer oMEDA) en primera plana.
 else
     errordlg('To clean a figure this must be a Score Plot.');
@@ -1371,7 +1371,7 @@ if ~isnumeric(ID)
 end
 
 check_tag=get(ID,'Tag');
-if strcmp(check_tag,'ScorePlot'),
+if strcmp(check_tag,'ScorePlot')
 
 else
     errordlg('To perform oMEDA you must select a Score Plot.');
@@ -1383,11 +1383,11 @@ if isequal(handles.data.dummy{1,ID},zeros(1,size(handles.data.dummy{1,ID},2))) &
     return;
 end
 
-if ~isempty(handles.data.weightDummy{1,ID}),
+if ~isempty(handles.data.weightDummy{1,ID})
     handles.data.weightDummy{1,ID}=handles.data.weightDummy{1,ID}./abs(max(handles.data.weightDummy{1,ID}));
-    omeda_pca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.weightDummy{1,ID}',handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
+    omeda_pca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.weightDummy{1,ID}','Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
 else
-    omeda_pca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.dummy{1,ID}',handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
+    omeda_pca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.dummy{1,ID}','Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
 end
 
 guidata(hObject,handles);
@@ -1397,8 +1397,8 @@ function resomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,0,handles.data.label,handles.data.classes);
-plot_vec(Qst, handles.data.label,handles.data.classes, {[],'Q-st'},UCLq);
+[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(handles.data.data_matrix,'Pcs',min(handles.data.PCs):max(handles.data.PCs),'Preprocessing',handles.data.prep,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+plot_vec(Qst, 'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'Q-st'},'LimCont',UCLq);
 
 % --- Executes on selection change in xpcvarPopup.
 function xpcvarPopup_Callback(hObject, eventdata, handles)
@@ -1438,7 +1438,7 @@ function labvarPopup_Callback(hObject, eventdata, handles)
 incoming_data=get(hObject,'Value');
 string_evaluation=handles.data.labvar{incoming_data};
 handles.data.nameLabvar=string_evaluation;
-if strcmp(string_evaluation,'emptylabel'),
+if strcmp(string_evaluation,'emptylabel')
     label_LP={};
     handles.data.label_LP={};
 else
@@ -1446,14 +1446,14 @@ else
     handles.data.label_LP=label_LP;
 end
 
-if ~isempty(handles.data.label_LP),
+if ~isempty(handles.data.label_LP)
     if max(size(label_LP))~=size(handles.data.data_matrix,2) || min(size(label_LP))~=1,
         errordlg('Label must have as many tags as number of variables in the data matrix.');
         handles.data.nameLabvar='emptylabel';
         handles.data.label_LP={};
         nombres=cellstr(get(hObject,'String'));
-        for i=1:length(nombres),
-            if strcmp(nombres(i),'emptylabel'),
+        for i=1:length(nombres)
+            if strcmp(nombres(i),'emptylabel')
                 val=i;
             end
         end
@@ -1476,8 +1476,8 @@ labvar={'emptylabel'};
 set(hObject,'String',labvar);
 
 handles.data.WorkSpace=evalin('base','who');%nombres de las variables
-if ~isempty(handles.data.WorkSpace),
-    for i=1:length(handles.data.WorkSpace),
+if ~isempty(handles.data.WorkSpace)
+    for i=1:length(handles.data.WorkSpace)
         labvar=[labvar handles.data.WorkSpace(i,:)];
     end
     set(hObject,'String',strvcat(labvar));
@@ -1488,8 +1488,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 nombres=cellstr(get(hObject,'String'));
-for i=1:length(nombres),
-    if strcmp(nombres(i),'emptylabel'),
+for i=1:length(nombres)
+    if strcmp(nombres(i),'emptylabel')
         val=i;
     end
 end
@@ -1510,7 +1510,7 @@ function clasvarPopup_Callback(hObject, eventdata, handles)
 incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.clasvar{incoming_data};%Nombre correspondiente a la posici�n
 handles.data.nameClasvar=string_evaluation;
-if strcmp(string_evaluation,'emptyclasses'),
+if strcmp(string_evaluation,'emptyclasses')
     classes_LP={};
     handles.data.classes_LP={};
 else
@@ -1518,14 +1518,14 @@ else
     handles.data.classes_LP=classes_LP;
 end
 
-if ~isempty(handles.data.classes_LP),
+if ~isempty(handles.data.classes_LP)
     if max(size(classes_LP))~=size(handles.data.data_matrix,2) || min(size(classes_LP))~=1,
         errordlg('Classes must have as many entries as number of variables in the data matrix.');
         handles.data.nameClasvar='emptyclasses';
         handles.data.classes_LP=[];
         nombres=cellstr(get(hObject,'String'));
-        for i=1:length(nombres),
-            if strcmp(nombres(i),'emptyclasses'),
+        for i=1:length(nombres)
+            if strcmp(nombres(i),'emptyclasses')
                 val=i;
             end
         end
@@ -1548,8 +1548,8 @@ clasvar={'emptyclasses'};
 set(hObject,'String',clasvar);
 
 handles.data.WorkSpace=evalin('base','who');%nombres de las variables
-if ~isempty(handles.data.WorkSpace),
-    for i=1:length(handles.data.WorkSpace),
+if ~isempty(handles.data.WorkSpace)
+    for i=1:length(handles.data.WorkSpace)
         clasvar=[clasvar handles.data.WorkSpace(i,:)];
     end
     set(hObject,'String',strvcat(clasvar));
@@ -1560,8 +1560,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 nombres=cellstr(get(hObject,'String'));
-for i=1:length(nombres),
-    if strcmp(nombres(i),'emptyclasses'),
+for i=1:length(nombres)
+    if strcmp(nombres(i),'emptyclasses')
         val=i;
     end
 end
@@ -1582,7 +1582,7 @@ all_opened_graphs=get(0,'Children');
 new_lp_ID_figures=[];
 new_lp_matrix={};
 
-for i=1:length(handles.data.lp_ID_figures),
+for i=1:length(handles.data.lp_ID_figures)
     if ~isempty(find(handles.data.lp_ID_figures(i)==all_opened_graphs,1)),
         new_lp_ID_figures=[new_lp_ID_figures handles.data.lp_ID_figures(i)];
         new_lp_matrix={new_lp_matrix{:} handles.data.lp_matrix{:,i}};
@@ -1592,13 +1592,13 @@ end
 handles.data.lp_ID_figures=new_lp_ID_figures;%Identificadores de los Loadings Plots abiertos actualizado
 handles.data.lp_matrix=new_lp_matrix;
 
-if isempty(handles.data.label_LP) && isempty(handles.data.classes_LP),
-    P = loadings_pca (handles.data.data_matrix, [handles.data.PC1_LP handles.data.PC2_LP], handles.data.prep, 1);
-else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP),
-        P = loadings_pca (handles.data.data_matrix, [handles.data.PC1_LP handles.data.PC2_LP], handles.data.prep, 1, handles.data.label_LP);
-    else if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP),
-            P = loadings_pca (handles.data.data_matrix, [handles.data.PC1_LP handles.data.PC2_LP], handles.data.prep, 1, [], handles.data.classes_LP);
-        else P = loadings_pca (handles.data.data_matrix, [handles.data.PC1_LP handles.data.PC2_LP], handles.data.prep, 1, handles.data.label_LP, handles.data.classes_LP);
+if isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
+    P = loadings_pca (handles.data.data_matrix, 'Pcs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1);
+else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
+        P = loadings_pca (handles.data.data_matrix, 'Pcs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP);
+    else if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP)
+            P = loadings_pca (handles.data.data_matrix, 'Pcs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'ObsClass', handles.data.classes_LP);
+        else P = loadings_pca (handles.data.data_matrix, 'Pcs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP, 'ObsClass',handles.data.classes_LP);
         end
     end
 end
@@ -1606,7 +1606,7 @@ end
 fig=gcf;
 %matrixPCs_MEDA_LP=[P(:,handles.data.PC1_LP),P(:,handles.data.PC2_LP)];
 P_size = size(P);
-if P_size(2) > 1,
+if P_size(2) > 1
     matrixPCs_MEDA_LP=[P(:,1),P(:,2)];
 else
     matrixPCs_MEDA_LP=P(:,1);
@@ -1614,7 +1614,7 @@ end
 handles.data.lp_ID_figures=[handles.data.lp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.lp_matrix={handles.data.lp_matrix{:} matrixPCs_MEDA_LP};
 
-if ~(handles.data.PC1_LP == 1 && handles.data.PC2_LP == 1)  && license('test', 'image_toolbox'),
+if ~(handles.data.PC1_LP == 1 && handles.data.PC2_LP == 1)  && license('test', 'image_toolbox')
     set(handles.selmedaButton,'Enable','on');
     %Set new close funtion to new figure
     set(fig,'CloseRequestFcn',@loading_closereq)
@@ -1661,7 +1661,7 @@ function discardRadio_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 % Hint: get(hObject,'Value') returns toggle state of discardRadio
 %Si radio button se�alado q ecit 6 este ON si no se�alado q este OFF
-if get(handles.discardRadio, 'Value'),
+if get(handles.discardRadio, 'Value')
     set(handles.thresEdit, 'Enable', 'on');
     set(handles.text5, 'Enable', 'on');
 else
@@ -1698,18 +1698,18 @@ function medaButton_Callback(hObject, eventdata, handles)
 handles.data.PCs_MEDA=getCurrentPopupString(handles.medaPopup);
 PCs_MEDA_cell = strread(handles.data.PCs_MEDA,'%s','delimiter',':');
 pcs = [str2num(PCs_MEDA_cell{1}):str2num(PCs_MEDA_cell{2})];
-if get(handles.serRadio,'Value')==0 && get(handles.discardRadio,'Value')==1,
+if get(handles.serRadio,'Value')==0 && get(handles.discardRadio,'Value')==1
     handles.data.opt='101';
-else if get(handles.serRadio,'Value')==1 && get(handles.discardRadio,'Value')==0,
+else if get(handles.serRadio,'Value')==1 && get(handles.discardRadio,'Value')==0
         handles.data.opt='110';
-    else if get(handles.serRadio,'Value')==0 && get(handles.discardRadio,'Value')==0,
+    else if get(handles.serRadio,'Value')==0 && get(handles.discardRadio,'Value')==0
             handles.data.opt='100';
         else handles.data.opt='111';
         end
     end
 end
 
-[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,pcs,handles.data.prep,handles.data.thres,handles.data.opt,handles.data.label_LP);
+[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,'Pcs',pcs,'Preprocessing',handles.data.prep,'Threshold',handles.data.thres,'Option',handles.data.opt,'VarsLabel',handles.data.label_LP);
 
 guidata(hObject,handles);
 
@@ -1721,12 +1721,12 @@ function selmedaButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 ID_list=get(0,'Children');
 ID=ID_list(2);%gcf del score plot que me interesa
-if ~isnumeric(ID),
+if ~isnumeric(ID)
     ID = ID.Number;
 end
 
 check_tag=get(ID,'Tag');
-if strcmp(check_tag,'LoadingPlot'),
+if strcmp(check_tag,'LoadingPlot')
     figure(ID);%Ya tengo el score plot pinchado(al que le quiero hacer oMEDA) en primera plana.    
     hold on;
 else
@@ -1737,8 +1737,8 @@ end
 %Ahora vamos a recuperar su matriz:
 %Voy a recorrer el vector de gcfs de score plots
 %handles.data.sp_ID_figures, para buscar en que posici�n esta el gcf ID.
-for i=1:length(handles.data.lp_ID_figures),
-    if handles.data.lp_ID_figures(i)==ID,
+for i=1:length(handles.data.lp_ID_figures)
+    if handles.data.lp_ID_figures(i)==ID
         matrix_2PCs=handles.data.lp_matrix{:,i};
     end
 end
@@ -1757,7 +1757,7 @@ N=size(vertex,1);%Matrix size:
 A=[];
 B=[];
 C=[];
-for i=1:N,%Desde 1 hasta el n�mero de v�rtices que tenga el polinomio
+for i=1:N%Desde 1 hasta el n�mero de v�rtices que tenga el polinomio
     %irregular, voy a hacer lo siguiente:
     
     %Coordenadas de un v�rtice
@@ -1767,7 +1767,7 @@ for i=1:N,%Desde 1 hasta el n�mero de v�rtices que tenga el polinomio
     %Cooredenadas del siguiente v�rtice:
     %El if controla el caso en que ya se hayan cogido todos los v�rtices,
     %el v�rtce en ese caso ser� el primero de ellos, para cerrar la figura.
-    if i==N,
+    if i==N
         x2=vertex(1,1);
         y2=vertex(1,2);
     else
@@ -1793,21 +1793,21 @@ X=[];
 corte=0;
 CORTES=[];
 
-for j=1:M, %All the observations from the Score Matrix: t
+for j=1:M%All the observations from the Score Matrix: t
     Y=matrix_2PCs(j,2);
     corte=0;
-    for k=1:N,%Todas las rectas del poligono irregular
+    for k=1:N%Todas las rectas del poligono irregular
         X=(-(B(k)*Y)-C(k))/A(k);
         
-        if k+1>N,
-            if (Y>min(vertex(k,2),vertex(1,2)))&&(Y<max(vertex(k,2),vertex(1,2))),
-                if X>matrix_2PCs(j,1),
+        if k+1>N
+            if (Y>min(vertex(k,2),vertex(1,2)))&&(Y<max(vertex(k,2),vertex(1,2)))
+                if X>matrix_2PCs(j,1)
                     corte=corte+1;
                 end
             end
         else
-            if (Y>min(vertex(k,2),vertex(k+1,2)))&&(Y<max(vertex(k,2),vertex(k+1,2))),
-                if X>matrix_2PCs(j,1),
+            if (Y>min(vertex(k,2),vertex(k+1,2)))&&(Y<max(vertex(k,2),vertex(k+1,2)))
+                if X>matrix_2PCs(j,1)
                     corte=corte+1;
                 end
             end
@@ -1818,8 +1818,8 @@ end
 
 CortesVector=CORTES;
 vector_vars=[];
-for l=1:M,
-    if mod(CortesVector(l),2)==1,
+for l=1:M
+    if mod(CortesVector(l),2)==1
         Xdata=matrix_2PCs(l,1);
         Ydata=matrix_2PCs(l,2);
         
@@ -1836,11 +1836,11 @@ end
 handles.data.PCs_MEDA=getCurrentPopupString(handles.medaPopup);
 PCs_MEDA_cell = strread(handles.data.PCs_MEDA,'%s','delimiter',':');
 pcs = [str2num(PCs_MEDA_cell{1}):str2num(PCs_MEDA_cell{2})];
-if get(handles.discardRadio,'Value')==1 && get(handles.serRadio,'Value')==0,
+if get(handles.discardRadio,'Value')==1 && get(handles.serRadio,'Value')==0
     handles.data.opt='101';
-else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1,
+else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1
         handles.data.opt='110';
-    else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0,
+    else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0
             handles.data.opt='100';
         else handles.data.opt='111';
         end
@@ -1860,7 +1860,7 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 size_x = size(handles.data.data_matrix);
 PCs = 1:size_x(2);
 PCs(handles.data.PCs) = [];
-E=leverages_pca(handles.data.data_matrix,PCs,handles.data.prep,1,handles.data.label_LP,handles.data.classes_LP);
+E=leverages_pca(handles.data.data_matrix,'Pcs',PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'ObsClass',handles.data.classes_LP);
 ylabel('Residuals', 'FontSize', 16);
 
 % --- Executes on button press in modelomedaButton.
@@ -1868,8 +1868,8 @@ function modelomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),[],handles.data.prep,0,handles.data.label,handles.data.classes);
-plot_vec(Dst, handles.data.label,handles.data.classes, {[],'D-st'}, UCLd);
+[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(handles.data.data_matrix,'Pcs',min(handles.data.PCs):max(handles.data.PCs),'Preprocessing',handles.data.prep,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+plot_vec(Dst, 'EleLabel',handles.data.label, 'ObsClass',handles.data.classes, 'XYLabel',{[],'D-st'}, 'LimCont',UCLd);
 
 % --- Executes on button press in modelmedaButton.
 function modelmedaButton_Callback(hObject, eventdata, handles)
@@ -1877,7 +1877,7 @@ function modelmedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %E=leverage_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),handles.data.prep,1,handles.data.label_LP,handles.data.classes);
-E=leverages_pca(handles.data.data_matrix,handles.data.PCs,handles.data.prep,1,handles.data.label_LP);
+E=leverages_pca(handles.data.data_matrix,'Pcs',handles.data.PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP);
 
 
 % --- Executes on button press in nextButton.
@@ -1938,19 +1938,19 @@ switch generalSelection
         set(handles.selectPopup,'Enable','off');
 end
 
-switch state,
+switch state
     
-    case 0,
+    case 0
         state_gen = 'off';
         state_bas = 'off';
         state_omeda = 'off';
         
-    case 1,
+    case 1
         state_gen = 'on';
         state_bas = 'off';
         state_omeda = 'off';
         
-    case 2,
+    case 2
         state_gen = 'on';
         state_bas = 'on';
         state_omeda = 'off';
@@ -2014,7 +2014,7 @@ set(handles.generalButton,'Enable',state_gen);
 
 %General plots
 child=get(handles.uipanelPCA,'Children');
-for i=1:length(child),
+for i=1:length(child)
     set(child(i),'Enable',state_gen);
 end
 

@@ -41,7 +41,7 @@ function err = SPC_bootstrap(theta,PCreps,varargin)
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
 % 
-% F = create_design(levels,reps);
+% F = create_design(levels,'Replicates',reps);
 % 
 % X = [];
 % for i = 1:length(levels{1})
@@ -50,11 +50,11 @@ function err = SPC_bootstrap(theta,PCreps,varargin)
 %     end
 % end
 % 
-% PCmean, PCreps = powercurve(X, F, {[1 2]},3)
+% PCreps = powercurve(X, F,'Model',{[1 2]},'Type',2);
 % SPC_bootstrap(PCreps,100,true,0.05,false,['A','B']);
 %
 % coded by: Michael Sorochan Armstorng (mdarmstr@ugr.es)
-% last modification: 30/Feb/24
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %

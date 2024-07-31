@@ -1,4 +1,4 @@
-function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fmtc, coding, nested)
+function [T, parglmo] = parglmMC(X, F, varargin)
 
 % Parallel General Linear Model to obtain factor and interaction matrices 
 % in a crossed experimental design and permutation test for univariate 
@@ -8,7 +8,7 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 % Related routines: parglm, parglmVS, asca, apca, create_design
 %
 % T = parglmMC(X, F)   % minimum call
-% [T, parglmoMC] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fmtc, coding, nested)   % complete call
+% [T, parglmoMC] = parglmMC(X, F,'Model',model,'Preprocessing',prep,'Permutaitons',n_perm,'Ts',ts,'Ordinal',ordinal, 'Mtc',mtc,'Fmtc', fmtc, 'Coding',coding, 'Nested',nested)   % complete call
 %
 %
 % INPUTS:
@@ -19,7 +19,9 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 % F: [NxF] design matrix, cell or array, where columns correspond to 
 % factors and rows to levels.
 %
-% model: This paremeter is similar to 'model' of anovan. It could be:
+% Optional INPUTS (parameters):
+%
+% 'Model': This paremeter is similar to 'model' of anovan. It could be:
 %       'linear': only main effects are provided (by default)
 %       'interaction': two order interactions are provided
 %       'full': all potential interactions are provided
@@ -27,34 +29,34 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 %       [ix2]: array with two order interactions
 %       cell: with each element a vector of factors
 %
-% prep: [1x1] preprocesing:
+% 'Preprocessing': [1x1] preprocesing:
 %       1: mean centering
 %       2: autoscaling (default)
 %
-% n_perm: [1x1] number of permutations (1000 by default)
+% 'Permutations': [1x1] number of permutations (1000 by default)
 %
-% ts: [1x1] Use SSQ (0) or the F-value (otherwise, by default) as test statistic  
+% 'Ts': [1x1] Use SSQ (0) or the F-value (otherwise, by default) as test statistic  
 %
-% ordinal: [1xF] whether factors are nominal or ordinal
+% 'Ordinal': [1xF] whether factors are nominal or ordinal
 %       0: nominal
 %       1: ordinal
 %
-% mtc: [1x1] Multiple test correction
+% 'Mtc': [1x1] Multiple test correction
 %       1: Bonferroni 
 %       2: Holm step-up or Hochberg step-down
 %       3: Benjamini-Hochberg step-down (FDR, by default)
 %       -pi0: Q-value assuming 0<pi0<=1 the ratio of null variables   
 % 
-% fmtc: [1x1] correct for multiple-tesis when multifactorial (multi-way)
+% 'Fmtc': [1x1] correct for multiple-tesis when multifactorial (multi-way)
 % analysis.
 %       0: do not correct (by default)
 %       1: same as mtc 
 %
-% coding: [1xF] type of coding of factors
+% 'Coding': [1xF] type of coding of factors
 %       0: sum/deviation coding (default)
 %       1: reference coding (reference is the last level)
 %
-% nested: [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
+% 'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
 %   and 3 in 2, then nested = [1 2; 2 3]
 %
 %
@@ -74,18 +76,18 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 %
 % n_obs = 40;
 % n_vars = 400;
-%
+% 
 % class = (randn(n_obs,1)>0)+1;
-% X = simuleMV(n_obs,n_vars,8);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
 % X(class==2,1:3) = X(class==2,1:3) + 10;
-%
+% 
 % S = rng; % Use same seed for random generators to improve comparability of results
 % [T, parglmo] = parglm(X,class); % No variables selection 
 % rng(S);
 % [TVS, parglmoVS] = parglmVS(X, class); % With multivariate variable selection
 % rng(S);
-% [TMC, parglmoMC] = parglmMC(X, class); % With variable selection through multiple testing correction
-%
+% [TMC, parglmoMC] = parglmMC(X, class, 'Permutations', 500); % With variable selection through multiple testing correction
+% 
 % h = figure; hold on
 % plot([1 n_vars],-log10([parglmo.p parglmo.p]),'b-.')
 % plot(-log10(parglmoVS.p(parglmoVS.ord_factors)),'g-o')
@@ -98,8 +100,8 @@ function [T, parglmo] = parglmMC(X, F, model, prep, n_perm, ts, ordinal, mtc, fm
 % xlabel('Responses in selected order','FontSize',18)
 %
 %
-% coded by: José Camacho (josecamacho@ugr.es)
-% last modification: 20/Apr/24
+% coded by: JosÃ© Camacho (josecamacho@ugr.es)
+% last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -126,15 +128,29 @@ M = size(X, 2);
 
 n_factors = size(F,2);                 % number of factors
 
-if nargin < 3 || isempty(model), model = 'linear'; end;
-if nargin < 4 || isempty(prep), prep = 2; end;
-if nargin < 5 || isempty(n_perm), n_perm = 1000; end;
-if nargin < 6 || isempty(ts), ts = 1; end;
-if nargin < 7 || isempty(ordinal), ordinal = zeros(1,size(F,2)); end;
-if nargin < 8 || isempty(mtc), mtc = 3; end;
-if nargin < 9 || isempty(fmtc), fmtc = 0; end;
-if nargin < 10 || isempty(coding), coding = zeros(1,size(F,2)); end;
-if nargin < 11 || isempty(nested), nested = []; end;
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Model','linear'); 
+addParameter(p,'Preprocessing',2);
+addParameter(p,'Permutations',1000);  
+addParameter(p,'Ts',1); 
+addParameter(p,'Ordinal',zeros(1,size(F,2))); 
+addParameter(p,'Mtc',3); 
+addParameter(p,'Fmtc',0); 
+addParameter(p,'Coding',zeros(1,size(F,2))); 
+addParameter(p,'Nested',[]); 
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+model = p.Results.Model;
+prep = p.Results.Preprocessing;
+n_perm = p.Results.Permutations;
+ts = p.Results.Ts;
+ordinal = p.Results.Ordinal;
+mtc = p.Results.Mtc;
+fmtc = p.Results.Fmtc;
+coding = p.Results.Coding;
+nested = p.Results.Nested;
 
 if isequal(model,'linear')
     interactions = [];
@@ -163,12 +179,12 @@ end
 if iscell(model), interactions = model; end
 
 % Validate dimensions of input data
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(n_perm), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(ts), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(mtc), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(fmtc), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: 10th argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(n_perm), [1 1]), 'Dimension Error: parameter ''Permutations'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(ts), [1 1]), 'Dimension Error: parameter ''Ts'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(mtc), [1 1]), 'Dimension Error: parameter ''Mtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(fmtc), [1 1]), 'Dimension Error: parameter ''Fmtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Coding'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 
 %% Main code
 
@@ -186,7 +202,7 @@ parglmo.factors                = cell(n_factors,1);
 parglmo.interactions           = cell(n_interactions,1);
 
 % preprocess the data
-[Xs,m,dt] = preprocess2D(X,prep);
+[Xs,m,dt] = preprocess2D(X,'Preprocessing',prep);
 X = X./(ones(size(X,1),1)*dt);
 
 % Make structure with unchanging 'variables'
@@ -210,7 +226,7 @@ D = ones(size(X,1),1);
 
 for f = 1 : n_factors
     if ordinal(f)
-        D(:,n+1) = preprocess2D(F(:,f),1);
+        D(:,n+1) = preprocess2D(F(:,f),'Preprocessing',1);
         parglmo.factors{f}.Dvars = n+1;
         n = n + 1;
     else

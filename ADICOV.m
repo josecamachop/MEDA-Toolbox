@@ -54,7 +54,7 @@ function App = ADICOV(XX,L,Neig,varargin)
 % XX = X'*X
 % L = randn(100,2); L(1,:) = 10* L(1,:); % data with an outlier
 % appL = ADICOV(XX,L,2);
-%
+% 
 % appL'*appL % same covariance as X
 % plot_scatter(appL); % similar distribution as L
 % plot_scatter(L); 
@@ -66,20 +66,20 @@ function App = ADICOV(XX,L,Neig,varargin)
 % X = randn(100,10);
 % XX = X'*X;
 % L = randn(100,10); L(1,:) = 10* L(1,:); % data with an outlier
-% model = pca_eig(L,1:2);
+% model = pca_eig(L,'Pcs',1:2);
 % appL = ADICOV(XX,L,2,'InSubspace',model.loads);
-%
+% 
 % model.loads'*X'*X*model.loads % same covariance as the scores of X
 % model.loads'*appL'*appL*model.loads
-%
+% 
 % plot_scatter(appL*model.loads); % similar distribution as the scores of L
 % plot_scatter(L*model.loads); 
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 28/Jul/23
+% last modification: 15/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

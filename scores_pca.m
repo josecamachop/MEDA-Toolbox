@@ -1,29 +1,31 @@
 
-function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes,blur)
+function [T,TT] = scores_pca(x,varargin)
 
 
 % Compute and plot scores in PCA. This routine is deprecated and superseded 
 % by scores.m (please, use the latter)
 %
 % T = scores_pca(x) % minimum call
-% [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes,blur) % complete call
+% [T,TT] = scores_pca(x,'Pcs',pcs,'ObsTest',test,'Preprocessing',prep,'Option',opt,'ObsLabel',label, 'ObsClass',classes,'BlurIndex',blur) % complete call
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
 %
-% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% Optional INPUTS (parameters):
+%
+% 'PCs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 1:rank(xcs)
 %
-% test: [LxM] data set with the observations to be compared. These data 
+% 'ObsTest': [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
 %
-% prep: [1x1] preprocesing of the data
+% 'Preprocessing': [1x1] preprocesing of the data
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default) 
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abcd' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'abcd' for:
 %       a:
 %           0: no plots
 %           1: plot scores
@@ -41,13 +43,13 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes,blur)
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0 and 
 %   d=0. If a=0, then b, c  and d are ignored.
 %
-% label: [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
+% 'ObsLabel': [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
 %   are used by default)
 %
-% classes: [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
+% 'ObsClass': [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
 %   visualization (a single group by default per calibration and test)
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
 %
@@ -60,28 +62,28 @@ function [T,TT] = scores_pca(x,pcs,test,prep,opt,label,classes,blur)
 %
 % EXAMPLE OF USE: Random scores
 %
-% X = simuleMV(20,10,8);
-% T = scores_pca(X,1:3);
+% X = simuleMV(20,10,'LevelCorr',8);
+% T = scores_pca(X,'Pcs',1:3);
 %
 %
 % EXAMPLE OF USE: Calibration and Test, both line and scatter plots
 %
 % n_obs = 100;
 % n_vars = 10;
-% X = simuleMV(n_obs,n_vars,8);
-%
+% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
+% 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
-%
-% scores_pca(X,1,test);
-% scores_pca(X,1:2,test);
+% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',corr(X)*(n_obst-1)/(n_obs-1));
+% 
+% scores_pca(X,'Pcs',1,'ObsTest',test);
+% scores_pca(X,'Pcs',1:2,'ObsTest',test);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 21/Apr/2023
+% last modification: 23/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024 University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -103,12 +105,28 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 1:rank(x); end;
-if nargin < 3, test = []; end;
-L = size(test, 1);
-if nargin < 4 || isempty(prep), prep = 2; end;
-if nargin < 5 || isempty(opt), opt = '100'; end; 
 
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Pcs',1:rank(x));   
+addParameter(p,'ObsTest',[]);   
+addParameter(p,'Option','1000');
+addParameter(p,'Preprocessing',2);
+addParameter(p,'ObsLabel',[]);
+addParameter(p,'ObsClass',[]);
+addParameter(p,'BlurIndex',1);
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+test = p.Results.ObsTest;
+prep = p.Results.Preprocessing;
+pcs = p.Results.Pcs;
+opt = p.Results.Option;
+label = p.Results.ObsLabel;
+classes = p.Results.ObsClass;
+blur = p.Results.BlurIndex;
+
+L = size(test, 1);
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
 
@@ -122,21 +140,21 @@ else
     K = N+L;
 end
 
-if nargin < 6 || isempty(label) 
+if isempty(label) 
     if opt(3) == 1 || opt(3) == '1'
         label = 1:L;
     else
         label = [1:N 1:L]; 
     end
 end
-if nargin < 7 || isempty(classes)
+if isempty(classes)
     if opt(3) == 1 || opt(3) == '1' 
         classes = ones(L,1); 
     else
         classes = [ones(N,1);2*ones(L,1)];  
     end
 end
-if nargin < 8 || isempty(blur),    blur    = 1;       end;
+
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -151,27 +169,27 @@ pcs(find(pcs==0)) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: 2nd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 3rd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==4, 'Dimension Error: 5th argument must be a string or num of 4 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [K 1]), 'Dimension Error: 6th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [K 1]), 'Dimension Error: 7th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
-if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+assert (A>0, 'Dimension Error: parameter ''Pcs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
+assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==4, 'Dimension Error: parameter ''Option'' must be a string or num of 4 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [K 1]), 'Dimension Error: parameter ''ObsLabel'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [K 1]), 'Dimension Error: parameter ''ObsClass'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
-[xcs,m,sd] = preprocess2D(x,prep);
-[P,T] = pca_pp(xcs,pcs);
+[xcs,m,sd] = preprocess2D(x,'Preprocessing',prep);
+[P,T] = pca_pp(xcs,'Pcs',pcs);
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,m,sd);
+    testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
     TT = testcs*P;
 else
     TT = [];
@@ -190,12 +208,12 @@ if opt(1) == '1'
     
     if length(pcs) == 1 || opt(2) == '1'
         for i=1:length(pcs)
-            plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+            plot_vec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
         end
     else
         for i=1:length(pcs)-1
             for j=i+1:length(pcs)
-                plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}',[],opt(4),[],[],blur);
+                plot_scatter([Tt(:,i),Tt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','Option',opt(4),'BlurIndex',blur);
             end      
         end
     end

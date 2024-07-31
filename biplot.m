@@ -4,7 +4,7 @@ function fig_h = biplot(model,varargin)
 % Compute and plot scores and loadings of a model.
 %
 % fig_h = biplot(model) % minimum call
-% fig_h = biplot(model,'opt', opt, 'title', tit, 'label', label, 'class', classes, 'vlabel', vlabel, 'blur', blur, 'arrow', arrows) % complete call
+% fig_h = biplot(model,'Option', opt, 'Title', tit, 'ObsLabel', label, 'ObsClass', classes, 'VarsLabel', vlabel, 'BlurIndex', blur, 'PercArrows', arrows) % complete call
 %
 % INPUTS:
 %
@@ -16,24 +16,25 @@ function fig_h = biplot(model,varargin)
 %   scores: [NxA] data scores.
 %
 % Optional INPUTS:
-% 'opt': [1X1]
+%
+% 'Option': [1X1]
 %       0: plot for numerical classes (consistent with a colorbar)
 %       1: plot for categorical classes (consistent with a legend, by default)
 %
-% 'title': (str) title for the plots. Empty by default;
+% 'Title': (str) title for the plots. Empty by default;
 %
-% 'label': [Nx1] name of the observations (numbers are used by default)
+% 'ObsLabel': [Nx1] name of the observations (numbers are used by default)
 %
-% 'class': [Nx1] groups for different visualization (a single group by 
+% 'ObsClass': [Nx1] groups for different visualization (a single group by 
 %   default per calibration and test)
 %
-% 'vlabel': [Mx1] name of the variables (numbers are used by default)
+% 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
-% 'blur': [1x1] or [1x2] avoid blur when adding labels. The higher, the more labels 
+% 'BlurIndex': [1x1] or [1x2] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels. Use two values 
 %   to differentiate blur for scores and loadings (1 by default)
 %
-% 'arrow': [1x1] percentage of loadings drawn with an arrow (10 by default)
+% 'PercArrows': [1x1] percentage of loadings drawn with an arrow (10 by default)
 %
 %
 % OUTPUTS:
@@ -41,22 +42,26 @@ function fig_h = biplot(model,varargin)
 % fig_h: set of figure handles
 %
 %
-% EXAMPLE OF USE: Random scores
+% EXAMPLE OF USE: Random scores and loadings, two percentages of loading 
+% arrows displayed 
 %
-% X = simuleMV(20,10,8);
-% [~,~,model] = pca_pp(X,1:2);
-% A = 'qwertyuiolkjhgfdsazx';
-% A=A';
-% T = biplot(model, 'label', A, 'arrow',10);
-% T = biplot(model, 'label', A, 'arrow',20);
-% T = biplot(model, 'title', "graph", 'arrow',5);
-%
+% X = simuleMV(20,10,'LevelCorr',8);
+% [~,~,model] = pca_pp(X,'Pcs',1:2);
+% 
+% A = cell(1, 20);
+% 
+% for i = 1:20
+%     A{i} = ['A_{', num2str(i), '}'];
+% end
+% 
+% A = A';
+% T = biplot(model, 'Title', 'Random Biplot 10%', 'ObsLabel', A, 'PercArrows',10);
+% T = biplot(model, 'Title', 'Random Biplot 20%', 'ObsLabel', A, 'PercArrows',25); 
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 27/Apr/2023
-% last modification: 3/Apr/2024
+% last modification: 22/Apr/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -79,33 +84,26 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(model.scores, 1);
 M = size(model.loads,1);
 
-% if nargin < 2 || isempty(opt), opt = 1; end; 
-% if nargin < 3, tit = ''; end 
-% if nargin < 4 || isempty(label), label = 1:N; end
-% if nargin < 5 || isempty(classes), classes = ones(N,1); end
-% if nargin < 6 || isempty(vlabel), vlabel = 1:M; end
-% if nargin < 7 || isempty(blur),    blur    = 1;       end;
-% if nargin < 8 || isempty(arrows),    arrows    = 10;       end;
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'opt',ones(1,1));  
-addParameter(p,'title'," ");
-addParameter(p,'label',ones(N,1));
-addParameter(p,'class',ones(N,1));   
-addParameter(p,'vlabel',ones(M,1));
-addParameter(p,'blur',1);  
-addParameter(p,'arrow',10);   
+addParameter(p,'Option',ones(1,1));  
+addParameter(p,'Title',' ');
+addParameter(p,'ObsLabel',1:N);
+addParameter(p,'ObsClass',ones(N,1));   
+addParameter(p,'VarsLabel',1:M);
+addParameter(p,'BlurIndex',1);  
+addParameter(p,'PercArrows',10);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-opt = p.Results.opt;
-tit = p.Results.title;
-label = p.Results.label;
-classes = p.Results.class;
-vlabel = p.Results.vlabel;
-blur = p.Results.blur;
-arrows = p.Results.arrow;
+opt = p.Results.Option;
+tit = p.Results.Title;
+label = p.Results.ObsLabel;
+classes = p.Results.ObsClass;
+vlabel = p.Results.VarsLabel;
+blur = p.Results.BlurIndex;
+arrows = p.Results.PercArrows;
 
 
 % Convert row arrays to column arrays
@@ -117,15 +115,15 @@ if size(vlabel,1) == 1,     vlabel = vlabel'; end;
 if length(blur)==1, blur = [blur, blur]; end
 
 % Validate dimensions of input data
-assert (length(opt)==1, 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [N 1]), 'Dimension Error: 4th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [N 1]), 'Dimension Error: 5th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(vlabel), [M 1]), 'Dimension Error: 6th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(blur), [1 2]), 'Dimension Error: 7th argument must be 1-by-2. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(arrows), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (length(opt)==1, 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [N 1]), 'Dimension Error: parameter ''ObsLabel'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [N 1]), 'Dimension Error: parameter ''ObsClass'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(vlabel), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(blur), [1 2]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-2. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(arrows), [1 1]), 'Dimension Error: parameter ''PercArrows'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
 % Validate values of input data
-assert (isempty(find(opt~=0 & opt~=1)), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~=0 & opt~=1)), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -154,11 +152,13 @@ fig_h = [];
 for i=1:length(model.lvs)-1
     for j=i+1:length(model.lvs)
         
-        fig_h = [fig_h plot_scatter([T(:,i),T(:,j)], label, classes, {sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}',[],opt,[],[],blur(1))];
+        fig_h = [fig_h plot_scatter([T(:,i),T(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}','Option',opt,'BlurIndex',blur(1))];
         title(tit);
         
-        if opt
-            legend('show');
+        if opt 
+            if length(unique(classes)) > 1
+                legend('show');
+            end
         else
             colorbar;
         end
@@ -178,7 +178,7 @@ for i=1:length(model.lvs)-1
             plot([0 P2(ind(ii),i)],[0 P2(ind(ii),j)],'k-^');
         end
         
-        text_scatter(fig_h(end),[P2(ind,i),P2(ind,j)],vlabel(ind),[],[],[],blur(2));
+        text_scatter(fig_h(end),[P2(ind,i),P2(ind,j)],'EleLabel',vlabel(ind),'BlurIndex',blur(2));
         
         axis auto
         ax = axis;

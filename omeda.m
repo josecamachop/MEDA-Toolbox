@@ -1,5 +1,5 @@
 
-function omeda_vec = omeda(testcs,dummy,R,Q)
+function omeda_vec = omeda(testcs,dummy,R,varargin)
 
 % Observation-based Missing data methods for Exploratory Data Analysis 
 % (oMEDA). The original paper is Journal of Chemometrics, 2011, 25 
@@ -7,7 +7,7 @@ function omeda_vec = omeda(testcs,dummy,R,Q)
 % Known Data Regression (KDR) missing data imputation.
 %
 % omeda_vec = omeda(testcs,dummy,R) % minimum call
-% omeda_vec = omeda(testcs,dummy,R,Q) % complete call
+% omeda_vec = omeda(testcs,dummy,R,'OutSubspace',Q) % complete call
 %
 %
 % INPUTS:
@@ -23,7 +23,9 @@ function omeda_vec = omeda(testcs,dummy,R,Q)
 %   P. For PLS (Y = testcs*W*inv(P'*W)*Q), this matrix is W*inv(P'*W). For the 
 %   original space (default) the identity matrix is used.  
 %
-% Q: [MxA] Matrix to perform the projection from the latent subspace to 
+% Optional INPUTS (parameter):
+%
+% 'OutSubspace': [MxA] Matrix to perform the projection from the latent subspace to 
 %   the original space. For PCA (testcs = T*P'), this is the matrix of 
 %   loadings P. For PLS (Y = testcs*W*inv(P'*W)*Q), this matrix is also P. 
 %   For the original space the identity matrix is used. Q=R is used by 
@@ -42,28 +44,27 @@ function omeda_vec = omeda(testcs,dummy,R,Q)
 % n_obs = 100;
 % n_vars = 10;
 % n_PCs = 10;
-% X = simuleMV(n_obs,n_vars,6);
-% [Xcs, m, sc] = preprocess2D(X,2);
+% X = simuleMV(n_obs,n_vars,'LevelCorr',6);
+% [Xcs, m, sc] = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:n_PCs;
-% p = pca_pp(Xcs,pcs);
-%
+% p = pca_pp(Xcs,'Pcs',pcs);
+% 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
+% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
 % test(1,1:2) = 10*max(abs(X(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;
-% testcs = preprocess2Dapp(test,m,sc);
-%
+% testcs = preprocess2Dapp(test,m,'SDivideTest',sc);
+% 
 % omeda_vec = omeda(testcs,dummy,p);
-%
+% 
 % plot_vec(omeda_vec);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 14/Apr/16.
+% last modification: 22/Apr/2024.
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -86,15 +87,23 @@ assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(testcs, 1);
 M = size(testcs, 2);
 A = size(R, 2);
-if nargin < 4 || isempty(Q), Q = R; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'OutSubspace',[]);     
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+Q = p.Results.OutSubspace;
+if isempty(Q), Q = R; end;
 
 % Convert row arrays to column arrays
 if size(dummy,1) == 1, dummy = dummy'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(dummy), [N 1]), 'Dimension Error: 2nd argument must be 1-by-N. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(R), [M A]), 'Dimension Error: 3rd argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Q), [M A]), 'Dimension Error: 4th argument must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(dummy), [N 1]), 'Dimension Error: parameter ''dummy'' must be 1-by-N. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(R), [M A]), 'Dimension Error: parameter ''R'' must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Q), [M A]), 'Dimension Error: parameter ''OutSubspace'' must be M-by-LVs. Type ''help %s'' for more info.', routine(1).name);
 
 
 

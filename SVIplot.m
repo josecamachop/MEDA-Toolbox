@@ -1,29 +1,31 @@
-function [r2,alpha,q2,res_cross,alpha_cross,betas] = SVIplot(x,pcs,var,groups,prep,opt)
+function [r2,alpha,q2,res_cross,alpha_cross,betas] = SVIplot(x,varargin)
 
 % Structural and Variance Information plots. The original paper is 
 % Chemometrics and Intelligent Laboratory Systems 100, 2010, pp. 48-56. 
 %
 % r2 = SVIplot(x) % minimum call
-% [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(x,pcs,var,groups,prep,opt) %complete call
+% [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(x,'PCs',pcs,'Vars',var,groups,prep,opt) %complete call
 %
 %
 % INPUTS:
 %
 % x: [NxM] billinear data setunder analysis
 %
-% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% Optional INPUTS (parameter):
+%
+% 'PCs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(xcs)
 %
-% var: (1x1) selected variable for the plot (first variable by default)
+% 'Vars': (1x1) selected variable for the plot (first variable by default)
 %
-% groups: [1x1] number of groups in the cross-validation run (7 by default)
+% 'Groups': [1x1] number of groups in the cross-validation run (7 by default)
 %
-% prep: [1x1] preprocesing of the data
+% 'Preprocessing': [1x1] preprocesing of the data
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
 %       a:
 %           0: no plots
 %           1: SVIplot
@@ -50,16 +52,15 @@ function [r2,alpha,q2,res_cross,alpha_cross,betas] = SVIplot(x,pcs,var,groups,pr
 %
 % EXAMPLE OF USE: Random data
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % var = 1;
-% [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(X,1:3,var);
+% [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(X,'PCs',1:3,'Vars',var);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 23/Apr/2024
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -81,11 +82,23 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(x, 1);
 M = size(x, 2);
-if nargin < 2 || isempty(pcs), pcs = 0:min(size(x)); end;
-if nargin < 3 || isempty(var), var = 1; end;
-if nargin < 4 || isempty(groups), groups = 7; end; 
-if nargin < 5 || isempty(prep), prep = 2; end;
-if nargin < 6 || isempty(opt), opt = '10'; end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'PCs',0:min(size(x)));   
+addParameter(p,'Vars',1);   
+addParameter(p,'Groups',7);
+addParameter(p,'Preprocessing',2);
+addParameter(p,'Option','10');
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+pcs = p.Results.PCs;
+var = p.Results.Vars;
+groups = p.Results.Groups;
+opt = p.Results.Option;
+prep = p.Results.Preprocessing;
+
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -103,21 +116,21 @@ pcs(find(pcs>min(size(x)))) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(var), [1 1]), 'Dimension Error: 3rd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(groups), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prep), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: 6th argument must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''PCs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(var), [1 1]), 'Dimension Error: parameter ''Vars'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(groups), [1 1]), 'Dimension Error: parameter ''Groups'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==2, 'Dimension Error:parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
   
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''PCs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
-xcs = preprocess2D(x,prep);
-p = pca_pp(xcs,1:max(pcs));
+xcs = preprocess2D(x,'preprocessing',prep);
+p = pca_pp(xcs,'Pcs',1:max(pcs));
 
 alpha=0;
 betas=zeros(M-1,1);
@@ -144,10 +157,10 @@ for j=1:groups,
     cal = x(find(i2),:);
     st = size(test);
 
-    [cal_c,m,sd] = preprocess2D(cal,prep);
-    test_c = preprocess2Dapp(test,m,sd);
+    [cal_c,m,sd] = preprocess2D(cal,'Preprocessing',prep);
+    test_c = preprocess2Dapp(test,m,'SDivideTest',sd);
     
-    p = pca_pp(cal_c,1:max(pcs));
+    p = pca_pp(cal_c,'Pcs',1:max(pcs));
     alpha2=0;
     res2 = test_c(:,var);
     for i=1:length(pcs),

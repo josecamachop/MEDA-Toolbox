@@ -1,11 +1,11 @@
 
-function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur)
+function [P,W,Q] = loadings_pls(x,y,varargin)
 
 % Compute and plot loadings in PLS. This routine is deprecated and superseded 
 % by loadings.m (please, use the latter)
 %
 % P = loadings_pls(x,y) % minimum call
-% [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur) % complete call
+% [P,W,Q] = loadings_pls(x,y,'LatVars',lvs,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt,'VarsLabel',label,'ObsClass',classes,'BlurIndex',blur) % complete call
 %
 % INPUTS:
 %
@@ -13,20 +13,22 @@ function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur)
 %
 % y: [NxO] billinear data set of predicted variables
 %
-% lvs: [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% Optional INPUTS (parameters):
+%
+% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 1:rank(x)
 %
-% prepx: [1x1] preprocesing of the x-block
+% 'PreprocessingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% prepy: [1x1] preprocesing of the y-block
+% 'PreprocessingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
 %           1: plot loadings
@@ -40,12 +42,12 @@ function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur)
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
 %   If a=0, then b and c are ignored.
 %
-% label: [Mx1] name of the variables (numbers are used by default)
+% 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
-% classes: [Mx1] groups for different visualization (a single group 
+% 'ObsClass': [Mx1] groups for different visualization (a single group 
 %   by default)
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
 %
@@ -60,18 +62,23 @@ function [P,W,Q] = loadings_pls(x,y,lvs,prepx,prepy,opt,label,classes,blur)
 %
 % EXAMPLE OF USE: Random loadings: bar and scatter plot of loadings
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% loadings_pls(X,Y,1);
-% [P,W,Q] = loadings_pls(X,Y,1:3);
+% A = cell(1, 10);
+% 
+% for i = 1:10
+%     A{i} = ['A_{', num2str(i), '}'];
+% end
+% 
+% loadings_pls(X,Y,'LatVars',1);
+% [P,W,Q] = loadings_pls(X,Y,'LatVars',1:3,'VarsLabel',A);
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 27/Jun/22
+% last modification: 22/Apr/24
 %
-% Copyright (C) 2022  University of Granada, Granada
-% Copyright (C) 2022  Jose Camacho Paez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -94,13 +101,27 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 O = size(y, 2);
-if nargin < 3 || isempty(lvs), lvs = 1:rank(x); end;
-if nargin < 4 || isempty(prepx), prepx = 2; end;
-if nargin < 5 || isempty(prepy), prepy = 2; end;
-if nargin < 6 || isempty(opt), opt = '100'; end; 
-if nargin < 7 || isempty(label), label = [1:M]; end
-if nargin < 8 || isempty(classes), classes = ones(M,1); end
-if nargin < 9 || isempty(blur),    blur    = 1;       end;
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+LVS = 1:rank(x);
+addParameter(p,'LatVars',LVS);  
+addParameter(p,'PreprocessingX',2);
+addParameter(p,'PreprocessingY',2);
+addParameter(p,'Option','100');  
+addParameter(p,'VarsLabel',1:M);
+addParameter(p,'ObsClass',ones(M,1));   
+addParameter(p,'BlurIndex',1);     
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+lvs = p.Results.LatVars;
+prepx = p.Results.PreprocessingX;
+prepy = p.Results.PreprocessingY;
+opt = p.Results.Option;
+label = p.Results.VarsLabel;
+classes = p.Results.ObsClass;
+blur = p.Results.BlurIndex;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -122,26 +143,26 @@ lvs(find(lvs==0)) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: 3rd argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: 3rd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prepx), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(prepy), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: 6th argument must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(label), [M 1]), 'Dimension Error: 7th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [M 1]), 'Dimension Error: 8th argument must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+assert (A>0, 'Dimension Error: parameter ''LatVars'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''ObsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: 3rd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
-xcs = preprocess2D(x,prepx);
-ycs = preprocess2D(y,prepy);
+xcs = preprocess2D(x,'Preprocessing',prepx);
+ycs = preprocess2D(y,'Preprocessing',prepy);
 
-[beta,W,P,Q] = simpls(xcs,ycs,lvs); 
+[beta,W,P,Q] = simpls(xcs,ycs,'LatVars',lvs); 
 
 %% Show results
 
@@ -157,12 +178,12 @@ if opt(1) == '1'
     
     if length(lvs) == 1 || opt(2) == '1'
         for i=1:length(lvs),
-            plot_vec(Pt(:,i), label, classes, {'',sprintf('%s LV %d',text,lvs(i))});
+            plot_vec(Pt(:,i),  'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('%s LV %d',text,lvs(i))});
         end
     else
         for i=1:length(lvs)-1,
             for j=i+1:length(lvs),
-                plot_scatter([Pt(:,i),Pt(:,j)], label, classes, {sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}',[],[],[],[],blur);
+                plot_scatter([Pt(:,i),Pt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}','BlurIndex',blur);
             end      
         end
     end
