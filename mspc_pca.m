@@ -5,11 +5,12 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,varargin)
 % Control
 %
 % [Dst,Qst] = mspc_pca(x) % minimum call
-% [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,'Pcs',pcs,'ObsTest',test,'Preprocessing',prep,'Option',opt,'ObsLabel',label,'ObsClass',classes,'PValueD',p_valueD,'PValueQ',p_valueQ,'LimType',limtype) % complete call
+%
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -90,7 +91,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,varargin)
 % [Dst,Qst,Dstt,Qstt] = mspc_pca(X,'Pcs',pcs,'ObsTest',test);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/4/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

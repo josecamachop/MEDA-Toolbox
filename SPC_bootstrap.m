@@ -10,9 +10,8 @@ function err = SPC_bootstrap(theta,PCreps,varargin)
 % powercurve
 %
 % err = SPC_bootstrap(PCreps)   % minimum call
-% [T, parglmo] = SPC_bootstrap(PCreps,bstrp_reps=1000,plot_results=true,
-% ... prcntl=0.05,colorvec=false, legend = ['A','B','A(C)'] % complete call
 % 
+%
 % INPUTS
 %
 % PCreps: and M x N x O array where M are the incremental deltas from SPCS,
@@ -29,6 +28,7 @@ function err = SPC_bootstrap(theta,PCreps,varargin)
 % example: prcntl = 0.05 will bound the results between the bottom 0.05 and
 % top 0.95 observable combinations of the data for uncertainty estimation.
 % Set to 'max' for the maximum and minimum observable differences.
+%
 %
 % OUTPUTS
 %

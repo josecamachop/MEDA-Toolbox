@@ -1,6 +1,6 @@
 ﻿Big Data Extension for the MEDA Toolbox for its use in MATLAB.
 
-Coded by: José Camacho Páez (josecamacho@ugr.es)
+Coded by: Jose Camacho (josecamacho@ugr.es)
 Last modification of this document: 27/May/17
 
 
@@ -43,7 +43,7 @@ class for the observations should be stored in variable 'class'. Variables 'x' a
 For an example of this, please have a look at the data directory in the KDD example. 
 
 Copyright (C) 2017  Universidad de Granada
-Copyright (C) 2017  José Camacho Páez
+Copyright (C) 2017  Jose Camacho
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

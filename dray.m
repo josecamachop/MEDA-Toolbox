@@ -11,13 +11,12 @@ function [npcf,rvdim,rvdimperm]=dray(x,varargin)
 % e2937
 %
 % npcf = dray(x) % minimum call
-% [npcf,rvdim,rvdimperm]=dray(x,'Preprocessing',flagprep,'MaxPermutation',npermmax,'Confidence',conf)
-% % complete call
 %
 %
 % INPUTS:
 %
 % x: [NxM] original data
+%
 %
 % Optional INPUTS (parameters):
 %

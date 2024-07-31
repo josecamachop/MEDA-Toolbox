@@ -35,11 +35,11 @@ function [data,label,class,lev,s]=read_data(name,path,nvars,debug)
 % s: [1x1] number of observations.
 % 
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 12/Jan/2021
 %
 % Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho Paez
+% Copyright (C) 2021  Jose Camacho
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

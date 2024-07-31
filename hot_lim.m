@@ -4,7 +4,6 @@ function lim = hot_lim(npc,nob,p_value,varargin)
 % Machine Learning Toolbox in Matlab.
 %
 % lim = hot_lim(npc,nob,p_value)       % minimum call
-% lim = hot_lim(npc,nob,p_value,'Phase',phase)       % complete call
 %
 %
 % INPUTS:
@@ -15,6 +14,7 @@ function lim = hot_lim(npc,nob,p_value,varargin)
 %
 % p_value: [1x1] p-value of the test, in (0,1]
 % 
+%
 % Optional INPUTS (parameter):
 %
 % 'Phase': [1x1] SPC phase:
@@ -33,7 +33,7 @@ function lim = hot_lim(npc,nob,p_value,varargin)
 % lim = hot_lim(2,100,0.01,'Phase',2)
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

@@ -46,7 +46,7 @@ function vascao = vasca(parglmoVS,siglev)
 %    loadings(vascao.factors{1},'Title',sprintf('Factor %d',1));
 % end
 %
-% coded by: José Camacho (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

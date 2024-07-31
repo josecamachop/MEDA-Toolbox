@@ -5,7 +5,6 @@ function [Qm,Q,lvso] = dcrossval_pls(x,y,varargin)
 % Saccenti, E., Smilde, A.K., Weterhuis, J. Metabolomics (2012) 8: 3.
 %
 % Qm = dcrossval_pls(x,y) % minimum call
-% [Qm,Q,lvso] = dcrossval_pls(x,y,'LatVars',lvs,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Repetitions',rep,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -13,6 +12,7 @@ function [Qm,Q,lvso] = dcrossval_pls(x,y,varargin)
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional INPUTS:
 %
@@ -55,7 +55,7 @@ function [Qm,Q,lvso] = dcrossval_pls(x,y,varargin)
 % Q = dcrossval_pls(X,Y,'LatVars',lvs,'Repetitions',5);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada

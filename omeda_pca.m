@@ -7,7 +7,6 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,varargin)
 % Known Data Regression (KDR) missing data imputation.
 %
 % omeda_vec = omeda_pca(x,pcs,test,dummy) % minimum call
-% [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,'Preprocessing',prep,'Option',opt,'VarsLabel',label,'VarsClass',classes) %complete call
 %
 %
 % INPUTS:
@@ -23,6 +22,7 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,varargin)
 % dummy: [Lx1] dummy variable containing weights for the observations to 
 %   compare, and 0 for the rest of observations. By default all test
 %   observations are set to 1.
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -75,7 +75,7 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,varargin)
 % omeda_vec = omeda_pca(X,pcs,test,dummy,'Preprocessing',1);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

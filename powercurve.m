@@ -12,7 +12,6 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % Related routines: parglm, asca, apca, parglmVS, parglmMC, create_design
 %
 % PCmean = powercurve(X, F)   % minimum call
-% [PCmean, PCrep] = powercurve(X, F, 'Model',model, 'Type',type, 'Repetitions',n_rep, 'RandomGen',randg, 'RandomGenC',randgC, 'Theta',theta, 'ALpha',alpha,'Preprocessing',prep, 'Permutations',n_perm, 'Ts',ts, 'Ordinal',ordinal, 'Fmtc',fmtc, 'Coding',coding, nested, 'Replicates',replicates)   % complete call
 %
 %
 % INPUTS:
@@ -30,7 +29,8 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % F: [NxF] design matrix, cell or array, where columns correspond to 
 % factors and rows to levels
 %
-% Option INPUTS (parameters):
+%
+% Optional INPUTS (parameters):
 %
 % 'Model': This paremeter is similar to 'model' of anovan. It could be:
 %       'linear': only main effects are provided (by default)
@@ -123,7 +123,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % legend('Factor A','Factor B','Interaction')
 %
 %
-% coded by: José Camacho (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/24
 %
 % Copyright (C) 2024  Universidad de Granada

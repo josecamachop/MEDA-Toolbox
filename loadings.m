@@ -4,7 +4,7 @@ function fig_h =loadings(model,varargin)
 % Compute and plot loadings.
 %
 % fig_h =loadings(model) % minimum call
-% fig_h =loadings(model,'Option'opt,'Title',tit,'VarsLabel',label,'ObsClass,classes,'BlurIndex',blur) % complete call
+%
 %
 % INPUTS:
 %
@@ -13,6 +13,7 @@ function fig_h =loadings(model,varargin)
 %       first two LVs).
 %   loads: [MxA] model parameters.
 %   scores: [NxA] data scores. 
+%
 %
 % Optional Inputs (parameter):
 %
@@ -57,7 +58,7 @@ function fig_h =loadings(model,varargin)
 % P = loadings(model,'VarsLabel',A);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

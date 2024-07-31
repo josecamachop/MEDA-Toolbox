@@ -5,7 +5,6 @@ function X = simuleMV(obs,vars,varargin)
 % Laboratory Systems, 2017, 160: 40-51.
 %
 % X = simuleMV(obs,vars) % minimum call
-% X = simuleMV(obs,vars,lcorr,corM)% complete call
 %
 %
 % INPUTS:
@@ -13,6 +12,7 @@ function X = simuleMV(obs,vars,varargin)
 % obs: [1x1] number of observations (rows) in the output.
 %
 % vars: [1x1] number of variables (columns) in the output.
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -42,7 +42,7 @@ function X = simuleMV(obs,vars,varargin)
 % var_pca(X)
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

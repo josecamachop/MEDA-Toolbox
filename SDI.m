@@ -2,12 +2,11 @@ function [SDImap,best] = SDI(T,classes,varargin)
 
 % Discriminant Index for selection of best visualization subspace. The original
 % paper is Sara Tortorella, Maurizio Servili, Tullia Gallina Toschi, Gabriele 
-% Cruciani, José Camacho. Subspace discriminant index to expedite exploration
+% Cruciani, Jose Camacho. Subspace discriminant index to expedite exploration
 % of multi-class omics data. Chemometrics and Intelligent Laboratory Systems 206
 % (2020) 104160.
 %
 % SDImap = SDI(T,classes) % minimum call
-% [SDImap,best] = SDI(T,classes,'Regular',reg,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -16,6 +15,7 @@ function [SDImap,best] = SDI(T,classes,varargin)
 %
 % classes: [Nx1] groups of observations. 0 values will be treated as the
 %   rest, and no DImap will be computed for those.
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -46,7 +46,7 @@ function [SDImap,best] = SDI(T,classes,varargin)
 % class(find(Y==-1))=2;
 % SDImap = SDI(T,class);
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

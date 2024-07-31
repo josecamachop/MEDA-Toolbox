@@ -8,7 +8,6 @@ function meda_map = meda(XX,R,varargin)
 % makes use of the covariance matrices.
 %
 % meda_map = meda(XX,R)   % minimum call
-% meda_map = meda(XX,R,'OutSubspace',Q) % complete call
 %
 %
 % INPUTS:
@@ -19,6 +18,7 @@ function meda_map = meda(XX,R,varargin)
 %   latent subspace. For PCA (X = T*P'), this is the matrix of loadings P. 
 %   For PLS (X = App*W*inv(P'*W)*Q'), this matrix is W*inv(P'*W). For the 
 %   original space (default) the identity matrix is used. 
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -61,7 +61,7 @@ function meda_map = meda(XX,R,varargin)
 % plot_map(meda_map,'VarsLabel',ord);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada

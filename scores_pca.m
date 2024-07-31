@@ -6,11 +6,12 @@ function [T,TT] = scores_pca(x,varargin)
 % by scores.m (please, use the latter)
 %
 % T = scores_pca(x) % minimum call
-% [T,TT] = scores_pca(x,'Pcs',pcs,'ObsTest',test,'Preprocessing',prep,'Option',opt,'ObsLabel',label, 'ObsClass',classes,'BlurIndex',blur) % complete call
+%
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -79,7 +80,7 @@ function [T,TT] = scores_pca(x,varargin)
 % scores_pca(X,'Pcs',1:2,'ObsTest',test);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
 % last modification: 23/Apr/2024
 %

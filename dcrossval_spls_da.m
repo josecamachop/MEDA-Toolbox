@@ -10,8 +10,6 @@ function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,varargin)
 % G. Brereton, J. Chemometrics 2014; 28: 213–225
 %
 % AUCm = dcrossval_spls_da(x,y) % minimum call
-% [AUCm,AUC,lvso,keepXso] = 
-% dcrossval_spls_da(x,y,'LatVars',lvs,'KeepXBlock',keepXs,'Alpha',alpha,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Repetition',rep,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -19,6 +17,7 @@ function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,varargin)
 % x: [NxM] billinear data set for model fitting
 %
 % y: [Nx1] billinear data set of one categorical variable with two levels.
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -75,7 +74,7 @@ function [AUCm,AUC,lvso,keepXso] = dcrossval_spls_da(x,y,varargin)
 % [AUCm_complete,AUC_complete,lvso_complete,keepX_complete] = dcrossval_spls_da(X,Y,'LatVars',lvs,'KeepXBlock',keepXs,'Alpha',-0.5,'MaxBlock',5)
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada

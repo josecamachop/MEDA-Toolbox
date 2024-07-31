@@ -8,10 +8,10 @@ function App = ADICOV(XX,L,Neig,varargin)
 % Systems, 2011, 105 (2): 171-180.
 %
 % App = ADICOV(XX,L,Neig) % minimum call
-% App = ADICOV(XX,L,Neig,'InSubspace',R,'OutSubspace',Q,'Multiplicity',multn) % complete call
 %
 %
 % See also: ADindex, simuleMV, MSPC_ADICOV
+%
 %
 % INPUTS:
 %
@@ -22,6 +22,7 @@ function App = ADICOV(XX,L,Neig,varargin)
 %
 % Neig: [1x1] number of eigenvectors-eigenvalues of XX which are maintained 
 %   in the approximation.
+%
 %
 % Optional INPUTS:
 %
@@ -76,7 +77,7 @@ function App = ADICOV(XX,L,Neig,varargin)
 % plot_scatter(L*model.loads); 
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 15/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

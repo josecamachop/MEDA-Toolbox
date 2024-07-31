@@ -18,7 +18,7 @@
 % 51:53 	M_PNT SUM_F SUM_R
 
 %
-% codified by: José Camacho Páez.
+% codified by: Jose Camacho.
 % last modification: 11/Jul/13.
 
 %% Selwood data set

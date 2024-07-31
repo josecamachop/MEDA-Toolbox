@@ -3,8 +3,6 @@ function [Qm,Q,lvso,gammaso] = dcrossval_gpls(x,y,varargin)
 % Row-wise k-fold (rkf) double cross-validation for square-prediction-errors computing in GPLS.
 %
 % Qm = dcrossval_gpls(x,y) % minimum call
-% [Qm,Q,lvso,gammaso] = 
-% dcrossval_gpls(x,y,'LatVars',lvs,'Gamma',gammas,'Alpha',alpha,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -12,6 +10,7 @@ function [Qm,Q,lvso,gammaso] = dcrossval_gpls(x,y,varargin)
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -67,7 +66,7 @@ function [Qm,Q,lvso,gammaso] = dcrossval_gpls(x,y,varargin)
 % [Qm_simple,Q_simple,lvso_simple,gammaso_simple] = dcrossval_gpls(X,Y,'LatVars',lvs,'Gamma',gammas,'Alpha',0.5,'MaxBlock',5)
 % 
 
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/24.
 %
 % Copyright (C) 2024  University of Granada, Granada

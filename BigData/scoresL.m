@@ -83,7 +83,7 @@ function fig_h = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 % scoresL(Lmodel,test);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 16/May/2023
 %
 % Copyright (C) 2023  University of Granada, Granada

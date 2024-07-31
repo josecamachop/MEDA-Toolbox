@@ -6,12 +6,12 @@ function [meda_map,ind,ord] = meda_pca(x,varargin)
 % 8-18. 
 %
 % meda_map = meda_pca(x) % minimum call
-% [meda_map,ind,ord] = meda_pca(x,'Pcs',pcs,'Preprocessing',prep,'Threshold',thres,'Option',opt,'VarsLabel',label,'Vars',vars) % complete call
 %
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set 
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -60,7 +60,7 @@ function [meda_map,ind,ord] = meda_pca(x,varargin)
 % map = meda_pca(X,'Pcs',pcs,'Threshold',0.3,'Option','111');
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

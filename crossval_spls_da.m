@@ -6,8 +6,6 @@ function [AUC,nze] = crossval_spls_da(x,y,varargin)
 % in each response dummy variable indeèndently.
 %
 % AAUC = crossval_spls_da(x,y) % minimum call
-% [AAUC, AUC,nze] =
-% crossval_spls_da(x,y,'LatVars',lvs,'KeepXBlock',keepXs,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -15,6 +13,7 @@ function [AUC,nze] = crossval_spls_da(x,y,varargin)
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of dummy variables (+1, -1)
+%
 %
 % Optional INPUTS (parameter):
 %

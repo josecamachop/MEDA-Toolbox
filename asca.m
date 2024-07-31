@@ -113,7 +113,7 @@ function ascao = asca(parglmo)
 % loadings_pca(M,'Pcs',1:2,'Preprocessing',0);
 %
 %
-% coded by: José Camacho (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 18/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

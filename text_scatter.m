@@ -3,7 +3,6 @@ function text_scatter(fig_h,bdata,varargin)
 % Print text in a Scatter plot.
 %
 % text_scatter(fig_h,bdata) % minimum call
-% text_scatter(fig_h,bdata,'EleLabel',elabel,'ObsClass',classes,'Option',opt,'Multiplicity',mult,'BlurIndex',blur) % complete call
 %
 %
 % INPUTS:
@@ -11,6 +10,7 @@ function text_scatter(fig_h,bdata,varargin)
 % fig_h: (1x1) figure handle
 %
 % bdata: (Nx2) bidimensional data 
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -45,7 +45,7 @@ function text_scatter(fig_h,bdata,varargin)
 % OUTPUTS:
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

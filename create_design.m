@@ -3,12 +3,12 @@ function F = create_design(levels,varargin)
 % Creates a balanced design matrix according to an experimental design.
 %
 % F = create_design(levels)   % minimum call
-% F = create_design(levels,'Replicates',reps)   % complete call
 %
 %
 % INPUTS:
 %
 % levels: {F} cell with the levels of the factors, specified as vectors.
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -28,7 +28,7 @@ function F = create_design(levels,varargin)
 % F = create_design(levels,'Replicates',reps);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/24.
 %
 % Copyright (C) 2024  University of Granada, Granada

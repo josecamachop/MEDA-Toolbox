@@ -3,13 +3,12 @@ function fig_h = plot_scatter(bdata,varargin)
 % Scatter plot.
 %
 % plot_scatter(bdata) % minimum call
-% plot_scatter(bdata,elabel,classes,xylabel,lcont,0) % plot without multiplicity
-% fig_h = plot_scatter(bdata,'EleLabel',elabel,'ObsClass',classes,'XYLabel',xylabel,'LimCont',lcont,'Option',opt,'Multiplicity',mult,'Threshold',maxv,'BlurIndex',blur) % complete call
 %
 %
 % INPUTS:
 %
 % bdata: (Nx2) bidimensional data to plot.
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -79,7 +78,7 @@ function fig_h = plot_scatter(bdata,varargin)
 % end
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
 % last modification: 23/May/2024
 %

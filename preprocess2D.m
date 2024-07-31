@@ -3,11 +3,12 @@ function [xcs,average,scale] = preprocess2D(x,varargin)
 % Preprocess 2-way data.
 %
 % xcs = preprocess2D(x)          % minimum call
-% [xcs,average,scale] = preprocess2D(x,'Preprocessing',prep,'Weight',weights)     % complete call
+%
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set
+%
 %
 % Optional Inputs (Parameters):
 % prep: [1x1] preprocesing
@@ -34,7 +35,7 @@ function [xcs,average,scale] = preprocess2D(x,varargin)
 % [Xcs,av,sc] = preprocess2D(X);
 % fig_h = plot_vec([av' sc'],'XYLabel',{'Avergae','Std Dev'},'Option','11');
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

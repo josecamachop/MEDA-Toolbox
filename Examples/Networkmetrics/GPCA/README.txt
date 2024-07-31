@@ -1,6 +1,6 @@
 ﻿EDA example with GPCA using the MEDA Toolbox. 
 
-Coded by: José Camacho Páez
+Coded by: Jose Camacho
 Last modification of this document: 25/Jan/17
 
 References:

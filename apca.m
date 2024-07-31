@@ -11,7 +11,6 @@ function apcao = apca(parglmo)
 %
 % See also: parglm, asca, gasca, create_design
 %
-% SEGUIR DESDE AQUI
 %
 % INPUTS:
 %

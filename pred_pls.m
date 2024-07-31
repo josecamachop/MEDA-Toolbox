@@ -4,13 +4,14 @@ function [ypred,testypred] = pred_pls(x,y,varargin)
 % Compute and plot prediction in PLS.
 %
 % ypred = pred_pls(x,y) % minimum call
-% [ypred,testypred] = pred_pls(x,y,'LatVars',lvs,'ObsTest',test,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt,'ObsLabel',label,'ObsClass',classes) % complete call
+%
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -79,7 +80,7 @@ function [ypred,testypred] = pred_pls(x,y,varargin)
 % pred_pls(X,Y,'LatVars',1,'ObsTest',test);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

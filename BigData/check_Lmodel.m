@@ -73,7 +73,7 @@ function [ok,Lmodel] = check_Lmodel(Lmodel)
 % Lmodel.path: (str) path to the file system for ITERATIVE models.
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 15/Jun/2023
 %
 % Copyright (C) 2023  University of Granada, Granada

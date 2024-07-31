@@ -3,7 +3,6 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 % Bootstraping in ASCA models.
 %
 % bpvals = pbootasca(X,F,ascao,nfact) % minimum call
-% [bpvals,pboot] = pbootasca(X,F,ascao,nfact,'NRuns',nboot,'Option',opt,'PlotVal',pvalue) complete
 %
 %
 % INPUTS:
@@ -18,6 +17,7 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 % values and projections of the factors and interactions in ASCA.
 %
 % nfact: [1x1] factor where bootstrapping is performed
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -71,11 +71,11 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 %
 %
 % coded by: Rafa Vitale (raffaele.vitale@univ-lille.fr)
-%           José Camacho (josecamacho@ugr.es)
+%           Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  Raffael Vitale, Lille University
-% Copyright (C) 2024  José Camacho, Universidad de Granada
+% Copyright (C) 2024  Jose Camacho, Universidad de Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

@@ -4,13 +4,14 @@ function testcs = preprocess2Dapp(test,average,varargin)
 %   testcs = weight.*(test - average)./scale.
 %
 % testcs = preprocess2Dapp(test,average)         % minimum call
-% testcs = preprocess2Dapp(test,average,'SDivideTest',scale,'Weight',weight)     % complete call
+%
 %
 % INPUTS:
 %
 % test: [NxM] billinear data set
 %
 % average: [1xM] average to subtract from test.
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -19,12 +20,13 @@ function testcs = preprocess2Dapp(test,average,varargin)
 % 'Weight': [1xM] weight applied after preprocessing scaling. Set to 1 by
 %   default.
 %
+%
 % OUTPUTS:
 %
 % test: [NxM] preprocessed data.
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

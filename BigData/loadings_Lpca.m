@@ -44,7 +44,7 @@ function [P,fig_h] = loadings_Lpca(Lmodel,opt,blur)
 % P = loadings_Lpca(Lmodel);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 21/Jun/2023
 %
 % Copyright (C) 2023  University of Granada, Granada

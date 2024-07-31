@@ -3,12 +3,12 @@ function fig_h = plot_vec(vec,varargin)
 % Bar or line plot.
 %
 % plot_vec(vec) % minimum call
-% plot_vec(vec,'PARAM1',val1,'PARAM2',val2,...)
 %
 %
 % INPUTS:
 %
 % vec: [NxM] vector/s to plot. 
+%
 %
 % Optional INPUTS (Parameters):
 %
@@ -41,6 +41,7 @@ function fig_h = plot_vec(vec,varargin)
 % 'Color': Choose a color for your data. By default will use Okabe_ito. 
 %   'parula' for parula palette, 'hsv' for hsv palette.
 %
+%
 % OUTPUTS:
 %
 % fig_h: (1x1) figure handle.
@@ -61,7 +62,7 @@ function fig_h = plot_vec(vec,varargin)
 % fig_h = plot_vec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Option',11,'Multiplicity',100*rand(5,1),'Markers',[20 50 100]);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
 % last modification: 23/May/2024
 %

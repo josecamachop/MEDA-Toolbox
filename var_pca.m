@@ -5,7 +5,6 @@ function [x_var,cumpress] = var_pca(x,varargin)
 % algorithm.
 %
 % var_pca(x,pcs) % minimum call
-% var_pca(x,'Pcs',pcs,'Preprocessing',prep,'Option',opt) %complete call
 %
 %
 % INPUTS:
@@ -50,7 +49,7 @@ function [x_var,cumpress] = var_pca(x,varargin)
 % x_var = var_pca(X,'Pcs',pcs);
 %
 %
-% codified by: Jose Camacho Paez (josecamacho@ugr.es)
+% codified by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

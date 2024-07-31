@@ -1096,7 +1096,7 @@ function [D, Lmodel] = codglm(F, Lmodel)
 %
 %
 %
-% coded by: José Camacho (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 16/Jun/23
 %
 % Copyright (C) 2023  Universidad de Granada

@@ -4,7 +4,7 @@ function fig_h = biplot(model,varargin)
 % Compute and plot scores and loadings of a model.
 %
 % fig_h = biplot(model) % minimum call
-% fig_h = biplot(model,'Option', opt, 'Title', tit, 'ObsLabel', label, 'ObsClass', classes, 'VarsLabel', vlabel, 'BlurIndex', blur, 'PercArrows', arrows) % complete call
+%
 %
 % INPUTS:
 %
@@ -14,6 +14,7 @@ function fig_h = biplot(model,varargin)
 %       first two LVs).
 %   loads: [MxA] model parameters.
 %   scores: [NxA] data scores.
+%
 %
 % Optional INPUTS:
 %
@@ -58,7 +59,7 @@ function fig_h = biplot(model,varargin)
 % T = biplot(model, 'Title', 'Random Biplot 10%', 'ObsLabel', A, 'PercArrows',10);
 % T = biplot(model, 'Title', 'Random Biplot 20%', 'ObsLabel', A, 'PercArrows',25); 
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

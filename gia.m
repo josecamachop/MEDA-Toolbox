@@ -5,12 +5,12 @@ function [bel,states,stree] = gia(map,varargin)
 % algorithm is a heuristic, and not all possible groups may be identified.
 %
 % bel = gia(map)   % minimum call
-% [bel,states,stree] = gia(map,'Gamma',gamma,'MinSize',siz,'Stree',stree)   % complete call
 %
 %
 % INPUTS:
 %
 % map: [MxM] correlation matrix. Values should be between -1 and 1.
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -65,7 +65,7 @@ function [bel,states,stree] = gia(map,varargin)
 %   disp(['There are ',num2str(length(statesv{i})),' groups with mean size ' ,num2str(S/length(statesv{i})), ' for C = ', num2str(C(i))])
 % end
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/24.
 %
 % Copyright (C) 2024  University of Granada, Granada

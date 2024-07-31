@@ -3,7 +3,6 @@ function [cumpress,press] = crossval_pls(x,y,varargin)
 % Row-wise k-fold (rkf) cross-validation for square-prediction-errors computing in PLS.
 %
 % [cumpress,press] = crossval_pls(x,y) % minimum call
-% [cumpress,press] = crossval_pls(x,y,'LatVars',lvs,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -11,6 +10,7 @@ function [cumpress,press] = crossval_pls(x,y,varargin)
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -52,7 +52,7 @@ function [cumpress,press] = crossval_pls(x,y,varargin)
 % % Mean centering example
 % cumpress = crossval_pls(X,Y,'LatVars',lvs,'PreprocessingX',1,'PreprocessingY',1);
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

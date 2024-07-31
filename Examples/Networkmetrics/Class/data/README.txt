@@ -1,4 +1,4 @@
-Codified by: José Camacho Páez.
+Codified by: Jose Camacho.
 GUI by: Elena Jiménez Mañas
 Version: 2.0
 Last modification of this document: 11/Jul/13

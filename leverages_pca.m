@@ -4,11 +4,12 @@ function [L,E] = leverages_pca(x,varargin)
 % Compute and plot the leverages of variables in the PCA model
 %
 % L = leverages_pca(x) % minimum call
-% L = leverages_pca(x,'Pcs',pcs,'Preprocessing',prep,'Option',opt,'VarsLabel',label,'ObsClass',classes) % complete call
+%
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
+%
 %
 % Optional INPUTS:
 %
@@ -49,7 +50,7 @@ function [L,E] = leverages_pca(x,varargin)
 % L = leverages_pca(X,'Pcs',1:3,'VarsLabel',A);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 15/May/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

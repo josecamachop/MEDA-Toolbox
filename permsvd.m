@@ -7,13 +7,12 @@ function [npcf,Fratioreal,Fratioperm]=permsvd(x,varargin)
 % e2937
 %
 % npcf = permsvd(x) % minimum call
-% [npcf,Fratioreal,Fratioperm]=permsvd(x,'Preprocessing',flagprep,'MaxPerm',npermmax,'Proj',flagproj,'Confidence',conf)
-% % complete call
 % 
 %
 % INPUTS:
 %
 % x: [NxM] original data
+%
 %
 % Optional INPUTS (parameters):
 %

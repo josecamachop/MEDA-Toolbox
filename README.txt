@@ -1,6 +1,6 @@
 ﻿MEDA Toolbox for its use in MATLAB. 
 
-Contact person: José Camacho Páez (josecamacho@ugr.es)
+Contact person: Jose Camacho (josecamacho@ugr.es)
 Last modification of this document: 14/Oct/19
 
 Installation
@@ -59,7 +59,7 @@ Items in the folder:
 - Examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox.
 
 Copyright (C) 2022  Universidad de Granada
-Copyright (C) 2022  José Camacho Páez
+Copyright (C) 2022  Jose Camacho
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.

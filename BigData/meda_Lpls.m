@@ -57,11 +57,11 @@ function [meda_map,ind,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars)
 % map = meda_Lpls(Lmodel,0.3,'111');
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 26/May/17.
 %
 % Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2017  Jose Camacho
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

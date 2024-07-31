@@ -4,12 +4,12 @@ function [r2,alpha,q2,res_cross,alpha_cross,betas] = SVIplot(x,varargin)
 % Chemometrics and Intelligent Laboratory Systems 100, 2010, pp. 48-56. 
 %
 % r2 = SVIplot(x) % minimum call
-% [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(x,'PCs',pcs,'Vars',var,groups,prep,opt) %complete call
 %
 %
 % INPUTS:
 %
 % x: [NxM] billinear data setunder analysis
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -57,7 +57,7 @@ function [r2,alpha,q2,res_cross,alpha_cross,betas] = SVIplot(x,varargin)
 % [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(X,'PCs',1:3,'Vars',var);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

@@ -90,7 +90,7 @@ function Lmodel = Lmodel_ini(X,Y,obs_l,var_l)
 % Lmodel = Lmodel_ini(X);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 13/Jun/23
 %
 % Copyright (C) 2023  University of Granada, Granada

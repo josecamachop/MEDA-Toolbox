@@ -7,7 +7,6 @@ function  [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,varargin)
 % Chemometrics, 2017.
 %
 % beta = gpls_meda(xcs,ycs)     % minimum call
-% [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,'LatVars',lvs,'Gamma',gamma,'Stree',stree)    % complete call
 %
 %
 % INPUTS:
@@ -15,6 +14,7 @@ function  [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,varargin)
 % xcs: [NxM] preprocessed billinear data set 
 %
 % ycs: [NxO] preprocessed billinear data set of predicted variables
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -65,7 +65,7 @@ function  [beta,W,P,Q,R,bel,stree] = gpls_meda(xcs,ycs,varargin)
 % plot_vec(beta,'XYLabel',{'','Regression coefficients'});
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada

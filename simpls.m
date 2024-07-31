@@ -5,7 +5,6 @@ function [beta,W,P,Q,R,model] = simpls(X,Y,varargin)
 % and intelligent laboratory systems 18.3 (1993): 251-263.
 %
 % beta = simpls(xcs,ycs)     % minimum call
-% [beta,W,P,Q,R,model] = simpls(xcs,ycs,'LatVars',lvs)     % complete call
 %
 %
 % INPUTS:
@@ -13,6 +12,7 @@ function [beta,W,P,Q,R,model] = simpls(X,Y,varargin)
 % xcs: [NxM] preprocessed billinear data set 
 %
 % ycs: [NxO] preprocessed billinear data set of responses
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -45,7 +45,7 @@ function [beta,W,P,Q,R,model] = simpls(X,Y,varargin)
 % [beta,W,P,Q,R] = simpls(Xcs,Ycs,'LatVars',lvs);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

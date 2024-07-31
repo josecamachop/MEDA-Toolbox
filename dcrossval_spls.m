@@ -8,8 +8,6 @@ function [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,varargin)
 % (2012) 8: 3.
 %
 % Qm = dcrossval_spls(x,y) % minimum call
-% [Qm,Q,lvso,keepXso] = 
-% dcrossval_spls(x,y,'LatVars',lvs,'KeepXBlock',keepXs,'Alpha',alpha,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Repetition',rep,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -17,6 +15,7 @@ function [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,varargin)
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -71,7 +70,7 @@ function [Qm,Q,lvso,keepXso] = dcrossval_spls(x,y,varargin)
 % [Qm_complete,Q_complete,lvso__complete,keepX__complete] = dcrossval_spls(X,Y,'LatVars',lvs,'KeepXBlock',keepXs,'Alpha',-0.5,'MaxBlock',5)
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada

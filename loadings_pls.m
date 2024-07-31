@@ -5,13 +5,14 @@ function [P,W,Q] = loadings_pls(x,y,varargin)
 % by loadings.m (please, use the latter)
 %
 % P = loadings_pls(x,y) % minimum call
-% [P,W,Q] = loadings_pls(x,y,'LatVars',lvs,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt,'VarsLabel',label,'ObsClass',classes,'BlurIndex',blur) % complete call
+%
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -74,7 +75,7 @@ function [P,W,Q] = loadings_pls(x,y,varargin)
 % [P,W,Q] = loadings_pls(X,Y,'LatVars',1:3,'VarsLabel',A);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
 % last modification: 22/Apr/24
 %

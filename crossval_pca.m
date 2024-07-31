@@ -5,8 +5,6 @@ function [cumpress,press] = crossval_pca(x,pcs,varargin)
 % 37-50 and Journal of Chemometrics, 26(7), 2012, pp. 361-373.
 %
 % cumpress = crossval_pca(x,pcs) % minimum call
-% [cumpress,press] = crossval_pca(x,pcs,'ValProcedure',leave_m,'MaxSampleBlock',blocks_r,'MaxVarBlock',blocks_c,'Preprocessing',prep,'Option',opt)
-% % complete call
 %
 %
 % INPUTS:
@@ -15,6 +13,7 @@ function [cumpress,press] = crossval_pca(x,pcs,varargin)
 %
 % pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(x)
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -51,7 +50,7 @@ function [cumpress,press] = crossval_pca(x,pcs,varargin)
 % cumpress = crossval_pca(X,pcs,'ValProcedure','rkf','Preprocessing', 1);
 %
 %
-% codified by: Jose Camacho Paez (josecamacho@ugr.es)
+% codified by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

@@ -30,7 +30,7 @@ function [list,var_l] = dat2mat(path,files,output_dir,opt,vars)
 % Finally, mat files are stored in the output directory.
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Jan/17
 %
 % Copyright (C) 2024  University of Granada, Granada

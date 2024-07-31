@@ -6,7 +6,6 @@ function [meda_map,ind,ord] = meda_pls(x,y,varargin)
 % 8-18. 
 %
 % meda_map = meda_pls(x,y) % minimum call
-% [meda_map,ind,ord] = meda_pls(x,y,'LatVars',lvs,'PreprocessingX',prepx,'PreprocessingY',prepy,'Threshold',thres,'Option',opt,'VarsLabel',label,'Vars',vars) %complete call
 %
 %
 % INPUTS:
@@ -14,6 +13,7 @@ function [meda_map,ind,ord] = meda_pls(x,y,varargin)
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -69,7 +69,7 @@ function [meda_map,ind,ord] = meda_pls(x,y,varargin)
 % map = meda_pls(X,Y,'LatVars',lvs,'Threshold',0.3,'Option','111');
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada

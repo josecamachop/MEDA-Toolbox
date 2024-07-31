@@ -7,7 +7,6 @@ function omeda_vec = omeda(testcs,dummy,R,varargin)
 % Known Data Regression (KDR) missing data imputation.
 %
 % omeda_vec = omeda(testcs,dummy,R) % minimum call
-% omeda_vec = omeda(testcs,dummy,R,'OutSubspace',Q) % complete call
 %
 %
 % INPUTS:
@@ -22,6 +21,7 @@ function omeda_vec = omeda(testcs,dummy,R,varargin)
 %   latent subspace. For PCA (testcs = T*P'), this is the matrix of loadings 
 %   P. For PLS (Y = testcs*W*inv(P'*W)*Q), this matrix is W*inv(P'*W). For the 
 %   original space (default) the identity matrix is used.  
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -61,7 +61,7 @@ function omeda_vec = omeda(testcs,dummy,R,varargin)
 % plot_vec(omeda_vec);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada

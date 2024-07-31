@@ -7,7 +7,6 @@ function [T, parglmo] = parglm(X, F, varargin)
 % Related routines: asca, apca, parglmVS, parglmMC, create_design
 %
 % T = parglm(X, F)   % minimum call
-% [T, parglmo] = parglm(X, F,'Model',model,'Preprocessing',prep,'Permutations',n_perm,'Ts',ts,'Ordinal',ordinal,'Fmtc',fmtc,'Coding',coding,'Nested',nested)   % complete call
 %
 %
 % INPUTS:
@@ -17,6 +16,7 @@ function [T, parglmo] = parglm(X, F, varargin)
 %
 % F: [NxF] design matrix, cell or array, where columns correspond to 
 % factors and rows to levels.
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -134,7 +134,7 @@ function [T, parglmo] = parglm(X, F, varargin)
 % table = parglm(X, F, 'Model',{[1 2]})
 %
 %
-% coded by: José Camacho (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  Universidad de Granada

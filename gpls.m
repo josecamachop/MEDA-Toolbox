@@ -5,7 +5,6 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 % Chemometrics and Intelligent Laboratory Systems, 2016.
 %
 % beta = gpls(xcs,ycs,states)     % minimum call
-% [beta,W,P,Q,R,bel] = gpca(xcs,ycs,states,'LatVars',lvs,'Tolerance',tol)     % complete call
 %
 %
 % INPUTS:
@@ -15,6 +14,7 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 % ycs: [NxO] preprocessed billinear data set of predicted variables
 %
 % states: {Sx1} Cell with the groups of variables.
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -59,7 +59,7 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 % 
 % plot_vec(beta,'XYLabel',{'','Regression coefficients'});
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

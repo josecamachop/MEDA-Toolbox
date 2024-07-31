@@ -4,7 +4,6 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,varargin)
 % Control
 %
 % [Dst,Qst] = mspc_pls(x,y) % minimum call
-% [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,'LatVars',lvs,'ObsTest',test,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt,'ObsLabel',label,'ObsClass',classes,'PValueD',p_valueD,'PValueQ',p_valueQ,'LimType',limtype) % complete call
 %
 %
 % INPUTS:
@@ -12,6 +11,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,varargin)
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -103,7 +103,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(x,y,varargin)
 % [Dst,Qst,Dstt,Qstt] = mspc_pls(X,Y,'LatVars',lvs,'ObsTest',test);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

@@ -8,7 +8,6 @@ function [ind,diff] = ADindex(L,App,varargin)
 % Systems, 2011, 105 (2): 171-180.
 %
 % ind = ADindex(L,App) % minimum call
-% [ind,diff] = ADindex(L,App,'InSubspace',R,'Index',index) % complete call
 %
 %
 % See also: ADICOV, simuleMV, MSPC_ADICOV
@@ -63,7 +62,7 @@ function [ind,diff] = ADindex(L,App,varargin)
 % ind = ADindex(L,appL,'InSubspace',model.loads)
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 15/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

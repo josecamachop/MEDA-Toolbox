@@ -4,13 +4,14 @@ function L = leverages_pls(x,y,varargin)
 % Compute and plot the leverages of variables in PLS
 %
 % L = leverages_pls(x,y) % minimum call
-% L = leverages_pls(x,y,'LatVars',lvs,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt,'VarsLabel',label,'ObsClass',classes) % complete call
+%
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -56,7 +57,7 @@ function L = leverages_pls(x,y,varargin)
 % L = leverages_pls(X,Y,'LatVars',1:3,'VarsLabel',A);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 15/May/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

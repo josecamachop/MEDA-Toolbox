@@ -90,7 +90,7 @@ function [AngD, VarA] =  sparseart(X,sparseLoadings)
 % title('GPCA','FontSize',20), subplot(2,1,2), hold on, bar(p),axis tight 
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/20024
 %
 % Copyright (C) 2024  University of Granada, Granada

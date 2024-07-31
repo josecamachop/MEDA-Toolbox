@@ -4,7 +4,7 @@ function fig_h = scores(model,varargin)
 % Compute and plot scores.
 %
 % fig_h = scores(model) % minimum call
-% fig_h = scores(model,'ObsTest',test,'Option',opt,'Title',tit,'ObsLabel',label,'ObsClass',classes,'BlurIndex',blur) % complete call
+%
 %
 % INPUTS:
 %
@@ -16,6 +16,7 @@ function fig_h = scores(model,varargin)
 %   sc: [1xM] scaling parameters. 
 %   loads: [MxA] model parameters.
 %   scores: [NxA] data scores.
+%
 %
 % Optional INPUTS(parameters):
 %
@@ -95,7 +96,7 @@ function fig_h = scores(model,varargin)
 % scores(model,'ObsTest',test);
 
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 21/May/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

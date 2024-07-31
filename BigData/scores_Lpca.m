@@ -85,7 +85,7 @@ function [T,TT,fig_h] = scores_Lpca(Lmodel,test,opt,label,classes)
 % [T,TT] = scores_Lpca(Lmodel,test);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 17/Jun/2023
 %
 % Copyright (C) 2023  University of Granada, Granada

@@ -7,7 +7,6 @@ function [beta,W,P,Q,R,model] = kernel_pls(XX,XY,varargin)
 % code is almost copy-and-paste from the last reference.
 %
 % beta = kernel_pls(XX,XY)     % minimum call
-% [beta,W,P,Q,R,model] = kernel_pls(XX,XY,'LatVars',lvs)     % complete call
 %
 %
 % INPUTS:
@@ -15,6 +14,7 @@ function [beta,W,P,Q,R,model] = kernel_pls(XX,XY,varargin)
 % XX: [MxM] cross-product X'*X
 %
 % XY: [MxO] cross-product X'*Y
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -47,7 +47,7 @@ function [beta,W,P,Q,R,model] = kernel_pls(XX,XY,varargin)
 % [beta,W,P,Q,R] = kernel_pls(Xcs'*Xcs,Xcs'*Ycs,'LatVars',lvs);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/24
 %
 % Copyright (C) 2024  University of Granada, Granada

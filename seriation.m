@@ -26,7 +26,7 @@ function [mapo,ord] = seriation(mapi)
 % plot_map(mapo);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada

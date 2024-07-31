@@ -3,12 +3,12 @@ function model = pca_eig(xcs,varargin)
 % Principal Component Analysis based on the eigendecompostion of XX.
 %
 % p = pca_pp(xcs)     % minimum call
-% [p,t,model] = pca_pp(xcs,'Pcs',pcs)     % complete call
 %
 %
 % INPUTS:
 %
 % xcs: [NxM] preprocessed billinear data set 
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -33,7 +33,7 @@ function model = pca_eig(xcs,varargin)
 % model = pca_eig(Xcs,'Pcs',pcs)
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

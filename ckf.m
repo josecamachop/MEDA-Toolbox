@@ -3,7 +3,6 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 % CKF Algorithm: Journal of Chemometrics, 29(8): 467-478, 2015
 %
 % cumpress = ckf(xcs,T,P) % minimum call
-% [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -13,6 +12,7 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 % T: [NxA] scores.
 %
 % P: [MxA] loadings.
+%
 %
 % Optional INPUTS (Parameter):
 %
@@ -45,7 +45,7 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 % % Not plot
 % cumpress = ckf(X,T,P,'Option',0);
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

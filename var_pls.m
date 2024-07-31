@@ -4,7 +4,6 @@ function [y_var,t_var] = var_pls(x,y,varargin)
 % Variability captured in terms of the number of LVs.
 %
 % var_pls(x,y) % minimum call
-% var_pls(x,y,'LatVars',maxlvs,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt) %complete call
 %
 %
 % INPUTS:
@@ -12,6 +11,7 @@ function [y_var,t_var] = var_pls(x,y,varargin)
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional INPUTS (parameter):
 %
@@ -56,7 +56,7 @@ function [y_var,t_var] = var_pls(x,y,varargin)
 % x_var = var_pls(X,Y,'LatVars',lvs);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada

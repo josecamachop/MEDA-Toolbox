@@ -3,7 +3,6 @@ function rec = missTSR2D(x,pc,varargin)
 % Missing data imputation with Trimmed Scores Regression.
 %
 % rec = missTSR2D(x,pc) % minimum call
-% rec = missTSR2D(x,pc,'Preprocessing',prep,'Percentage',perc,'AutoCorrData'ac,'Iterations',iter,'Convergence',conv)   % complete call
 %
 %
 % INPUTS:
@@ -11,6 +10,7 @@ function rec = missTSR2D(x,pc,varargin)
 % x: (NxM) data matrix, N(observations) x M(variables)
 %
 % pc: (1x1) number of principal components for the D-statistic.
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -40,7 +40,7 @@ function rec = missTSR2D(x,pc,varargin)
 % 
 % rec = missTSR2D(X,pc,'Iterations',50);
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
 % major change: include nipls
 %

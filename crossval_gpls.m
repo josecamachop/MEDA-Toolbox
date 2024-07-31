@@ -5,7 +5,6 @@ function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
 % computing in GPLS. 
 %
 % [cumpress,press] = crossval_gpls(x,y) % minimum call
-% [cumpress,press,nze] = crossval_pls(x,y,'LatVars',lvs,'Gamma',gammas,'MaxBlock',blocks_r,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt) % complete call
 %
 %
 % INPUTS:
@@ -13,6 +12,7 @@ function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -66,7 +66,7 @@ function [cumpress,press,nze] = crossval_gpls(x,y,varargin)
 % [cumpress,press,nze] = crossval_gpls(X,Y,'LatVars',lvs,'Gamma',gammas);
 % legend('show')
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/24.
 %
 % Copyright (C) 2024  University of Granada, Granada

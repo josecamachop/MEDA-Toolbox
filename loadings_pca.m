@@ -6,11 +6,12 @@ function P = loadings_pca(x,varargin)
 % by loadings.m (please, use the latter)
 %
 % P = loadings_pca(x) % minimum call
-% P = loadings_pca(x,'Pcs',pcs,'Preprocessing',prep,'Option',opt,'VarsLabel',label,'ObsClass',classes,'BlurIndex',blur) % complete call
+%
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -65,7 +66,7 @@ function P = loadings_pca(x,varargin)
 % P = loadings_pca(X,'Pcs',1:3,'Option',11);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
 % last modification: 22/ Apr/2024.
 %

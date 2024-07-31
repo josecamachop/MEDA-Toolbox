@@ -1,11 +1,9 @@
 function [D, parglmo, anovast] = codglm(F, parglmi, varargin)
-%%%Preguntar anovast.model como parseo opciones dentro de anovast
 % Compute coding matrix from a design matrix for General Linear Models.
 %
 % Related routines: parglm, asca, apca, parglmVS, parglmMC, create_design
 %
 % D = codglm(F, parglmi)   % minimum call
-% [D, parglmo, anovast] = codglm(F, parglmi, anovast)   % complete call
 %
 %
 % INPUTS:
@@ -15,6 +13,7 @@ function [D, parglmo, anovast] = codglm(F, parglmi, varargin)
 %
 % parglmi (structure): structure with the number of factors and the number 
 % of levels for each of them.
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -62,7 +61,7 @@ function [D, parglmo, anovast] = codglm(F, parglmi, varargin)
 % D = codglm(F)
 %
 %
-% coded by: José Camacho (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
 %
 % Copyright (C) 2024  Universidad de Granada

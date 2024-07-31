@@ -5,13 +5,14 @@ function [T,TT] = scores_pls(x,y,varargin)
 % by scores.m (please, use the latter)
 %
 % T = scores_pls(x,y) % minimum call
-% [T,TT] = scores_pls(x,y,'LatVars',lvs,'ObsTest',test,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',opt,'ObsLabel',label,'ObsClass',classes,'BlurIndex',blur) % complete call
+%
 %
 % INPUTS:
 %
 % x: [NxM] billinear data set for model fitting
 %
 % y: [NxO] billinear data set of predicted variables
+%
 %
 % Optional Inputs (parameters):
 %
@@ -88,7 +89,7 @@ function [T,TT] = scores_pls(x,y,varargin)
 % scores_pls(X,Y,'LatVars',1:2,'ObsTest',test);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
 % last modification: 23/Apr/2024
 %

@@ -7,7 +7,6 @@ function paranovao = paranova(X, F,varargin)
 % (please, use the latter)
 %
 % paranovao = paranova(X, F)   % minimum call
-% paranovao = paranova(X, F, 'Interactions',interactions, 'Preprocessing',center, 'Permutations',n_perm)   % complete call
 %
 %
 % INPUTS:
@@ -17,6 +16,7 @@ function paranovao = paranova(X, F,varargin)
 %
 % F: [NxF] design matrix, where columns correspond to factors and rows to
 % levels. Levels start at 1 and should be correlative.
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -73,7 +73,7 @@ function paranovao = paranova(X, F,varargin)
 %
 %
 % coded by: Gooitzen Zwanenburg (G.Zwanenburg@uva.nl)
-%           José Camacho (josecamacho@ugr.es)
+%           Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  Gooitzen Zwanenburg, University of Amsterdam

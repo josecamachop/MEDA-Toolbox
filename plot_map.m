@@ -4,12 +4,12 @@ function fig_h = plot_map(map,varargin)
 % Plot color map.
 %
 % plot_map(map) % minimum call
-% plot_map(map,'VarsLabel',label,'ColorInt',int,'ColorDist',ind) % complete call
 %
 %
 % INPUTS:
 %
 % map: (MxM) matrix with values in the [0,1] interval. 
+%
 %
 % Optional INPUTS (parameters):
 %
@@ -18,6 +18,7 @@ function fig_h = plot_map(map,varargin)
 % 'ColorInt': (2x1) color interval ([-1;1] by default)
 %
 % 'ColoDist': (Lx1) color distribution ([0:.2:0.79 0.8:0.04:1]' by default);
+%
 %
 % OUTPUTS:
 %
@@ -30,12 +31,12 @@ function fig_h = plot_map(map,varargin)
 % plot_map(corr(X));
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
-% Copyright (C) 2024  Jose Camacho Paez, Alejandro Perez Villegas
+% Copyright (C) 2024  Jose Camacho, Alejandro Perez Villegas
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

@@ -6,6 +6,7 @@ function lim = spe_lim(res,p_value)
 %
 % lim = spe_lim(res,p_value)        % complete call
 %
+%
 % INPUTS:
 %
 % res: [NxM] Two-way residuals data matrix
@@ -29,7 +30,7 @@ function lim = spe_lim(res,p_value)
 % lim = spe_lim(res,0.01)
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024 University of Granada, Granada
