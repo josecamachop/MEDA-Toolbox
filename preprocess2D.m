@@ -10,13 +10,14 @@ function [xcs,average,scale] = preprocess2D(x,varargin)
 % x: [NxM] billinear data set
 %
 %
-% Optional Inputs (Parameters):
-% prep: [1x1] preprocesing
+% Optional INPUTS (parameters):
+%
+% 'Preprocessing': [1x1] preprocesing
 %       0: no preprocessing 
 %       1: mean-centering 
 %       2: auto-scaling (default)   
 %
-% weights: [1xM] weight applied after preprocessing. Set to a vector of 1s 
+% 'Weights': [1xM] weight applied after preprocessing. Set to a vector of 1s 
 % by defect.
 %
 %
@@ -36,7 +37,7 @@ function [xcs,average,scale] = preprocess2D(x,varargin)
 % fig_h = plot_vec([av' sc'],'XYLabel',{'Avergae','Std Dev'},'Option','11');
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 23/Apr/2024
+% last modification: 31/Jul/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -66,12 +67,12 @@ M = size(x, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'Preprocessing',2);   
-addParameter(p,'Weight',ones(1,M));
+addParameter(p,'Weights',ones(1,M));
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 prep = p.Results.Preprocessing;
-weights = p.Results.Weight;
+weights = p.Results.Weights;
 
 % Convert column arrays to row arrays
 if size(weights,2) == 1, weights = weights'; end;
