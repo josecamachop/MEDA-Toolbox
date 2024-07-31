@@ -50,7 +50,7 @@ function [L,E] = leverages_pca(x,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Apr/2024
+% last modification: 15/May/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -129,8 +129,9 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 xcs = preprocess2D(x,'Preprocessing',prep);
 [P,T] = pca_pp(xcs,'Pcs',pcs);
 
-L = diag(P*P');
-E = sum((xcs-T*P').^2);
+%L = diag(P*P');
+%E = sum((xcs-T*P').^2);
+L = sum((T*P').^2)./sum(xcs.^2);
 
 %% Show results
 

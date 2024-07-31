@@ -134,7 +134,7 @@ function [T, parglmo] = parglm(X, F, varargin)
 % table = parglm(X, F, 'Model',{[1 2]})
 %
 %
-% coded by: José Camacho (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/2024
 %
 % Copyright (C) 2024  Universidad de Granada
@@ -381,7 +381,7 @@ B = pD*X;
 X_residuals = X - D*B;
 parglmo.D = D;
 parglmo.B = B;
-%parglmo.mean = parglmo.D*parglmo.B(:,1);
+parglmo.mean = parglmo.D*parglmo.B(:,1);
 
 % Create Effect Matrices
 if prep

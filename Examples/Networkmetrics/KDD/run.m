@@ -29,7 +29,7 @@
 % each one with 122 features.
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 27/May/17.
+% last modification: 1/Jul/24
 
 %% Inicialization, remember to set the path of the toolbox
 

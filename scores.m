@@ -96,7 +96,7 @@ function fig_h = scores(model,varargin)
 
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Apr/2024
+% last modification: 21/May/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -200,7 +200,11 @@ if isfield(model,'scoresV')
 end
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,model.av,'SDivideTest',model.sc);
+    if isfield(model,'av')
+        testcs = preprocess2Dapp(test,model.av,'SDivideTest',model.sc);
+    else
+        testcs = test;
+    end
     TT = testcs*model.loads;
 else
     TT = [];

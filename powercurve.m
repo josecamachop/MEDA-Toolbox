@@ -123,7 +123,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % legend('Factor A','Factor B','Interaction')
 %
 %
-% coded by: José Camacho (josecamacho@ugr.es)
+% coded by: JosÃ© Camacho (josecamacho@ugr.es)
 % last modification: 23/Apr/24
 %
 % Copyright (C) 2024  Universidad de Granada
@@ -490,7 +490,7 @@ for i2=1:n_rep
         
         for a = 1:length(theta)
 
-            Xm = (1-theta(a))*Xnoise;
+            Xm = Xnoise; %Xm = (1-theta(a))*Xnoise;
             Xm = Xm + theta(a)*Xstruct;
 
             for f = 1 : n_factors
@@ -591,15 +591,18 @@ for i2=1:n_rep
                         powercurveo.interactions{i}.matrix(n,:) = mati(Fi(n,:)*[1 Li(1:end-1)]',:);
                     end
                 end
+                repa = 1; % NOT SURE THIS SOLVES THE ISSUE
+            else
+                repa = theta(a);
             end
 
             Xstruct = zeros(N,M);
             for f = 1 : n_factors
-                Xstruct = Xstruct + randgC() * powercurveo.coeffs(f) * powercurveo.factors{f}.matrix;
+                Xstruct = Xstruct + randgC() * powercurveo.coeffs(f) * repmat(powercurveo.factors{f}.matrix,repa,1);
             end
             
             for i = 1 : n_interactions
-                Xstruct = Xstruct + randgC() * powercurveo.coeffs(n_factors+i) * powercurveo.interactions{i}.matrix;
+                Xstruct = Xstruct + randgC() * powercurveo.coeffs(n_factors+i) * repmat(powercurveo.interactions{i}.matrix,repa,1);
             end
             
             Xnoise = randg(N,M);

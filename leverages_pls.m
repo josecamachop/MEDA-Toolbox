@@ -57,7 +57,7 @@ function L = leverages_pls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Apr/2024
+% last modification: 15/May/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -140,8 +140,8 @@ ycs = preprocess2D(y,'Preprocessing',prepy);
 
 [beta,W,P,Q] = simpls(xcs,ycs,'LatVars',lvs);
 
-L = diag(W*W');
-
+%L = diag(W*W');
+L = sum((xcs*W*P').^2)./sum(xcs.^2);
 
 %% Show results
 
