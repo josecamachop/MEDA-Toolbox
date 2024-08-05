@@ -169,12 +169,7 @@ addParameter(p,'Model','linear');
 addParameter(p,'RandomGen',@randn);
 addParameter(p,'Repetitions',1000);
 addParameter(p,'RamdonGenC',@()1);
-    if tip == 2
-        THeta = 1:10; 
-    else
-        THeta = 0:0.1:1; 
-    end
-addParameter(p,'Theta',THeta);
+addParameter(p,'Theta',[]);
 addParameter(p,'Alpha',0.05);
 addParameter(p,'Preprocessing',2);
 addParameter(p,'Permutations',1000);
@@ -202,6 +197,18 @@ fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
 replicates = p.Results.RepFactor;
+
+if isempty(theta)
+    if type == 2
+        if replicates>0
+            theta = 2:10;
+        else
+            theta = 1:10;
+        end
+    else
+        theeta = 0:0.1:1; 
+    end
+end
 theta = sort(theta,'ascend');
 
 
