@@ -411,23 +411,59 @@ if ~isstruct(X) % Sample PCs
     % Create Effect Matrices
     if prep
         parglmo.inter = D(:,1)*B(1,:);
+        SSQ_inter = sum(sum(parglmo.inter.^2));
     else
         parglmo.inter = 0;
+        SSQ_inter = 0;
     end   
-
+    SSQ_residuals = sum(sum(X_residuals.^2));
+    
     for f = 1 : n_factors % SEE solution at /old/older, I correct by other variances
         powercurveo.factors{f}.matrix = D(:,powercurveo.factors{f}.Dvars)*B(powercurveo.factors{f}.Dvars,:);
-        powercurveo.coeffs(f) = norm(powercurveo.factors{f}.matrix,'fro')/sqrt(df(f));
-        powercurveo.factors{f}.matrix = powercurveo.factors{f}.matrix/powercurveo.coeffs(f);
+        SS_factors(1,f) = sum(sum(powercurveo.factors{f}.matrix.^2)); % Note: we are not using Type III sum of squares, and probably we should, although we did not find any difference in our experiments
+        powercurveo.factors{f}.matrix = powercurveo.factors{f}.matrix/norm(powercurveo.factors{f}.matrix,'fro');
     end
     
     for i = 1 : n_interactions
         powercurveo.interactions{i}.matrix = D(:,powercurveo.interactions{i}.Dvars)*B(powercurveo.interactions{i}.Dvars,:);
-        powercurveo.coeffs(n_factors+i) = norm(powercurveo.interactions{i}.matrix,'fro')/sqrt(df_int(i));
-        powercurveo.interactions{i}.matrix = powercurveo.interactions{i}.matrix/powercurveo.coeffs(n_factors+i);
+        SS_interactions(1,i) = sum(sum(powercurveo.interactions{i}.matrix.^2));
+        powercurveo.interactions{i}.matrix = powercurveo.interactions{i}.matrix/norm(powercurveo.interactions{i}.matrix,'fro');;
     end
     
-    powercurveo.rescoef = norm(X_residuals,'fro')/sqrt(Rdf);
+    
+    for f = 1:n_factors 
+        SS_ref = 0;
+        Df_ref = 0;
+        for f2 = 1 : n_factors
+            if ~isempty(find(f==powercurveo.factors{f2}.factors))
+                SS_ref = SS_ref + SS_factors(1,f2);
+                Df_ref = Df_ref + df(f2);
+            end
+        end
+        for i = 1 : n_interactions
+            if ~isempty(find(f==powercurveo.interactions{i}.factors))
+                SS_ref = SS_ref + SS_interactions(1,i);
+                Df_ref = Df_ref + df_int(i);
+            end
+        end
+        if SS_ref == 0
+            SS_factors_c(1,f) = SS_factors(1,f)/df(f) - SSQ_residuals/Rdf; % SS corrected
+        else
+            SS_factors_c(1,f) = SS_factors(1,f)/df(f) - SS_ref/Df_ref;
+        end
+
+        if SS_factors_c(1,f) < 0, SS_factors_c(1,f)=0; end 
+    end   
+    
+    for i = 1 : n_interactions
+        SS_interactions_c(1,i) = SS_interactions(1,i)/df_int(i) - SSQ_residuals/Rdf; % SS corrected
+        
+        if SS_interactions_c(1,i) < 0, SS_interactions_c(1,i)=0; end
+    end
+    
+    % Set coefficients
+    powercurveo.coeffs = sqrt([SS_factors_c SS_interactions_c]);
+    powercurveo.rescoef = sqrt(SSQ_residuals/Rdf);
       
 else % Population PCs
     powercurveo.coeffs = X.k;
@@ -531,6 +567,7 @@ for i2=1:n_rep
                 f = replicates;
                 uF = unique(F2(:,f));
 
+                powercurveo = powercurveo2;
                 F = F2;
                 if theta(a) < length(uF)
                     F(find(F2(:,f)>theta(a)),:) = [];
@@ -568,6 +605,7 @@ for i2=1:n_rep
             
             N = size(F,1);
         
+            repa = 1;
             if isstruct(X)
                 for f = 1 : n_factors
                     if ordinal(f)
@@ -603,14 +641,11 @@ for i2=1:n_rep
                         powercurveo.interactions{i}.matrix(n,:) = mati(Fi(n,:)*[1 Li(1:end-1)]',:);
                     end
                 end
-                repa = 1;
             else
-                repa = theta(a);
                 if replicates>0
                     f = replicates;
                     uF = unique(F2(:,f));
 
-                    powercurveo = powercurveo2;
                     if theta(a) <= length(uF)
                         for f2 = 1 : n_factors
                             powercurveo.factors{f2}.matrix(find(F2(:,f)>theta(a)),:) = [];
@@ -618,39 +653,53 @@ for i2=1:n_rep
                         for i = 1 : n_interactions
                             powercurveo.interactions{i}.matrix(find(F2(:,f)>theta(a)),:) = [];
                         end
-                        repa = 1;
                     else
-                        if ordinal(f)
-                            powercurveo.factors{f}.matrix = randg(N,M);
-                            powercurveo.factors{f}.matrix = sqrt(N)*powercurveo.factors{f}.matrix/norm(powercurveo.factors{f}.matrix,'fro');
-                        else
-                            powercurveo.factors{f}.matrix = randg(powercurveo.n_levels(f),M);
-                            powercurveo.factors{f}.matrix = sqrt(powercurveo.n_levels(f))*powercurveo.factors{f}.matrix/norm(powercurveo.factors{f}.matrix,'fro');
+                        for f2 = 1 : n_factors
+                            if f2 ~= f    
+                                for t = 1:theta(a)-length(uF)
+                                    Fi = powercurveo.factors{f2}.matrix(find(F2(:,f)==uF(1)),:);
+                                    Fi(:,f) = max(uF) + t;
+                                    powercurveo.factors{f2}.matrix = [powercurveo.factors{f2}.matrix;Fi];
+                                end
+                            else             
+                                if ordinal(f)
+                                    powercurveo.factors{f}.matrix = randg(N,M);
+                                    powercurveo.factors{f}.matrix = sqrt(N)*powercurveo.factors{f}.matrix/norm(powercurveo.factors{f}.matrix,'fro');
+                                else
+                                    powercurveo.factors{f}.matrix = randg(powercurveo.n_levels(f),M);
+                                    powercurveo.factors{f}.matrix = sqrt(powercurveo.n_levels(f))*powercurveo.factors{f}.matrix/norm(powercurveo.factors{f}.matrix,'fro');
 
-                            if isempty(nested) || isempty(find(nested(:,2)==f)) % order 1
-                                powercurveo.factors{f}.matrix = powercurveo.factors{f}.matrix(F(:,f),:);
-                            else % nested
-                                mati = powercurveo.factors{f}.matrix;
-                                Fi = F(:,[powercurveo.factors{f}.factors f]);
-                                Fi(:,2:end) = Fi(:,2:end)-1;
-                                Li = powercurveo.n_levels([powercurveo.factors{f}.factors f]);
-                                powercurveo.factors{f}.matrix = [];
-                                for n = 1: N
-                                    powercurveo.factors{f}.matrix(n,:) = mati(Fi(n,:)*[1 Li(1:end-1)]',:);
+                                    if isempty(nested) || isempty(find(nested(:,2)==f)) % order 1
+                                        powercurveo.factors{f}.matrix = powercurveo.factors{f}.matrix(F(:,f),:);
+                                    else % nested
+                                        mati = powercurveo.factors{f}.matrix;
+                                        Fi = F(:,[powercurveo.factors{f}.factors f]);
+                                        Fi(:,2:end) = Fi(:,2:end)-1;
+                                        Li = powercurveo.n_levels([powercurveo.factors{f}.factors f]);
+                                        powercurveo.factors{f}.matrix = [];
+                                        for n = 1: N
+                                            powercurveo.factors{f}.matrix(n,:) = mati(Fi(n,:)*[1 Li(1:end-1)]',:);
+                                        end
+                                    end
                                 end
                             end
                         end
+                        for i = 1 : n_interactions
+                            for t = 1:theta(a)-length(uF)
+                                Fi = powercurveo.interactions{i}.matrix(find(F2(:,f)==uF(1)),:);
+                                Fi(:,f) = max(uF) + t;
+                                powercurveo.interactions{i}.matrix = [powercurveo.interactions{i}.matrix;Fi];
+                            end
+                        end
                     end
+                else
+                    repa = theta(a);
                 end
             end
 
             Xstruct = zeros(N,M);
             for f = 1 : n_factors
-                if replicates == f     
-                    Xstruct = Xstruct + randgC() * powercurveo.coeffs(f) * powercurveo.factors{f}.matrix;
-                else
-                    Xstruct = Xstruct + randgC() * powercurveo.coeffs(f) * repmat(powercurveo.factors{f}.matrix,repa,1);
-                end
+                Xstruct = Xstruct + randgC() * powercurveo.coeffs(f) * repmat(powercurveo.factors{f}.matrix,repa,1);
             end
             
             for i = 1 : n_interactions
