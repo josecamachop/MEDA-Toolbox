@@ -431,19 +431,14 @@ if ~isstruct(X) % Sample PCs
     end
     
     
-    for f = 1:n_factors 
-        SS_ref = 0;
-        Df_ref = 0;
-        for f2 = 1 : n_factors
+    for f = 1:n_factors % Correct the SS, but only with what will be simulated (noise and replicating factor)
+        SS_ref = 0;     % Important! in a balanced design (we assume here) low-order factors (ascendants) do not
+        Df_ref = 0;     % affect descendants, but the otherway does
+        if replicates>0
+            f2 = replicates; 
             if ~isempty(find(f==powercurveo.factors{f2}.factors))
                 SS_ref = SS_ref + SS_factors(1,f2);
                 Df_ref = Df_ref + df(f2);
-            end
-        end
-        for i = 1 : n_interactions
-            if ~isempty(find(f==powercurveo.interactions{i}.factors))
-                SS_ref = SS_ref + SS_interactions(1,i);
-                Df_ref = Df_ref + df_int(i);
             end
         end
         if SS_ref == 0
