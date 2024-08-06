@@ -711,7 +711,7 @@ for i2=1:n_rep
             Xm = Xnoise + Xstruct;
             
             % Parallel GLM
-            [T, parglmo] = parglm(Xm, F, 'Model',model, 'preprocessing',prep, 'Permutations',n_perm, 'Ts',ts, 'Ordinal',ordinal, 'Fmtc',fmtc, 'Coding',coding, 'Nested',nested);
+            [T, parglmo] = parglm(Xm, F, 'Model', model, 'Preprocessing', prep, 'Permutations', n_perm, 'Ts', ts, 'Ordinal', ordinal, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
             
             powercurveo.T{i2,a} = T;
             
