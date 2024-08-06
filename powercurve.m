@@ -421,13 +421,13 @@ if ~isstruct(X) % Sample PCs
     for f = 1 : n_factors % SEE solution at /old/older, I correct by other variances
         powercurveo.factors{f}.matrix = D(:,powercurveo.factors{f}.Dvars)*B(powercurveo.factors{f}.Dvars,:);
         SS_factors(1,f) = sum(sum(powercurveo.factors{f}.matrix.^2)); % Note: we are not using Type III sum of squares, and probably we should, although we did not find any difference in our experiments
-        powercurveo.factors{f}.matrix = powercurveo.factors{f}.matrix/norm(powercurveo.factors{f}.matrix,'fro');
+        powercurveo.factors{f}.matrix = sqrt(N)*powercurveo.factors{f}.matrix/norm(powercurveo.factors{f}.matrix,'fro');
     end
     
     for i = 1 : n_interactions
         powercurveo.interactions{i}.matrix = D(:,powercurveo.interactions{i}.Dvars)*B(powercurveo.interactions{i}.Dvars,:);
         SS_interactions(1,i) = sum(sum(powercurveo.interactions{i}.matrix.^2));
-        powercurveo.interactions{i}.matrix = powercurveo.interactions{i}.matrix/norm(powercurveo.interactions{i}.matrix,'fro');;
+        powercurveo.interactions{i}.matrix = sqrt(N)*powercurveo.interactions{i}.matrix/norm(powercurveo.interactions{i}.matrix,'fro');
     end
     
     
@@ -442,16 +442,16 @@ if ~isstruct(X) % Sample PCs
             end
         end
         if SS_ref == 0
-            SS_factors_c(1,f) = SS_factors(1,f)/df(f) - SSQ_residuals/Rdf; % SS corrected
+            SS_factors_c(1,f) = (SS_factors(1,f)/df(f) - SSQ_residuals/Rdf)/(N/powercurveo.n_levels(f)); % SS corrected
         else
-            SS_factors_c(1,f) = SS_factors(1,f)/df(f) - SS_ref/Df_ref;
+            SS_factors_c(1,f) = (SS_factors(1,f)/df(f) - SS_ref/Df_ref)/(N/powercurveo.n_levels(f));
         end
 
         if SS_factors_c(1,f) < 0, SS_factors_c(1,f)=0; end 
     end   
     
     for i = 1 : n_interactions
-        SS_interactions_c(1,i) = SS_interactions(1,i)/df_int(i) - SSQ_residuals/Rdf; % SS corrected
+        SS_interactions_c(1,i) = (SS_interactions(1,i)/df_int(i) - SSQ_residuals/Rdf)/(N/prod(powercurveo.n_levels(powercurveo.interactions{i}.factors))); % SS corrected
         
         if SS_interactions_c(1,i) < 0, SS_interactions_c(1,i)=0; end
     end
@@ -529,7 +529,7 @@ for i2=1:n_rep
         end
 
         Xnoise = randg(N,M); 
-        Xnoise = randgC() * powercurveo.rescoef * sqrt(N)*Xnoise/norm(Xnoise,'fro'); % PEPE: Not OK for Relative Sample Curve
+        Xnoise = randgC() * powercurveo.rescoef * sqrt(N)*Xnoise/norm(Xnoise,'fro'); 
         
         for a = 1:length(theta)
 
@@ -644,9 +644,11 @@ for i2=1:n_rep
                     if theta(a) <= length(uF)
                         for f2 = 1 : n_factors
                             powercurveo.factors{f2}.matrix(find(F2(:,f)>theta(a)),:) = [];
+                            powercurveo.factors{f2}.matrix = sqrt(N)*powercurveo.factors{f2}.matrix/norm(powercurveo.factors{f2}.matrix,'fro');
                         end
                         for i = 1 : n_interactions
                             powercurveo.interactions{i}.matrix(find(F2(:,f)>theta(a)),:) = [];
+                            powercurveo.interactions{i}.matrix = sqrt(N)*powercurveo.interactions{i}.matrix/norm(powercurveo.interactions{i}.matrix,'fro');
                         end
                     else
                         for f2 = 1 : n_factors
@@ -656,6 +658,7 @@ for i2=1:n_rep
                                     Fi(:,f) = max(uF) + t;
                                     powercurveo.factors{f2}.matrix = [powercurveo.factors{f2}.matrix;Fi];
                                 end
+                                powercurveo.factors{f2}.matrix = sqrt(N)*powercurveo.factors{f2}.matrix/norm(powercurveo.factors{f2}.matrix,'fro');                    
                             else             
                                 if ordinal(f)
                                     powercurveo.factors{f}.matrix = randg(N,M);
@@ -685,6 +688,7 @@ for i2=1:n_rep
                                 Fi(:,f) = max(uF) + t;
                                 powercurveo.interactions{i}.matrix = [powercurveo.interactions{i}.matrix;Fi];
                             end
+                            powercurveo.interactions{i}.matrix = sqrt(N)*powercurveo.interactions{i}.matrix/norm(powercurveo.interactions{i}.matrix,'fro');
                         end
                     end
                 else
