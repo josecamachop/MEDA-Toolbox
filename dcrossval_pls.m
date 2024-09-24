@@ -1,4 +1,4 @@
-function [Qm,Q,lvso] = dcrossval_pls(x,y,varargin)
+function [Qm,Q,lvso,MSE] = dcrossval_pls(x,y,varargin)
 
 % Row-wise k-fold (rkf) double cross-validation for PLS. The algorithm uses
 % repetitions of the dCV loop to estimate the stability: see Szymanska, E., 
@@ -46,6 +46,8 @@ function [Qm,Q,lvso] = dcrossval_pls(x,y,varargin)
 %
 % lvso: [rep x blocks_r] optimum number of LVs in the inner loop
 %
+% MSE: [1x1] Mean Square Error
+%
 %
 % EXAMPLE OF USE: Random data with structural relationship
 %
@@ -56,7 +58,7 @@ function [Qm,Q,lvso] = dcrossval_pls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 22/Apr/24
+% last modification: 24/Sep/24
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -165,9 +167,12 @@ for j=1:rep
     
     Q(j) = 1-sum(Qu)/sum(Qd);
     
+    SSE(j) = sum(Qu);
+    
 end
 
 Qm = mean(Q);
+MSE = mean(SSE);
 
 %% Show results
 
