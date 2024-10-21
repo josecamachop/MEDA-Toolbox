@@ -131,6 +131,7 @@ addParameter(p,'Title',' ');
 addParameter(p,'BlurIndex',1);
 addParameter(p,'ObsLabel',[]);
 addParameter(p,'ObsClass',[]);
+addParameter(p,'Color','parula');
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -141,6 +142,7 @@ tit = p.Results.Title;
 blur = p.Results.BlurIndex;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
+color = p.Results.Color;
 
 L = size(test, 1);
 
@@ -231,13 +233,13 @@ end
 fig_h = [];
 if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
-        fig_h = [fig_h plot_vec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var)})];
+        fig_h = [fig_h plot_vec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var)},'Color',color)];
         title(tit);
     end
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}','Option',opt(3:end),'BlurIndex',blur)];
+            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}','Option',opt(3:end),'BlurIndex',blur,'Color',color)];
             title(tit);
         end
     end

@@ -51,7 +51,7 @@ function fig_h = plot_scatter(bdata,varargin)
 % 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
-% 'Color': Choose a color for your data. By default will use Okabe_ito. 
+% 'Color': Choose a color for your data. By default will use Okabe_ito.
 %   'parula' for parula palette, 'hsv' for hsv palette.
 %
 % OUTPUTS:
@@ -107,9 +107,9 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 
 N = size(bdata, 1);
 
-% Introduce optional inputs as parameters (name-value pair) 
+% Introduce optional inputs as parameters (name-value pair)
 p = inputParser;
-addParameter(p,'EleLabel',1:N);   
+addParameter(p,'EleLabel',1:N);
 addParameter(p,'ObsClass',ones(N,1));
 addParameter(p,'XYLabel',{'',''});
 addParameter(p,'LimCont',[]);
@@ -181,7 +181,7 @@ hold on;
 if opt(1)=='0'
     [classes,ord] = sort(classes,'ascend');
     cax = [min(classes) max(classes)];
-    classes = num2str(classes); 
+    classes = num2str(classes);
     classes = cellstr(classes);
     bdata = bdata(ord,:);
     elabel = elabel(ord);
@@ -191,9 +191,9 @@ end
 % Get ordering of classes
 unique_classes = unique(classes,'stable');
 if iscell(classes)
-     ord_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
+    ord_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
 else
-     ord_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
+    ord_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
 end
 unique_ord_classes = unique(ord_classes);
 
@@ -203,44 +203,49 @@ markers = ['^','v','d','o','s'];
 
 %Choosing the color
 if(isempty(color))
+
     okabe_ito = [0.1,0.1,0.1;
-    0.902,0.624,0;
-    0.337,0.706,0.914;
-    0,0.620,0.451;
-    0.941,0.894,0.259;
-    0,0.447,0.698;
-    0.835,0.369,0;
-    0.8,0.475,0.655;
-    0.1,0.1,0.1;
-    0.902,0.624,0;
-    0.337,0.706,0.914;
-    0,0.620,0.451;
-    0.941,0.894,0.259;
-    0,0.447,0.698;
-    0.835,0.369,0;
-    0.8,0.475,0.655;
-    0.1,0.1,0.1;
-    0.902,0.624,0;
-    0.337,0.706,0.914;
-    0,0.620,0.451;
-    0.941,0.894,0.259;
-    0,0.447,0.698;
-    0.835,0.369,0;
-    0.8,0.475,0.655];
+        0.902,0.624,0;
+        0.337,0.706,0.914;
+        0,0.620,0.451;
+        0.941,0.894,0.259;
+        0,0.447,0.698;
+        0.835,0.369,0;
+        0.8,0.475,0.655;
+        0.1,0.1,0.1;
+        0.902,0.624,0;
+        0.337,0.706,0.914;
+        0,0.620,0.451;
+        0.941,0.894,0.259;
+        0,0.447,0.698;
+        0.835,0.369,0;
+        0.8,0.475,0.655;
+        0.1,0.1,0.1;
+        0.902,0.624,0;
+        0.337,0.706,0.914;
+        0,0.620,0.451;
+        0.941,0.894,0.259;
+        0,0.447,0.698;
+        0.835,0.369,0;
+        0.8,0.475,0.655];
+
+    n_elems = length(unique_ord_classes);
+
+    if n_elems > size(okabe_ito,1) %if there are a lot of input colors, repmat to extend the palette.
+        okabe_ito = repmat(okabe_ito, ceil(n_elems/size(okabe_ito, 1)), 1);
+    end
 
     color_list = okabe_ito;
+
     colors = color_list(ord_classes, :);
 
-    elseif strcmp(color, 'parula')
-        color_list = parula(length(unique_ord_classes));
-        colors = color_list(ord_classes, :);
+elseif strcmp(color, 'parula')
+    color_list = parula(length(unique_ord_classes));
+    colors = color_list(ord_classes, :);
 
-        elseif strcmp(color, 'hsv')
-                         color_list = hsv(length(unique_ord_classes));
-                         colors = color_list(ord_classes, :);
-        
-    
-   
+elseif strcmp(color, 'hsv')
+    color_list = hsv(length(unique_ord_classes));
+    colors = color_list(ord_classes, :);
 end
 
 
@@ -249,7 +254,7 @@ end
 % else
 %     color_list = hsv(length(unique_ord_classes));
 % end
-% 
+%
 % colors = color_list(ord_classes, :);
 
 sizes = zeros(size(mult));
