@@ -177,15 +177,23 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 fig_h = figure;
 hold on;
 
+% Verify if the classes are numerical
+numerical_classes = false;
+if isa(classes, 'double') numerical_classes = true; end
+
 % Sort data for colorbar
 if opt(1)=='0'
     [classes,ord] = sort(classes,'ascend');
     cax = [min(classes) max(classes)];
-    classes = num2str(classes); 
-    classes = cellstr(classes);
+    if ~numerical_classes
+        classes = num2str(classes); 
+        classes = cellstr(classes);
+    end
     bdata = bdata(ord,:);
     elabel = elabel(ord);
     mult = mult(ord);
+
+
 end
 
 % Get ordering of classes
@@ -244,7 +252,7 @@ elseif strcmp(color, 'okabe')
 elseif strcmp(color, 'parula')
     color_list = parula(length(unique_ord_classes));
 
-elseif strcmp(color, 'hsv')
+else%if strcmp(color, 'hsv')
      color_list = hsv(length(unique_ord_classes));
 end
 
@@ -255,8 +263,14 @@ for i=1:length(bins)-1
     sizes (mult>bins(i) & mult<=bins(i+1)) = round(2.5 * i^2 * pi);
 end
 
+
+if numerical_classes
+    colors = classes; 
+    classes = num2str(classes);
+    unique_classes = string(unique_classes);
+end   
 switch opt(2:4)
-    case '000'  % 2D plot, No multiplicity info, filled marks
+    case '000'  % 2D plot, No multiplicity info, filled marks        
         for i=1:length(unique_ord_classes)
             ind = find(ord_classes == unique_ord_classes(i));
             scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'filled','DisplayName',unique_classes{i});
