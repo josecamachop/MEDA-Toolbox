@@ -177,15 +177,23 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 fig_h = figure;
 hold on;
 
+% Verify if the classes are numerical
+numerical_classes = false;
+if isa(classes, 'double') numerical_classes = true; end
+
 % Sort data for colorbar
 if opt(1)=='0'
     [classes,ord] = sort(classes,'ascend');
     cax = [min(classes) max(classes)];
-    classes = num2str(classes); 
-    classes = cellstr(classes);
+    if ~numerical_classes
+        classes = num2str(classes); 
+        classes = cellstr(classes);
+    end
     bdata = bdata(ord,:);
     elabel = elabel(ord);
     mult = mult(ord);
+
+
 end
 
 % Get ordering of classes
@@ -202,63 +210,67 @@ bins = [0 1 maxv Inf];
 markers = ['^','v','d','o','s'];
 
 %Choosing the color
+okabe_ito = [0.1,0.1,0.1;
+            0.902,0.624,0;
+            0.337,0.706,0.914;
+            0,0.620,0.451;
+            0.941,0.894,0.259;
+            0,0.447,0.698;
+            0.835,0.369,0;
+            0.8,0.475,0.655;
+            0.1,0.1,0.1;
+            0.902,0.624,0;
+            0.337,0.706,0.914;
+            0,0.620,0.451;
+            0.941,0.894,0.259;
+            0,0.447,0.698;
+            0.835,0.369,0;
+            0.8,0.475,0.655;
+            0.1,0.1,0.1;
+            0.902,0.624,0;
+            0.337,0.706,0.914;
+            0,0.620,0.451;
+            0.941,0.894,0.259;
+            0,0.447,0.698;
+            0.835,0.369,0;
+            0.8,0.475,0.655];
+
 if(isempty(color))
-    okabe_ito = [0.1,0.1,0.1;
-    0.902,0.624,0;
-    0.337,0.706,0.914;
-    0,0.620,0.451;
-    0.941,0.894,0.259;
-    0,0.447,0.698;
-    0.835,0.369,0;
-    0.8,0.475,0.655;
-    0.1,0.1,0.1;
-    0.902,0.624,0;
-    0.337,0.706,0.914;
-    0,0.620,0.451;
-    0.941,0.894,0.259;
-    0,0.447,0.698;
-    0.835,0.369,0;
-    0.8,0.475,0.655;
-    0.1,0.1,0.1;
-    0.902,0.624,0;
-    0.337,0.706,0.914;
-    0,0.620,0.451;
-    0.941,0.894,0.259;
-    0,0.447,0.698;
-    0.835,0.369,0;
-    0.8,0.475,0.655];
-
-    color_list = okabe_ito;
-    colors = color_list(ord_classes, :);
-
-    elseif strcmp(color, 'parula')
+    if opt(1) == '1'
+        if length(unique_ord_classes) <= 24
+            color_list = okabe_ito;
+        else
+            color_list = hsv(length(unique_ord_classes));
+        end
+    elseif opt(1) == '0'
         color_list = parula(length(unique_ord_classes));
-        colors = color_list(ord_classes, :);
+    end
 
-        elseif strcmp(color, 'hsv')
-                         color_list = hsv(length(unique_ord_classes));
-                         colors = color_list(ord_classes, :);
-        
-    
-   
+elseif strcmp(color, 'okabe')
+    color_list = okabe_ito;
+
+elseif strcmp(color, 'parula')
+    color_list = parula(length(unique_ord_classes));
+
+else%if strcmp(color, 'hsv')
+     color_list = hsv(length(unique_ord_classes));
 end
 
-
-% if opt(1) == '0'
-%     color_list = parula(length(unique_ord_classes));
-% else
-%     color_list = hsv(length(unique_ord_classes));
-% end
-% 
-% colors = color_list(ord_classes, :);
+colors = color_list(ord_classes, :);
 
 sizes = zeros(size(mult));
 for i=1:length(bins)-1
     sizes (mult>bins(i) & mult<=bins(i+1)) = round(2.5 * i^2 * pi);
 end
 
+
+if numerical_classes
+    colors = classes; 
+    classes = num2str(classes);
+    unique_classes = string(unique_classes);
+end   
 switch opt(2:4)
-    case '000'  % 2D plot, No multiplicity info, filled marks
+    case '000'  % 2D plot, No multiplicity info, filled marks        
         for i=1:length(unique_ord_classes)
             ind = find(ord_classes == unique_ord_classes(i));
             scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'filled','DisplayName',unique_classes{i});
