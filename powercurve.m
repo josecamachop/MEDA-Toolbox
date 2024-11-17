@@ -442,7 +442,7 @@ if ~isstruct(X) % Sample PCs
             end
         end
         if SS_ref == 0
-            SS_factors_c(1,f) = (SS_factors(1,f)/df(f) - SSQ_residuals/Rdf)/(N/powercurveo.n_levels(f)); % SS corrected
+            SS_factors_c(1,f) = (SS_factors(1,f) - df(f)*SSQ_residuals/Rdf)/(N/powercurveo.n_levels(f)); % SS corrected
         else
             SS_factors_c(1,f) = (SS_factors(1,f)/df(f) - SS_ref/Df_ref)/(N/powercurveo.n_levels(f));
         end

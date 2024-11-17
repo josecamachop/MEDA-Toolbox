@@ -78,7 +78,7 @@ function App = ADICOV(XX,L,Neig,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 15/Apr/2024
+% last modification: 14/Sep/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -135,7 +135,7 @@ assert (isequal(size(multn), [N 1]), 'Dimension Error: ''Multiplicity'' must be 
 % Validate values of input data
 assert (Neig>0, 'Value Error: ''Neig'' must be above 0. Type ''help %s'' for more info.', routine(1).name);
 assert (Neig<=rank(XX), 'Value Error: ''Neig'' must not be above the rank of XX. Type ''help %s'' for more info.', routine(1).name);
-assert (Neig<=A, 'Value Error: ''Neig'' must not be above the number of columns of 4th and 5th arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (Neig<=A, 'Value Error: ''Neig'' must not be above the number of columns of the subspaces. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(Neig), Neig), 'Value Error: ''Neig'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(multn<0)), 'Value Error: ''Multiplicity'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(multn), multn), 'Value Error: ''Multiplicity'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
