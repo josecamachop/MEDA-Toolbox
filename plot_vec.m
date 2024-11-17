@@ -208,52 +208,55 @@ for j=1:length(bins)-1
 end
 
 if ~isempty(classes)
-    % if opt(2) == '0'
-    %     color_list = parula(length(unique_ord_classes));
-    % else
-    %     color_list = hsv(length(unique_ord_classes));
-    % end
-    
-    %Choosing the color
-    if(isempty(color))
-     okabe_ito = [0.1,0.1,0.1;
-     0.902,0.624,0;
-     0.337,0.706,0.914;
-     0,0.620,0.451;
-     0.941,0.894,0.259;
-     0,0.447,0.698;
-     0.835,0.369,0;
-     0.8,0.475,0.655;
-     0.1,0.1,0.1;
-    0.902,0.624,0;
-    0.337,0.706,0.914;
-    0,0.620,0.451;
-    0.941,0.894,0.259;
-    0,0.447,0.698;
-    0.835,0.369,0;
-    0.8,0.475,0.655;
-    0.1,0.1,0.1;
-    0.902,0.624,0;
-    0.337,0.706,0.914;
-    0,0.620,0.451;
-    0.941,0.894,0.259;
-    0,0.447,0.698;
-    0.835,0.369,0;
-    0.8,0.475,0.655];
 
-     color_list = okabe_ito;
-     colors = color_list(ord_classes, :);
+%Choosing the color
+okabe_ito = [0.1,0.1,0.1;
+            0.902,0.624,0;
+            0.337,0.706,0.914;
+            0,0.620,0.451;
+            0.941,0.894,0.259;
+            0,0.447,0.698;
+            0.835,0.369,0;
+            0.8,0.475,0.655;
+            0.1,0.1,0.1;
+            0.902,0.624,0;
+            0.337,0.706,0.914;
+            0,0.620,0.451;
+            0.941,0.894,0.259;
+            0,0.447,0.698;
+            0.835,0.369,0;
+            0.8,0.475,0.655;
+            0.1,0.1,0.1;
+            0.902,0.624,0;
+            0.337,0.706,0.914;
+            0,0.620,0.451;
+            0.941,0.894,0.259;
+            0,0.447,0.698;
+            0.835,0.369,0;
+            0.8,0.475,0.655];
 
-       elseif strcmp(color, 'parula')
-             color_list = parula(length(unique_ord_classes));
-             colors = color_list(ord_classes, :);
-
-             elseif strcmp(color, 'hsv')
-                         color_list = hsv(length(unique_ord_classes));
-                         colors = color_list(ord_classes, :);
-             
-  
+if(isempty(color))
+    if opt(2) == '1'
+        if length(unique_ord_classes) <= 24
+            color_list = okabe_ito;
+        else
+            color_list = hsv(length(unique_ord_classes));
+        end
+    elseif opt(2) == '0'
+        color_list = parula(length(unique_ord_classes));
     end
+
+elseif strcmp(color, 'okabe')
+    color_list = okabe_ito;
+
+elseif strcmp(color, 'parula')
+    color_list = parula(length(unique_ord_classes));
+
+else%if strcmp(color, 'hsv')
+     color_list = hsv(length(unique_ord_classes));
+end
+
+% colors = color_list(ord_classes, :);
 
 
     for i=1:length(unique_ord_classes)

@@ -157,7 +157,7 @@ for i=1:blocks_r
     
     [beta,W,P,Q,R] = simpls(ccs,ccs_y,'LatVars',0:max(lvs));
     
-    for lv=1:length(lvs),
+    for lv=1:length(lvs)
     
         if lvs(lv) > 0
             beta = R(:,1:min(lvs(lv),end))*Q(:,1:min(lvs(lv),end))';
