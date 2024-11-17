@@ -1,24 +1,21 @@
-﻿MEDA Toolbox for its use in MATLAB. 
+﻿Multivariate Exploratory Data Analysis (MEDA) Toolbox for its use in MATLAB 
 
 Contact person: Jose Camacho (josecamacho@ugr.es)
-Last modification of this document: 14/Oct/19
+Last modification of this document: 17/Nov/24
 
 Installation
 
-	- Extract the rar file in a directory of your choice <directory_path>
+1 - Download and extract (or git clone) in a directory of your choice <directory_path>
 
-	- Add to the MATLAB path the following directories (use command addpath, e.g. addpath '<path>'):
-		- <directory_path>
-		- <directory_path>/BigData
-		- <directory_path>/GUI
+2 - Add to the MATLAB path the following directories (use command addpath, e.g. addpath '<path>', and then savepath):
+	- <directory_path>
+	- <directory_path>/BigData
+	- <directory_path>/GUI
 
 
-Please, acknowledge the use of this software by refercing it: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate 
-Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at 
-https://github.com/josecamachop/MEDA-Toolbox" Also, please check the documentation of the routines used for more related references. 
+Please, acknowledge the use of this software by referencing: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at https://github.com/CoDaSLab/MEDA-Toolbox". Please check the documentation of the routines used for more related references. 
 
-Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have 
-suggestions, please contact josecamacho@ugr.es
+Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
 
 We would like to thanks the direct or indirect contribution of several colleagues:
 
@@ -35,8 +32,7 @@ Items in the folder:
 
 	- projection models: pca_pp.m (PCA), kernel_pls.m & simpls.m (PLS), parglm & asca & apca (ANOVA+PCA) gia & gpca (GPCA), sparsepls2 (SPLS), gpls, gasca, SDI, parglmVS (VASCA) 
 
-	- exploratory & visualization tools: SVIplot.m (SVI plots), scores_pca.m & scores_pls.m (Socre plots), loadings_pca.m & loadings_pls.m (Loading plots), 
-		meda_pca.m & meda_pls.m (MEDA), omeda_pca.m & omeda_pls.m (oMEDA), mspc_pca.m & mspc_pls.m (MSPC), leverages_pca.m & leverages_pls.m (leverages of variables)
+	- exploratory & visualization tools: SVIplot.m (SVI plots), scores_pca.m & scores_pls.m (Socre plots), loadings_pca.m & loadings_pls.m (Loading plots), meda_pca.m & meda_pls.m (MEDA), omeda_pca.m & omeda_pls.m (oMEDA), mspc_pca.m & mspc_pls.m (MSPC), leverages_pca.m & leverages_pls.m (leverages of variables)
 		
 	- exploratory tools without visualization: meda.m, omeda.m, mspc.m
 
@@ -58,13 +54,10 @@ Items in the folder:
 
 - Examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox.
 
-Copyright (C) 2022  Universidad de Granada
-Copyright (C) 2022  Jose Camacho
+Copyright (C) 2024  Universidad de Granada
  
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.

@@ -1,10 +1,13 @@
-function [beta,W,P,Q,R,model] = simpls(X,Y,varargin)
+function [beta,W,P,Q,R,model] = simpls(xcs,ycs,varargin)
 
 % Simpls algorithm for Partial Least Squares. De Jong, Sijmen. "SIMPLS: an 
 % alternative approach to partial least squares regression." Chemometrics 
 % and intelligent laboratory systems 18.3 (1993): 251-263.
 %
 % beta = simpls(xcs,ycs)     % minimum call
+%
+%
+% See also: kernel_pls, pca_eig, asca
 %
 %
 % INPUTS:
@@ -16,7 +19,7 @@ function [beta,W,P,Q,R,model] = simpls(X,Y,varargin)
 %
 % Optional INPUTS (parameter):
 %
-% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:size(XX)
 %
 %
@@ -42,11 +45,11 @@ function [beta,W,P,Q,R,model] = simpls(X,Y,varargin)
 % Xcs = preprocess2D(X);
 % Ycs = preprocess2D(Y);
 % lvs = 1:10;
-% [beta,W,P,Q,R] = simpls(Xcs,Ycs,'LatVars',lvs);
+% [beta,W,P,Q,R] = simpls(Xcs,Ycs,'LVs',lvs);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 23/Apr/2024
+% last modification: 17/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -68,16 +71,16 @@ function [beta,W,P,Q,R,model] = simpls(X,Y,varargin)
 % Set default values
 routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-[N,M] = size(X);
-O = size(Y, 2);
+[N,M] = size(xcs);
+O = size(ycs, 2);
 
 % Introduce optional inputs as parameters
 p = inputParser;
-addParameter(p,'LatVars',0:rank(X));   
+addParameter(p,'LVs',0:rank(xcs));   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -89,40 +92,39 @@ lvs(find(lvs>M)) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (isequal(size(X), [N M]), 'Dimension Error: parameter ''X'' must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Y), [N O]), 'Dimension Error: parameter ''Y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(xcs), [N M]), 'Dimension Error: parameter ''X'' must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(ycs), [N O]), 'Dimension Error: parameter ''Y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
 
 ncomp = max(lvs);
-[n,dx] = size(X);
-dy = size(Y,2);
+[n,dx] = size(xcs);
+dy = size(ycs,2);
 
 % Preallocate outputs
 Xloadings = zeros(dx,ncomp);
 Yloadings = zeros(dy,ncomp);
 Weights = zeros(dx,ncomp);
 
-
 % An orthonormal basis for the span of the X loadings, to make the successive
 % deflation X'*Y simple - each new basis vector can be removed from Cov
 % separately.
 V = zeros(dx,ncomp);
 
-Cov = X'*Y;
+Cov = xcs'*ycs;
 for i = 1:ncomp
     % Find unit length ti=X*ri and ui=Y*ci whose covariance, ri'*X'*Y*ci, is
     % jointly maximized, subject to ti'*tj=0 for j=1:(i-1).
     [ri,si,ci] = svd(Cov,'econ'); 
     ri = ri(:,1); ci = ci(:,1); si = si(1);
-    ti = X*ri;
+    ti = xcs*ri;
     normti = norm(ti); ti = ti ./ normti; % ti'*ti == 1
-    Xloadings(:,i) = X'*ti;
+    Xloadings(:,i) = xcs'*ti;
     
     qi = si*ci/normti; % = Y'*ti
     Yloadings(:,i) = qi;
@@ -164,10 +166,9 @@ for i=1:size(R,2)
     W(:,i) = W(:,i)/norm(R(:,i));
     R(:,i) = R(:,i)/norm(R(:,i));
 end
-T = X*R;
+T = xcs*R;
 
-
-model.var = sum(sum(X.^2));
+model.var = sum(sum(xcs.^2));
 model.lvs = 1:size(P,2);
 model.loads = P;
 model.yloads = Q;

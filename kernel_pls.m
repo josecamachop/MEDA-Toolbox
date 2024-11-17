@@ -4,7 +4,7 @@ function [beta,W,P,Q,R,model] = kernel_pls(XX,XY,varargin)
 % F. Lindgren, P. Geladi and S. Wold, J. Chemometrics, 7, 45 (1993).
 % S. De Jong and C.J.F. Ter Braak, J. Chemometrics, 8, 169 (1994).
 % B.S. Dayal and J.F. MacGregor. J. Chemometrics, 11, 73–85 (1997). Main
-% code is almost copy-and-paste from the last reference.
+% code is almost copy-pasted from the last reference.
 %
 % beta = kernel_pls(XX,XY)     % minimum call
 %
@@ -18,7 +18,7 @@ function [beta,W,P,Q,R,model] = kernel_pls(XX,XY,varargin)
 %
 % Optional INPUTS (parameter):
 %
-% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:size(XX)
 %
 %
@@ -44,7 +44,7 @@ function [beta,W,P,Q,R,model] = kernel_pls(XX,XY,varargin)
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % Ycs = preprocess2D(Y,'Preprocessing',2);
 % lvs = 1:10;
-% [beta,W,P,Q,R] = kernel_pls(Xcs'*Xcs,Xcs'*Ycs,'LatVars',lvs);
+% [beta,W,P,Q,R] = kernel_pls(Xcs'*Xcs,Xcs'*Ycs,'LVs',lvs);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -77,11 +77,11 @@ O = size(XY, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 LVS = 0:size(XX,1);
-addParameter(p,'LatVars',LVS);  
+addParameter(p,'LVs',LVS);  
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -95,10 +95,10 @@ A = length(lvs);
 % Validate dimensions of input data
 assert (isequal(size(XX), [M M]), 'Dimension Error: parameter ''XX'' must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(XY), [M O]), 'Dimension Error: parameter ''YY'' must be M-by-O. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

@@ -2,7 +2,10 @@ function model = pca_eig(xcs,varargin)
 
 % Principal Component Analysis based on the eigendecompostion of XX.
 %
-% p = pca_pp(xcs)     % minimum call
+% model = pca_eig(xcs)     % minimum call
+%
+%
+% See also: kernel_pls, simpls, asca
 %
 %
 % INPUTS:
@@ -12,15 +15,11 @@ function model = pca_eig(xcs,varargin)
 %
 % Optional INPUTS (parameter):
 %
-% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% 'PCs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:min(size(xcs))
 %
 %
 % OUTPUTS:
-%
-% p: [MxA] matrix of loadings.
-%
-% t: [NxA] matrix of scores.
 %
 % model: structure that contains model information.
 %
@@ -30,11 +29,24 @@ function model = pca_eig(xcs,varargin)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:3;
-% model = pca_eig(Xcs,'Pcs',pcs)
+% model = pca_eig(Xcs,'PCs',pcs)
+%
+%
+% EXAMPLE OF USE: Compare PCA algorithms 
+%
+% X = randn(20,1e4);
+% Xcs = preprocess2D(X,'Preprocessing',2);
+% tic, model = pca_eig(Xcs,'PCs',1:2); toc
+% tic, coeff_svd = pca(Xcs,'Algorithm','svd','Centered',false,'NumComponents',2); toc
+% tic, coeff_eig = pca(Xcs,'Algorithm','eig','Centered',false,'NumComponents',2); toc
+%
+% norm(model.loads-coeff_svd)
+% norm(coeff_eig-coeff_svd)
+% norm(model.loads-coeff_svd)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 23/Apr/2024
+% last modification: 17/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -59,14 +71,13 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(xcs, 1);
 M = size(xcs, 2);
 
-
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'Pcs',0:rank(xcs));   
+addParameter(p,'PCs',0:rank(xcs));   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-pcs = p.Results.Pcs;
+pcs = p.Results.PCs;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -87,13 +98,13 @@ assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter 
 
 %% Main code
 
-if N>M,
+if N>M
     XX = xcs'*xcs;
     [p,D] = eig(XX);
     [kk,ind] = sort(real(diag(D)),'descend');
     p = p(:,ind);
     t = xcs*p;
-else,
+else
     XX = xcs*xcs';
     [t,D] = eig(XX);
     s = real(sqrt(real(diag(D))));

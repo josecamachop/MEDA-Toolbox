@@ -1,6 +1,7 @@
 function [p,t,model] = pca_pp(xcs,varargin)
 
 % Principal Component Analysis based on the eigendecompostion of XX.
+% Deprecated, superseded by pca_eig. 
 %
 % p = pca_pp(xcs)     % minimum call
 % [p,t,model] = pca_pp(xcs,'Pcs',pcs)     % complete call

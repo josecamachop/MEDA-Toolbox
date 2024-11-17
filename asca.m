@@ -8,7 +8,7 @@ function ascao = asca(parglmo)
 % ascao = asca(parglmo)   % complete call
 %
 %
-% See also: parglm, apca, gasca, create_design
+% See also: parglm, apca, gasca, vasca, create_design
 %
 %
 % INPUTS:
