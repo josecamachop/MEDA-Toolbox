@@ -7,11 +7,8 @@ Installation
 
 1 - Download and extract (or git clone) in a directory of your choice <directory_path>
 
-2 - Add to the MATLAB path the following directories (use command addpath, e.g. addpath '<path>', and then savepath):
-	- <directory_path>
-	- <directory_path>/BigData
-	- <directory_path>/GUI
-
+2 - Add to the MATLAB path the following directory with its subdirectories (you may either use command addpath and genpath, e.g. addpath(genpath('<path>/toolbox')), and then savepath, or you may use the pathtool):
+	- <directory_path>/toolbox
 
 Please, acknowledge the use of this software by referencing: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at https://github.com/CoDaSLab/MEDA-Toolbox". Please check the documentation of the routines used for more related references. 
 
