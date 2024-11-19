@@ -1,12 +1,12 @@
-function omeda_vec = omeda_Lpca(Lmodel,test,dummy,opt)
+function omedavec = omedaLpls(Lmodel,test,dummy,opt)
 
 % Observation-based Missing data methods for Exploratory Data Analysis 
-% (oMEDA) for PCA in Big Data. The original paper is Journal of Chemometrics, 2011, 25 
-% (11): 592-600. This algorithm follows the direct computation for
+% (oMEDA) for PCA. The original paper is Journal of Chemometrics, 
+% DOI: 10.1002/cem.1405. This algorithm follows the direct computation for
 % Known Data Regression (KDR) missing data imputation.
 %
-% omeda_vec = omeda_Lpca(Lmodel,test,dummy) % minimum call
-% [omeda_vec,lim] = omeda_Lpca(Lmodel,test,dummy,opt) %complete call
+% omedavec = omedaLpls(Lmodel,test,dummy) % minimum call
+% [omedavec,lim] = omedaLpls(Lmodel,test,dummy,opt) %complete call
 %
 %
 % INPUTS:
@@ -14,12 +14,14 @@ function omeda_vec = omeda_Lpca(Lmodel,test,dummy,opt)
 % Lmodel: (struct Lmodel) model with the information to compute the PCA
 %   model:
 %       Lmodel.XX: [MxM] X-block cross-product matrix.
+%       Lmodel.XY: [MxO] cross-product matrix between the x-block and the
+%           y-block.
 %       Lmodel.lvs: [1x1] number of PCs. 
 %       Lmodel.centr: [NxM] centroids of the clusters of observations.
 %       Lmodel.av: [1xM] sample average according to the preprocessing method.
 %       Lmodel.sc: [1xM] sample scale according to the preprocessing method.
 %       Lmodel.weight: [1xM] weight applied after the preprocessing method.
-%       Lmodel.var_l: {ncx1} label of each variable.
+%       Lmodel.varl: {ncx1} label of each variable.
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -44,34 +46,35 @@ function omeda_vec = omeda_Lpca(Lmodel,test,dummy,opt)
 %
 % OUTPUTS:
 %
-% omeda_vec: [Mx1] oMEDA vector.
+% omedavec: [Mx1] oMEDA vector.
 %
 % lim: [Mx1] oMEDA limits.
 %
 %
 % EXAMPLE OF USE: Anomaly on first observation and first 2 variables.
 %
-% n_obs = 100;
-% n_vars = 10;
-% n_PCs = 10;
-% Lmodel = Lmodel_ini(simuleMV(n_obs,n_vars,6));
-% Lmodel.multr = 100*rand(n_obs,1); 
-% Lmodel.lvs = 1:n_PCs;
+% nobs = 100;
+% nvars = 10;
+% nLVs = 10;
+% X = simuleMV(nobs,nvars,'LevelCorr',6);
+% Y = 0.1*randn(nobs,2) + X(:,1:2);
+% Lmodel = iniLmodel(X,Y);
+% Lmodel.multr = 100*rand(nobs,1); 
+% Lmodel.lvs = 1:nLVs;
 % 
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
+% nobst = 10;
+% test = simuleMV(nobst,nvars,'LevelCorr',6,corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
 % test(1,1:2) = 10*max(abs(Lmodel.centr(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;
 %
-% omeda_vec = omeda_Lpca(Lmodel,test,dummy);
+% omedavec = omedaLpls(Lmodel,test,dummy);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/Oct/2022
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2022  University of Granada, Granada
-% Copyright (C) 2022  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -92,11 +95,10 @@ function omeda_vec = omeda_Lpca(Lmodel,test,dummy,opt)
 routine=dbstack;
 assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-check_Lmodel(Lmodel);
+checkLmodel(Lmodel);
 
 N = Lmodel.nc;
 M = size(Lmodel.XX, 2);
-
 L = size(test, 1);
 if isempty(dummy), dummy = ones(L,1); end;
 if nargin < 4 || isempty(opt), opt = '100'; end; 
@@ -122,40 +124,44 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must cont
 
 %% Main code
 
-P = Lpca(Lmodel);
+Lmodel = Lpls(Lmodel);
+R = Lmodel.altweights;
+P = Lmodel.loads;
     
 testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
-omeda_vec = omeda(testcs,dummy,P);
+omedavec = omeda(testcs,dummy,R,P);
 
 % heuristic: 95% limit for one-observation-dummy
 xcs = Lmodel.centr;
 xr = xcs*P*P';
-omeda_x = abs((2*xcs-xr).*(xr));
-lim = prctile(omeda_x,95)';
+omedax = abs((2*xcs-xr).*(xr));
+lim = prctile(omedax,95)';
     
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
-    vec = omeda_vec;
+    vec = omedavec;
  
-    if opt(2) == '1',
+    if opt(2) == '1'
         limp = lim;
     else
         limp = [];
     end
     
-    if opt(3) == '1',
+    if opt(3) == '1'
         ind = find(lim>1e-10);
         vec(ind) = vec(ind)./lim(ind);
-    	if ~isempty(limp),
+    	if ~isempty(limp)
             limp(ind) = limp(ind)./lim(ind);
         end
     end
     
-    plot_vec(vec,Lmodel.var_l,[],{[],'d^2_A'},[limp -limp]);
+    plotVec(vec,Lmodel.varl,[],{[],'d^2_A'},[limp -limp]);
     
 end
+
+
 
         

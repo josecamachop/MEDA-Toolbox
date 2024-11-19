@@ -20,7 +20,7 @@ function model = pcaEig(xcs,varargin)
 %
 % OUTPUTS:
 %
-% model: structure that contains model information.
+% model: structure that contains model information
 %
 %
 % EXAMPLE OF USE: Random data:

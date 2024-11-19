@@ -155,7 +155,9 @@ for i=1:blocks_r
     scs = preprocess2Dapp(sample,av,'SDivideTest',st);
     scs_y = preprocess2Dapp(sample_y,av_y,'SDivideTest',st_y);
     
-    [beta,W,P,Q,R] = simpls(ccs,ccs_y,'LatVars',0:max(lvs));
+    model = simpls(ccs,ccs_y,'LatVars',0:max(lvs));
+    Q = model.yloads;
+    R = model.altweights;
     
     for lv=1:length(lvs)
     

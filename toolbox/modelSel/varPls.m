@@ -131,15 +131,18 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 xcs = preprocess2D(x,'Preprocessing',prepx); 
 ycs = preprocess2D(y,'Preprocessing',prepy); 
 
-%[beta,W,P,Q,R] = kernel_pls(xcs'*xcs,xcs'*ycs,1:max(lvs));
-[beta,W,P,Q,R] = simpls(xcs,ycs,'LatVars',1:max(lvs));
-lvs(find(lvs>size(W,2))) = [];
+%model = kernelpls(xcs'*xcs,xcs'*ycs,1:max(lvs));
+model = simpls(xcs,ycs,'LatVars',1:max(lvs));
+Q = model.yloads;
+R = model.altweights;
+
+lvs(find(lvs>size(R,2))) = [];
 
 totalVt = sum(sum(xcs.^2));
 t_var = ones(length(lvs),1);
 totalVy = sum(sum(ycs.^2));
 y_var = ones(length(lvs),1);
-for i=1:length(lvs),
+for i=1:length(lvs)
     t_var(i) = t_var(i) - sum(eig(R(:,1:lvs(i))'*xcs'*xcs*R(:,1:lvs(i))))/totalVt;
     y_var(i) = y_var(i) - sum(eig(Q(:,1:lvs(i))*R(:,1:lvs(i))'*xcs'*xcs*R(:,1:lvs(i))*Q(:,1:lvs(i))'))/totalVy;
 end

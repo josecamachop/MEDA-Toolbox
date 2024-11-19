@@ -1,8 +1,8 @@
-function [beta,W,P,Q,R,sdT,Lmodel] = Lpls(Lmodel)
+function Lmodel = Lpls(Lmodel)
     
 % PLS for large data. 
 %
-% [beta,W,P,Q,R,sdT,Lmodel] = Lpls(Lmodel) % complete call
+% Lmodel = Lpls(Lmodel) % complete call
 %
 %
 % INPUTS:
@@ -17,35 +17,22 @@ function [beta,W,P,Q,R,sdT,Lmodel] = Lpls(Lmodel)
 %
 % OUTPUTS:
 %
-% beta: [Mx1] matrix with regression coefficients.
-%
-% W: [MxA] matrix of weights in the PLS model.
-%
-% P: [MxA] matrix of loadings of the x-block in the PLS model.
-%
-% Q: [OxA] matrix of loadings of the y-block in the PLS model.
-%
-% R: [OxA] equals to W·inv(P'·W).
-%
-% sdT: [1xA] standard deviations of the scores.
-%
-% Lmodel: (struct Lmodel) model after integrity checking.
+% Lmodel: (struct Lmodel) output model with coefficients
 %
 %
 % EXAMPLE OF USE: Random data
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% Lmodel = Lmodel_ini(X,Y);
+% Lmodel = iniLmodel(X,Y);
 % Lmodel.lvs = 0:10;
-% [beta,W,P,Q,R,sdT] = Lpls(Lmodel)
+% Lmodel = Lpls(Lmodel)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/May/17.
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -68,20 +55,22 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-[ok,Lmodel] = check_Lmodel(Lmodel);
+[ok,Lmodel] = checkLmodel(Lmodel);
 
 
 %% Main code
 
-[beta,W,P,Q,R] = kernel_pls(Lmodel.XX,Lmodel.XY,1:max(Lmodel.lvs));
-W = W(:,Lmodel.lvs);
-P = P(:,Lmodel.lvs);
-Q = Q(:,Lmodel.lvs);
-R = R(:,Lmodel.lvs);
-beta=R*Q';
+model = kernelpls(Lmodel.XX,Lmodel.XY,'LVs',1:max(Lmodel.lvs));
+R = model.altweights;
+beta = model.beta;
         
 [V2,d2] = eig(R'*Lmodel.XX*R);
 dd = diag(d2);
 [dd,inddd]=sort(dd,'descend');
         
-sdT = real(sqrt(dd/(Lmodel.N-1)));
+model.sdT = real(sqrt(dd/(Lmodel.N-1)));
+
+fnames = fieldnames(model);
+for n = 1:length(fnames)
+    Lmodel = setfield(Lmodel,fnames{n},getfield(model,fnames{n}));
+end

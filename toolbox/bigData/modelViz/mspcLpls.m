@@ -1,25 +1,28 @@
 
-function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes,p_valueD,p_valueQ,limtype)
+function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcLpls(Lmodel,test,opt,label,classes,pvalueD,pvalueQ,limtype)
 
-% Compute D-st and Q-st in PCA-based Multivariate Statistical Process 
+% Compute D-st and Q-st in PLS-based Multivariate Statistical Process 
 % Control
 %
-% [Dst,Qst] = mspc_Lpca(Lmodel) % minimum call
-% [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes,p_valueD,p_valueQ,limtype) % complete call
+% [Dst,Qst] = mspcLpls(Lmodel) % minimum call
+% [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcLpls(Lmodel,test,opt,label,classes,pvalueD,pvalueQ,limtype) % complete call
+%
 %
 % INPUTS:
 %
-% Lmodel: (struct Lmodel) model with the information to compute the PCA
+% Lmodel: (struct Lmodel) model with the information to compute the PLS 
 %   model:
 %       Lmodel.XX: [MxM] X-block cross-product matrix.
-%       Lmodel.lvs: [1x1] number of PCs. 
+%       Lmodel.XY: [MxO] cross-product matrix between the x-block and the
+%           y-block.
+%       Lmodel.lvs: [1x1] number of Latent Variables.
 %       Lmodel.centr: [NxM] centroids of the clusters of observations.
 %       Lmodel.multr: [ncx1] multiplicity of each cluster.
 %       Lmodel.class: [ncx1] class associated to each cluster.
 %       Lmodel.av: [1xM] sample average according to the preprocessing method.
 %       Lmodel.sc: [1xM] sample scale according to the preprocessing method.
 %       Lmodel.weight: [1xM] weight applied after the preprocessing method.
-%       Lmodel.obs_l: {ncx1} label of each cluster.
+%       Lmodel.obsl: {ncx1} label of each cluster.
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -43,11 +46,11 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 % classes: [Lx1] groups in test for different visualization (a single group 
 %   by default)
 %
-% p_valueD: [Ldx1] p-values for control limits in the D-st, in (0,1]. 
+% pvalueD: [Ldx1] p-values for control limits in the D-st, in (0,1]. 
 %   Values equal to 0.01 and 0.05 are used by default in bar plots, and
 %   0.01 in scatter plots
 %
-% p_valueQ: [Lqx1] p-values for control limits in the Q-st, in (0,1]. 
+% pvalueQ: [Lqx1] p-values for control limits in the Q-st, in (0,1]. 
 %   Values equal to 0.01 and 0.05 are used by default in bar plots, and
 %   0.01 in scatter plots
 %
@@ -73,25 +76,26 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 %
 % EXAMPLE OF USE: PCA-based MSPC on NOC test data and anomalies.
 %
-% n_obs = 100;
-% n_vars = 10;
-% n_PCs = 1;
-% Lmodel = Lmodel_ini(simuleMV(n_obs,n_vars,6));
-% Lmodel.multr = 100*rand(n_obs,1); 
-% Lmodel.lvs = 1:n_PCs;
+% nobs = 100;
+% nvars = 10;
+% nLVs = 1;
+% X = simuleMV(nobs,nvars,'LevelCorr',6);
+% Y = 0.1*randn(nobs,2) + X(:,1:2);
+% Lmodel = iniLmodel(X,Y);
+% Lmodel.multr = 100*rand(nobs,1); 
+% Lmodel.lvs = 1:nLVs;
 % 
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
+% nobst = 10;
+% test = simuleMV(nobst,nvars,'LevelCorr',6,corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
-% [Dst,Qst,Dstt,Qstt] = mspc_Lpca(Lmodel,test,100,[],[1*ones(5,1);2*ones(5,1)]);
+% [Dst,Qst,Dstt,Qstt] = mspcLpls(Lmodel,test,100,[],[1*ones(5,1);2*ones(5,1)]);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 27/Aug/18.
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -112,7 +116,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpca(Lmodel,test,opt,label,classes
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 
 N = min(Lmodel.nc,size(Lmodel.centr,1));
 M = size(Lmodel.XX, 2);
@@ -128,58 +132,58 @@ if isnumeric(opt), opt=num2str(opt); end
 % Complete opt
 if length(opt)<2, opt = strcat(opt,'00'); end
 if length(opt)<3, opt = strcat(opt,'0'); end
-if opt(3) == '1'
+if opt(3) == '1',
     K = L;
 else
     K = N+L;
 end
 
-if nargin < 4 || isempty(label)
-    if  opt(3) == '1'
+if nargin < 4 || isempty(label), 
+    if  opt(3) == '1',
         label = cellstr(num2str((1:L)'));
-    elseif isempty(Lmodel.obs_l)
+    elseif isempty(Lmodel.obsl),
         label = cellstr(num2str([1:N 1:L]'));
     else
         if L
             lb1 = cellstr(num2str((1:L)'));
-            label = {Lmodel.obs_l{:} lb1{:}};
+            label = {Lmodel.obsl{:} lb1{:}};
         else
-            label = Lmodel.obs_l;
+            label = Lmodel.obsl;
         end
     end
 else
-    if  opt(3) == '0'
-        if isempty(Lmodel.obs_l)
+    if  opt(3) == '0',
+        if isempty(Lmodel.obsl),
             lb1 = cellstr(num2str((1:N)'));
             label = {lb1{:} label{:}};
         else
-            label = {Lmodel.obs_l{:} label{:}};
+            label = {Lmodel.obsl{:} label{:}};
         end
     end
 end
 
-if nargin < 5 || isempty(classes)
-    if opt(3) == '1' 
+if nargin < 5 || isempty(classes),
+    if opt(3) == '1', 
         classes = ones(L,1); 
     else
         classes = [Lmodel.class;2*ones(L,1)];  
     end
-elseif opt(3) == '0' && length(classes)==L
+elseif opt(3) == '0' && length(classes)==L,
         classes = [Lmodel.class;2*classes];
 end
 
-if nargin < 6 || isempty(p_valueD)
-    if opt(2) == 0 || opt(2) == '0'
-        p_valueD = 0.01; 
+if nargin < 6 || isempty(pvalueD),
+    if opt(2) == 0 || opt(2) == '0',
+        pvalueD = 0.01; 
     else
-        p_valueD = [0.01 0.05]; 
+        pvalueD = [0.01 0.05]; 
     end
 end;
-if nargin < 7 || isempty(p_valueQ) 
-    if opt(2) == 0 || opt(2) == '0'
-        p_valueQ = 0.01; 
+if nargin < 7 || isempty(pvalueQ), 
+    if opt(2) == 0 || opt(2) == '0',
+        pvalueQ = 0.01; 
     else
-        p_valueQ = [0.01 0.05]; 
+        pvalueQ = [0.01 0.05]; 
     end
 end;
 if nargin < 8, limtype = 0; end;
@@ -187,10 +191,10 @@ if nargin < 8, limtype = 0; end;
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
-if ~isempty(p_valueD) && size(p_valueD,1) == 1,     p_valueD = p_valueD'; end;
-if ~isempty(p_valueQ) && size(p_valueQ,1) == 1, p_valueQ = p_valueQ'; end;
-Ld = size(p_valueD,1);
-Lq = size(p_valueQ,1);
+if ~isempty(pvalueD) && size(pvalueD,1) == 1,     pvalueD = pvalueD'; end;
+if ~isempty(pvalueQ) && size(pvalueQ,1) == 1, pvalueQ = pvalueQ'; end;
+Ld = size(pvalueD,1);
+Lq = size(pvalueQ,1);
 
 A = length(Lmodel.lvs);
 
@@ -199,26 +203,30 @@ if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 2nd arg
 assert (ischar(opt) && length(opt)==3, 'Dimension Error: 3rd argument must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: 4th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: 5th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name); 
-if ~isempty(p_valueD), assert (isequal(size(p_valueD), [Ld 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(p_valueQ), assert (isequal(size(p_valueQ), [Lq 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(pvalueD), assert (isequal(size(pvalueD), [Ld 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(pvalueQ), assert (isequal(size(pvalueQ), [Lq 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isequal(size(limtype), [1 1]), 'Dimension Error: 8th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(p_valueD), assert (isempty(find(p_valueD<=0 | p_valueD>1)), 'Value Error: 6th argument must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<=0 | p_valueQ>1)), 'Value Error: 7th argument must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(pvalueD), assert (isempty(find(pvalueD<=0 | pvalueD>1)), 'Value Error: 6th argument must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(pvalueQ), assert (isempty(find(pvalueQ<=0 | pvalueQ>1)), 'Value Error: 7th argument must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
 
 
 %% Main code
 
-[P,~,Lmodel] = Lpca(Lmodel);
-iTT = diag((Lmodel.N-1)./Lmodel.LVvar(Lmodel.lvs));
+Lmodel = Lpls(Lmodel);
+R = Lmodel.altweights;
+P = Lmodel.loads;
+sdT = Lmodel.sdT;
 
-[Dst,Qst] = mspc(Lmodel.centr,iTT,P);
+iTT = diag(1./(sdT.^2));
+
+[Dst,Qst] = mspc(Lmodel.centr,iTT,R,P);
 
 if ~isempty(test)
     testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
-    [Dstt,Qstt] = mspc(testcs,iTT,P);
+    [Dstt,Qstt] = mspc(testcs,iTT,R,P);
 else
     Dstt = [];
     Qstt = [];
@@ -228,26 +236,26 @@ if limtype==0
     UCLd = [];
     for i=1:Ld
         if isempty(test)
-            UCLd(i) = hot_lim(A,N,p_valueD(i),1);
+            UCLd(i) = hotLim(A,N,pvalueD(i),1);
         else
-            UCLd(i) = hot_lim(A,N,p_valueD(i),2);
+            UCLd(i) = hotLim(A,N,pvalueD(i),2);
         end
     end
     
-    E = Lmodel.centr - Lmodel.centr*P*P'; 
+    E = Lmodel.centr - Lmodel.centr*R*P'; 
     UCLq = [];   
     for i=1:Lq
-        UCLq(i) = spe_lim(E,p_valueQ(i));
+        UCLq(i) = speLim(E,pvalueQ(i));
     end
 else
     UCLd = [];   
     for i=1:Ld
-        UCLd(i) = prctile(repelem(Dst,Lmodel.multr),100*(1-p_valueD(i)));
+        UCLd(i) = prctile(repelem(Dst,Lmodel.multr),100*(1-pvalueD(i)));
     end
     
     UCLq = [];   
     for i=1:Lq
-        UCLq(i) = prctile(repelem(Qst,Lmodel.multr),100*(1-p_valueQ(i)));
+        UCLq(i) = prctile(repelem(Qst,Lmodel.multr),100*(1-pvalueQ(i)));
     end
 end
 
@@ -266,10 +274,10 @@ if opt(1) == '1'
     end
     
     if opt(2) == '0'
-        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 11, mult);
+        plotScatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 1, mult);
     else
-        plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd, 0, mult);
-        plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq, 0, mult);
+        plotVec(Dsttt, label, classes, {[],'D-st'}, UCLd, 0, mult);
+        plotVec(Qsttt, label, classes, {[],'Q-st'}, UCLq, 0, mult);
     end
 end
         

@@ -1,28 +1,25 @@
 
-function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpls(Lmodel,test,opt,label,classes,p_valueD,p_valueQ,limtype)
+function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcLpca(Lmodel,test,opt,label,classes,p_valueD,p_valueQ,limtype)
 
-% Compute D-st and Q-st in PLS-based Multivariate Statistical Process 
+% Compute D-st and Q-st in PCA-based Multivariate Statistical Process 
 % Control
 %
-% [Dst,Qst] = mspc_Lpls(Lmodel) % minimum call
-% [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpls(Lmodel,test,opt,label,classes,p_valueD,p_valueQ,limtype) % complete call
-%
+% [Dst,Qst] = mspcLpca(Lmodel) % minimum call
+% [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcLpca(Lmodel,test,opt,label,classes,p_valueD,p_valueQ,limtype) % complete call
 %
 % INPUTS:
 %
-% Lmodel: (struct Lmodel) model with the information to compute the PLS 
+% Lmodel: (struct Lmodel) model with the information to compute the PCA
 %   model:
 %       Lmodel.XX: [MxM] X-block cross-product matrix.
-%       Lmodel.XY: [MxO] cross-product matrix between the x-block and the
-%           y-block.
-%       Lmodel.lvs: [1x1] number of Latent Variables.
+%       Lmodel.lvs: [1x1] number of PCs. 
 %       Lmodel.centr: [NxM] centroids of the clusters of observations.
 %       Lmodel.multr: [ncx1] multiplicity of each cluster.
 %       Lmodel.class: [ncx1] class associated to each cluster.
 %       Lmodel.av: [1xM] sample average according to the preprocessing method.
 %       Lmodel.sc: [1xM] sample scale according to the preprocessing method.
 %       Lmodel.weight: [1xM] weight applied after the preprocessing method.
-%       Lmodel.obs_l: {ncx1} label of each cluster.
+%       Lmodel.obsl: {ncx1} label of each cluster.
 %
 % test: [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
@@ -46,11 +43,11 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpls(Lmodel,test,opt,label,classes
 % classes: [Lx1] groups in test for different visualization (a single group 
 %   by default)
 %
-% p_valueD: [Ldx1] p-values for control limits in the D-st, in (0,1]. 
+% pvalueD: [Ldx1] p-values for control limits in the D-st, in (0,1]. 
 %   Values equal to 0.01 and 0.05 are used by default in bar plots, and
 %   0.01 in scatter plots
 %
-% p_valueQ: [Lqx1] p-values for control limits in the Q-st, in (0,1]. 
+% pvalueQ: [Lqx1] p-values for control limits in the Q-st, in (0,1]. 
 %   Values equal to 0.01 and 0.05 are used by default in bar plots, and
 %   0.01 in scatter plots
 %
@@ -76,27 +73,24 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpls(Lmodel,test,opt,label,classes
 %
 % EXAMPLE OF USE: PCA-based MSPC on NOC test data and anomalies.
 %
-% n_obs = 100;
-% n_vars = 10;
-% n_LVs = 1;
-% X = simuleMV(n_obs,n_vars,6);
-% Y = 0.1*randn(n_obs,2) + X(:,1:2);
-% Lmodel = Lmodel_ini(X,Y);
-% Lmodel.multr = 100*rand(n_obs,1); 
-% Lmodel.lvs = 1:n_LVs;
+% nobs = 100;
+% nvars = 10;
+% nPCs = 1;
+% Lmodel = iniLmodel(simuleMV(nobs,nvars,'LevelCorr',6));
+% Lmodel.multr = 100*rand(nobs,1); 
+% Lmodel.lvs = 1:nPCs;
 % 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
+% test = simuleMV(n_obst,n_vars,'LevelCorr',6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
-% [Dst,Qst,Dstt,Qstt] = mspc_Lpls(Lmodel,test,100,[],[1*ones(5,1);2*ones(5,1)]);
+% [Dst,Qst,Dstt,Qstt] = mspcLpca(Lmodel,test,100,[],[1*ones(5,1);2*ones(5,1)]);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 27/Aug/18.
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -117,7 +111,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_Lpls(Lmodel,test,opt,label,classes
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 
 N = min(Lmodel.nc,size(Lmodel.centr,1));
 M = size(Lmodel.XX, 2);
@@ -133,16 +127,16 @@ if isnumeric(opt), opt=num2str(opt); end
 % Complete opt
 if length(opt)<2, opt = strcat(opt,'00'); end
 if length(opt)<3, opt = strcat(opt,'0'); end
-if opt(3) == '1',
+if opt(3) == '1'
     K = L;
 else
     K = N+L;
 end
 
-if nargin < 4 || isempty(label), 
-    if  opt(3) == '1',
+if nargin < 4 || isempty(label)
+    if  opt(3) == '1'
         label = cellstr(num2str((1:L)'));
-    elseif isempty(Lmodel.obs_l),
+    elseif isempty(Lmodel.obs_l)
         label = cellstr(num2str([1:N 1:L]'));
     else
         if L
@@ -153,8 +147,8 @@ if nargin < 4 || isempty(label),
         end
     end
 else
-    if  opt(3) == '0',
-        if isempty(Lmodel.obs_l),
+    if  opt(3) == '0'
+        if isempty(Lmodel.obs_l)
             lb1 = cellstr(num2str((1:N)'));
             label = {lb1{:} label{:}};
         else
@@ -163,25 +157,25 @@ else
     end
 end
 
-if nargin < 5 || isempty(classes),
-    if opt(3) == '1', 
+if nargin < 5 || isempty(classes)
+    if opt(3) == '1' 
         classes = ones(L,1); 
     else
         classes = [Lmodel.class;2*ones(L,1)];  
     end
-elseif opt(3) == '0' && length(classes)==L,
+elseif opt(3) == '0' && length(classes)==L
         classes = [Lmodel.class;2*classes];
 end
 
-if nargin < 6 || isempty(p_valueD),
-    if opt(2) == 0 || opt(2) == '0',
+if nargin < 6 || isempty(p_valueD)
+    if opt(2) == 0 || opt(2) == '0'
         p_valueD = 0.01; 
     else
         p_valueD = [0.01 0.05]; 
     end
 end;
-if nargin < 7 || isempty(p_valueQ), 
-    if opt(2) == 0 || opt(2) == '0',
+if nargin < 7 || isempty(p_valueQ) 
+    if opt(2) == 0 || opt(2) == '0'
         p_valueQ = 0.01; 
     else
         p_valueQ = [0.01 0.05]; 
@@ -216,49 +210,50 @@ if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<=0 | p_valueQ>1)), 'Value E
 
 %% Main code
 
-[beta,W,P,Q,R,sdT] = Lpls(Lmodel);
-iTT = diag(1./(sdT.^2));
+Lmodel = Lpca(Lmodel);
+P = Lmodel.loads;
+iTT = diag((Lmodel.N-1)./Lmodel.sdT(Lmodel.lvs));
 
-[Dst,Qst] = mspc(Lmodel.centr,iTT,R,P);
+[Dst,Qst] = mspc(Lmodel.centr,iTT,P);
 
 if ~isempty(test)
     testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
-    [Dstt,Qstt] = mspc(testcs,iTT,R,P);
+    [Dstt,Qstt] = mspc(testcs,iTT,P);
 else
     Dstt = [];
     Qstt = [];
 end
 
-if limtype==0,
+if limtype==0
     UCLd = [];
-    for i=1:Ld,
-        if isempty(test),
+    for i=1:Ld
+        if isempty(test)
             UCLd(i) = hot_lim(A,N,p_valueD(i),1);
         else
             UCLd(i) = hot_lim(A,N,p_valueD(i),2);
         end
     end
     
-    E = Lmodel.centr - Lmodel.centr*R*P'; 
+    E = Lmodel.centr - Lmodel.centr*P*P'; 
     UCLq = [];   
-    for i=1:Lq,
+    for i=1:Lq
         UCLq(i) = spe_lim(E,p_valueQ(i));
     end
 else
     UCLd = [];   
-    for i=1:Ld,
+    for i=1:Ld
         UCLd(i) = prctile(repelem(Dst,Lmodel.multr),100*(1-p_valueD(i)));
     end
     
     UCLq = [];   
-    for i=1:Lq,
+    for i=1:Lq
         UCLq(i) = prctile(repelem(Qst,Lmodel.multr),100*(1-p_valueQ(i)));
     end
 end
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
      
     if opt(3) == '0'
         Dsttt = [Dst;Dstt];
@@ -270,8 +265,8 @@ if opt(1) == '1',
         mult = ones(size(Dstt));
     end
     
-    if opt(2) == '0',
-        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 1, mult);
+    if opt(2) == '0'
+        plot_scatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 11, mult);
     else
         plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd, 0, mult);
         plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq, 0, mult);

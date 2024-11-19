@@ -1,10 +1,10 @@
 
-function L = leverages_Lpls(Lmodel,opt)
+function L = leveragesLpls(Lmodel,opt)
 
 % Compute and plot the leverages of variables in PLS for large data.
 %
-% L = leverages_Lpls(Lmodel) % minimum call
-% L = leverages_Lpls(Lmodel,opt) % complete call
+% L = leveragesLpls(Lmodel) % minimum call
+% L = leveragesLpls(Lmodel,opt) % complete call
 %
 % INPUTS:
 %
@@ -15,7 +15,7 @@ function L = leverages_Lpls(Lmodel,opt)
 %           y-block.
 %       Lmodel.lvs: [1x1] number of Latent Variables.
 %       Lmodel.vclass: [Mx1] class associated to each variable.
-%       Lmodel.var_l: {ncx1} label of each variable.
+%       Lmodel.varl: {ncx1} label of each variable.
 %
 % opt: (str or num) options for data plotting
 %       0: no plots.
@@ -29,18 +29,17 @@ function L = leverages_Lpls(Lmodel,opt)
 %
 % EXAMPLE OF USE: Random leverages
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% Lmodel = Lmodel_ini(X,Y);
+% Lmodel = iniLmodel(X,Y);
 % Lmodel.lvs = 1:3;
-% L = leverages_Lpls(Lmodel);
+% L = leveragesLpls(Lmodel);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 26/May/17.
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -60,7 +59,7 @@ function L = leverages_Lpls(Lmodel,opt)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 if nargin < 2 || isempty(opt), opt = 1; end; 
 
 % Convert int arrays to str
@@ -76,13 +75,14 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must cont
 
 %% Main code
 
-[beta,W,P,Q,R] = Lpls(Lmodel);
+Lmodel = Lpls(Lmodel);
+W = Lmodel.weights;
 
 L = diag(W*W');
 
 
 %% Show results
 
-if opt == '1', 
-    plot_vec(L, Lmodel.var_l, Lmodel.vclass, {'Variables','Leverages'});
+if opt == '1' 
+    plotVec(L, Lmodel.varl, Lmodel.vclass, {'Variables','Leverages'});
 end        

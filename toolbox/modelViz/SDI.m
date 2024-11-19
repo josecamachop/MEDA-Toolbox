@@ -39,8 +39,8 @@ function [SDImap,best] = SDI(T,classes,varargin)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
 % lvs = 0:10;
-% [beta,W,P,Q,R] = simpls(X,Y,'LatVars',lvs);
-% T = X*R;
+% model = simpls(X,Y,'LatVars',lvs);
+% T = X*model.altweights;
 % 
 % class = Y;
 % class(find(Y==-1))=2;
@@ -96,28 +96,29 @@ assert (isempty(find(opt<0 | opt>2)), 'Value Error: parameter ''Option'' must be
 ucl = unique(classes);
 ucl(find(ucl==0))=[];
 classesD = zeros(length(classes),length(ucl));
-for i=1:length(ucl),
+for i=1:length(ucl)
     ind = find(classes==ucl(i));
     classesD(ind,i) = 1;
 end
 
 WS = zeros(size(T,2),size(T,2));
 BS = zeros(size(T,2),size(T,2));
-for i=1:size(T,2),
-    for j=1:size(T,2),
+for i=1:size(T,2)
+    for j=1:size(T,2)
         m = zeros(1,length(ucl));
-        for k=1:length(ucl),
+        for k=1:length(ucl)
             
-            if i~=j,
+            if i~=j
                 XX=T(:,[i j])'*T(:,[i j]);
                 XY=T(:,[i j])'*preprocess2D(classesD(:,k));  
-                [beta,W,P2,Q,R] = kernel_pls(XX,XY,'LatVars',1);
+                model = kernelpls(XX,XY,'LatVars',1);
+                R = model.altweights;
                 T2 = T(:,[i j])*R;
             end
         
             ind = find(classesD(:,k));
             ind2 = find(~classesD(:,k));
-            if i==j,
+            if i==j
                 [kk,m1,dt] = preprocess2D(T(ind,i),'Preprocessing',2);
                 [kk,m2,dt2] = preprocess2D(T(ind2,i),'Preprocessing',2);
             else
@@ -132,7 +133,7 @@ for i=1:size(T,2),
     end
 end
 
-for k=1:length(ucl),    
+for k=1:length(ucl)   
     SDImap(:,:,k) = BS(:,:,k)./WS(:,:,k) .* (ones(size(T,2))+reg*eye(size(T,2))); % I prefer to select single LVs so I use the regularization parameter
     
     [topx,topy] = find(SDImap(:,:,k)==max(max(squeeze(SDImap(:,:,k)))),1);

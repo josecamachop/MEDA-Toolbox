@@ -1,9 +1,9 @@
-function Lmodel = Lmodel_ini(X,Y,obs_l,var_l)
+function Lmodel = iniLmodel(X,Y,obsl,varl)
 
 % Large model inicialization
 %
-% Lmodel_ini % minimum call
-% Lmodel = Lmodel_ini(X,Y,obs_l,var_l) % complete call
+% iniLmodel % minimum call
+% Lmodel = iniLmodel(X,Y,obsl,varl) % complete call
 %
 %
 % INOUTS:
@@ -12,9 +12,9 @@ function Lmodel = Lmodel_ini(X,Y,obs_l,var_l)
 %
 % Y: [NxO] billinear data set of predicted variables
 %
-% obs_l: {Nx1} label of each observation.
+% obsl: {Nx1} label of each observation.
 %
-% var_l: {Mx1} label of each variable.
+% varl: {Mx1} label of each variable.
 %
 % OUTPUTS:
 %
@@ -33,7 +33,7 @@ function Lmodel = Lmodel_ini(X,Y,obs_l,var_l)
 %
 % Lmodel.N: [1x1] number of effective observations in the model.
 %
-% Lmodel.type: [1x1] PCA (1) o PLS (2)
+% Lmodel.type: [1x1] 'PCA', 'PLS' or 'ASCA'
 %
 % Lmodel.update: [1x1] EWMA (1) or ITERATIVE (2)
 %
@@ -56,9 +56,9 @@ function Lmodel = Lmodel_ini(X,Y,obs_l,var_l)
 %
 % Lmodel.updated: [ncx1] specifies whether a data point is new.
 %
-% Lmodel.obs_l: {ncx1} label of each cluster.
+% Lmodel.obsl: {ncx1} label of each cluster.
 %
-% Lmodel.var_l: {ncx1} label of each variable.
+% Lmodel.varl: {ncx1} label of each variable.
 %
 % Lmodel.mat: [MxA] projection matrix for distance computation.
 %
@@ -78,7 +78,7 @@ function Lmodel = Lmodel_ini(X,Y,obs_l,var_l)
 %
 % Lmodel.YY: [OxO] sample cross-product matrix of Y.
 %
-% Lmodel.index_fich: {ncx1} file system with the original observations in
+% Lmodel.indexfich: {ncx1} file system with the original observations in
 %   each cluster for ITERATIVE models.
 %
 % Lmodel.path: (str) path to the file system for ITERATIVE models.
@@ -86,14 +86,14 @@ function Lmodel = Lmodel_ini(X,Y,obs_l,var_l)
 %
 % EXAMPLE OF USE:
 %
-% X = simuleMV(20,10,8);
-% Lmodel = Lmodel_ini(X);
+% X = simuleMV(20,10,'LevelCorr',8);
+% Lmodel = iniLmodel(X)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 13/Jun/23
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -114,25 +114,25 @@ if nargin < 1, X = []; end;
 N = size(X, 1);
 M = size(X, 2);
 if nargin < 2, Y = []; end;
-if nargin < 3 || isempty(obs_l) 
+if nargin < 3 || isempty(obsl) 
     if N>0 
-        obs_l = cellstr(num2str((1:N)')); 
+        obsl = cellstr(num2str((1:N)')); 
     else
-        obs_l = {}; 
+        obsl = {}; 
     end;
 end
-if nargin < 4 || isempty(var_l) 
+if nargin < 4 || isempty(varl) 
     if M>0
-        var_l = cellstr(num2str((1:M)')); 
+        varl = cellstr(num2str((1:M)')); 
     else
-        var_l = {};
+        varl = {};
     end
 end;
 
 Lmodel.centr = X;
 Lmodel.centrY = Y;
-Lmodel.obs_l = obs_l;
-Lmodel.var_l =  var_l;
+Lmodel.obsl = obsl;
+Lmodel.varl =  varl;
 
 Lmodel.multr = []; 
 Lmodel.class = []; 
@@ -150,8 +150,8 @@ Lmodel.XX = [];
 Lmodel.XY = [];
 Lmodel.YY = [];
 Lmodel.mat = [];
-Lmodel.index_fich = {};
+Lmodel.indexfich = {};
 Lmodel.path = '';
 
 
-[kk,Lmodel] = check_Lmodel(Lmodel);
+[kk,Lmodel] = checkLmodel(Lmodel);

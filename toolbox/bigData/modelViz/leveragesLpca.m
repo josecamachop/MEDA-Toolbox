@@ -1,9 +1,9 @@
-function L = leverages_Lpca(Lmodel,opt)
+function L = leveragesLpca(Lmodel,opt)
 
 % Compute and plot the leverages of variables in the PCA model for large data.
 %
-% L = loadings_Lpca(Lmodel) % minimum call
-% L = loadings_Lpca(Lmodel,opt) % complete call
+% L = leveragesLpca(Lmodel) % minimum call
+% L = leveragesLpca(Lmodel,opt) % complete call
 %
 % INPUTS:
 %
@@ -12,7 +12,7 @@ function L = leverages_Lpca(Lmodel,opt)
 %       Lmodel.XX: (MxM) X-block cross-product matrix.
 %       Lmodel.lvs: (1x1) number of PCs.
 %       Lmodel.vclass: [Mx1] class associated to each variable.
-%       Lmodel.var_l: {ncx1} label of each variable.
+%       Lmodel.varl: {ncx1} label of each variable.
 %
 % opt: (str or num) options for data plotting
 %       0: no plots.
@@ -26,17 +26,16 @@ function L = leverages_Lpca(Lmodel,opt)
 %
 % EXAMPLE OF USE: Random leverages
 %
-% X = simuleMV(20,10,8);
-% Lmodel = Lmodel_ini(X);
+% X = simuleMV(20,10,'LevelCorr',8);
+% Lmodel = iniLmodel(X);
 % Lmodel.lvs = 1:3;
-% L = leverages_Lpca(Lmodel);
+% L = leveragesLpca(Lmodel);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/May/17.
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -56,7 +55,7 @@ function L = leverages_Lpca(Lmodel,opt)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 if nargin < 2 || isempty(opt), opt = 1; end; 
 
 % Convert int arrays to str
@@ -71,13 +70,13 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3nd argument must cont
 
 %% Main code
 
-P = Lpca(Lmodel);
+Lmodel = Lpca(Lmodel);
+P = Lmodel.loads;
 
 L = diag(P*P');
 
-
 %% Show results
 
-if opt == '1', 
-    plot_vec(L, Lmodel.var_l, Lmodel.vclass, {'Variables','Leverages'});
+if opt == '1' 
+    plotVec(L, Lmodel.varl, Lmodel.vclass, {'Variables','Leverages'});
 end

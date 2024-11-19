@@ -46,20 +46,19 @@ function [xp,average,scale,N] = preprocess2Di(x,prep,ndim,lambda,average,scale,N
 %
 % EXAMPLE OF USE: Random data:
 %
-% X = simuleMV(10,10,8);
+% X = simuleMV(10,10,'LevelCorr',8);
 % [Xcs,av,sc] = preprocess2Di(X,2,0);
-% plot_vec([av' sc'],[],[],{'Average & Std Dev' ,''},[], 0);
+% plotVec([av' sc'],'XYLabel',{'Avergae','Std Dev'},'Option','11')
 %
-% X = simuleMV(10,10,8);
+% X = simuleMV(10,10,'LevelCorr',8);
 % [Xcs,av,sc] = preprocess2Di(X,2,0,0.9,av,sc);
-% plot_vec([av' sc'],[],[],{'Average & Std Dev' ,''},[], 0);
+% plotVec([av' sc'],'XYLabel',{'Avergae','Std Dev'},'Option','11')
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 27/May/2017
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -85,15 +84,15 @@ M = size(x, 2);
 if nargin < 2 || isempty(prep), prep = 2; end;
 prep2=prep;
 if prep2 == 3, prep2=2; end;
-[xcs,av,sc] = preprocess2D(x,prep2);
+[xcs,av,sc] = preprocess2D(x,'Preprocess',prep2);
 
 if nargin < 3 || isempty(ndim), ndim = 0; end;
 if nargin < 4 || isempty(lambda), lambda = 0; end;
 if nargin < 5 || isempty(average), average = av; end;
 if nargin < 6 || isempty(scale), scale = sc; end;
 if nargin < 7 || isempty(N), N = 0; end;
-if nargin < 8 || isempty(weight), 
-    if ndim,
+if nargin < 8 || isempty(weight) 
+    if ndim
         weight = ones(1,n);
     else
         weight = ones(1,M);
@@ -120,7 +119,7 @@ assert (isempty(find(weight<0)) && isempty(find(weight==Inf)), 'Value Error: 8th
 
 %% Main code
 
-if ndim,
+if ndim
     x = x';
     s = size(x);
 end
@@ -128,15 +127,15 @@ end
 acc = average*N;
 acc2 = (scale.^2)*max(N-1,0);
 N = lambda*N + n; % update number of elements
-switch prep,
+switch prep
     
-    case 1, % mean centering
+    case 1 % mean centering
         acc = lambda*acc + sum(x,1); % update accumulate 
         average = acc/N;    
         scale = ones(1,M);
         xp = x - ones(n,1)*average;
         
-    case 2, % auto-scaling
+    case 2 % auto-scaling
         acc = lambda*acc + sum(x,1); % update accumulate 
         average = acc/N;   
         xc = x - ones(n,1)*average; 
@@ -149,7 +148,7 @@ switch prep,
         scale(find(scale==0))=mS/2; % use 1 by default may reduce detection of anomalous events 
         xp = xc./(ones(n,1)*scale);
         
-    case 3, % scaling  
+    case 3 % scaling  
         average = zeros(1,M); 
         acc2 = lambda*acc2 + sum(x.^2,1);% update variability  
         if acc2 < 0, pause, end
@@ -161,7 +160,7 @@ switch prep,
         scale(find(scale==0))=mS/2; % use 1 by default may reduce detection of anomalous events  
         xp = x./(ones(n,1)*scale);
         
-    otherwise, % No preprocessing 
+    otherwise % No preprocessing 
         average = zeros(1,M);     
         scale = ones(1,M); 
         xp = x;
@@ -169,7 +168,7 @@ end
 
 xp = xp.*(ones(n,1)*weight);
 
-if ndim,
+if ndim
     xp = xp';
 end
 

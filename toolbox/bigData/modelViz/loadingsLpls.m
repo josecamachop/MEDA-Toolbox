@@ -1,10 +1,10 @@
 
-function [P,W,Q,fig_h] = loadings_Lpls(Lmodel,opt)
+function [P,W,Q,figH] = loadingsLpls(Lmodel,opt)
 
 % Compute and plot loadings in PLS for large data.
 %
-% loadings_Lpls(Lmodel) % minimum call
-% [P,W,Q] = loadings_Lpls(Lmodel,opt) % complete call
+% loadingsLpls(Lmodel) % minimum call
+% [P,W,Q] = loadingsLpls(Lmodel,opt) % complete call
 %
 % INPUTS:
 %
@@ -15,7 +15,7 @@ function [P,W,Q,fig_h] = loadings_Lpls(Lmodel,opt)
 %           y-block.
 %       Lmodel.lvs: [1x1] number of Latent Variables.
 %       Lmodel.vclass: [Mx1] class associated to each variable.
-%       Lmodel.var_l: {ncx1} label of each variable.
+%       Lmodel.varl: {ncx1} label of each variable.
 %
 % opt: (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
@@ -40,23 +40,22 @@ function [P,W,Q,fig_h] = loadings_Lpls(Lmodel,opt)
 %
 % Q: [OxA] Y-block loadings
 %
-% fig_h: (Lx1) figure handles
+% figH: (Lx1) figure handles
 %
 %
 % EXAMPLE OF USE: Random loadings: bar and scatter plot of loadings
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% Lmodel = Lmodel_ini(X,Y);
-% loadings_pls(X,Y,1);
-% [P,W,Q] = loadings_pls(X,Y,1:3);
+% Lmodel = iniLmodel(X,Y);
+% loadingsPls(X,Y,1);
+% [P,W,Q] = loadingsPls(X,Y,1:3);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 22/Jan/21
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -76,7 +75,7 @@ function [P,W,Q,fig_h] = loadings_Lpls(Lmodel,opt)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 if nargin < 2 || isempty(opt), opt = '100'; end; 
 
 % Convert int arrays to str
@@ -95,15 +94,18 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must cont
 
 %% Main code
 
-[beta,W,P,Q,R] = Lpls(Lmodel);
+Lmodel = Lpls(Lmodel);
+W = Lmodel.weights;
+Q = Lmodel.yloads;
+P = Lomdel.loads;
 
 
 %% Show results
 
-fig_h = [];
-if opt(1) == '1',
+figH = [];
+if opt(1) == '1'
     
-    if opt(3) == '0',
+    if opt(3) == '0'
         Pt = W;
         text = 'Weights';
     else
@@ -111,17 +113,17 @@ if opt(1) == '1',
         text = 'X-block loadings';
     end
     
-    [y_var,t_var] = var_Lpls(Lmodel,0);
+    [yvar,tvar] = varLpls(Lmodel,0);
      
-    if length(Lmodel.lvs) == 1 || opt(2) == '1',
-        for i=1:length(Lmodel.lvs),
-            fig_h(i) = plot_vec(Pt(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i)),100*(t_var(i) - t_var(i+1))});
+    if length(Lmodel.lvs) == 1 || opt(2) == '1'
+        for i=1:length(Lmodel.lvs)
+            figH(i) = plotVec(Pt(:,i), Lmodel.varl, Lmodel.vclass, {'',sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i)),100*(tvar(i) - tvar(i+1))});
         end
     else
         h = 1;
-        for i=1:length(Lmodel.lvs)-1,
-            for j=i+1:length(Lmodel.lvs),
-                fig_h(h) = plot_scatter([Pt(:,i),Pt(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))),sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}');
+        for i=1:length(Lmodel.lvs)-1
+            for j=i+1:length(Lmodel.lvs)
+                figH(h) = plotScatter([Pt(:,i),Pt(:,j)], Lmodel.varl, Lmodel.vclass, {sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i),100*(tvar(i) - tvar(i+1))),sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))}');
                 h = h+1;
             end      
         end

@@ -158,8 +158,8 @@ for j=1:rep
         vcs = preprocess2Dapp(val,av,'SDivideTest',st);
         vcs_y = preprocess2Dapp(val_y,av_y,'SDivideTest',st_y);
         
-        beta = simpls(ccs,ccs_y,'LatVars',1:lvso(i));
-        srec = vcs*beta;
+        model = simpls(ccs,ccs_y,'LatVars',1:lvso(i));
+        srec = vcs*model.beta;
         
         Qu(i) = sum(sum((vcs_y-srec).^2));
         Qd(i) = sum(sum(vcs_y.^2));

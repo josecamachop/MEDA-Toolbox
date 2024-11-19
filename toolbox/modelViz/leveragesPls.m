@@ -139,10 +139,12 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 xcs = preprocess2D(x,'Preprocessing',prepx);
 ycs = preprocess2D(y,'Preprocessing',prepy);
 
-[beta,W,P,Q] = simpls(xcs,ycs,'LatVars',lvs);
+model = simpls(xcs,ycs,'LatVars',lvs);
+R = model.altweights;
+P = model.loads;
 
 %L = diag(W*W');
-L = sum((xcs*W*P').^2)./sum(xcs.^2);
+L = sum((xcs*R*P').^2)./sum(xcs.^2);
 
 %% Show results
 

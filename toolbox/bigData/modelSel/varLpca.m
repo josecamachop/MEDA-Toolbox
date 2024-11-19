@@ -1,9 +1,9 @@
-function x_var = var_Lpca(Lmodel,opt)
+function x_var = varLpca(Lmodel,opt)
 
 % Variability captured in terms of the number of PCs.
 %
-% var_Lpca(Lmodel) % minimum call
-% x_var = var_Lpca(Lmodel,opt) %complete call
+% varLpca(Lmodel) % minimum call
+% x_var = varLpca(Lmodel,opt) %complete call
 %
 %
 % INPUTS:
@@ -25,9 +25,9 @@ function x_var = var_Lpca(Lmodel,opt)
 %
 % EXAMPLE OF USE: Random data
 %
-% Lmodel = Lmodel_ini(simuleMV(20,10,8));
+% Lmodel = iniLmodel(simuleMV(20,10,8));
 % Lmodel.lvs = 0:10;
-% x_var = var_Lpca(Lmodel);
+% x_var = varLpca(Lmodel);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -56,7 +56,7 @@ function x_var = var_Lpca(Lmodel,opt)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-check_Lmodel(Lmodel);
+checkLmodel(Lmodel);
 
 % Preprocessing
 Lmodel.lvs = unique([0 Lmodel.lvs]);
@@ -76,16 +76,17 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must cont
 %% Main code
 
 Lmodel.lvs = 0:max(Lmodel.lvs);
-P = Lpca(Lmodel);
+Lmodel = Lpca(Lmodel);
+P = Lmodel.loads;
 
 totalVx = sum(eig(Lmodel.XX));
 x_var = ones(max(Lmodel.lvs)+1,1);
-for i=1:max(Lmodel.lvs),
+for i=1:max(Lmodel.lvs)
     x_var(i+1) = x_var(i+1) - sum(eig(P(:,1:i)'*Lmodel.XX*P(:,1:i)))/totalVx;
 end
     
 %% Show results
 
-if opt == '1',
-    plot_vec(x_var,Lmodel.lvs,[],{'#PCs','% Residual Variance'},[],0);
+if opt == '1'
+    plotVec(x_var,Lmodel.lvs,[],{'#PCs','% Residual Variance'},[],0);
 end

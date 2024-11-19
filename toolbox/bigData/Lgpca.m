@@ -1,11 +1,11 @@
-function [P,T,bel,E,Lmodel] = Lgpca(Lmodel,states)
+function Lmodel = Lgpca(Lmodel,states)
 
 % Group-wise Principal Component Analysis for large data. The original 
 % paper is Camacho, J., Rodríguez-Gómez, R., Saccenti, E. Group-wise 
 % Principal Component Analysis for Exploratory Data Analysis. Journal of 
 % Computational and  Graphical Statistics, 2017.
 %
-% [P,T,bel,E,Lmodel] = Lgpca(Lmodel,states)     % complete call
+% Lmodel = Lgpca(Lmodel,states)     % complete call
 %
 %
 % INPUTS:
@@ -20,37 +20,28 @@ function [P,T,bel,E,Lmodel] = Lgpca(Lmodel,states)
 %
 % OUTPUTS:
 %
-% P: [MxA] matrix of loadings.
-%
-% T: [NxA] matrix of scores.
-%
-% bel: [Ax1] correspondence between PCs and States.
-%
-% E: [NxM] matrix of residuals.
-%
 % Lmodel: (struct Lmodel) model after integrity checking.
 %
 %
 % EXAMPLE OF USE: Random data:
 %
-% X = simuleMV(20,10,8);
-% Lmodel = Lmodel_ini(X);
+% X = simuleMV(20,10,'LevelCorr',6);
+% Lmodel = iniLmodel(X);
 % Lmodel.lvs = 0:10;
-% map = meda_Lpca(Lmodel);
-% [bel,states] = gia(map,0.3);
+% map = medaLpca(Lmodel);
+% [bel,states] = gia(map,'Gamma',0.3);
 % Lmodel.lvs = 1:length(states);
-% [P,T,bel,E] = Lgpca(Lmodel,states);
+% Lmodel = Lgpca(Lmodel,states);
 % 
 % for i=Lmodel.lvs,
-%   plot_vec(P(:,i),[],[],{'',sprintf('PC %d',i)});
+%   plotVec(Lmodel.loads(:,i),'XYLabel',{'',sprintf('PC %d',i)});
 % end
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/May/2017
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -72,7 +63,7 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 
 
 %% Main code
@@ -87,16 +78,16 @@ B = I;
 P = [];
 T = [];
 bel = [];
-for j = 1:max(Lmodel.lvs),  
+for j = 1:max(Lmodel.lvs)  
     
     R = zeros(M,length(states));
     S = zeros(N,length(states));
     
-    for i=1:length(states), % construct eigenvectors according to states
-        map_aux = zeros(size(map));
-        map_aux(states{i},states{i})= map(states{i},states{i});
-        if rank(map_aux),
-            [V,D] = eig(map_aux);
+    for i=1:length(states) % construct eigenvectors according to states
+        mapaux = zeros(size(map));
+        mapaux(states{i},states{i})= map(states{i},states{i});
+        if rank(mapaux)
+            [V,D] = eig(mapaux);
             ind = find(diag(D)==max(diag(D)),1);
             R(:,i) = V(:,ind);
             S(:,i) = xcs*R(:,i);    
@@ -116,4 +107,7 @@ for j = 1:max(Lmodel.lvs),
     
 end
 
-E = xcs;
+Lmodel.loads = P;
+Lmodel.scores = T;
+Lmodel.bel = bel;
+Lmodel.residuals = xcs;

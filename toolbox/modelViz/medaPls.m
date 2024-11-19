@@ -164,7 +164,9 @@ label = label(vars);
 x2 = preprocess2D(x,'Preprocessing',prepx);
 y2 = preprocess2D(y,'Preprocessing',prepy);
 
-[beta,W,P,Q,R] = simpls(x2,y2,'LatVars',lvs);
+model = simpls(x2,y2,'LatVars',lvs);
+R = model.altweights;
+P = model.loads;
 
 meda_map = meda(x2'*x2,R,'OutSubspace',P);
 

@@ -203,7 +203,8 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 [xcs,m,sd] = preprocess2D(x,'Preprocessing',prepx);
 ycs = preprocess2D(y,'Preprocessing',prepy);
 
-[beta,W,P,Q,R] = simpls(xcs,ycs,'LatVars',lvs); 
+model = simpls(xcs,ycs,'LatVars',lvs); 
+R = model.altweights;
 T = xcs*R;
 
 if ~isempty(test)

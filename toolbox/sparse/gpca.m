@@ -75,7 +75,7 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(xcs, 1);
 M = size(xcs, 2);
-if length(states)==0,
+if length(states)==0
     states{1} = 1:M;
 end
 
@@ -107,7 +107,7 @@ assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1
 
 % Validate values of input data
 assert (iscell(states), 'Value Error: parameter ''states'' must be a cell of positive integers. Type ''help %s'' for more info.', routine(1).name);
-for i=1:length(states),
+for i=1:length(states)
     assert (isempty(find(states{i}<1)) && isequal(fix(states{i}), states{i}), 'Value Error: 2nd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine(1).name);
     assert (isempty(find(states{i}>M)), 'Value Error: parameter ''states'' must contain values not higher than M. Type ''help %s'' for more info.', routine(1).name);
 end
@@ -124,15 +124,15 @@ B = I;
 p = [];
 t = [];
 bel = [];
-for j = 1:max(pcs),  
+for j = 1:max(pcs)  
     
     R = zeros(M,length(states));
     S = zeros(N,length(states));
-    for i=1:length(states), % construct eigenvectors according to states
+    for i=1:length(states) % construct eigenvectors according to states
         map_aux = zeros(size(map));
         map_aux(states{i},states{i})= map(states{i},states{i});
        
-        if find(map_aux>tol),
+        if find(map_aux>tol)
             [V,D] = eig(map_aux);
             ind = find(diag(D)==max(diag(D)),1);
             R(:,i) = V(:,ind)/sqrt((V(:,ind)'*B*V(:,ind)));

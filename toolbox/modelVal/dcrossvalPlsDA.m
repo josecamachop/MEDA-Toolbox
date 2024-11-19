@@ -196,9 +196,9 @@ for j=1:rep
             X = ccs;
             Y = ccs_y;
               
-            beta = simpls(X,Y,'LatVars',1:lvso(j,i));
+            model = simpls(X,Y,'LatVars',1:lvso(j,i));
             
-            sr = vcs*beta;
+            sr = vcs*model.beta;
             srec1(ind_i1') = sr(1:length(ind_i1));
             srecn1(ind_in1') = sr(length(ind_i1)+1:end);
             

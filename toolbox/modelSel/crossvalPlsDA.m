@@ -200,9 +200,9 @@ for i=1:blocks_r
                 X = ccs;
                 Y = ccs_y;
               
-                beta = simpls(X,Y,'LatVars',1:lvs(lv));
+                model = simpls(X,Y,'LatVars',1:lvs(lv));
                 
-                srec1(test,lv,:) = scs*beta;
+                srec1(test,lv,:) = scs*model.beta;
                 
             else
                 srec1(test,lv,:) = 0;

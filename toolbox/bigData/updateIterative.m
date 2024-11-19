@@ -1,10 +1,10 @@
-function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
+function Lmodel = updateIterative(list,path,Lmodel,step,files,debug)
 
 % Big data analysis based on bilinear proyection models (PCA, PLS and ASCA),
 % iterative approach.
 %
-% Lmodel = update_iterative(list)          % minimum call
-% Lmodel = update_iterative(list,path,Lmodel,step,files,debug) % complete call
+% Lmodel = updateIterative(list)          % minimum call
+% Lmodel = updateIterative(list,path,Lmodel,step,files,debug) % complete call
 %
 %
 % INPUTS:
@@ -53,8 +53,8 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 %
 % n_obs = 100;
 % n_vars = 10;
-% Lmodel = Lmodel_ini;
-% Lmodel.type = 1; 
+% Lmodel = iniLmodel;
+% Lmodel.type = 'PCA'; 
 % Lmodel.prep = 2;  
 % Lmodel.lvs = 1;
 % Lmodel.nc = 100; % Number of clusters
@@ -63,7 +63,7 @@ function Lmodel = update_iterative(list,path,Lmodel,step,files,debug)
 %   list(i).x = simuleMV(n_obs,n_vars,6);
 % end
 %
-% Lmodel = update_iterative(list,[],Lmodel);
+% Lmodel = updateIterative(list,[],Lmodel);
 % mspc_Lpca(Lmodel);
 %
 %
@@ -92,12 +92,12 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 
 if nargin < 2 || isempty(path), path = ''; end;
 if nargin < 3 || isempty(Lmodel) 
-    Lmodel = Lmodel_ini; 
-    Lmodel.type = 1;
+    Lmodel = iniLmodel; 
+    Lmodel.type = 'PCA';
     Lmodel.lvs = 0;
     Lmodel.prep = 2;
 end;
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 if nargin < 4 || isempty(step), step = 1; end;
 if nargin < 5 || isempty(files), files = 0; end;
 if nargin < 6 || isempty(debug), debug = 1; end;
@@ -118,7 +118,7 @@ assert (isempty(find(debug~=0 & debug~=1 & debug~=2)), 'Value Error: 6th argumen
 Lmodel.update = 2; 
 
 if files
-  if Lmodel.type~=3 
+  if ~strcmp(Lmodel.type,'ASCA')
       if ispc
           [status,result] = system(['del ' Lmodel.path 'MEDA*.txt']); % delete previous files
       else
@@ -135,7 +135,7 @@ if files
   end
 end
 
-if Lmodel.type==3 % build coding matrix
+if strcmp(Lmodel.type,'ASCA') % build coding matrix
     
     if debug, disp('preparing coding matrix..................................................'), end;
             
@@ -198,7 +198,7 @@ end
 
 % compute mean
 
-if Lmodel.type==1 || Lmodel.type==3
+if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'ASCA')
     
     if debug, disp('mean centering X block..................................................'), end;
     
@@ -221,7 +221,7 @@ if Lmodel.type==1 || Lmodel.type==3
         
     end
         
-elseif Lmodel.type==2
+elseif strcmp(Lmodel.type,'PLS')
     
     if debug, disp('mean centering X and Y blocks...........................................'), end;
     
@@ -259,7 +259,7 @@ end
 
 N = 0;
     
-if ((Lmodel.type==1 || Lmodel.type==3) && Lmodel.prep == 2) || (Lmodel.type==2 && Lmodel.prep == 2 && Lmodel.prepy < 2) 
+if ((strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'ASCA')) && Lmodel.prep == 2) || (strcmp(Lmodel.type,'PLS') && Lmodel.prep == 2 && Lmodel.prepy < 2) 
     
     if debug, disp('scaling X block..................................................'), end;
         
@@ -281,7 +281,7 @@ if ((Lmodel.type==1 || Lmodel.type==3) && Lmodel.prep == 2) || (Lmodel.type==2 &
         
     end
     
-elseif Lmodel.type == 2 && Lmodel.prep == 2 && Lmodel.prepy == 2
+elseif strcmp(Lmodel.type,'PLS') && Lmodel.prep == 2 && Lmodel.prepy == 2
     
     if debug, disp('scaling X and Y blocks..................................................'), end;
     
@@ -314,7 +314,7 @@ end
 
 % compute cross-product matrices
 
-if Lmodel.type==1 
+if strcmp(Lmodel.type,'PCA') 
     
     Lmodel.XX = zeros(size(x,2));
 
@@ -342,7 +342,7 @@ if Lmodel.type==1
         
     end
     
-elseif Lmodel.type==2 
+elseif strcmp(Lmodel.type,'PLS') 
     
     Lmodel.XX = zeros(size(x,2));
     Lmodel.XY = zeros(size(x,2),size(y,2));
@@ -376,7 +376,7 @@ elseif Lmodel.type==2
         
     end
     
- elseif Lmodel.type==3 
+ elseif strcmp(Lmodel.type,'ASCA') 
     
     Lmodel.DD = zeros(size(d,2));
     Lmodel.DX = zeros(size(d,2),size(x,2));
@@ -527,7 +527,7 @@ elseif Lmodel.type==2
 end
 
 % compute model
-if Lmodel.type==1 
+if strcmp(Lmodel.type,'PCA') 
     
     Lmodel.centr = ones(size(Lmodel.centr,1),size(Lmodel.XX,1));
     
@@ -540,10 +540,10 @@ if Lmodel.type==1
         Lmodel.lvs = 1:Lmodel.lvs;
     end
     
-    [P,T,Lmodel] = Lpca(Lmodel);
-    Lmodel.mat = P;
+    Lmodel = Lpca(Lmodel);
+    Lmodel.mat = Lmodel.loads;
     
-elseif Lmodel.type==2
+elseif strcmp(Lmodel.type,'PLS')
        
     Lmodel.centr = ones(size(Lmodel.centr,1),size(Lmodel.XX,1));
     if rank(Lmodel.XY)>0
@@ -557,7 +557,8 @@ elseif Lmodel.type==2
             Lmodel.lvs = 1:Lmodel.lvs;
         end
         
-        [beta,W,P,Q,R,sdT,Lmodel] = Lpls(Lmodel);
+        Lmodel = Lpls(Lmodel);
+        R = Lmodel.altweights;
         Lmodel.mat = R;
         
     else
@@ -573,12 +574,12 @@ elseif Lmodel.type==2
             Lmodel.lvs = 1:Lmodel.lvs;
         end
         
-        [P,T,Lmodel] = Lpca(Lmodel); 
-        Lmodel.mat = P;
+        Lmodel = Lpca(Lmodel);
+        Lmodel.mat = Lmodel.loads;
         
     end
     
-elseif Lmodel.type==3
+elseif strcmp(Lmodel.type,'ASCA')
     
     if debug, disp('computing ASCA model....................................................'), end;
     
@@ -598,8 +599,8 @@ elseif Lmodel.type==3
             Lmodel.factors{f}.lvs = 1:Lmodel.factors{f}.lvs;
         end
         
-        [P,T,Lmodel.factors{f}] = Lpca(Lmodel.factors{f});
-        Lmodel.factors{f}.mat = P;
+        Lmodel.factors{f} = Lpca(Lmodel.factors{f});
+        Lmodel.factors{f}.mat = Lmodel.loads;
     end
     
     % Interactions
@@ -618,9 +619,9 @@ elseif Lmodel.type==3
             Lmodel.interactions{i}.lvs = input('Select the PCs number of to include in the model: ');
             Lmodel.interactions{i}.lvs = 1:Lmodel.interactions{i}.lvs;
         end
-    
-        [P,T,Lmodel.interactions{i}] = Lpca(Lmodel.interactions{i});
-        Lmodel.interactions{i}.mat = P;
+        
+        Lmodel.interactions{i} = Lpca(Lmodel.interactions{i});
+        Lmodel.interactions{i}.mat = Lmodel.loads;
     end
     
 end
@@ -629,7 +630,7 @@ end
 
 if debug, disp('computing maximum and minimum ...................................'), end;
 
-if Lmodel.type==1 || Lmodel.type==2
+if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
 
     mini = Inf(1,size(Lmodel.mat,2));
     maxi = -Inf(1,size(Lmodel.mat,2));
@@ -664,7 +665,7 @@ if Lmodel.type==1 || Lmodel.type==2
     Lmodel.maxi = maxi;
     Lmodel.mini = mini;
 
-elseif Lmodel.type==3
+elseif strcmp(Lmodel.type,'ASCA')
     
     n_factors = Lmodel.n_factors;
     n_interactions = Lmodel.n_interactions;
@@ -748,7 +749,7 @@ end
 % clustering
 
 
-if Lmodel.type==1 || Lmodel.type==2
+if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
     
     Lmodel.index_fich={};
     for t=1:length(list)
@@ -846,7 +847,7 @@ if Lmodel.type==1 || Lmodel.type==2
         Lmodel.obs_l(ind) = Lmodel.index_fich(ind);
     end
 
-elseif Lmodel.type==3
+elseif strcmp(Lmodel.type,'ASCA')
     
     n_factors = Lmodel.n_factors;
     n_interactions = Lmodel.n_interactions;

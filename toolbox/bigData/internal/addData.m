@@ -1,9 +1,9 @@
-function add_data(name,path,data,label,class,type,thres,preci,debug)
+function addData(name,path,data,label,class,type,thres,preci,debug)
 
 % Add data to a file in the clustering file system. 
 %
-% add_data(name,path,data,label,class,type,thres) % minimum call
-% add_data(name,path,data,label,class,type,thres,preci,debug) % complete call
+% addData(name,path,data,label,class,type,thres) % minimum call
+% addData(name,path,data,label,class,type,thres,preci,debug) % complete call
 %
 %
 % INPUTS:
@@ -107,7 +107,7 @@ if isequal('a',type),
             [data2, label2] = read_data(name,path,s(2),debug);
             data = [data2;data];
             label = {label{:} label2{:}};
-            add_data1(name,path,data,label,class,'w',thres,1,preci);
+            addData1(name,path,data,label,class,'w',thres,1,preci);
         else
             fid=fopen(file,'r+');
             str=sprintf('%d %d %d',0,stot,class); 
@@ -130,11 +130,11 @@ if isequal('a',type),
         [data2, label2] = read_data(name2,path,s(2),debug);
         data = [data2;data];
         label = {label{:} label2{:}};
-        add_data1(name,path,data,label,class,'a',thres,s2,preci);
+        addData1(name,path,data,label,class,'a',thres,s2,preci);
     end
 else
     if s(1) > thres,
-        add_data1(name,path,data,label,class,'w',thres,1,preci);
+        addData1(name,path,data,label,class,'w',thres,1,preci);
     else
         fid=fopen(file,'w');
         str=sprintf('%d %d %d',0,s(1),class); 
@@ -151,7 +151,7 @@ else
 end
 
 
-function add_data1(name,path,data,label,class,type,thres,s2,preci)
+function addData1(name,path,data,label,class,type,thres,s2,preci)
 
 if nargin < 8, error('Error in the number of arguments.'); end;
 if nargin < 9, preci=8; end;

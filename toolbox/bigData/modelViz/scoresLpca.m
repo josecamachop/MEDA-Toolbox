@@ -1,12 +1,12 @@
-function [T,TT,fig_h] = scores_Lpca(Lmodel,test,opt,label,classes)
+function [T,TT,figH] = scoresLpca(Lmodel,test,opt,label,classes)
 
 % Compute and plot compressed scores in PCA for large data. The original 
 % paper is Camacho J. Visualizing Big data with Compressed Score Plots: 
 % Approach and Research Challenges. Chemometrics and Intelligent Laboratory
 % Systems, 2014, 135: 110-125.
 %
-% scores_Lpca(Lmodel) % minimum call
-% [T,TT] = scores_Lpca(Lmodel,test,opt,label,classes) % complete call
+% scoresLpca(Lmodel) % minimum call
+% [T,TT] = scoresLpca(Lmodel,test,opt,label,classes) % complete call
 %
 %
 % INPUTS:
@@ -15,7 +15,7 @@ function [T,TT,fig_h] = scores_Lpca(Lmodel,test,opt,label,classes)
 %   model:
 %       Lmodel.XX: (MxM) X-block cross-product matrix
 %       Lmodel.lvs: [1x1] number of PCs
-%       Lmodel.LVvar: [1xA] variance of PCs
+%       Lmodel.sdT: [1xA] variance of PCs
 %       Lmodel.centr: (LxM) centroids of the clusters of observations
 %       Lmodel.multr: (Lx1) multiplicity of each cluster
 %       Lmodel.class: (Lx1) class associated to each cluster
@@ -58,37 +58,37 @@ function [T,TT,fig_h] = scores_Lpca(Lmodel,test,opt,label,classes)
 %
 % TT: [NxA] test scores
 %
-% fig_h: (Lx1) figure handles
+% figH: (Lx1) figure handles
 %
 %
 % EXAMPLE OF USE: Random scores
 %
-% X = simuleMV(20,10,8);
-% Lmodel = Lmodel_ini(X);
+% X = simuleMV(20,10,'LevelCorr',8);
+% Lmodel = iniLmodel(X);
 % Lmodel.lvs = 1:3;
-% T = scores_Lpca(Lmodel);
+% T = scoresLpca(Lmodel);
 %
 %
 % EXAMPLE OF USE: Calibration and Test, both line and scatter plots
 %
-% n_obs = 100;
-% n_vars = 10;
-% X = simuleMV(n_obs,n_vars,8);
-% Lmodel = Lmodel_ini(X);
+% nobs = 100;
+% nvars = 10;
+% X = simuleMV(nobs,nvars,8);
+% Lmodel = iniLmodel(X);
 %
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% nobst = 10;
+% test = simuleMV(nobst,nvars,6,corr(X)*(nobst-1)/(nobs-1));
 %
 % Lmodel.lvs = 1;
-% scores_Lpca(Lmodel,test);
+% scoresLpca(Lmodel,test);
 % Lmodel.lvs = 1:2;
-% [T,TT] = scores_Lpca(Lmodel,test);
+% [T,TT] = scoresLpca(Lmodel,test);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 17/Jun/2023
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@ function [T,TT,fig_h] = scores_Lpca(Lmodel,test,opt,label,classes)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-check_Lmodel(Lmodel);
+checkLmodel(Lmodel);
 
 N = size(Lmodel.centr,1);
 M = size(Lmodel.XX, 2);
@@ -139,23 +139,23 @@ end
 if nargin < 4 || isempty(label)
     if  opt(2) == '1'
         label = cellstr(num2str((1:L)'));
-    elseif isempty(Lmodel.obs_l)
+    elseif isempty(Lmodel.obsl)
         label = cellstr(num2str([1:N 1:L]'));
     else
         if L
             lb1 = cellstr(num2str((1:L)'));
-            label = {Lmodel.obs_l{:} lb1{:}};
+            label = {Lmodel.obsl{:} lb1{:}};
         else
-            label = Lmodel.obs_l;
+            label = Lmodel.obsl;
         end
     end
 else
     if  opt(2) == '0'
-        if isempty(Lmodel.obs_l)
+        if isempty(Lmodel.obsl)
             lb1 = cellstr(num2str((1:N)'));
             label = {lb1{:} label{:}};
         else
-            label = {Lmodel.obs_l{:} label{:}};
+            label = {Lmodel.obsl{:} label{:}};
         end
     end
 end
@@ -189,7 +189,8 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must cont
 
 %% Main code
 
-P = Lpca(Lmodel);
+Lmodel = Lpca(Lmodel);
+P = Lmodel.loads;
 T = Lmodel.centr*P;
 
 if ~isempty(test)
@@ -201,7 +202,7 @@ end
 
 %% Show results
 
-fig_h = [];
+figH = [];
      
 if opt(2) == '0'
     ttt = [T;TT];
@@ -211,7 +212,7 @@ else
     mult = ones(size(TT,1));
 end
 
-t_var = var_Lpca(Lmodel,0);
+tvar = varLpca(Lmodel,0);
 
 indx = floor(log10(max(Lmodel.multr)));
 
@@ -221,13 +222,13 @@ indx = floor(log10(max(Lmodel.multr)));
 markers = 10.^((1+(indx-1)/3):(indx-1)/3:indx);
 if length(Lmodel.lvs) == 1 || opt(1) == '1'
     for i=1:length(Lmodel.lvs)
-        fig_h(i) = plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1)))}, [], [], [], mult, markers);
+        figH(i) = plotVec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(Lmodel.lvs(i)) - tvar(Lmodel.lvs(i)+1)))}, [], [], [], mult, markers);
     end
 else
     h = 1;
     for i=1:length(Lmodel.lvs)-1
         for j=i+1:length(Lmodel.lvs)
-            fig_h(h) = plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat(opt(3),'1',opt(4:5)), mult, markers, 0.1);
+            figH(h) = plotScatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(Lmodel.lvs(i)) - tvar(Lmodel.lvs(i)+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))}, [], strcat(opt(3),'1',opt(4:5)), mult, markers, 0.1);
             h = h+1;
         end
     end

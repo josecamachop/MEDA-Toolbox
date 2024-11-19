@@ -1,4 +1,4 @@
-function [T,TT,fig_h] = scores_Lpls(Lmodel,test,opt,label,classes)
+function [T,TT,figH] = scoresLpls(Lmodel,test,opt,label,classes)
 
 % Compute and plot scores in PLS for large data. The original 
 % paper is Camacho J. Visualizing Big data with Compressed Score Plots: 
@@ -59,39 +59,39 @@ function [T,TT,fig_h] = scores_Lpls(Lmodel,test,opt,label,classes)
 %
 % TT: [NxA] test scores
 %
-% fig_h: (Lx1) figure handles
+% figH: (Lx1) figure handles
 %
 %
 % EXAMPLE OF USE: Random scores
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% Lmodel = Lmodel_ini(X,Y);
+% Lmodel = iniLmodel(X,Y);
 % Lmodel.lvs = 1:3;
-% T = scores_Lpca(Lmodel);
+% T = scoresLpls(Lmodel);
 %
 %
 % EXAMPLE OF USE: Calibration and Test, both line and scatter plots
 %
-% n_obs = 100;
-% n_vars = 10;
-% X = simuleMV(n_obs,n_vars,8);
-% Y = 0.1*randn(n_obs,2) + X(:,1:2);
-% Lmodel = Lmodel_ini(X,Y);
+% nobs = 100;
+% nvars = 10;
+% X = simuleMV(nobs,nvars,'LevelCorr',8);
+% Y = 0.1*randn(nobs,2) + X(:,1:2);
+% Lmodel = iniLmodel(X,Y);
 %
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% nobst = 10;
+% test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(X)*(nobst-1)/(nobs-1));
 %
 % Lmodel.lvs = 1;
-% scores_Lpca(Lmodel,test);
+% scoresLpca(Lmodel,test);
 % Lmodel.lvs = 1:2;
-% [T,TT] = scores_Lpca(Lmodel,test);
+% [T,TT] = scoresLpls(Lmodel,test);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 17/Jul/2023
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2021  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -114,7 +114,7 @@ function [T,TT,fig_h] = scores_Lpls(Lmodel,test,opt,label,classes)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-check_Lmodel(Lmodel);
+checkLmodel(Lmodel);
 
 N = min(Lmodel.nc,size(Lmodel.centr,1));
 M = size(Lmodel.XX, 2);
@@ -140,23 +140,23 @@ end
 if nargin < 4 || isempty(label) 
     if  opt(2) == '1'
         label = cellstr(num2str((1:L)'));
-    elseif isempty(Lmodel.obs_l)
+    elseif isempty(Lmodel.obsl)
         label = cellstr(num2str([1:N 1:L]'));
     else
         if L
             lb1 = cellstr(num2str((1:L)'));
-            label = {Lmodel.obs_l{:} lb1{:}};
+            label = {Lmodel.obsl{:} lb1{:}};
         else
-            label = Lmodel.obs_l;
+            label = Lmodel.obsl;
         end
     end
 else
     if  opt(2) == '0'
-        if isempty(Lmodel.obs_l)
+        if isempty(Lmodel.obsl)
             lb1 = cellstr(num2str((1:N)'));
             label = {lb1{:} label{:}};
         else
-            label = {Lmodel.obs_l{:} label{:}};
+            label = {Lmodel.obsl{:} label{:}};
         end
     end
 end
@@ -188,7 +188,8 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must cont
 
 %% Main code
 
-[beta,W,P,Q,R] = Lpls(Lmodel);
+Lmodel = Lpls(Lmodel);
+R = Lmodel.altweights;
 T = Lmodel.centr*R;
 
 if ~isempty(test)
@@ -200,7 +201,7 @@ end
 
 %% Show results
 
-fig_h = [];
+figH = [];
      
 if opt(2) == '0'
     ttt = [T;TT];
@@ -210,7 +211,7 @@ else
     mult = ones(size(TT,1));
 end
 
-[y_var,t_var] = var_Lpls(Lmodel,0);
+[yvar,tvar] = varLpls(Lmodel,0);
 
 M = max(Lmodel.multr)/10;
 m = max(1,M/100);
@@ -218,13 +219,13 @@ int = 10^((log10(M)-log10(m))/2 + log10(m));
 markers = [m,int,M];
 if length(Lmodel.lvs) == 1 || opt(1) == '1'
     for i=1:length(Lmodel.lvs)
-        fig_h(i) = plot_vec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1)))}, [], [], [], mult, markers);
+        figH(i) = plotVec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1)))}, [], [], [], mult, markers);
     end
 else
     h = 1;
     for i=1:length(Lmodel.lvs)-1
         for j=i+1:length(Lmodel.lvs)
-            fig_h(h) = plot_scatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1))),sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat(opt(3),'1',opt(4:5)), mult, markers, 0.1);
+            figH(h) = plotScatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1))),sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat(opt(3),'1',opt(4:5)), mult, markers, 0.1);
             h = h+1;
         end
     end

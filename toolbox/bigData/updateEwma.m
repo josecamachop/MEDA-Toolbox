@@ -1,10 +1,10 @@
-function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug,erase)
+function Lmodel = updateEwma(list,path,Lmodel,lambda,step,debug,erase)
 
 % Big data analysis based on bilinear proyection models (PCA and PLS) with
 % the exponentially weighted moving average approach.
 %
-% Lmodel = update_ewma(list)          % minimum call
-% Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug,erase) % complete call
+% Lmodel = updateEwma(list)          % minimum call
+% Lmodel = updateEwma(list,path,Lmodel,lambda,step,debug,erase) % complete call
 %
 %
 % INPUTS:
@@ -41,8 +41,8 @@ function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug,erase)
 %
 % n_obs = 100;
 % n_vars = 10;
-% Lmodel = Lmodel_ini(simuleMV(n_obs,n_vars,6));
-% Lmodel.type = 1; 
+% Lmodel = iniLmodel(simuleMV(n_obs,n_vars,6));
+% Lmodel.type = 'PCA'; 
 % Lmodel.prep = 2;  
 % Lmodel.lvs = 1;
 % Lmodel.nc = 100; % Number of clusters
@@ -52,7 +52,7 @@ function Lmodel = update_ewma(list,path,Lmodel,lambda,step,debug,erase)
 % for i=1:4,
 %   n_obst = 10;
 %   list(1).x = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
-%   Lmodel = update_ewma(list,[],Lmodel);
+%   Lmodel = updateEwma(list,[],Lmodel);
 %   mspc_Lpca(Lmodel);
 % end
 %
@@ -83,13 +83,13 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 if nargin < 2 || isempty(path), path = ''; end;
-if nargin < 3 || isempty(Lmodel), 
-    Lmodel = Lmodel_ini; 
-    Lmodel.type = 1;
+if nargin < 3 || isempty(Lmodel)
+    Lmodel = iniLmodel; 
+    Lmodel.type = 'PCA';
     Lmodel.lvs = 0;
     Lmodel.prep = 2;
 end;
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 if nargin < 4 || isempty(lambda), lambda = 1; end;
 if nargin < 5 || isempty(step), step = 1; end;
 if nargin < 6 || isempty(debug), debug = 1; end;
@@ -112,17 +112,17 @@ assert (erase>0 && erase<=1, 'Value Error: 7th argument must be in interval (0, 
 
 Lmodel.update = 1; 
     
-for t=1:length(list),
+for t=1:length(list)
     
     if debug, disp(sprintf('clustering: packet %d...........................................', t)), end;
     
-    if Lmodel.type==1,
+    if strcmp(Lmodel.type,'PCA')
         if isstruct(list(t))
             x = list(t).x;
         else
             load([path list{t}],'x')
         end
-    elseif Lmodel.type==2,
+    elseif strcmp(Lmodel.type,'PLS')
         if isstruct(list(t))
             x = list(t).x;
             y = list(t).y;
@@ -180,12 +180,14 @@ for t=1:length(list),
     ind = isnan(Lmodel.XX);
     Lmodel.XX(ind) = 0;
     
-    if Lmodel.type==1
+    if strcmp(Lmodel.type,'PCA')
         
-        [P,sdT] = Lpca(Lmodel);
+        Lmodel = Lpca(Lmodel);
+        P = Lmodel.loads;
+        sdT = Lmodel.sdT;
         Lmodel.mat = P*diag(1./sdT);
         
-    elseif Lmodel.type==2,
+    elseif strcmp(Lmodel.type,'PLS')
         
         indMV = find(isnan(y));
         if ~isempty(indMV)
@@ -208,16 +210,21 @@ for t=1:length(list),
             Lmodel.YY = lambda*Lmodel.YY + ycs'*ycs;
         end
         
-        if rank(Lmodel.XY)>0,
+        if rank(Lmodel.XY)>0
             
-            [beta,W,P,Q,R,sdT] = Lpls(Lmodel);
+            Lmodel = Lpls(Lmodel);
+            R = Lmodel.altweights;
+            P = Lmodel.loads;
+            sdT = Lmodel.sdT;
             Lmodel.mat = R*diag(1./sdT);
             
         else
             
             if debug>1, disp('XY Rank 0: using PCA.'), end;
             
-            [P,sdT] = Lpca(Lmodel);
+            Lmodel = Lpca(Lmodel);
+            P = Lmodel.loads;
+            sdT = Lmodel.sdT;
             Lmodel.mat = P*diag(1./sdT);
             
         end
@@ -259,10 +266,10 @@ for t=1:length(list),
     
 end
 
-if Lmodel.type==1, % Update mat acording to actual scores
+if strcmp(Lmodel.type,'PCA') % Update mat acording to actual scores
     Lmodel.mat = P;
-elseif Lmodel.type==2,
-    if rank(Lmodel.XY)>0,
+elseif strcmp(Lmodel.type,'PLS')
+    if rank(Lmodel.XY)>0
         Lmodel.mat = R;
     else
         Lmodel.mat = P;

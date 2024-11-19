@@ -24,17 +24,16 @@ function model = simpls(xcs,ycs,varargin)
 %
 % OUTPUTS:
 %
-% beta: [MxO] matrix of regression coefficients: W*inv(P'*W)*Q'
-%
-% W: [MxA] matrix of weights
-%
-% P: [MxA] matrix of x-loadings
-%
-% Q: [OxA] matrix of y-loadings
-%
-% R: [MxA] matrix of modified weights: W*inv(P'*W)
-%
 % model: structure that contains model information
+%   var: [1x1] xcs sum of squares
+%   lvs: [1xA] latent variable numbers
+%   loads: [MxA] matrix of x-loadings P
+%   yloads: [OxA] matrix of y-loadings Q
+%   weights: [MxA] matrix of weights W
+%   altweights: [MxA] matrix of alternative weights R
+%   scores: [NxA] matrix of x-scores T
+%   beta: [MxO] matrix of regressors
+%   type: 'PLS'
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
@@ -172,6 +171,7 @@ model.lvs = 1:size(P,2);
 model.loads = P;
 model.yloads = Q;
 model.weights = W;
+model.altweights = R;
 model.scores = T;
 model.beta = beta;
 model.type = 'PLS';

@@ -1,8 +1,8 @@
-function [ok,Lmodel] = check_Lmodel(Lmodel)
+function [ok,Lmodel] = checkLmodel(Lmodel)
 
 % Check Lmodel integrity
 %
-% ok = check_Lmodel(Lmodel) % complete call
+% ok = checkLmodel(Lmodel) % complete call
 %
 %
 % INPUT:
@@ -22,7 +22,7 @@ function [ok,Lmodel] = check_Lmodel(Lmodel)
 %
 % Lmodel.N: [1x1] number of effective observations in the model.
 %
-% Lmodel.type: [1x1] PCA (1) o PLS (2)
+% Lmodel.type: [1x1] 'PCA', 'PLS' or 'ASCA'
 %
 % Lmodel.update: [1x1] EWMA (1) or ITERATIVE (2)
 %
@@ -100,7 +100,7 @@ M = size(Lmodel.centr, 2);
 % Set default values
 if ~isfield(Lmodel,'centrY') || isempty(Lmodel.centrY), Lmodel.centrY = []; end
 L = size(Lmodel.centrY, 2);
-if ~isfield(Lmodel,'type') || isempty(Lmodel.type), Lmodel.type = 1; end
+if ~isfield(Lmodel,'type') || isempty(Lmodel.type), Lmodel.type = 'PCA'; end
 if ~isfield(Lmodel,'update') || isempty(Lmodel.update), Lmodel.update = 2; end
 if ~isfield(Lmodel,'nc') || isempty(Lmodel.nc) || Lmodel.nc==0, Lmodel.nc = max(100,size(Lmodel.centr,1)); end
 if ~isfield(Lmodel,'N') || isempty(Lmodel.N) || Lmodel.N==0, Lmodel.N = size(Lmodel.centr,1); end
@@ -179,7 +179,7 @@ assert (isequal(size(Lmodel.XX), [M M]), 'Dimension Error: Lmodel.XX must be M-b
 assert (isequal(size(Lmodel.lvs), [1 A]) | isequal(size(Lmodel.lvs), [0 1]), 'Dimension Error: Lmodel.lvs must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(Lmodel.type~=1 & Lmodel.type~=2 & Lmodel.type~=3)), 'Value Error: Lmodel.type must contain 1, 2 or 3. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(~strcmp(Lmodel.type,'PCA') & strcmp(Lmodel.type,'PLS') & ~strcmp(Lmodel.type,'ASCA'))), 'Value Error: Lmodel.type must contain 1, 2 or 3. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(Lmodel.update~=1 & Lmodel.update~=2)), 'Value Error: Lmodel.update must contain 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(Lmodel.lvs<0)), 'Value Error: Lmodel.lvs must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(Lmodel.lvs), Lmodel.lvs), 'Value Error: Lmodel.lvs must contain integers. Type ''help %s'' for more info.', routine(1).name);

@@ -1,12 +1,12 @@
 
-function [Dstt,Qstt,Rt,Rq] = mspc_ADICOV(Lmodel,test,index)
+function [Dstt,Qstt,Rt,Rq] = mspcAdicov(Lmodel,test,index)
 
-% Compute D-st and Q-st in Covariance MSPC using ADICOV. Unlike e.g. mspc_Lpca, 
+% Compute D-st and Q-st in Covariance MSPC using ADICOV. Unlike e.g. mspcLpca, 
 % here we do not compute the statistics of calibration data or control limits,
 % since a set of Lmodels would be needed for that.
 %
-% MSPC_ADICOV(Lmodel,test) % minimum call
-% [Dstt,Qstt,Rt,Rq] = mspc_ADICOV(Lmodel,test,index,opt,label,classes,p_valueD,p_valueQ,limtype) % complete call
+% mspcAdicov(Lmodel,test) % minimum call
+% [Dstt,Qstt,Rt,Rq] = mspcAdicov(Lmodel,test,index,opt,label,classes,pvalueD,pvalueQ,limtype) % complete call
 %
 %
 % INPUTS:
@@ -41,26 +41,25 @@ function [Dstt,Qstt,Rt,Rq] = mspc_ADICOV(Lmodel,test,index)
 %
 % EXAMPLE OF USE: ADICOV-based MSPC on NOC test data and anomalies.
 %
-% n_obs = 100;
-% n_vars = 10;
-% n_PCs = 1;
-% Lmodel = Lmodel_ini(simuleMV(n_obs,n_vars,6));
-% Lmodel.multr = 100*rand(n_obs,1); 
-% Lmodel.lvs = 1:n_PCs;
+% nobs = 100;
+% nvars = 10;
+% nPCs = 1;
+% Lmodel = iniLmodel(simuleMV(nobs,nvars,'LevelCorr',6));
+% Lmodel.multr = 100*rand(nobs,1); 
+% Lmodel.lvs = 1:nPCs;
 % 
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
+% nobst = 10;
+% test = simuleMV(nobst,nvars,'LevelCorr',6,corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
-% [Dstt,Qstt] = mspc_ADICOV(Lmodel,test(1:5,:),0)
-% [Dstta,Qstta] = mspc_ADICOV(Lmodel,test(6:10,:),0)
+% [Dstt,Qstt] = mspcAdicov(Lmodel,test(1:5,:),0)
+% [Dstta,Qstta] = mspcAdicov(Lmodel,test(6:10,:),0)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 27/May/17.
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -81,7 +80,7 @@ function [Dstt,Qstt,Rt,Rq] = mspc_ADICOV(Lmodel,test,index)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 
 N = Lmodel.nc;
 M = size(Lmodel.XX, 2);
@@ -109,11 +108,16 @@ if Lmodel.N,
     Lm = Lmodel;
     Lm.lvs = 1:size(Lm.XX,1); 
     if max(Lm.lvs) > 0
-        if Lmodel.type==2,
-            [beta,W,P,Q,R,d] = Lpls(Lm);
-        else
-            [P,d] = Lpca(Lm);
-            R=P;
+        if strcmp(Lmodel.type,'PLS')
+            Lm = Lpls(Lm); 
+            R = Lm.altweights;
+            P = Lm.loads;
+            d = Lm.sdT;
+        elseif strcmp(Lmodel.type,'PCA')
+            Lm = Lpca(Lm);
+            P = Lm.loads; 
+            R = P;
+            d = Lm.sdT;
         end
         
         res = 1:size(R,2);
@@ -127,12 +131,12 @@ if Lmodel.N,
         
         tests = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
         
-        if ~isempty(Lmodel.lvs),
+        if ~isempty(Lmodel.lvs)
             ti = ADICOV(Lmodel.XX,tests,length(Lmodel.lvs),R(:,Lmodel.lvs),P(:,Lmodel.lvs));
         else
             ti = tests;
         end
-        if ~isempty(res),
+        if ~isempty(res)
             ri = ADICOV(Lmodel.XX,tests,length(res),R(:,res),P(:,res));
         else
             ri = tests;

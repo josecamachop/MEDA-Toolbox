@@ -1,8 +1,8 @@
-function [P,T,Lmodel] = Lpca(Lmodel)
+function Lmodel = Lpca(Lmodel)
   
 % PCA for large data. 
 %
-% [P,SdT,Lmodel] = Lpca(Lmodel) % complete call
+% Lmodel = Lpca(Lmodel) % complete call
 %
 %
 % INPUTS:
@@ -16,26 +16,21 @@ function [P,T,Lmodel] = Lpca(Lmodel)
 %
 % OUTPUTS:
 %
-% P: [MxA] matrix of loadings in the PCA model.
-%
-% T: [LxA] matrix of scores of the centroids.
-%
 % Lmodel: (struct Lmodel) output model
 %
 %
 % EXAMPLE OF USE: Random data
 %
-% X = simuleMV(20,10,8);
-% Lmodel = Lmodel_ini(X);
+% X = simuleMV(20,10,'LevelCorr',8);
+% Lmodel = iniLmodel(X);
 % Lmodel.lvs = 0:10;
-% [P,sdT] = Lpca(Lmodel);
+% Lmodel = Lpca(Lmodel)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 11/May/2023
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
-% Copyright (C) 2023  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -57,7 +52,7 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-[ok,Lmodel] = check_Lmodel(Lmodel);
+[ok,Lmodel] = checkLmodel(Lmodel);
 
 
 %% Main code
@@ -70,4 +65,5 @@ T = Lmodel.centr*P;
 Lmodel.loads = P;
 Lmodel.scores = T;
 Lmodel.var = sum(sum(trace(Lmodel.XX)));
-Lmodel.LVvar = dd;
+Lmodel.sdT = dd;
+Lmodel.type = 'PCA';

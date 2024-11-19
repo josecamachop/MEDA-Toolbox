@@ -1,8 +1,8 @@
-function Lmodel2 = select_vars(Lmodel,ind)
+function Lmodel2 = selectVars(Lmodel,ind)
 
 % Reordering/selection of variables in Lmodel.
 %
-% Lmodel2 = select_vars(Lmodel,ind)     % complete call
+% Lmodel2 = selectVars(Lmodel,ind)     % complete call
 %
 %
 % INPUTS:
@@ -29,16 +29,15 @@ function Lmodel2 = select_vars(Lmodel,ind)
 %
 % EXAMPLE OF USE: Random data:
 %
-% X = simuleMV(20,10,8);
-% Lmodel = Lmodel_ini(X);
-% Lmodel2 = selec_vars(Lmodel, [10 1:3])
+% X = simuleMV(20,10,'LevelCorr',8);
+% Lmodel = iniLmodel(X);
+% Lmodel2 = selectVars(Lmodel, [10 1:3])
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 29/Oct/2019
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2019  University of Granada, Granada
-% Copyright (C) 2019  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -60,7 +59,7 @@ routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 
 %% Main code
 
@@ -70,7 +69,7 @@ Lmodel2.XX = Lmodel.XX(ind,ind);
 Lmodel2.av = Lmodel.av(ind);
 Lmodel2.sc = Lmodel.sc(ind);
 Lmodel2.weight = Lmodel.weight(ind);
-Lmodel2.mat = Lmodel.mat(ind,:);
-Lmodel2.XY = Lmodel.XY(ind,:);
+if isfield(Lmodel,'mat') && ~isempty(Lmodel.mat), Lmodel2.mat = Lmodel.mat(ind,:); end
+if isfield(Lmodel,'XY') && ~isempty(Lmodel.XY),Lmodel2.XY = Lmodel.XY(ind,:); end
 Lmodel2.centr = Lmodel.centr(:,ind);
 Lmodel2.var_l = Lmodel.var_l(ind);

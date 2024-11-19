@@ -1,12 +1,12 @@
-function [meda_map,ind,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars)
+function [medamap,ind,ord,Lmodel] = medaLpls(Lmodel,thres,opt,vars)
 
 % Missing data methods for exploratory data analysis in PLS. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
 % 8-18. This algorithm follows the suggested computation by Arteaga, which
 % makes use of the covariance matrices.
 %
-% [meda_map,ind,ord,Lmodel] = meda_Lpls(Lmodel) % minimum call
-% [meda_map,ind,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars) %complete call
+% [medamap,ind,ord,Lmodel] = medaLpls(Lmodel) % minimum call
+% [medamap,ind,ord,Lmodel] = medaLpls(Lmodel,thres,opt,vars) %complete call
 %
 %
 % INPUTS:
@@ -39,7 +39,7 @@ function [meda_map,ind,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars)
 %
 % OUTPUTS:
 %
-% meda_map: [MxM] non-seriated MEDA matrix.
+% medamap: [MxM] non-seriated MEDA matrix.
 %
 % ind: [M2x1] indices of seriated variables over the input threshold (M2 < M).
 %
@@ -50,18 +50,17 @@ function [meda_map,ind,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars)
 %
 % EXAMPLE OF USE:
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% Lmodel = Lmodel_ini(X,Y);
+% Lmodel = iniLmodel(X,Y);
 % Lmodel.lvs = 1:3;
-% map = meda_Lpls(Lmodel,0.3,'111');
+% map = medaLpls(Lmodel,0.3,'111');
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 26/May/17.
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -82,7 +81,7 @@ function [meda_map,ind,ord,Lmodel] = meda_Lpls(Lmodel,thres,opt,vars)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 M = size(Lmodel.centr,2);
 if nargin < 2 || isempty(thres), thres = 0.1; end; 
 if nargin < 3 || isempty(opt), opt = '100'; end; 
@@ -119,35 +118,37 @@ assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>
 Lmodel.XX = Lmodel.XX(vars,vars);
 s = size(Lmodel.XX);
 
-[beta,W,P,Q,R] = Lpls(Lmodel);
+Lmodel = Lpls(Lmodel);
+R = Lmodel.altweights;
+P = Lmodel.loads;
 
-meda_map = meda(Lmodel.XX,R,P);
+medamap = meda(Lmodel.XX,R,P);
 if nargout > 1 || opt(3) == '1'
-    Dmap = diag(meda_map);
+    Dmap = diag(medamap);
     ind = find(Dmap > thres);
 end
 
 if nargout > 2 || opt(2) == '1',
-    [map, ord] = seriation(meda_map(ind,ind));
+    [map, ord] = seriation(medamap(ind,ind));
 end
     
 
 %% Show results
 
-if opt(1) == '1',
+if opt(1) == '1'
     
-    map = meda_map;
+    map = medamap;
 
-    if opt(3) == '1',
+    if opt(3) == '1'
         ind2 = ind;
     else
         ind2 = 1:length(vars);
     end
     
     map = map(ind2,ind2);
-    label = Lmodel.var_l(ind2);
+    label = Lmodel.varl(ind2);
     
-    if opt(2) == '1',
+    if opt(2) == '1'
         ord2 = ord;
     else
         ord2 = 1:length(vars);
@@ -156,7 +157,7 @@ if opt(1) == '1',
     map = map(ord2,ord2);
     label = label(ord2);
     
-    plot_map(map,label);
+    plotMap(map,label);
     
 end  
 

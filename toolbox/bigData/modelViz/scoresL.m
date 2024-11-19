@@ -1,10 +1,10 @@
 
-function fig_h = scoresL(Lmodel,test,opt,tit,label,classes,blur)
+function figH = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 
 % Compute and plot scores.
 %
-% fig_h = scoresL(Lmodel) % minimum call
-% fig_h = scoresL(Lmodel,test,opt,tit,label,classes,blur) % complete call
+% figH = scoresL(Lmodel) % minimum call
+% figH = scoresL(Lmodel,test,opt,tit,label,classes,blur) % complete call
 %
 % INPUTS:
 %
@@ -51,42 +51,42 @@ function fig_h = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 %
 % OUTPUTS:
 %
-% fig_h: set of figure handles
+% figH: set of figure handles
 %
 %
 % EXAMPLE OF USE: Random scores
 %
-% X = simuleMV(20,10,8);
+% X = simuleMV(20,10,'LevelCorr',8);
 %
-% Lmodel = Lmodel_ini(X);
+% Lmodel = iniLmodel(X);
 % Lmodel.lvs = 1:3;
-% [P,T,Lmodel] = Lpca(Lmodel);
+% Lmodel = Lpca(Lmodel);
 % scoresL(Lmodel);
 %
 %
 % EXAMPLE OF USE: Calibration and Test, both line and scatter plots
 %
-% n_obs = 100;
-% n_vars = 10;
-% X = simuleMV(n_obs,n_vars,8);
-% Lmodel = Lmodel_ini(X);
+% nobs = 100;
+% nvars = 10;
+% X = simuleMV(nobs,nvars,'LevelCorr',8);
+% Lmodel = iniLmodel(X);
 %
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,corr(X)*(n_obst-1)/(n_obs-1));
+% nobst = 10;
+% test = simuleMV(nobst,nvars,'LevelCorr',6,corr(X)*(nobst-1)/(nobs-1));
 %
 % Lmodel.lvs = 1;
-% [P,T,Lmodel] = Lpca(Lmodel);
+% Lmodel = Lpca(Lmodel);
 % scoresL(Lmodel,test);
 %
 % Lmodel.lvs = 1:2;
-% [P,T,Lmodel] = Lpca(Lmodel);
+% Lmodel = Lpca(Lmodel);
 % scoresL(Lmodel,test);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 16/May/2023
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -126,7 +126,7 @@ end
 
 if nargin < 4, tit = ''; end 
 if nargin < 5 || isempty(label) 
-    if isempty(Lmodel.obs_l)
+    if isempty(Lmodel.obsl)
         if opt(2) == 1 || opt(2) == '1'
             label = 1:L;
         else
@@ -134,9 +134,9 @@ if nargin < 5 || isempty(label)
         end
     else
         if opt(2) == 1 || opt(2) == '1'
-            label = Lmodel.obs_l;
+            label = Lmodel.obsl;
         else
-            label = Lmodel.obs_l;
+            label = Lmodel.obsl;
             for i=1:L, label{end+1} = sprintf('test%i',i); end
         end
     end
@@ -205,16 +205,16 @@ M = max(10,max(Lmodel.multr))/10;
 m = max(1,M/100);
 int = 10^((log10(M)-log10(m))/2 + log10(m));
 markers = [m,int,M];
-fig_h = [];
+figH = [];
 if length(Lmodel.lvs) == 1 || opt(1) == '1'
     for i=1:length(Lmodel.lvs)
-        fig_h = [fig_h plot_vec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*Lmodel.LVvar(Lmodel.lvs(i))/Lmodel.var)})];
+        figH = [figH plotVec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*Lmodel.sdT(Lmodel.lvs(i))/Lmodel.var)})];
         title(tit);
     end
 else
     for i=1:length(Lmodel.lvs)-1
         for j=i+1:length(Lmodel.lvs)
-            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*Lmodel.LVvar(Lmodel.lvs(i))/Lmodel.var),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*Lmodel.LVvar(Lmodel.lvs(j))/Lmodel.var)},[], strcat('11',opt(3:4)), mult, markers,blur)];
+            figH = [figH plotScatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*Lmodel.sdT(Lmodel.lvs(i))/Lmodel.var),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*Lmodel.sdT(Lmodel.lvs(j))/Lmodel.var)},[], strcat('11',opt(3:4)), mult, markers,blur)];
             title(tit);
         end
     end

@@ -1,9 +1,9 @@
-function [P,fig_h] = loadings_Lpca(Lmodel,opt,blur)
+function [P,figH] = loadingsLpca(Lmodel,opt,blur)
 
 % Compute and plot loadings in PCA for large data.
 %
-% loadings_Lpca(Lmodel) % minimum call
-% loadings_Lpca(Lmodel,opt,blur) % complete call
+% loadingsLpca(Lmodel) % minimum call
+% loadingsLpca(Lmodel,opt,blur) % complete call
 %
 % INPUTS:
 %
@@ -12,7 +12,7 @@ function [P,fig_h] = loadings_Lpca(Lmodel,opt,blur)
 %       Lmodel.XX: (MxM) X-block cross-product matrix.
 %       Lmodel.lvs: (1x1) number of PCs.
 %       Lmodel.vclass: [Mx1] class associated to each variable.
-%       Lmodel.var_l: {ncx1} label of each variable.
+%       Lmodel.varl: {ncx1} label of each variable.
 %
 % opt: (str or num) options for data plotting: binary code of the form 'ab' for:
 %       a:
@@ -33,21 +33,21 @@ function [P,fig_h] = loadings_Lpca(Lmodel,opt,blur)
 %
 % P: [MxA] scores
 %
-% fig_h: (Lx1) figure handles
+% figH: (Lx1) figure handles
 %
 %
 % EXAMPLE OF USE: Scatter plot of random scores
 %
-% X = simuleMV(20,10,8);
-% Lmodel = Lmodel_ini(X);
+% X = simuleMV(20,10,'LevelCorr',8);
+% Lmodel = iniLmodel(X);
 % Lmodel.lvs = 1:3;
-% P = loadings_Lpca(Lmodel);
+% P = loadingsLpca(Lmodel);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/Jun/2023
+% last modification: 19/Nov/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ function [P,fig_h] = loadings_Lpca(Lmodel,opt,blur)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-[ok, Lmodel] = check_Lmodel(Lmodel);
+[ok, Lmodel] = checkLmodel(Lmodel);
 if nargin < 2 || isempty(opt), opt = '10'; end; 
 
 % Convert int arrays to str
@@ -88,25 +88,26 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3nd argument must cont
 
 %% Main code
 
-P = Lpca(Lmodel);
+Lmodel = Lpca(Lmodel);
+P = Lmodel.loads;
 
 
 %% Show results
 
-fig_h = [];
+figH = [];
 if opt(1) == '1'
     
-    t_var = var_Lpca(Lmodel,0);
+    tvar = varLpca(Lmodel,0);
     
     if length(Lmodel.lvs) == 1 || opt(2) == '1'
         for i=1:length(Lmodel.lvs)
-                fig_h(i) = plot_vec(P(:,i), Lmodel.var_l, Lmodel.vclass, {'',sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1)))});
+                figH(i) = plotVec(P(:,i), Lmodel.varl, Lmodel.vclass, {'',sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(i) - tvar(i+1)))});
         end
     else
         h = 1;
         for i=1:length(Lmodel.lvs)-1
             for j=i+1:length(Lmodel.lvs)
-                fig_h(h) = plot_scatter([P(:,i),P(:,j)], Lmodel.var_l, Lmodel.vclass, {sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(i) - t_var(i+1))),sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}',[],[],[],[],blur);
+                figH(h) = plotScatter([P(:,i),P(:,j)], Lmodel.varl, Lmodel.vclass, {sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(i) - tvar(i+1))),sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))}',[],[],[],[],blur);
                 h = h+1;
             end      
         end

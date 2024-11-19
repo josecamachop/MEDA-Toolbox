@@ -224,7 +224,9 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 [xcs,m,sc] = preprocess2D(x,'Preprocessing',prepx);
 ycs = preprocess2D(y,'Preprocessing',prepy);
 
-[beta,W,P,Q,R] = simpls(xcs,ycs,'LatVars',lvs);
+model = simpls(xcs,ycs,'LatVars',lvs);
+R = model.altweights;
+P = model.loads;
 T = xcs*R;
 
 [Dst,Qst] = mspc(xcs,'InvCovarT',inv(cov(T)),'InSubspace',R,'OutSubspace',P);

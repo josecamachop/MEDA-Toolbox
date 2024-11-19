@@ -53,8 +53,10 @@ function meda_map = meda(XX,R,varargin)
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % Ycs = preprocess2D(Y,'Preprocessing',2);
 % lvs = 1:10;
-% [beta,W,P,Q,R] = kernel_pls(Xcs'*Xcs,Xcs'*Ycs,'LatVars',lvs);
-% 
+% model = kernelpls(Xcs'*Xcs,Xcs'*Ycs,'LatVars',lvs);
+% R = model.altweights;
+% P = model.loads;
+%
 % meda_map = meda(Xcs'*Xcs,R,'OutSubspace',P);
 % 
 % [meda_map,ord] = seriation(meda_map);

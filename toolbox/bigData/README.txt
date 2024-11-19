@@ -27,9 +27,9 @@ Items in the folder:
 
 	- auxiliary routines: preprocess2Di.m, psc.m 
 
-	- Lmodel management routines: Lmodel_ini.m, check_Lmodel.m
+	- Lmodel management routines: iniLmodel.m, checkLmodel.m
 
-	- Lmodel update routines: update_ewma.m, update_iterative.m
+	- Lmodel update routines: updateEwma.m, updateIterative.m
 
 	- file management routines: add_data.m, add_indices.m, cfilesys.m, read_data.m, read_indices.m, VCfile.m 
   
