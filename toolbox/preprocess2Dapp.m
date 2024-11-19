@@ -65,6 +65,9 @@ parse(p,varargin{:});
 % Extract inputs from inputParser for code legibility
 scale = p.Results.Scale;
 weight = p.Results.Weight;
+if isempty(weight) 
+    weight = ones(1,M);
+end
 
 
 % Convert column arrays to row arrays
