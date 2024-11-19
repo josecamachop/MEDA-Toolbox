@@ -8,8 +8,7 @@ function model = kernelpls(XX,XY,varargin)
 %
 % model = kernelpls(XX,XY)     % minimum call
 %
-%
-% See also: simpls, pcaEig, asca
+% See also: simpls, pcaEig, asca, gpls, sparsepls2
 %
 %
 % INPUTS:
@@ -138,11 +137,12 @@ W = W(:,lvs);
 P = P(:,lvs);
 Q = Q(:,lvs);
 R = R(:,lvs);
-beta=R*Q';
+beta = R*Q';
 
 model.var = trace(XX);
 model.lvs = 1:size(P,2);
 model.loads = P;
 model.yloads = Q;
 model.weights = W;
+model.beta = beta;
 model.type = 'PLS';

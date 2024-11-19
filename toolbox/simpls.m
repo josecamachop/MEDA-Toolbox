@@ -6,7 +6,6 @@ function model = simpls(xcs,ycs,varargin)
 %
 % model = simpls(xcs,ycs)     % minimum call
 %
-%
 % See also: kernelpls, pcaEig, asca
 %
 %
@@ -174,5 +173,6 @@ model.loads = P;
 model.yloads = Q;
 model.weights = W;
 model.scores = T;
+model.beta = beta;
 model.type = 'PLS';
         

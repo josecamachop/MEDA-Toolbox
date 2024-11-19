@@ -6,7 +6,7 @@ function err = spcBootstrap(theta,PCreps,varargin)
 % value between 0 and 1, or the maximum deviation where the input
 % percentile is 'max'
 %
-% Related routines: parglm, asca, apca, parglmVS, parglmMC, create_design,
+% Related routines: parglm, asca, apca, parglmVS, parglmMC, createDesign,
 % powercurve
 %
 % err = spcBootstrap(PCreps)   % minimum call
@@ -19,10 +19,10 @@ function err = spcBootstrap(theta,PCreps,varargin)
 % permutations used in the analysis for each level. A boolean array of 0 or
 % 1.
 %
-% bstrp_reps: the number of bootstrap sampling routines to take place for
+% bstrpReps: the number of bootstrap sampling routines to take place for
 % uncertainty estimation.
 %
-% plot_results: true for plots, false for no plots
+% plotResults: true for plots, false for no plots
 %
 % prcntl: a value between 0 and 1 to specify the uncertainty level. For
 % example: prcntl = 0.05 will bound the results between the bottom 0.05 and
@@ -41,7 +41,7 @@ function err = spcBootstrap(theta,PCreps,varargin)
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
 % 
-% F = create_design(levels,'Replicates',reps);
+% F = createDesign(levels,'Replicates',reps);
 % 
 % X = [];
 % for i = 1:length(levels{1})
@@ -54,7 +54,7 @@ function err = spcBootstrap(theta,PCreps,varargin)
 % spcBootstrap(PCreps,100,true,0.05,false,['A','B']);
 %
 % coded by: Michael Sorochan Armstorng (mdarmstr@ugr.es)
-% last modification: 23/Apr/2024
+% last modification: 11/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -72,20 +72,20 @@ function err = spcBootstrap(theta,PCreps,varargin)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 sz = size(PCreps);
-no_delta = sz(1);
-no_fctrs = sz(2);
-no_perms = sz(3);
+noDelta = sz(1);
+noFctrs = sz(2);
+noPerms = sz(3);
 
 if length(varargin) < 1
-    bstrp_reps = 1000;
+    bstrpReps = 1000;
 else
-    bstrp_reps = varargin{1};
+    bstrpReps = varargin{1};
 end
     
 if length(varargin) < 2
-    plot_results = true;
+    plotResults = true;
 else
-    plot_results = varargin{2};
+    plotResults = varargin{2};
 end
     
 if length(varargin) < 3
@@ -95,40 +95,40 @@ else
 end
     
 if length(varargin) < 4
-    color_vec = colormap(lines(no_fctrs));
-elseif varargin{4} == false && plot_results == true
-    color_vec = colormap(lines(no_fctrs));
+    colorVec = colormap(lines(noFctrs));
+elseif varargin{4} == false && plotResults == true
+    colorVec = colormap(lines(noFctrs));
 else
-    color_vec = varargin{4};
+    colorVec = varargin{4};
 end
 
 if length(varargin) < 5
-elseif length(varargin) <= 5 && plot_results == false
-    warning('Legend provided, but plot_vec is set to false. Setting plot_vec to true')
-    plot_results = true;
-    if color_vec == false
-        warning('color_vec set to false. Setting to lines colormap')
-        color_vec = colormap(lines(no_fctrs));
+elseif length(varargin) <= 5 && plotResults == false
+    warning('Legend provided, but plotVec is set to false. Setting plotVec to true')
+    plotResults = true;
+    if colorVec == false
+        warning('colorVec set to false. Setting to lines colormap')
+        colorVec = colormap(lines(noFctrs));
     end
 end
 
-PC_uncert = zeros(no_delta,no_fctrs,bstrp_reps);
+PCuncert = zeros(noDelta,noFctrs,bstrpReps);
 
-for ii = 1:bstrp_reps
-    for jj = 1:no_fctrs
-        bstrp = randi(no_perms,no_perms,1);
-        PC_uncert(:,jj,ii) = sum(PCreps(:,jj,bstrp),3) ./ no_perms;
+for ii = 1:bstrpReps
+    for jj = 1:noFctrs
+        bstrp = randi(noPerms,noPerms,1);
+        PCuncert(:,jj,ii) = sum(PCreps(:,jj,bstrp),3) ./ noPerms;
     end
 end
 
 if strcmp(prcntl,'max')
-    mins = min(PC_uncert,[],3);
-    maxs = max(PC_uncert,[],3);
-    avgs = mean(PC_uncert,3);
+    mins = min(PCuncert,[],3);
+    maxs = max(PCuncert,[],3);
+    avgs = mean(PCuncert,3);
 else
-    mins = quantile(PC_uncert,prcntl,3);
-    maxs = quantile(PC_uncert,1-prcntl,3);
-    avgs = mean(PC_uncert,3);
+    mins = quantile(PCuncert,prcntl,3);
+    maxs = quantile(PCuncert,1-prcntl,3);
+    avgs = mean(PCuncert,3);
 end
 
 curve1 = maxs;
@@ -138,10 +138,10 @@ err = cat(3,curve1,curve2);
 
 x = theta';
 
-if plot_results == true
+if plotResults == true
    hold on;
    for ii = 1:size(PCreps,2)
-       patch([x; flip(x)],[curve2(:,ii); flip(curve1(:,ii))],color_vec(ii,:), 'FaceAlpha',0.5, 'EdgeColor','none');
+       patch([x; flip(x)],[curve2(:,ii); flip(curve1(:,ii))],colorVec(ii,:), 'FaceAlpha',0.5, 'EdgeColor','none');
    end
    if length(varargin) < 5
    else

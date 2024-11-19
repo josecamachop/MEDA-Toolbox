@@ -6,9 +6,9 @@ function vascao = vasca(parglmoVS,siglev)
 % ANOVA Simultaneous Component Analysis (VASCA). Bioinformatics. 2023 Jan 
 % 1;39(1):btac795. 
 %
-% Related routines: parglmVS, parglm, asca
-%
 % vascao = vasca(parglmVS,singlev)   % complete call
+%
+% See also: asca, parglmVS, parglm, parglmMC
 %
 %
 % INPUTS:
@@ -30,11 +30,11 @@ function vascao = vasca(parglmoVS,siglev)
 % Random data, one factor and two levels, three variables with information 
 % on the factor.
 %
-% n_obs = 40;
-% n_vars = 400;
+% nObs = 40;
+% nVars = 400;
 % 
-% class = (randn(n_obs,1)>0)+1;
-% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
+% class = (randn(nObs,1)>0)+1;
+% X = simuleMV(nObs,nVars,'LevelCorr',8);
 % X(class==2,1:3) = X(class==2,1:3) + 10;
 % 
 % [TVS, parglmoVS] = parglmVS(X, class); % With variable selection
@@ -48,7 +48,7 @@ function vascao = vasca(parglmoVS,siglev)
 % end
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 17/Nov/2024
+% last modification: 18/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -80,47 +80,47 @@ assert (isequal(size(siglev), [1 1]), 'Dimension Error: parameter ''singlev'' mu
 vascao = parglmoVS;
 
 %Do PCA on level averages for each factor
-for factor = 1 : vascao.n_factors
+for factor = 1 : vascao.nFactors
     
-    pvals = parglmoVS.p(parglmoVS.ord_factors(factor,:),factor); 
+    pvals = parglmoVS.p(parglmoVS.ordFactors(factor,:),factor); 
     M = find(pvals==min(pvals)); M = M(end);
     if pvals(M) <= siglev
         vascao.factors{factor}.stasig = true;
-        ind = parglmoVS.ord_factors(factor,1:M);
+        ind = parglmoVS.ordFactors(factor,1:M);
         xf = vascao.factors{factor}.matrix(:,ind);
-        p = pca_pp(xf,'Pcs',1:rank(xf));
+        model = pcaEig(xf,'Pcs',1:rank(xf));
     
+        fnames = fieldnames(model);
+        for n = 1:length(fnames)
+            vascao.factors{factor} = setfield(vascao.factors{factor},fnames{n},getfield(model,fnames{n}));
+        end
         vascao.factors{factor}.ind = ind;
-        vascao.factors{factor}.var = trace(xf'*xf);
-        vascao.factors{factor}.lvs = 1:size(p,2);
-        vascao.factors{factor}.loads = p;
-        vascao.factors{factor}.scores = xf*p;
-        vascao.factors{factor}.scoresV = (xf+vascao.residuals(:,ind))*p;
+        vascao.factors{factor}.scoresV = (xf+vascao.residuals(:,ind))*model.loads;
     else
         vascao.factors{factor}.stasig = false;
     end
 end
 
 %Do PCA on interactions
-for interaction = 1 : vascao.n_interactions
+for interaction = 1 : vascao.nInteractions
     
-    pvals = parglmoVS.p(parglmoVS.ord_interactions(interaction,:),interaction+vascao.n_factors); 
+    pvals = parglmoVS.p(parglmoVS.ordInteractions(interaction,:),interaction+vascao.nFactors); 
     M = find(pvals==min(pvals)); M = M(end);
     if pvals(M) <= siglev
         vascao.interactions{interaction}.stasig = true;
-        ind = parglmoVS.ord_interactions(interaction,1:M);
+        ind = parglmoVS.ordInteractions(interaction,1:M);
         xf = vascao.interactions{interaction}.matrix(:,ind);
         for factor = 1 : vascao.interactions{1}.factors
             xf = xf + vascao.factors{factor}.matrix(:,ind);
         end
-        p = pca_pp(xf,1:rank(xf));
+        model = pcaEig(xf,1:rank(xf));
     
+        fnames = fieldnames(model);
+        for n = 1:length(fnames)
+            vascao.interactions{interaction} = setfield(vascao.interactions{interaction},fnames{n},getfield(model,fnames{n}));
+        end
         vascao.interactions{interaction}.ind = ind;
-        vascao.interactions{interaction}.var = trace(xf'*xf);
-        vascao.interactions{interaction}.lvs = 1:size(p,2);
-        vascao.interactions{interaction}.loads = p;
-        vascao.interactions{interaction}.scores = xf*p;
-        vascao.interactions{interaction}.scoresV = (xf+vascao.residuals(:,ind))*p;
+        vascao.interactions{interaction}.scoresV = (xf+vascao.residuals(:,ind))*model.loads;
     else
         vascao.interactions{interaction}.stasig = false;
     end

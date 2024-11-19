@@ -8,7 +8,6 @@ function apcao = apca(parglmo)
 %
 % apcao = apca(parglmo)   % minimum call
 %
-%
 % See also: parglm, asca, gasca, createDesign
 %
 %

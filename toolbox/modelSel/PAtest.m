@@ -3,7 +3,7 @@ function [NoComp, PERCENTILES, Eigs2test]  = PAtest(X,alpha,method,type,corrtype
 % Code for performing Horn's Parallel Analysis. Parellel analysis is a well
 % establish method to determine the number of Principal components in PCA.
 % The performance of this method and its theoretical underpinning have been
-% reviwed in  Saccenti, E; Timmerman, M. Considering Horn’s Parallel Analysis 
+% reviwed in Saccenti, E; Timmerman, M. Considering Horn’s Parallel Analysis 
 % from a Random Matrix Theory Point of View Psychometrika 82 (2017)1 
 % http://dx.doi.org/10.1007/s11336-016-9515-z. Plese cite this paper if
 % using this code
@@ -12,6 +12,9 @@ function [NoComp, PERCENTILES, Eigs2test]  = PAtest(X,alpha,method,type,corrtype
 %       complete call
 %
 % 
+% See also: ckf, valPca, crossvalPca, dray
+%
+%
 % INPUTS
 % 
 % X:        n x p data matrix
@@ -49,7 +52,6 @@ function [NoComp, PERCENTILES, Eigs2test]  = PAtest(X,alpha,method,type,corrtype
 % last modification: 10/Apr/2024
 %
 % Copyright (C) 2024  Wageningen Univeristy & Research
-% Copyright (C) 2024  Edoardo Saccenti
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

@@ -68,7 +68,7 @@ function P = loadingsPca(x,varargin)
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 22/ Apr/2024.
+% last modification: 18/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -147,8 +147,9 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 %% Main code
 
 xcs = preprocess2D(x,'Preprocessing',prep);
-[P,T] = pca_pp(xcs,'Pcs',pcs);
-
+model = pcaEig(xcs,'PCs',pcs);
+P = model.loads;
+T = model.scores;
 
 %% Show results
 
@@ -156,12 +157,12 @@ if opt(1) == '1'
     
     if length(pcs) == 1 || opt(2) == '1'
         for i=1:length(pcs)
-                plot_vec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+                plotVec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
         end
     else
         for i=1:length(pcs)-1
             for j=i+1:length(pcs)
-                plot_scatter([P(:,i),P(:,j)], 'EleLabel',label,'ObsClass' ,classes, 'XYLabel',{sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Loadings PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','BlurIndex',blur);
+                plotScatter([P(:,i),P(:,j)], 'EleLabel',label,'ObsClass' ,classes, 'XYLabel',{sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Loadings PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','BlurIndex',blur);
             end      
         end
     end

@@ -13,7 +13,7 @@ function [npcf,rvdim,rvdimperm] = dray(x,varargin)
 % npcf = dray(x) % minimum call
 %
 %
-% See also: ckf, valPca, crossvalPca
+% See also: ckf, valPca, crossvalPca, PAtest
 %
 %
 % INPUTS:

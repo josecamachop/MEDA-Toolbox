@@ -4,7 +4,6 @@ function rec = missTsr2D(x,pc,varargin)
 %
 % rec = missTsr2D(x,pc) % minimum call
 %
-%
 % See also: pcaEig
 %
 %
@@ -39,18 +38,17 @@ function rec = missTsr2D(x,pc,varargin)
 % EXAMPLE FO USE:
 %
 % X = simuleMV(20,10,'LevelCorr',8);
-% pc = 2;
+% pc = 1;
 % Xmiss = X;
-% missLoc = round(200*rand(20,1));
+% missLoc = round(200*rand(10,1));
 % Xmiss(missLoc) = nan;
 % 
 % rec = missTsr2D(Xmiss,pc,'Iterations',50);
-% norm(rec-X)
+% plotScatter([X(missLoc),rec(missLoc)],'XYLabel',{'Real' 'Predicted'});
 % 
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 18/Nov/2024
-% major change: include nipls
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -106,7 +104,7 @@ if (conv<0), error('Incorrect value of Convergence.'); end;
 
 s=size(x);
 nnan = isnan(x);
-ind_nan=find(nnan);
+indnan=find(nnan);
 
 if ~isempty(find(perc*s(1)<sum(nnan,1)))
     error('Some columns present too much missing values.');
@@ -115,9 +113,9 @@ if ~isempty(find(perc*s(2)<sum(nnan,2)))
     error('Some rows present too much missing values.');
 end
 
-x(ind_nan) = nan;
+x(indnan) = nan;
     
-loop_ini = true;    
+loopIni = true;    
 e0=Inf;
 num0=iter;
 ax = x; 
@@ -135,10 +133,10 @@ while e0>conv && num0 > 0
         dev(j,:) = d;
     end
    
-    if loop_ini
-        loop_ini = false;
-        xce(ind_nan) = 0;
-        x(ind_nan) = med(ind_nan);
+    if loopIni
+        loopIni = false;
+        xce(indnan) = 0;
+        x(indnan) = med(indnan);
     end
     
     ax = xce;
@@ -173,17 +171,17 @@ while e0>conv && num0 > 0
             ax2(:,i)=TT*r*P(i,:)';
         end
 
-        rec_mod = ax;
-        rec_mod(ind_nan) = ax2(ind_nan);
+        recMod = ax;
+        recMod(indnan) = ax2(indnan);
     else
-        rec_mod = xce;
+        recMod = xce;
     end
     
-    x2 = rec_mod.*dev + med;
+    x2 = recMod.*dev + med;
     
-    e0=sum(((x(ind_nan)-x2(ind_nan))./dev(ind_nan)).^2)/length(ind_nan);
+    e0=sum(((x(indnan)-x2(indnan))./dev(indnan)).^2)/length(indnan);
     num0 = num0-1;
-    x(ind_nan)=x2(ind_nan);
+    x(indnan)=x2(indnan);
     
     ax=x;
 end
@@ -191,7 +189,7 @@ end
 if ac==1
     xp = (x-med)./dev;
     e = xp - xp*P*P';
-    e(ind_nan) = nan;
+    e(indnan) = nan;
 
     for i=1:size(e,2)
         x2 = find(~isnan(e(:,i)));

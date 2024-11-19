@@ -1,4 +1,4 @@
-function [model]=sparsepls2(X, Y, nlv, nvarX, nvarY, max_iter, tol, mode, mc)
+function model = sparsepls2(X, Y, nlv, nvarX, nvarY, max_iter, tol, mode, mc)
 %[max(nlv), unique(nvarX), unique(nvarY), rank(X), rank(Y)]
 % Sparse Partial Least Squares. References:
 % Lê Cao et al.,Statistical applications in genetics and molecular biology. 2008;7.

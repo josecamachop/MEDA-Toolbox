@@ -1,9 +1,11 @@
-
 function [mapo,ord] = seriation(mapi)
 
 % Seriation (ordination) of a covariance-like matrix.
 %
 % [mapo, ord] = seriation(mapi) % complete call
+% 
+% 
+%  See also: plotMap, meda, medaPca, medaPls
 %
 %
 % INPUTS:
@@ -23,11 +25,11 @@ function [mapo,ord] = seriation(mapi)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % mapo = seriation(cov(Xcs));
-% plot_map(mapo);
+% plotMap(mapo);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 23/Apr/2024.
+% last modification: 18/Nov/2024.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

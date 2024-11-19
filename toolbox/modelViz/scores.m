@@ -1,9 +1,9 @@
 
-function fig_h = scores(model,varargin)
+function figH = scores(model,varargin)
 
 % Compute and plot scores.
 %
-% fig_h = scores(model) % minimum call
+% figH = scores(model) % minimum call
 %
 %
 % INPUTS:
@@ -64,7 +64,7 @@ function fig_h = scores(model,varargin)
 %
 % OUTPUTS:
 %
-% fig_h: set of figure handles
+% figH: set of figure handles
 %
 %
 % EXAMPLE OF USE: Random scores
@@ -74,30 +74,30 @@ function fig_h = scores(model,varargin)
 % model.lvs = 1:3;
 % [Xcs,model.av,model.sc] = preprocess2D(X);
 % model.var = trace(Xcs'*Xcs);
-% [model.loads,model.scores] = pca_pp(Xcs,'Pcs',model.lvs);
+% [model.loads,model.scores] = pcaEig(Xcs,'Pcs',model.lvs);
 % 
 % scores(model);
 %
 %
 % EXAMPLE OF USE: Calibration and Test, both line and scatter plots
 %
-% n_obs = 100;
-% n_vars = 10;
-% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
+% nObs = 100;
+% nVars = 10;
+% X = simuleMV(nObs,nVars,'LevelCorr',8);
 % 
 % model.lvs = 1:2;
 % [Xcs,model.av,model.sc] = preprocess2D(X);
 % model.var = trace(Xcs'*Xcs);
-% [model.loads,model.scores] = pca_pp(Xcs,'Pcs',model.lvs);
+% [model.loads,model.scores] = pcaEig(Xcs,'Pcs',model.lvs);
 % 
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',corr(X)*(n_obst-1)/(n_obs-1));
+% nObst = 10;
+% test = simuleMV(nObst,nVars,'LevelCorr',6,'Covar',corr(X)*(nObst-1)/(nObs-1));
 % 
 % scores(model,'ObsTest',test);
 
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/May/2024
+% last modification: 18/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -228,16 +228,16 @@ else
     dim = 'PC';
 end
 
-fig_h = [];
+figH = [];
 if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
-        fig_h = [fig_h plot_vec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var)})];
+        figH = [figH plotVec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var)})];
         title(tit);
     end
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            fig_h = [fig_h plot_scatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}','Option',opt(3:end),'BlurIndex',blur)];
+            figH = [figH plotScatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}','Option',opt(3:end),'BlurIndex',blur)];
             title(tit);
         end
     end

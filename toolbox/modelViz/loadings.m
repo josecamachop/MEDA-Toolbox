@@ -1,9 +1,9 @@
 
-function fig_h = loadings(model,varargin)
+function figH = loadings(model,varargin)
 
 % Compute and plot loadings.
 %
-% fig_h =loadings(model) % minimum call
+% figH =loadings(model) % minimum call
 %
 %
 % INPUTS:
@@ -41,7 +41,7 @@ function fig_h = loadings(model,varargin)
 %
 % OUTPUTS:
 %
-% fig_h: set of figure handles
+% figH: set of figure handles
 %
 %
 % EXAMPLE OF USE: Random data
@@ -53,7 +53,7 @@ function fig_h = loadings(model,varargin)
 % end
 % 
 % X = simuleMV(20,10,'LevelCorr',8);
-% [~,~,model] = pca_pp(X,'Pcs',1:2);
+% [~,~,model] = pcaEig(X,'Pcs',1:2);
 % 
 % P = loadings(model,'VarsLabel',A);
 %
@@ -138,16 +138,16 @@ else
     dim = 'PC';
 end
 
-fig_h = [];
+figH = [];
 if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
-        fig_h = [fig_h plot_vec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings %s %d',dim,model.lvs(i))})];
+        figH = [figH plotVec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings %s %d',dim,model.lvs(i))})];
         title(tit);
     end
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            fig_h = [fig_h plot_scatter([P(:,i),P(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Loadings %s %d',dim,model.lvs(i)),sprintf('Loadings %s %d',dim,model.lvs(j))}','Option',opt(2),'BlurIndex',blur)];
+            figH = [figH plotScatter([P(:,i),P(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Loadings %s %d',dim,model.lvs(i)),sprintf('Loadings %s %d',dim,model.lvs(j))}','Option',opt(2),'BlurIndex',blur)];
             title(tit);
         end
     end

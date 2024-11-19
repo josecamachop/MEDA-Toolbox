@@ -4,6 +4,8 @@ function F = createDesign(levels,varargin)
 %
 % F = createDesign(levels)   % minimum call
 %
+% See also: asca, apca, parglm, parglmVS, parglmMC, codglm
+%
 %
 % INPUTS:
 %
@@ -29,7 +31,7 @@ function F = createDesign(levels,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 22/Apr/24.
+% last modification: 18/Nov/24.
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

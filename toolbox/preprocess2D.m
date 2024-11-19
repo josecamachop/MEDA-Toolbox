@@ -4,6 +4,8 @@ function [xcs,average,scale] = preprocess2D(x,varargin)
 %
 % xcs = preprocess2D(x)          % minimum call
 %
+% See also: preprocess2Dapp
+%
 %
 % INPUTS:
 %
@@ -34,10 +36,10 @@ function [xcs,average,scale] = preprocess2D(x,varargin)
 %
 % X = simuleMV(10,10,'LevelCorr',8);
 % [Xcs,av,sc] = preprocess2D(X);
-% fig_h = plot_vec([av' sc'],'XYLabel',{'Avergae','Std Dev'},'Option','11');
+% figH = plotVec([av' sc'],'XYLabel',{'Avergae','Std Dev'},'Option','11');
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 31/Jul/2024
+% last modification: 18/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

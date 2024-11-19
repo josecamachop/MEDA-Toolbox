@@ -4,6 +4,8 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 %
 % bpvals = pbootasca(X,F,ascao,nfact) % minimum call
 %
+% See also: asca, parglm, parglmVS, parglmMC, createDesign
+%
 %
 % INPUTS:
 %
@@ -41,11 +43,11 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 % with information on the factor. This example takes long to compute, you  
 % may reduce the number of variables or permutations.
 %
-% n_obs = 40;
-% n_vars = 400;
+% nObs = 40;
+% nVars = 100;
 % 
-% class = (randn(n_obs,1)>0)+1;
-% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
+% class = (randn(nObs,1)>0)+1;
+% X = simuleMV(nObs,nVars,'LevelCorr',8);
 % X(class==2,1:3) = X(class==2,1:3) + 10;
 % 
 % S = rng; % Use same seed for random generators to improve comparability of results
@@ -56,11 +58,10 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 % ascao = asca(parglmo); % With variable selection through bootstrapping
 % bpvals = pbootasca(X, class, ascao, 1, 'NRuns',1000);
 % 
-% 
 % h = figure; hold on
-% plot([1 n_vars],[parglmo.p parglmo.p],'b-.')
-% plot(parglmoVS.p(parglmoVS.ord_factors),'g-o')
-% plot(bpvals(parglmoVS.ord_factors),'k-')
+% plot([1 nVars],[parglmo.p parglmo.p],'b-.')
+% plot(parglmoVS.p(parglmoVS.ordFactors),'g-o')
+% plot(bpvals(parglmoVS.ordFactors),'k-')
 % plot([0,size(X,2)],[0.05 0.05],'r:')
 % plot([0,size(X,2)],[0.01 0.01],'r--')
 % legend('ASCA','VASCA','Bootstrap','alpha=0.05','alpha=0.01','Location','southeast')
@@ -72,7 +73,7 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 %
 % coded by: Rafa Vitale (raffaele.vitale@univ-lille.fr)
 %           Jose Camacho (josecamacho@ugr.es)
-% last modification: 23/Apr/2024
+% last modification: 11/Nov/2024
 %
 % Copyright (C) 2024  Raffael Vitale, Lille University
 % Copyright (C) 2024  Jose Camacho, Universidad de Granada
@@ -145,10 +146,10 @@ for boot=1:nboot
         
     end
     
-    [~, parglmo] = parglm(yboot,F,'Model',model,'Preprocessing',ascao.prep,'Permutations',ascao.n_perm,'Ts',ascao.ts,'Ordinal',ascao.ordinal,'Fmtc',ascao.fmtc,'Coding',ascao.coding,'Nested',ascao.nested); 
+    [~, parglmo] = parglm(yboot,F,'Model',model,'Preprocessing',ascao.prep,'Permutations',ascao.nPerm,'Ts',ascao.ts,'Ordinal',ascao.ordinal,'Fmtc',ascao.fmtc,'Coding',ascao.coding,'Nested',ascao.nested); 
     ascao = asca(parglmo); 
     pb = ascao.factors{nfact}.loads; 
-    [~,pboot(boot,:,:)]=orth_proc(p,pb);
+    [~,pboot(boot,:,:)] = orthProc(p,pb);
     
 end
 
@@ -165,11 +166,11 @@ if opt ~= '0', evalboot(p,pboot,pvalue); end
 
 
 % Orthogonal procrustes
-function [r,yrot]=orth_proc(x,y)
+function [r,yrot]=orthProc(x,y)
 
 %Computes orthogonal procrustes rotation projecting matrix y onto the
 %subspace spanned by matrix x.
-% syntax: [r,yrot]=orth_proc(x,y)
+% syntax: [r,yrot]=orthProc(x,y)
 % where r is the rotation matrix and yrot is the procrustes rotated y
 
 [u,~,v]=svd(y'*x,0);
@@ -184,7 +185,7 @@ function evalboot(p,pboot,pvalue)
 
 for npc=1:size(pboot,3)
     
-    plot_vec(p(:,npc), 'XYLabel', {'',sprintf('Loadings PC %d',npc)});
+    plotVec(p(:,npc), 'XYLabel', {'',sprintf('Loadings PC %d',npc)});
     hold on
     
     for nvar=1:size(p,1)

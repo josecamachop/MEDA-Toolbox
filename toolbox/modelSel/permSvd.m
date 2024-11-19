@@ -1,4 +1,4 @@
-function [npcf,Fratioreal,Fratioperm]=permsvd(x,varargin)
+function [npcf,Fratioreal,Fratioperm]=permSvd(x,varargin)
 
 % PCA component selection by permutation testing. If using this software please cite:
 % R. Vitale, J.A. Westerhuis, T. Naes, A.K. Smilde, O.E. de Noord, A.
@@ -7,6 +7,9 @@ function [npcf,Fratioreal,Fratioperm]=permsvd(x,varargin)
 % e2937
 %
 % npcf = permsvd(x) % minimum call
+%
+%
+% See also: ckf, valPca, crossvalPca, PAtest, dray
 % 
 %
 % INPUTS:

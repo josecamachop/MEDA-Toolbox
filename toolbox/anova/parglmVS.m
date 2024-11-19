@@ -5,9 +5,9 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 % multivariate statistical significance that allows variable selection. This 
 % is the basis of VASCA (Variable-selection ASCA). Missing data is considered.
 %
-% Related routines: parglm, parglmMC, asca, apca, create_design
-%
 % T = parglmVS(X, F)   % minimum call
+%
+% See also: parglm, parglmMC, asca, apca, createDesign
 %
 %
 % INPUTS:
@@ -75,11 +75,11 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 % Random data, one factor and two levels, three variables with information 
 % on the factor.
 %
-% n_obs = 40;
-% n_vars = 400;
+% nObs = 40;
+% nVars = 100;
 % 
-% class = (randn(n_obs,1)>0)+1;
-% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
+% class = (randn(nObs,1)>0)+1;
+% X = simuleMV(nObs,nVars,'LevelCorr',8);
 % X(class==2,1:3) = X(class==2,1:3) + 10;
 % 
 % S = rng; % Use same seed for random generators to improve comparability of results
@@ -88,8 +88,8 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 % [TVS, parglmoVS] = parglmVS(X, class); % With variable selection
 % 
 % h = figure; hold on
-% plot([1 n_vars],-log10([parglmo.p parglmo.p]),'b-.')
-% plot(-log10(parglmoVS.p(parglmoVS.ord_factors)),'g-o')
+% plot([1 nVars],-log10([parglmo.p parglmo.p]),'b-.')
+% plot(-log10(parglmoVS.p(parglmoVS.ordFactors)),'g-o')
 % plot([0,size(X,2)],-log10([0.01 0.01]),'r--')
 % legend('ASCA','VASCA','alpha=0.01','Location','southeast')
 % a=get(h,'CurrentAxes');
@@ -124,7 +124,7 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(X, 1);
 M = size(X, 2);
 
-n_factors = size(F,2);                 % number of factors
+nFactors = size(F,2);                 % number of factors
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -141,7 +141,7 @@ parse(p,varargin{:});
 % Extract inputs from inputParser for code legibility
 model = p.Results.Model;
 prep = p.Results.Preprocessing;
-n_perm = p.Results.Permutations;
+nPerm = p.Results.Permutations;
 ts = p.Results.Ts;
 ordinal = p.Results.Ordinal;
 fmtc = p.Results.Fmtc;
@@ -152,7 +152,7 @@ if isequal(model,'linear')
     interactions = [];
 end  
     
-f = 1:n_factors;
+f = 1:nFactors;
 if ~isempty(nested), f(nested(:,2)) = []; end
 if isequal(model,'interaction')
     interactions = allinter(f,2);
@@ -162,7 +162,7 @@ if isequal(model,'full')
     interactions = allinter(f,length(f));
 end    
 
-if isnumeric(model) && isscalar(model) && model >= 2 && model <= n_factors
+if isnumeric(model) && isscalar(model) && model >= 2 && model <= nFactors
         interactions = allinter(f,model);
 end    
 
@@ -176,7 +176,7 @@ if iscell(model), interactions = model; end
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(n_perm), [1 1]), 'Dimension Error: parameter ''Permutations'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(nPerm), [1 1]), 'Dimension Error: parameter ''Permutations'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ts), [1 1]), 'Dimension Error: parameter ''Ts'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ordinal), [1 size(F,2)]), 'Dimension Error: parameter ''Ordinal'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(fmtc), [1 1]), 'Dimension Error: parameter ''Fmtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -184,23 +184,23 @@ assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Codi
 
 %% Main code
 
-n_interactions      = size(interactions,1);              % number of interactions
+nInteractions      = size(interactions,1);              % number of interactions
 if fmtc
-    mtcc                = n_factors + n_interactions;        % correction for the number of tests
+    mtcc                = nFactors + nInteractions;        % correction for the number of tests
 else
     mtcc = 1;
 end
-SSQ_factors         = zeros(n_perm*mtcc+1,n_factors,M);       % sum of squares for factors
-SSQ_interactions    = zeros(n_perm*mtcc+1,n_interactions,M);  % sum of squares for interactions
-SSQ_residuals       = zeros(n_perm*mtcc+1,M);                 % sum of squares for residuals
-F_factors           = zeros(n_perm*mtcc+1,n_factors,M);       % F-value 
-F_interactions      = zeros(n_perm*mtcc+1,n_interactions,M);  % F-value 
-p_factor            = zeros(n_factors,M);                % p-values factors
-p_interaction       = zeros(n_interactions,M);           % p-values interactions
+SSQFactors         = zeros(nPerm*mtcc+1,nFactors,M);       % sum of squares for factors
+SSQInteractions    = zeros(nPerm*mtcc+1,nInteractions,M);  % sum of squares for interactions
+SSQresiduals       = zeros(nPerm*mtcc+1,M);                 % sum of squares for residuals
+FFactors           = zeros(nPerm*mtcc+1,nFactors,M);       % F-value 
+FInteractions      = zeros(nPerm*mtcc+1,nInteractions,M);  % F-value 
+pFactor            = zeros(nFactors,M);                % p-values factors
+pInteraction       = zeros(nInteractions,M);           % p-values interactions
 
 % In column space
-parglmo.factors                = cell(n_factors,1);
-parglmo.interactions           = cell(n_interactions,1);
+parglmo.factors                = cell(nFactors,1);
+parglmo.interactions           = cell(nInteractions,1);
 
 % preprocess the data
 [Xs,m,dt] = preprocess2D(X,'Preprocessing',prep);
@@ -211,9 +211,9 @@ parglmo.data           = X;
 parglmo.prep           = prep;
 parglmo.scale           = dt;
 parglmo.design         = F;
-parglmo.n_factors      = n_factors;
-parglmo.n_interactions = n_interactions;
-parglmo.n_perm          = n_perm;
+parglmo.nFactors      = nFactors;
+parglmo.nInteractions = nInteractions;
+parglmo.nPerm          = nPerm;
 parglmo.ts              = ts;
 parglmo.ordinal         = ordinal;
 parglmo.fmtc            = fmtc;
@@ -224,7 +224,7 @@ parglmo.nested          = nested;
 n = 1;
 D = ones(size(X,1),1);
 
-for f = 1 : n_factors
+for f = 1 : nFactors
     if ordinal(f)
         D(:,n+1) = preprocess2D(F(:,f),'preprocessing',1);
         parglmo.factors{f}.Dvars = n+1;
@@ -232,7 +232,7 @@ for f = 1 : n_factors
     else
         if isempty(nested) || isempty(find(nested(:,2)==f)) % if not nested
             uF = unique(F(:,f));
-            parglmo.n_levels(f) = length(uF);
+            parglmo.nLevels(f) = length(uF);
             for i = 2:length(uF)
                 D(find(ismember(F(:,f),uF(i))),n+i-1) = 1;
             end
@@ -247,12 +247,12 @@ for f = 1 : n_factors
             ind = find(nested(:,2)==f);
             ref = nested(ind,1);
             urF = unique(F(:,ref));
-            parglmo.n_levels(f) = 0;
+            parglmo.nLevels(f) = 0;
             parglmo.factors{f}.Dvars = [];
             for j = 1:length(urF)
                 rind = find(ismember(F(:,ref),urF(j)));
                 uF = unique(F(rind,f));
-                parglmo.n_levels(f) = parglmo.n_levels(f) + length(uF);
+                parglmo.nLevels(f) = parglmo.nLevels(f) + length(uF);
                 for i = 2:length(uF)
                     D(rind(find(ismember(F(rind,f),uF(i)))),n+i-1) = 1;
                 end
@@ -268,7 +268,7 @@ for f = 1 : n_factors
     end
 end
 
-for i = 1 : n_interactions
+for i = 1 : nInteractions
     Dout = computaDint(interactions{i},parglmo.factors,D);
     D = [D Dout];
     parglmo.interactions{i}.Dvars = n+1:size(D,2);
@@ -279,7 +279,7 @@ end
 % Degrees of freedom
 Tdf = size(X,1);      
 Rdf = Tdf-1;
-for f = 1 : n_factors
+for f = 1 : nFactors
     if ordinal(f)
         df(f) = 1;
     else
@@ -287,10 +287,10 @@ for f = 1 : n_factors
     end
     Rdf = Rdf-df(f);
 end
-df_int = [];
-for i = 1 : n_interactions
-    df_int(i) = prod(df(parglmo.interactions{i}.factors));
-    Rdf = Rdf-df_int(i);
+dfint = [];
+for i = 1 : nInteractions
+    dfint(i) = prod(df(parglmo.interactions{i}.factors));
+    Rdf = Rdf-dfint(i);
 end
 if Rdf < 0
     disp('Warning: degrees of freedom exhausted');
@@ -316,43 +316,43 @@ end
 parglmo.data = X;
 parglmo.Xnan = Xnan;
 
-SSQ_X = sum(X.^2);
+SSQX = sum(X.^2);
 
 % GLM model calibration with LS, only fixed factors
 pD =  pinv(D'*D)*D';
 B = pD*X;
-X_residuals = X - D*B;
+Xresiduals = X - D*B;
 parglmo.D = D;
 parglmo.B = B;
 parglmo.mean = parglmo.D*parglmo.B(:,1);
 
 % Create Effect Matrices
 parglmo.inter = D(:,1)*B(1,:);
-SSQ_inter = sum(parglmo.inter.^2);
-SSQ_residuals(1,:) = sum(X_residuals.^2);
+SSQinter = sum(parglmo.inter.^2);
+SSQresiduals(1,:) = sum(Xresiduals.^2);
 
-for f = 1 : n_factors
+for f = 1 : nFactors
     parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
-    SSQ_factors(1,f,:) = sum(parglmo.factors{f}.matrix.^2);
-    F_factors(1,f,:) = squeeze(SSQ_factors(1,f,:)/df(f))./(SSQ_residuals(1,:)/Rdf)';
+    SSQFactors(1,f,:) = sum(parglmo.factors{f}.matrix.^2);
+    FFactors(1,f,:) = squeeze(SSQFactors(1,f,:)/df(f))./(SSQresiduals(1,:)/Rdf)';
 end
 
 % Interactions
-for i = 1 : n_interactions
+for i = 1 : nInteractions
     parglmo.interactions{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
-    SSQ_interactions(1,i,:) = sum(parglmo.interactions{i}.matrix.^2);
-    F_interactions(1,i,:) = squeeze(SSQ_interactions(1,i,:)/df_int(i))./(SSQ_residuals(1,:)/Rdf)';
+    SSQInteractions(1,i,:) = sum(parglmo.interactions{i}.matrix.^2);
+    FInteractions(1,i,:) = squeeze(SSQInteractions(1,i,:)/dfint(i))./(SSQresiduals(1,:)/Rdf)';
 end
 
-if n_interactions
-    parglmo.effects = 100*([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) permute(SSQ_interactions(1,:,:),[3 2 1]) SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
+if nInteractions
+    parglmo.effects = 100*([SSQinter' permute(SSQFactors(1,:,:),[3 2 1]) permute(SSQInteractions(1,:,:),[3 2 1]) SSQresiduals(1,:)']./(SSQX'*ones(1,2+nFactors+nInteractions)));
 else
-    parglmo.effects = 100*([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) SSQ_residuals(1,:)']./(SSQ_X'*ones(1,2+n_factors+n_interactions)));
+    parglmo.effects = 100*([SSQinter' permute(SSQFactors(1,:,:),[3 2 1]) SSQresiduals(1,:)']./(SSQX'*ones(1,2+nFactors+nInteractions)));
 end
-parglmo.residuals = X_residuals;
+parglmo.residuals = Xresiduals;
 
 % Permutations
-parfor j = 1 : n_perm*mtcc
+parfor j = 1 : nPerm*mtcc
     
     perms = randperm(size(Xnan,1)); % permuted data (permute whole rows)
     
@@ -373,107 +373,107 @@ parfor j = 1 : n_perm*mtcc
     end
       
     B = pD*X;
-    X_residuals = X - D*B;
-    SSQ_residuals(1 + j,:) = sum(X_residuals.^2);
+    Xresiduals = X - D*B;
+    SSQresiduals(1 + j,:) = sum(Xresiduals.^2);
     
     % Factors
-    factors = cell(1,n_factors);
-    SSQf = zeros(n_factors,M);
-    Ff = zeros(n_factors,M);
-    for f = 1 : n_factors
+    factors = cell(1,nFactors);
+    SSQf = zeros(nFactors,M);
+    Ff = zeros(nFactors,M);
+    for f = 1 : nFactors
         factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
         SSQf(f,:) = sum(factors{f}.matrix.^2);
-        Ff(f,:) = (SSQf(f,:)/df(f))./(SSQ_residuals(1 + j,:)/Rdf);
+        Ff(f,:) = (SSQf(f,:)/df(f))./(SSQresiduals(1 + j,:)/Rdf);
     end
-    SSQ_factors(1 + j,:,:) = SSQf;
-    F_factors(1 + j,:,:) = Ff; 
+    SSQFactors(1 + j,:,:) = SSQf;
+    FFactors(1 + j,:,:) = Ff; 
     
     % Interactions
     interacts = {};
-    SSQi = zeros(n_interactions,M);
-    Fi = zeros(n_interactions,M);
-    for i = 1 : n_interactions
+    SSQi = zeros(nInteractions,M);
+    Fi = zeros(nInteractions,M);
+    for i = 1 : nInteractions
         interacts{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
         SSQi(i,:) = sum(interacts{i}.matrix.^2);
-        Fi(i,:) = (SSQi(i,:)/df_int(i))./(SSQ_residuals(1 + j,:)/Rdf);
+        Fi(i,:) = (SSQi(i,:)/dfint(i))./(SSQresiduals(1 + j,:)/Rdf);
     end
-    SSQ_interactions(1 + j,:,:) = SSQi;
-    F_interactions(1 + j,:,:) = Fi;
+    SSQInteractions(1 + j,:,:) = SSQi;
+    FInteractions(1 + j,:,:) = Fi;
 
 end       
 
 % Select test statistic to order variables
 if ts
-    ts_factors = F_factors;
-    ts_interactions = F_interactions;
+    tsFactors = FFactors;
+    tsInteractions = FInteractions;
 else
-    ts_factors = SSQ_factors;
-    ts_interactions = SSQ_interactions;
+    tsFactors = SSQFactors;
+    tsInteractions = SSQInteractions;
 end
     
 % Order variables by relevance
-ord_factors =  zeros(n_factors,M);
-ord_interactions =  zeros(n_interactions,M);
-for f = 1 : n_factors
-    [~,ord_factors(f,:)] = sort(ts_factors(1,f,:),'descend');
+ordFactors =  zeros(nFactors,M);
+ordInteractions =  zeros(nInteractions,M);
+for f = 1 : nFactors
+    [~,ordFactors(f,:)] = sort(tsFactors(1,f,:),'descend');
     for var = 1 : M
-        F_factors(1,f,ord_factors(f,var)) = (sum(SSQ_factors(1,f,ord_factors(f,1:var)),3)/df(f))./(sum(SSQ_residuals(1,ord_factors(f,1:var)),2)/Rdf);
+        FFactors(1,f,ordFactors(f,var)) = (sum(SSQFactors(1,f,ordFactors(f,1:var)),3)/df(f))./(sum(SSQresiduals(1,ordFactors(f,1:var)),2)/Rdf);
     end    
         
-    for j = 1 : n_perm*mtcc
-        [~,ord] = sort(ts_factors(1 + j,f,:),'descend');
-        SSQ_factors(1 + j,f,:) = SSQ_factors(1 + j,f,ord);
+    for j = 1 : nPerm*mtcc
+        [~,ord] = sort(tsFactors(1 + j,f,:),'descend');
+        SSQFactors(1 + j,f,:) = SSQFactors(1 + j,f,ord);
         for var = 1 : M
-            F_factors(1 + j,f,var) = (sum(SSQ_factors(1 + j,f,1:var),3)/df(f))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
+            FFactors(1 + j,f,var) = (sum(SSQFactors(1 + j,f,1:var),3)/df(f))./(sum(SSQresiduals(1 + j,ord(1:var)),2)/Rdf);
         end    
     end
 end
-for i = 1 : n_interactions
-    [~,ord_interactions(i,:)] = sort(ts_interactions(1,i,:),'descend');
+for i = 1 : nInteractions
+    [~,ordInteractions(i,:)] = sort(tsInteractions(1,i,:),'descend');
     for var = 1 : M
-        F_interactions(1,i,ord_interactions(i,var)) = (sum(SSQ_interactions(1,i,ord_interactions(i,1:var)),3)/df_int(i))./(sum(SSQ_residuals(1,ord_interactions(i,1:var)),2)/Rdf);
+        FInteractions(1,i,ordInteractions(i,var)) = (sum(SSQInteractions(1,i,ordInteractions(i,1:var)),3)/dfint(i))./(sum(SSQresiduals(1,ordInteractions(i,1:var)),2)/Rdf);
     end  
     
-    for j = 1 : n_perm*mtcc
-        [~,ord] = sort(ts_interactions(1 + j,i,:),'descend');
-        SSQ_interactions(1 + j,i,:) = SSQ_interactions(1 + j,i,ord);
+    for j = 1 : nPerm*mtcc
+        [~,ord] = sort(tsInteractions(1 + j,i,:),'descend');
+        SSQInteractions(1 + j,i,:) = SSQInteractions(1 + j,i,ord);
         for var = 1 : M
-            F_interactions(1 + j,i,var) = (sum(SSQ_interactions(1 + j,i,1:var),3)/df_int(i))./(sum(SSQ_residuals(1 + j,ord(1:var)),2)/Rdf);
+            FInteractions(1 + j,i,var) = (sum(SSQInteractions(1 + j,i,1:var),3)/dfint(i))./(sum(SSQresiduals(1 + j,ord(1:var)),2)/Rdf);
         end    
     end
 end
 
-parglmo.ord_factors = ord_factors;
-if n_interactions>0
-    parglmo.ord_interactions = ord_interactions;
+parglmo.ordFactors = ordFactors;
+if nInteractions>0
+    parglmo.ordInteractions = ordInteractions;
 end
 
 % Calculate multivariate p-values
-for f = 1 : n_factors
+for f = 1 : nFactors
     for var = 1 : M
         if ts
-            p_factor(f,ord_factors(f,var)) = (size(find( F_factors(2:(n_perm*mtcc + 1),f,var) ...
-                >= F_factors(1, f,ord_factors(f,var))), 1) + 1)/(n_perm*mtcc+1);
+            pFactor(f,ordFactors(f,var)) = (size(find( FFactors(2:(nPerm*mtcc + 1),f,var) ...
+                >= FFactors(1, f,ordFactors(f,var))), 1) + 1)/(nPerm*mtcc+1);
         else
-            p_factor(f,ord_factors(f,var)) = (size(find( sum(SSQ_factors(2:(n_perm*mtcc + 1),f,1:var),3) ...
-                >= sum(SSQ_factors(1, f,ord_factors(f,1:var)))), 1) + 1)/(n_perm*mtcc+1);
+            pFactor(f,ordFactors(f,var)) = (size(find( sum(SSQFactors(2:(nPerm*mtcc + 1),f,1:var),3) ...
+                >= sum(SSQFactors(1, f,ordFactors(f,1:var)))), 1) + 1)/(nPerm*mtcc+1);
         end
     end
 end
-for i = 1 : n_interactions
+for i = 1 : nInteractions
     for var = 1 : M
         if ts
-            p_interaction(i,ord_interactions(i,var)) = (size(find( F_interactions(2:(n_perm*mtcc + 1),i,var) ...
-                >= F_interactions(1, i, ord_interactions(i,var))), 1) + 1)/(n_perm*mtcc+1);
+            pInteraction(i,ordInteractions(i,var)) = (size(find( FInteractions(2:(nPerm*mtcc + 1),i,var) ...
+                >= FInteractions(1, i, ordInteractions(i,var))), 1) + 1)/(nPerm*mtcc+1);
         else
-            p_interaction(i,ord_interactions(i,var)) = (size(find( sum(SSQ_interactions(2:(n_perm*mtcc + 1),i,1:var),3) ...
-                >= sum(SSQ_interactions(1, i, ord_interactions(i,1:var)))), 1) + 1)/(n_perm*mtcc+1);
+            pInteraction(i,ordInteractions(i,var)) = (size(find( sum(SSQInteractions(2:(nPerm*mtcc + 1),i,1:var),3) ...
+                >= sum(SSQInteractions(1, i, ordInteractions(i,1:var)))), 1) + 1)/(nPerm*mtcc+1);
         end
     end
 end
         
 % Multiple test correction for several factors/interactions
-parglmo.p = [p_factor' p_interaction'];
+parglmo.p = [pFactor' pInteraction'];
 if mtcc > 1
     switch fmtc
         case 1 % Bonferroni 
@@ -509,32 +509,32 @@ end
 %% ANOVA-like output table
 
 name={'Mean'};
-for f = 1 : n_factors
+for f = 1 : nFactors
     name{end+1} = sprintf('Factor %d',f);
 end
-for i = 1 : n_interactions
+for i = 1 : nInteractions
      name{end+1} = sprintf('Interaction %s',strrep(num2str(parglmo.interactions{i}.factors),'  ','-'));
 end
 name{end+1} = 'Residuals';
 name{end+1} = 'Total';
       
-if n_interactions
-    SSQ = sum([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) permute(SSQ_interactions(1,:,:),[3 2 1]) SSQ_residuals(1,:)' SSQ_X'],1);
+if nInteractions
+    SSQ = sum([SSQinter' permute(SSQFactors(1,:,:),[3 2 1]) permute(SSQInteractions(1,:,:),[3 2 1]) SSQresiduals(1,:)' SSQX'],1);
 else
-    SSQ = sum([SSQ_inter' permute(SSQ_factors(1,:,:),[3 2 1]) SSQ_residuals(1,:)' SSQ_X'],1);
+    SSQ = sum([SSQinter' permute(SSQFactors(1,:,:),[3 2 1]) SSQresiduals(1,:)' SSQX'],1);
 end
 par = [mean(parglmo.effects,1) 100];
-DoF = [1 df df_int Rdf Tdf];
+DoF = [1 df dfint Rdf Tdf];
 MSQ = SSQ./DoF;
-F = [nan max(F_factors(1,:,:),[],3) max(F_interactions(1,:,:),[],3) nan nan];
-p_value = [nan min(parglmo.p,[],1) nan nan];
+F = [nan max(FFactors(1,:,:),[],3) max(FInteractions(1,:,:),[],3) nan nan];
+pValue = [nan min(parglmo.p,[],1) nan nan];
 
 isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
 if isOctave
-    T.data = [name'; SSQ'; par'; DoF'; MSQ'; F'; p_value'];
+    T.data = [name'; SSQ'; par'; DoF'; MSQ'; F'; pValue'];
     T.labels = {'Source','SumSq','AvPercSumSq','df','MeanSq','MaxF','minPvalue'};
 else
-    T = table(name', SSQ', par', DoF', MSQ', F', p_value','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','MaxF','minPvalue'});
+    T = table(name', SSQ', par', DoF', MSQ', F', pValue','VariableNames', {'Source','SumSq','AvPercSumSq','df','MeanSq','MaxF','minPvalue'});
 end
 
 end

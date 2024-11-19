@@ -69,12 +69,12 @@ function [T,TT] = scoresPca(x,varargin)
 %
 % EXAMPLE OF USE: Calibration and Test, both line and scatter plots
 %
-% n_obs = 100;
-% n_vars = 10;
-% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
+% nObs = 100;
+% nVars = 10;
+% X = simuleMV(nObs,nVars,'LevelCorr',8);
 % 
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',corr(X)*(n_obst-1)/(n_obs-1));
+% nObst = 10;
+% test = simuleMV(nObst,nVars,'LevelCorr',6,'Covar',corr(X)*(nObst-1)/(nObs-1));
 % 
 % scoresPca(X,'Pcs',1,'ObsTest',test);
 % scoresPca(X,'Pcs',1:2,'ObsTest',test);
@@ -187,11 +187,12 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 %% Main code
 
 [xcs,m,sd] = preprocess2D(x,'Preprocessing',prep);
-[P,T] = pca_pp(xcs,'Pcs',pcs);
+model = pcaEig(xcs,'PCs',pcs);
+T = model.scores;
 
 if ~isempty(test)
     testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
-    TT = testcs*P;
+    TT = testcs*model.loads;
 else
     TT = [];
 end
@@ -209,12 +210,12 @@ if opt(1) == '1'
     
     if length(pcs) == 1 || opt(2) == '1'
         for i=1:length(pcs)
-            plot_vec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+            plotVec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
         end
     else
         for i=1:length(pcs)-1
             for j=i+1:length(pcs)
-                plot_scatter([Tt(:,i),Tt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','Option',opt(4),'BlurIndex',blur);
+                plotScatter([Tt(:,i),Tt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','Option',opt(4),'BlurIndex',blur);
             end      
         end
     end

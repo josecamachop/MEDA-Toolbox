@@ -1,4 +1,4 @@
-function fig_h = plotScatter(bdata,varargin)
+function figH = plotScatter(bdata,varargin)
 
 % Scatter plot.
 %
@@ -54,22 +54,22 @@ function fig_h = plotScatter(bdata,varargin)
 % 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
-% 'Color': Choose a color for your data. By default will use Okabe_ito. 
+% 'Color': Choose a color for your data. By default will use okabeIto. 
 %   'parula' for parula palette, 'hsv' for hsv palette.
 %
 % OUTPUTS:
 %
-% fig_h: (1x1) figure handle.
+% figH: (1x1) figure handle.
 %
 %
 % EXAMPLE OF USE: Plot random data with filled marks and control limits:
 %
-% fig_h = plotScatter(rand(100,2),'XYLabel',{'Y','X'},'LimCont',{0.8,0.8});
+% figH = plotScatter(rand(100,2),'XYLabel',{'Y','X'},'LimCont',{0.8,0.8});
 %
 %
 % EXAMPLE OF USE: with labels and classes in elements:
 %
-% fig_h = plotScatter(randn(5,2),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'Color','hsv');
+% figH = plotScatter(randn(5,2),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'Color','hsv');
 %
 %
 % EXAMPLE OF USE: with labels, multilicity and classes in elements:
@@ -83,7 +83,7 @@ function fig_h = plotScatter(bdata,varargin)
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 23/May/2024
+% last modification: 18/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -177,18 +177,18 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 %% Main code
 
 % Create figure window
-fig_h = figure;
+figH = figure;
 hold on;
 
 % Verify if the classes are numerical
-numerical_classes = false;
-if isa(classes, 'double') numerical_classes = true; end
+numericalClasses = false;
+if isa(classes, 'double') numericalClasses = true; end
 
 % Sort data for colorbar
 if opt(1)=='0'
     [classes,ord] = sort(classes,'ascend');
     cax = [min(classes) max(classes)];
-    if ~numerical_classes
+    if ~numericalClasses
         classes = num2str(classes); 
         classes = cellstr(classes);
     end
@@ -200,20 +200,20 @@ if opt(1)=='0'
 end
 
 % Get ordering of classes
-unique_classes = unique(classes,'stable');
+uniqueClasses = unique(classes,'stable');
 if iscell(classes)
-     ord_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
+     ordClasses = arrayfun(@(x) find(strcmp(uniqueClasses, x), 1), classes);
 else
-     ord_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
+     ordClasses = arrayfun(@(x) find(uniqueClasses == x, 1), classes);
 end
-unique_ord_classes = unique(ord_classes);
+uniqueOrdClasses = unique(ordClasses);
 
 % Define mult bins, markers, colors and sizes
 bins = [0 1 maxv Inf];
 markers = ['^','v','d','o','s'];
 
 %Choosing the color
-okabe_ito = [0.1,0.1,0.1;
+okabeIto = [0.1,0.1,0.1;
             0.902,0.624,0;
             0.337,0.706,0.914;
             0,0.620,0.451;
@@ -240,26 +240,26 @@ okabe_ito = [0.1,0.1,0.1;
 
 if(isempty(color))
     if opt(1) == '1'
-        if length(unique_ord_classes) <= 24
-            color_list = okabe_ito;
+        if length(uniqueOrdClasses) <= 24
+            colorList = okabeIto;
         else
-            color_list = hsv(length(unique_ord_classes));
+            colorList = hsv(length(uniqueOrdClasses));
         end
     elseif opt(1) == '0'
-        color_list = parula(length(unique_ord_classes));
+        colorList = parula(length(uniqueOrdClasses));
     end
 
 elseif strcmp(color, 'okabe')
-    color_list = okabe_ito;
+    colorList = okabeIto;
 
 elseif strcmp(color, 'parula')
-    color_list = parula(length(unique_ord_classes));
+    colorList = parula(length(uniqueOrdClasses));
 
 else%if strcmp(color, 'hsv')
-     color_list = hsv(length(unique_ord_classes));
+     colorList = hsv(length(uniqueOrdClasses));
 end
 
-colors = color_list(ord_classes, :);
+colors = colorList(ordClasses, :);
 
 sizes = zeros(size(mult));
 for i=1:length(bins)-1
@@ -267,53 +267,53 @@ for i=1:length(bins)-1
 end
 
 
-if numerical_classes
+if numericalClasses
     colors = classes; 
     classes = num2str(classes);
-    unique_classes = string(unique_classes);
+    uniqueClasses = string(uniqueClasses);
 end   
 switch opt(2:4)
     case '000'  % 2D plot, No multiplicity info, filled marks        
-        for i=1:length(unique_ord_classes)
-            ind = find(ord_classes == unique_ord_classes(i));
-            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'filled','DisplayName',unique_classes{i});
+        for i=1:length(uniqueOrdClasses)
+            ind = find(ordClasses == uniqueOrdClasses(i));
+            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'filled','DisplayName',uniqueClasses{i});
         end
 
     case '010'  % 2D plot, No multiplicity info, empty marks
-        for i=1:length(unique_ord_classes)
-            ind = find(ord_classes == unique_ord_classes(i));
-            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'DisplayName',unique_classes{i});
+        for i=1:length(uniqueOrdClasses)
+            ind = find(ordClasses == uniqueOrdClasses(i));
+            scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:),'DisplayName',uniqueClasses{i});
         end
 
     case '100'  % 2D plot, Multiplicity in size
-        for i=1:length(unique_ord_classes)
-            ind = find(ord_classes == unique_ord_classes(i));
-            scatter(bdata(ind,1), bdata(ind,2),sizes(ind), colors(ind,:),'filled','DisplayName',unique_classes{i});
+        for i=1:length(uniqueOrdClasses)
+            ind = find(ordClasses == uniqueOrdClasses(i));
+            scatter(bdata(ind,1), bdata(ind,2),sizes(ind), colors(ind,:),'filled','DisplayName',uniqueClasses{i});
         end
 
     case '101'  % 2D plot, Multiplicity in markers
-        for i=1:length(unique_ord_classes)
+        for i=1:length(uniqueOrdClasses)
             for j=1:length(bins)-1
-                ind = find(ord_classes == unique_ord_classes(i) & mult<=bins(j+1) & mult>bins(j));
-                disp_name = strcat(num2str(unique_ord_classes(i)), ' (mult: > ', num2str(bins(j)), ')');
-                scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:), 'filled', markers(j), 'DisplayName', disp_name);
+                ind = find(ordClasses == uniqueOrdClasses(i) & mult<=bins(j+1) & mult>bins(j));
+                dispName = strcat(num2str(uniqueOrdClasses(i)), ' (mult: > ', num2str(bins(j)), ')');
+                scatter(bdata(ind,1), bdata(ind,2), [], colors(ind,:), 'filled', markers(j), 'DisplayName', dispName);
             end
         end
 
     case '110'  % 3D plot, Multiplicity in Z-axis
-        for i=1:length(unique_ord_classes)
-            ind = find(ord_classes == unique_ord_classes(i));
-            scatter3(bdata(ind,1), bdata(ind,2), mult(ind), [], colors(ind,:), 'filled', 'DisplayName',unique_classes{i});
+        for i=1:length(uniqueOrdClasses)
+            ind = find(ordClasses == uniqueOrdClasses(i));
+            scatter3(bdata(ind,1), bdata(ind,2), mult(ind), [], colors(ind,:), 'filled', 'DisplayName',uniqueClasses{i});
         end
 
     case '111'  % 3D plot, Multiplicity in size, classes in Z-axis
-        for i=1:length(unique_ord_classes)
-            ind = find(ord_classes == unique_ord_classes(i));
-            scatter3(bdata(ind,1), bdata(ind,2), ord_classes(ind), sizes(ind), colors(ind,:), 'filled', 'DisplayName',unique_classes{i});
+        for i=1:length(uniqueOrdClasses)
+            ind = find(ordClasses == uniqueOrdClasses(i));
+            scatter3(bdata(ind,1), bdata(ind,2), ordClasses(ind), sizes(ind), colors(ind,:), 'filled', 'DisplayName',uniqueClasses{i});
         end
 end
 
-text_scatter(fig_h,bdata,'EleLabel',elabel,'ObsClass',classes,'Option',opt(2:4),'Multiplicity',mult,'BlurIndex',blur);
+textScatter(figH,bdata,'EleLabel',elabel,'ObsClass',classes,'Option',opt(2:4),'Multiplicity',mult,'BlurIndex',blur);
 
 ax = axis;
 ax([1 3]) = min(ax([1 3]),zeros(1,2));
@@ -348,10 +348,10 @@ if ~isempty(xylabel)
     ylabel(xylabel{2}, 'FontSize', 20);
 end
 
-axes_h = get(fig_h,'Children');
-for i=1:length(axes_h)
-    if strcmp(get(axes_h(i), 'type'), 'axes')
-        set(axes_h(i), 'FontSize', 12);
+axesH = get(figH,'Children');
+for i=1:length(axesH)
+    if strcmp(get(axesH(i), 'type'), 'axes')
+        set(axesH(i), 'FontSize', 12);
     end
 end
 

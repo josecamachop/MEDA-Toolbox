@@ -1,18 +1,17 @@
-function [D, parglmo, anovast] = codglm(F, parglmi, varargin)
+function [D, parglmo, anovast] = codglm(F, varargin)
 % Compute coding matrix from a design matrix for General Linear Models.
 %
-% Related routines: parglm, asca, apca, parglmVS, parglmMC, create_design
+% Related routines: asca, vasca, parglm, parglmVS, parglmMC, createDesign
 %
-% D = codglm(F, parglmi)   % minimum call
+% D = codglm(F)   % minimum call
+%
+% See also: asca, apca, parglm, parglmVS, parglmMC, createDesign
 %
 %
 % INPUTS:
 %
 % F: [NxF] design matrix, cell or array, where columns correspond to 
 % factors and rows to levels.
-%
-% parglmi (structure): structure with the number of factors and the number 
-% of levels for each of them.
 %
 %
 % Optional INPUTS (parameters):
@@ -56,13 +55,13 @@ function [D, parglmo, anovast] = codglm(F, parglmi, varargin)
 % vars = 400;
 % levels = {[1,2,3,4],[1,2,3]};
 % 
-% F = create_design(levels,'Replicates',reps);
+% F = createDesign(levels,'Replicates',reps);
 % 
 % D = codglm(F)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 22/Apr/2024
+% last modification: 18/Nov/2024
 %
 % Copyright (C) 2024  Universidad de Granada
 %
@@ -83,11 +82,13 @@ function [D, parglmo, anovast] = codglm(F, parglmi, varargin)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-n_factors = parglmi.n_factors;                 % number of factors
-levels = parglmi.levels;
-
+nFactors = size(F,2); % number of factors
+levels = [];
+for i = 1:nFactors
+    levels{i} = unique(F(:,i));
+end
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
@@ -104,15 +105,15 @@ if isequal(anovast.model,'linear')
 end  
     
 if isequal(anovast.model,'interaction')
-    interactions = allinter(n_factors,2);
+    interactions = allinter(nFactors,2);
 end    
 
 if isequal(anovast.model,'full')
-    interactions = allinter(n_factors,n_factors);
+    interactions = allinter(nFactors,nFactors);
 end    
 
-if isnumeric(anovast.model) && isscalar(anovast.model) && anovast.model >= 2 && anovast.model <= n_factors
-        interactions = allinter(n_factors,anovast.model);
+if isnumeric(anovast.model) && isscalar(anovast.model) && anovast.model >= 2 && anovast.model <= nFactors
+        interactions = allinter(nFactors,anovast.model);
 end    
 
 if isnumeric(anovast.model) && ~isscalar(anovast.model)
@@ -121,33 +122,33 @@ end
 
 if iscell(anovast.model), interactions = anovast.model; end
     
-if ~isfield(anovast,'ordinal') || isempty(anovast.ordinal), anovast.ordinal = zeros(1,n_factors); end;
-if ~isfield(anovast,'coding') || isempty(anovast.coding), anovast.coding = zeros(1,n_factors); end;
+if ~isfield(anovast,'ordinal') || isempty(anovast.ordinal), anovast.ordinal = zeros(1,nFactors); end;
+if ~isfield(anovast,'coding') || isempty(anovast.coding), anovast.coding = zeros(1,nFactors); end;
 if ~isfield(anovast,'nested'), anovast.nested = []; end;
 
 % Validate dimensions of input data
-assert (isequal(size(anovast.ordinal), [1 n_factors]), 'Dimension Error: parameter ''Ordinal''  must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(anovast.coding), [1 n_factors]), 'Dimension Error: parameter ''Coding''  must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(anovast.ordinal), [1 nFactors]), 'Dimension Error: parameter ''Ordinal''  must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(anovast.coding), [1 nFactors]), 'Dimension Error: parameter ''Coding''  must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
                   
-n_interactions      = length(interactions);      % number of interactions
+nInteractions      = length(interactions);      % number of interactions
 
 % In column space
-parglmo.factors                = cell(n_factors,1);
-parglmo.interactions           = cell(n_interactions,1);
+parglmo.factors                = cell(nFactors,1);
+parglmo.interactions           = cell(nInteractions,1);
 
 % Make structure with general 'variables'
-parglmo.n_factors      = n_factors;
+parglmo.nFactors      = nFactors;
 parglmo.levels         = levels;
-parglmo.n_interactions = n_interactions;
+parglmo.nInteractions = nInteractions;
 
 % Create Design Matrix
 n = 1;
 D = ones(size(F,1),1);
 
-for f = 1 : n_factors
+for f = 1 : nFactors
     if anovast.ordinal(f)
         D(:,n+1) = preprocess2D(F(:,f),1);
         parglmo.factors{f}.Dvars = n+1;
@@ -156,7 +157,7 @@ for f = 1 : n_factors
     else
         if isempty(anovast.nested) || isempty(find(anovast.nested(:,2)==f)) % if not nested
             uF = unique(levels{f});
-            parglmo.n_levels(f) = length(uF);
+            parglmo.nLevels(f) = length(uF);
             for i = 2:length(uF)
                 D(find(ismember(F(:,f),uF(i))),n+i-1) = 1;
             end
@@ -172,12 +173,12 @@ for f = 1 : n_factors
             ind = find(anovast.nested(:,2)==f);
             ref = anovast.nested(ind,1);
             urF = unique(levels{ref});
-            parglmo.n_levels(f) = 0;
+            parglmo.nLevels(f) = 0;
             parglmo.factors{f}.Dvars = [];
             for j = 1:length(urF)
                 rind = find(ismember(levels{f}(:,1),urF(j)));
                 uF = unique(levels{f}(rind,2));
-                parglmo.n_levels(f) = parglmo.n_levels(f) + length(uF);
+                parglmo.nLevels(f) = parglmo.nLevels(f) + length(uF);
                 for i = 2:length(uF)
                     D(rind(find(ismember(F(rind,f),uF(i)))),n+i-1) = 1;
                 end
@@ -194,7 +195,7 @@ for f = 1 : n_factors
     end
 end
 
-for i = 1 : n_interactions
+for i = 1 : nInteractions
     Dout = computaDint(interactions{i},parglmo.factors,D);
     D = [D Dout];
     parglmo.interactions{i}.Dvars = n+1:size(D,2);
