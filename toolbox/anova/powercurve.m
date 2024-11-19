@@ -109,7 +109,8 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %   Simulated Power Curve (type 1) from effect coefficients, two factors 
 %   with 4 and 3 levels, and 4 replicates, with interaction. The relative 
 %   effect (standard deviation) is .1 and .2 for the first and second 
-%   factor and .3 for the interaction, respectively. 
+%   factor and .3 for the interaction, respectively. Please, note this
+%   example takes several minutes to execute.
 %
 % reps = 4;
 % levels = {[1,2,3,4],[1,2,3]};
@@ -120,7 +121,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % X.M = 400;
 % X.k = [.1,.2,.3];
 % 
-% PCmean = powercurve(X, F, 'Model',{[1 2]},'Type',1,'Repetitions',200)
+% PCmean = powercurve(X, F, 'Model',{[1 2]},'Type',1,'Repetitions',200);
 % legend('Factor A','Factor B','Interaction')
 %
 %
@@ -206,7 +207,7 @@ if isempty(theta)
             theta = 1:10;
         end
     else
-        theeta = 0:0.1:1; 
+        theta = 0:0.1:1; 
     end
 end
 theta = sort(theta,'ascend');
@@ -733,7 +734,6 @@ PCrep = eD;
 
 figure;
 spcBootstrap(theta,PCrep,nRep,true,0.05,false);    
-%for o = 1:length(powercurveo.coeffs), plot(theta,PCmean(:,o)); end;
 if type == 1 % Relative PCs
     
     xlabel('Effect size (\theta)','FontSize', 16);
