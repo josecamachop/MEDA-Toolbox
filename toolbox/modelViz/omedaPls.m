@@ -170,11 +170,11 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 [xcs,m,sd] = preprocess2D(x,'preprocessing',prepx);
 ycs = preprocess2D(y,'preprocessing',prepy);
 
-model = simpls(xcs,ycs,'LatVars',lvs);
+model = simpls(xcs,ycs,'LVs',lvs);
 R = model.altweights;
 P = model.loads;
 
-testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
+testcs = preprocess2Dapp(test,m,'Scale',sd);
 omeda_vec = omeda(testcs,dummy,R,'OutSubspace',P);
     
 % heuristic: 95% limit for one-observation-dummy

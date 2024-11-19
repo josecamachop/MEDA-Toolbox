@@ -73,11 +73,11 @@ function [T,TT,figH] = scoresLpca(Lmodel,test,opt,label,classes)
 %
 % nobs = 100;
 % nvars = 10;
-% X = simuleMV(nobs,nvars,8);
+% X = simuleMV(nobs,nvars,'LevelCorr',8);
 % Lmodel = iniLmodel(X);
 %
 % nobst = 10;
-% test = simuleMV(nobst,nvars,6,corr(X)*(nobst-1)/(nobs-1));
+% test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(X)*(nobst-1)/(nobs-1));
 %
 % Lmodel.lvs = 1;
 % scoresLpca(Lmodel,test);
@@ -194,7 +194,7 @@ P = Lmodel.loads;
 T = Lmodel.centr*P;
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
+    testcs = preprocess2Dapp(test,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
     TT = testcs*P;
 else
     TT = [];

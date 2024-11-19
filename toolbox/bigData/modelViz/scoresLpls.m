@@ -193,7 +193,7 @@ R = Lmodel.altweights;
 T = Lmodel.centr*R;
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
+    testcs = preprocess2Dapp(test,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
     TT = testcs*R;
 else
     TT = [];

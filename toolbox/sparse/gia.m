@@ -48,7 +48,7 @@ function [bel,states,stree] = gia(map,varargin)
 %
 % EXAMPLE OF USE: Checking metaparameter:
 %
-% X = simuleMV(20,100,8);
+% X = simuleMV(20,100,'LevelCorr',8);
 % pcs = 1:3;
 % map = meda_pca(X,'Pcs',pcs);
 % C = [0.05:0.05:0.95];

@@ -202,7 +202,7 @@ end
 
 if ~isempty(test)
     if isfield(model,'av')
-        testcs = preprocess2Dapp(test,model.av,'SDivideTest',model.sc);
+        testcs = preprocess2Dapp(test,model.av,'Scale',model.sc);
     else
         testcs = test;
     end

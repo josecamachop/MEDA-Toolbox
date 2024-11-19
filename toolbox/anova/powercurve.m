@@ -47,7 +47,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % 'Repetitions': [1x1] number of repetitions to compute the power curves (1000 by default)
 %
 % 'RandomGen': (func) random generator (@randn by default) suggested alternatives
-%   - @(N,M)simuleMV(N,M,8): multivariate correlated with level 8 (other values may be used)
+%   - @(N,M)simuleMV(N,M,'LevelCorr',8): multivariate correlated with level 8 (other values may be used)
 %   - @rand: uniform (moderately non-normal)
 %   - @(N,M)exprnd(1,N,M).^3: very non-normal 
 %

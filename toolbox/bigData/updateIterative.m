@@ -51,8 +51,8 @@ function Lmodel = updateIterative(list,path,Lmodel,step,files,debug)
 %
 % EXAMPLE OF USE: model a large number of observations.
 %
-% n_obs = 100;
-% n_vars = 10;
+% nobs = 100;
+% nvars = 10;
 % Lmodel = iniLmodel;
 % Lmodel.type = 'PCA'; 
 % Lmodel.prep = 2;  
@@ -60,11 +60,11 @@ function Lmodel = updateIterative(list,path,Lmodel,step,files,debug)
 % Lmodel.nc = 100; % Number of clusters
 % 
 % for i=1:10,
-%   list(i).x = simuleMV(n_obs,n_vars,6);
+%   list(i).x = simuleMV(nobs,nvars,'LevelCorr',6);
 % end
 %
 % Lmodel = updateIterative(list,[],Lmodel);
-% mspc_Lpca(Lmodel);
+% mspcLpca(Lmodel);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -172,7 +172,7 @@ if strcmp(Lmodel.type,'ASCA') % build coding matrix
         
     end
 
-    Lmodel.n_factors = length(F);
+    Lmodel.nFactors = length(F);
     Lmodel.levels = F;
         
     for t=1:length(list)
@@ -337,7 +337,7 @@ if strcmp(Lmodel.type,'PCA')
             x(indMV{t}) = av(indMV{t});
         end
         
-        xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
+        xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
         Lmodel.XX = Lmodel.XX + xcs'*xcs;
         
     end
@@ -368,9 +368,9 @@ elseif strcmp(Lmodel.type,'PLS')
             y(indMVy{t}) = avy(indMVy{t});
         end
         
-        xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
+        xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
         Lmodel.XX = Lmodel.XX + xcs'*xcs;        
-        ycs = preprocess2Dapp(y,Lmodel.avy,Lmodel.scy,Lmodel.weighty);
+        ycs = preprocess2Dapp(y,Lmodel.avy,'Scale',Lmodel.scy,'Weight',Lmodel.weighty);
         Lmodel.XY = Lmodel.XY + xcs'*ycs;
         Lmodel.YY = Lmodel.YY + ycs'*ycs;
         
@@ -398,20 +398,20 @@ elseif strcmp(Lmodel.type,'PLS')
         end
         
         Lmodel.DD = Lmodel.DD + d'*d;        
-        xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
+        xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
         Lmodel.DX = Lmodel.DX + d'*xcs;
         
     end
     
     if debug, disp('computing parglm......................................................'), end;
     
-    n_factors = Lmodel.n_factors;
-    n_interactions = Lmodel.n_interactions;
+    nFactors = Lmodel.nFactors;
+    nInteractions = Lmodel.nInteractions;
     
     % Degrees of freedom
     Tdf = Lmodel.N;
     Rdf = Tdf-1;
-    for f = 1 : n_factors
+    for f = 1 : nFactors
         if Lmodel.anovast.ordinal(f)
             df(f) = 1;
         else
@@ -419,10 +419,10 @@ elseif strcmp(Lmodel.type,'PLS')
         end
         Rdf = Rdf-df(f);
     end
-    df_int = [];
-    for i = 1 : n_interactions
-        df_int(i) = prod(df(Lmodel.interactions{i}.factors));
-        Rdf = Rdf-df_int(i);
+    dfint = [];
+    for i = 1 : nInteractions
+        dfint(i) = prod(df(Lmodel.interactions{i}.factors));
+        Rdf = Rdf-dfint(i);
     end
     if Rdf < 0
         disp('Warning: degrees of freedom exhausted');
@@ -432,13 +432,13 @@ elseif strcmp(Lmodel.type,'PLS')
     % GLM model calibration with LS, only fixed factors
     Lmodel.B = pinv(Lmodel.DD)*Lmodel.DX;
     
-    SSQ_X = 0;
-    SSQ_residuals = 0;
-    SSQ_inter = 0;
-    SSQ_factors = [];
-    for f = 1 : n_factors, SSQ_factors(f) = 0; Lmodel.factors{f}.XX = zeros(size(x,2)); end
-    SSQ_interactions = [];
-    for i = 1 : n_interactions, SSQ_interactions(i) = 0; Lmodel.interactions{i}.XX = zeros(size(x,2)); end
+    SSQX = 0;
+    SSQresiduals = 0;
+    SSQinter = 0;
+    SSQFactors = [];
+    for f = 1 : nFactors, SSQFactors(f) = 0; Lmodel.factors{f}.XX = zeros(size(x,2)); end
+    SSQInteractions = [];
+    for i = 1 : nInteractions, SSQInteractions(i) = 0; Lmodel.interactions{i}.XX = zeros(size(x,2)); end
     
     for t=1:length(list)
         
@@ -451,27 +451,27 @@ elseif strcmp(Lmodel.type,'PLS')
         
         x = x./(ones(size(x,1),1)*Lmodel.sc);
 
-        SSQ_X = SSQ_X + sum(sum(x.^2));
+        SSQX = SSQX + sum(sum(x.^2));
         
         parglmo.residuals = x - d*Lmodel.B;
-        SSQ_residuals = SSQ_residuals + sum(sum(parglmo.residuals.^2));
+        SSQresiduals = SSQresiduals + sum(sum(parglmo.residuals.^2));
 
         % Create Effect Matrices
         parglmo.inter = d(:,1)*Lmodel.B(1,:);
-        SSQ_inter = SSQ_inter + sum(sum(parglmo.inter.^2));
+        SSQinter = SSQinter + sum(sum(parglmo.inter.^2));
         
         % Factors
-        for f = 1 : n_factors
+        for f = 1 : nFactors
             parglmo.factors{f}.matrix = d(:,Lmodel.factors{f}.Dvars)*Lmodel.B(Lmodel.factors{f}.Dvars,:);
             Lmodel.factors{f}.XX = Lmodel.factors{f}.XX + parglmo.factors{f}.matrix'*parglmo.factors{f}.matrix;
-            SSQ_factors(f) = SSQ_factors(f) + sum(sum(parglmo.factors{f}.matrix.^2)); 
+            SSQFactors(f) = SSQFactors(f) + sum(sum(parglmo.factors{f}.matrix.^2)); 
         end
         
         % Interactions
-        for i = 1 : n_interactions
+        for i = 1 : nInteractions
             parglmo.interactions{i}.matrix = d(:,Lmodel.interactions{i}.Dvars)*Lmodel.B(Lmodel.interactions{i}.Dvars,:);
             Lmodel.interactions{i}.XX = Lmodel.interactions{i}.XX + parglmo.interactions{i}.matrix'*parglmo.interactions{i}.matrix;
-            SSQ_interactions(i) = SSQ_interactions(i) + sum(sum(parglmo.interactions{i}.matrix.^2));
+            SSQInteractions(i) = SSQInteractions(i) + sum(sum(parglmo.interactions{i}.matrix.^2));
         end
         
 %         if isstruct(list(t))
@@ -483,37 +483,37 @@ elseif strcmp(Lmodel.type,'PLS')
     end
     
     % Factors
-    F_factors = [];
-    for f = 1 : n_factors
-        F_factors(f) = (SSQ_factors(f)/df(f))/(SSQ_residuals/Rdf);
+    FFactors = [];
+    for f = 1 : nFactors
+        FFactors(f) = (SSQFactors(f)/df(f))/(SSQresiduals/Rdf);
     end
     
     % Interactions
-    F_interactions = [];
-    for i = 1 : n_interactions
-        F_interactions(i) = (SSQ_interactions(i)/df_int(i))/(SSQ_residuals/Rdf);
+    FInteractions = [];
+    for i = 1 : nInteractions
+        FInteractions(i) = (SSQInteractions(i)/dfint(i))/(SSQresiduals/Rdf);
     end
     
-    Lmodel.effects = 100*([SSQ_inter SSQ_factors SSQ_interactions SSQ_residuals]./SSQ_X);
+    Lmodel.effects = 100*([SSQinter SSQFactors SSQInteractions SSQresiduals]./SSQX);
         
     %% ANOVA-like output table
     
     name={'Mean'};
-    for f = 1 : n_factors
+    for f = 1 : nFactors
         name{end+1} = sprintf('Factor %d',f);
     end
-    for i = 1 : n_interactions
+    for i = 1 : nInteractions
         name{end+1} = sprintf('Interaction %s',strrep(num2str(parglmo.interactions{i}.factors),'  ','-'));
     end
     name{end+1} = 'Residuals';
     name{end+1} = 'Total';
     
-    SSQ = [SSQ_inter SSQ_factors SSQ_interactions SSQ_residuals SSQ_X];
+    SSQ = [SSQinter SSQFactors SSQInteractions SSQresiduals SSQX];
     par = [Lmodel.effects 100];
-    DoF = [1 df df_int Rdf Tdf];
+    DoF = [1 df dfint Rdf Tdf];
     MSQ = SSQ./DoF;
-    F = [nan F_factors F_interactions nan nan];
-    %p_value = [nan parglmo.p nan nan];
+    F = [nan FFactors FInteractions nan nan];
+    %pvalue = [nan parglmo.p nan nan];
     
     isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
     if isOctave
@@ -535,7 +535,7 @@ if strcmp(Lmodel.type,'PCA')
     
     if isempty(Lmodel.lvs)
         Lmodel.lvs = 1:rank(Lmodel.XX);
-        var_Lpca(Lmodel);
+        varLpca(Lmodel);
         Lmodel.lvs = input('Select the number of PCs to include in the model: ');
         Lmodel.lvs = 1:Lmodel.lvs;
     end
@@ -552,7 +552,7 @@ elseif strcmp(Lmodel.type,'PLS')
             
         if isempty(Lmodel.lvs)
             Lmodel.lvs = 1:rank(Lmodel.XX);
-            var_Lpls(Lmodel);
+            varLpls(Lmodel);
             Lmodel.lvs = input('Select the number of LVs to include in the model: ');
             Lmodel.lvs = 1:Lmodel.lvs;
         end
@@ -569,7 +569,7 @@ elseif strcmp(Lmodel.type,'PLS')
         
         if isempty(Lmodel.lvs)
             Lmodel.lvs = 1:rank(Lmodel.XX);
-            var_Lpca(Lmodel);
+            varLpca(Lmodel);
             Lmodel.lvs = input('Select the number of PCs to include in the model: ');
             Lmodel.lvs = 1:Lmodel.lvs;
         end
@@ -583,18 +583,18 @@ elseif strcmp(Lmodel.type,'ASCA')
     
     if debug, disp('computing ASCA model....................................................'), end;
     
-    n_factors = Lmodel.n_factors;
-    n_interactions = Lmodel.n_interactions;
+    nFactors = Lmodel.nFactors;
+    nInteractions = Lmodel.nInteractions;
     
     % Factors
-    for f = 1 : n_factors    
+    for f = 1 : nFactors    
         Lmodel.factors{f}.centr = ones(size(Lmodel.centr,1),size(Lmodel.factors{f}.XX,1));
     
         if debug, disp(sprintf('computing PCA model of factor %d..............................................',f)); end;
 
         if isempty(Lmodel.factors{f}.lvs)
             Lmodel.factors{f}.lvs = 1:rank(Lmodel.factors{f}.XX);
-            var_Lpca(Lmodel.factors{f});
+            varLpca(Lmodel.factors{f});
             Lmodel.factors{f}.lvs = input('Select the number of PCs to include in the model: ');
             Lmodel.factors{f}.lvs = 1:Lmodel.factors{f}.lvs;
         end
@@ -604,7 +604,7 @@ elseif strcmp(Lmodel.type,'ASCA')
     end
     
     % Interactions
-    for i = 1 : n_interactions
+    for i = 1 : nInteractions
         Lmodel.interactions{i}.centr = ones(size(Lmodel.centr,1),size(Lmodel.interactions{i}.XX,1));
     
         if debug, disp(sprintf('computing PCA model of interaction %d..............................................',i)); end;
@@ -615,7 +615,7 @@ elseif strcmp(Lmodel.type,'ASCA')
 
         if isempty(Lmodel.interactions{i}.lvs)
             Lmodel.interactions{i}.lvs = 1:rank(Lmodel.interactions{i}.XX);
-            var_Lpca(Lmodel.interactions{i});
+            varLpca(Lmodel.interactions{i});
             Lmodel.interactions{i}.lvs = input('Select the PCs number of to include in the model: ');
             Lmodel.interactions{i}.lvs = 1:Lmodel.interactions{i}.lvs;
         end
@@ -647,7 +647,7 @@ if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
             x(indMV{t}) = av(indMV{t});
         end
 
-        xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
+        xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
         
         T = xcs * Lmodel.mat;
         M = max(T);
@@ -667,11 +667,11 @@ if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
 
 elseif strcmp(Lmodel.type,'ASCA')
     
-    n_factors = Lmodel.n_factors;
-    n_interactions = Lmodel.n_interactions;
+    nFactors = Lmodel.nFactors;
+    nInteractions = Lmodel.nInteractions;
     
     % Factors
-    for f = 1 : n_factors 
+    for f = 1 : nFactors 
         
         mini = Inf(1,size(Lmodel.factors{f}.mat,2));
         maxi = -Inf(1,size(Lmodel.factors{f}.mat,2));
@@ -708,7 +708,7 @@ elseif strcmp(Lmodel.type,'ASCA')
     end
     
     % Interactions
-    for i = 1 : n_interactions
+    for i = 1 : nInteractions
         
         mini = Inf(1,size(Lmodel.interactions{i}.mat,2));
         maxi = -Inf(1,size(Lmodel.interactions{i}.mat,2));
@@ -751,7 +751,7 @@ end
 
 if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
     
-    Lmodel.index_fich={};
+    Lmodel.indexFich={};
     for t=1:length(list)
         
         if debug, disp(sprintf('clustering: packet %d...........................................', t)), end;
@@ -764,12 +764,12 @@ if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
             else
                 class = ones(size(x,1),1);
             end
-            if ismember('obs_l', vars)
-                obs_l = list(t).obs_l;
-                if isnumeric(obs_l), obs_l = cellstr(num2str(obs_l)); end
+            if ismember('obsl', vars)
+                obsl = list(t).obsl;
+                if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
             else
-                obs_l = cellstr(num2str((1:size(x,1))'));
-                for o = 1:length(obs_l), obs_l{o} = [num2str(t) '-' strtrim(obs_l{o})]; end
+                obsl = cellstr(num2str((1:size(x,1))'));
+                for o = 1:length(obsl), obsl{o} = [num2str(t) '-' strtrim(obsl{o})]; end
             end
         else
             load([path list{t}],'x')
@@ -779,12 +779,12 @@ if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
             else
                 class = ones(size(x,1),1);
             end
-            if ismember('obs_l', {vars.name})
-                load([path list{t}],'obs_l')
-                if isnumeric(obs_l), obs_l = cellstr(num2str(obs_l)); end
+            if ismember('obsl', {vars.name})
+                load([path list{t}],'obsl')
+                if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
             else
-                obs_l = cellstr(num2str((1:size(x,1))'));
-                for o = 1:length(obs_l), obs_l{o} = [num2str(t) '-' strtrim(obs_l{o})]; end
+                obsl = cellstr(num2str((1:size(x,1))'));
+                for o = 1:length(obsl), obsl{o} = [num2str(t) '-' strtrim(obsl{o})]; end
             end
         end
         
@@ -793,16 +793,16 @@ if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
             x(indMV{t}) = av(indMV{t});
         end
         
-        xcs = preprocess2Dapp(x,Lmodel.av,Lmodel.sc,Lmodel.weight);
+        xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
         
         if files % The updated field is not included in the FS yet
             indorig = length(Lmodel.class);
             red = [Lmodel.centr;xcs];
-            lred = {Lmodel.obs_l{:} obs_l{:}};
+            lred = {Lmodel.obsl{:} obsl{:}};
             multr = [Lmodel.multr;ones(length(class),1)];
             classr = [Lmodel.class;class];
-            aux_v = (1:length(classr))';
-            obslist = num2cell(aux_v);
+            auxv = (1:length(classr))';
+            obslist = num2cell(auxv);
         else
             obslist = {};
         end
@@ -815,47 +815,47 @@ if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
             ss = endv-i+1;
             xstep = xcs(i:endv,:);
             clstep = class(i:endv);
-            if isempty(obs_l)
-                obs_step = {};
+            if isempty(obsl)
+                obsstep = {};
             else
-                obs_step = obs_l(i:endv);
+                obsstep = obsl(i:endv);
             end
             
             Lmodel.centr = [Lmodel.centr;xstep];
             Lmodel.multr = [Lmodel.multr;ones(ss,1)];
             Lmodel.class = [Lmodel.class;clstep];
-            Lmodel.obs_l = {Lmodel.obs_l{:} obs_step{:}};
+            Lmodel.obsl = {Lmodel.obsl{:} obsstep{:}};
             Lmodel.updated = [Lmodel.updated;ones(size(xstep,1),1)];
             
             if files
                 for k=i:endv
-                    Lmodel.index_fich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
+                    Lmodel.indexFich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
                 end
             end
             
-            [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,obslist] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,Lmodel.mat,obslist);
+            [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obsl,Lmodel.updated,obslist] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obsl,Lmodel.updated,Lmodel.mat,obslist);
         end
         
         if files
-            Lmodel.index_fich = cfilesys(obslist,red,lred,multr,classr,Lmodel.index_fich,100,Lmodel.path,debug); % update of the clustering file system
+            Lmodel.indexFich = cfilesys(obslist,red,lred,multr,classr,Lmodel.indexFich,100,Lmodel.path,debug); % update of the clustering file system
         end
         
     end
     
     if files
-        ind = find(strcmp(Lmodel.obs_l, 'mixed'));
-        Lmodel.obs_l(ind) = Lmodel.index_fich(ind);
+        ind = find(strcmp(Lmodel.obsl, 'mixed'));
+        Lmodel.obsl(ind) = Lmodel.indexFich(ind);
     end
 
 elseif strcmp(Lmodel.type,'ASCA')
     
-    n_factors = Lmodel.n_factors;
-    n_interactions = Lmodel.n_interactions;
+    nFactors = Lmodel.nFactors;
+    nInteractions = Lmodel.nInteractions;
     
     % Factors
-    for fa = 1 : n_factors 
+    for fa = 1 : nFactors 
         
-        Lmodel.factors{fa}.index_fich={};
+        Lmodel.factors{fa}.indexFich={};
         for t=1:length(list)
             
             if debug, disp(sprintf('clustering factor %d: packet %d...........................................', fa, t)), end;
@@ -865,22 +865,22 @@ elseif strcmp(Lmodel.type,'ASCA')
                 x = list(t).x;
                 vars = fieldnames(list(t));
                 class = list(t).f(:,fa);
-                if ismember('obs_l', vars)
-                    obs_l = list(t).obs_l;
-                    if isnumeric(obs_l), obs_l = cellstr(num2str(obs_l)); end
+                if ismember('obsl', vars)
+                    obsl = list(t).obsl;
+                    if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
                 else
-                    obs_l = cellstr(num2str((1:size(d,1))'));
+                    obsl = cellstr(num2str((1:size(d,1))'));
                 end
             else
                 load([path list{t}],'d','x')
                 vars = whos('-file',[path list{t}]);
                 load([path list{t}],'f');
                 class = f(:,fa);
-                if ismember('obs_l', {vars.name})
-                    load([path list{t}],'obs_l')
-                    if isnumeric(obs_l), obs_l = cellstr(num2str(obs_l)); end
+                if ismember('obsl', {vars.name})
+                    load([path list{t}],'obsl')
+                    if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
                 else
-                    obs_l = cellstr(num2str((1:size(d,1))'));
+                    obsl = cellstr(num2str((1:size(d,1))'));
                 end
             end
             f = fa;
@@ -893,11 +893,11 @@ elseif strcmp(Lmodel.type,'ASCA')
             if files % The updated field is not included in the FS yet
                 indorig = length(Lmodel.factors{f}.class);
                 red = [Lmodel.factors{f}.centr;xcs];
-                lred = {Lmodel.factors{f}.obs_l{:} obs_l{:}};
+                lred = {Lmodel.factors{f}.obsl{:} obsl{:}};
                 multr = [Lmodel.factors{f}.multr;ones(length(class),1)];
                 classr = [Lmodel.factors{f}.class;class];
-                aux_v = (1:length(classr))';
-                obslist = num2cell(aux_v);
+                auxv = (1:length(classr))';
+                obslist = num2cell(auxv);
             else
                 obslist = {};
             end
@@ -910,44 +910,44 @@ elseif strcmp(Lmodel.type,'ASCA')
                 ss = endv-i+1;
                 xstep = xcs(i:endv,:);
                 clstep = class(i:endv);
-                if isempty(obs_l)
-                    obs_step = {};
+                if isempty(obsl)
+                    obsstep = {};
                 else
-                    obs_step = obs_l(i:endv);
+                    obsstep = obsl(i:endv);
                 end
                 
                 Lmodel.factors{f}.centr = [Lmodel.factors{f}.centr;xstep];
                 Lmodel.factors{f}.multr = [Lmodel.factors{f}.multr;ones(ss,1)];
                 Lmodel.factors{f}.class = [Lmodel.factors{f}.class;clstep];
-                Lmodel.factors{f}.obs_l = {Lmodel.factors{f}.obs_l{:} obs_step{:}};
+                Lmodel.factors{f}.obsl = {Lmodel.factors{f}.obsl{:} obsstep{:}};
                 Lmodel.factors{f}.updated = [Lmodel.factors{f}.updated;ones(size(xstep,1),1)];
                 
                 if files
                     for k=i:endv
-                        Lmodel.factors{f}.index_fich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
+                        Lmodel.factors{f}.indexFich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
                     end
                 end
                 
-                [Lmodel.factors{f}.centr,Lmodel.factors{f}.multr,Lmodel.factors{f}.class,Lmodel.factors{f}.obs_l,Lmodel.factors{f}.updated,obslist] = psc(Lmodel.factors{f}.centr,Lmodel.factors{f}.nc,Lmodel.factors{f}.multr,Lmodel.factors{f}.class,Lmodel.factors{f}.obs_l,Lmodel.factors{f}.updated,Lmodel.factors{f}.mat,obslist);
+                [Lmodel.factors{f}.centr,Lmodel.factors{f}.multr,Lmodel.factors{f}.class,Lmodel.factors{f}.obsl,Lmodel.factors{f}.updated,obslist] = psc(Lmodel.factors{f}.centr,Lmodel.factors{f}.nc,Lmodel.factors{f}.multr,Lmodel.factors{f}.class,Lmodel.factors{f}.obsl,Lmodel.factors{f}.updated,Lmodel.factors{f}.mat,obslist);
             end
             
             if files
-                Lmodel.factors{f}.index_fich = cfilesys(obslist,red,lred,multr,classr,Lmodel.factors{f}.index_fich,100,Lmodel.factors{f}.path,debug); % update of the clustering file system
+                Lmodel.factors{f}.indexFich = cfilesys(obslist,red,lred,multr,classr,Lmodel.factors{f}.indexFich,100,Lmodel.factors{f}.path,debug); % update of the clustering file system
             end
             
         end
         
         if files
-            ind = find(strcmp(Lmodel.factors{f}.obs_l, 'mixed'));
-            Lmodel.factors{f}.obs_l(ind) = Lmodel.factors{f}.index_fich(ind);
+            ind = find(strcmp(Lmodel.factors{f}.obsl, 'mixed'));
+            Lmodel.factors{f}.obsl(ind) = Lmodel.factors{f}.indexFich(ind);
         end
     
     end
     
     % Interactions
-    for i = 1 : n_interactions 
+    for i = 1 : nInteractions 
         
-        Lmodel.interactions{i}.index_fich={};
+        Lmodel.interactions{i}.indexFich={};
         for t=1:length(list)
             
             if debug, disp(sprintf('clustering interaction %d: packet %d...........................................', i, t)), end;
@@ -961,11 +961,11 @@ elseif strcmp(Lmodel.type,'ASCA')
                 else
                     class = ones(size(x,1),1);
                 end
-                if ismember('obs_l', vars)
-                    obs_l = list(t).obs_l;
-                    if isnumeric(obs_l), obs_l = cellstr(num2str(obs_l)); end
+                if ismember('obsl', vars)
+                    obsl = list(t).obsl;
+                    if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
                 else
-                    obs_l = cellstr(num2str((1:size(d,1))'));
+                    obsl = cellstr(num2str((1:size(d,1))'));
                 end
             else
                 load([path list{t}],'d','x')
@@ -975,11 +975,11 @@ elseif strcmp(Lmodel.type,'ASCA')
                 else
                     class = ones(size(x,1),1);
                 end
-                if ismember('obs_l', {vars.name})
-                    load([path list{t}],'obs_l')
-                    if isnumeric(obs_l), obs_l = cellstr(num2str(obs_l)); end
+                if ismember('obsl', {vars.name})
+                    load([path list{t}],'obsl')
+                    if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
                 else
-                    obs_l = cellstr(num2str((1:size(d,1))'));
+                    obsl = cellstr(num2str((1:size(d,1))'));
                 end
             end
             
@@ -990,11 +990,11 @@ elseif strcmp(Lmodel.type,'ASCA')
             if files % The updated field is not included in the FS yet
                 indorig = length(Lmodel.interactions{i}.class);
                 red = [Lmodel.interactions{i}.centr;xcs];
-                lred = {Lmodel.interactions{i}.obs_l{:} obs_l{:}};
+                lred = {Lmodel.interactions{i}.obsl{:} obsl{:}};
                 multr = [Lmodel.interactions{i}.multr;ones(length(class),1)];
                 classr = [Lmodel.interactions{i}.class;class];
-                aux_v = (1:length(classr))';
-                obslist = num2cell(aux_v);
+                auxv = (1:length(classr))';
+                obslist = num2cell(auxv);
             else
                 obslist = {};
             end
@@ -1007,36 +1007,36 @@ elseif strcmp(Lmodel.type,'ASCA')
                 ss = endv-i+1;
                 xstep = xcs(i:endv,:);
                 clstep = class(i:endv);
-                if isempty(obs_l)
-                    obs_step = {};
+                if isempty(obsl)
+                    obsstep = {};
                 else
-                    obs_step = obs_l(i:endv);
+                    obsstep = obsl(i:endv);
                 end
                 
                 Lmodel.interactions{i}.centr = [Lmodel.interactions{i}.centr;xstep];
                 Lmodel.interactions{i}.multr = [Lmodel.interactions{i}.multr;ones(ss,1)];
                 Lmodel.interactions{i}.class = [Lmodel.interactions{i}.class;clstep];
-                Lmodel.interactions{i}.obs_l = {Lmodel.interactions{i}.obs_l{:} obs_step{:}};
+                Lmodel.interactions{i}.obsl = {Lmodel.interactions{i}.obsl{:} obsstep{:}};
                 Lmodel.interactions{i}.updated = [Lmodel.interactions{i}.updated;ones(size(xstep,1),1)];
                 
                 if files
                     for k=i:endv
-                        Lmodel.interactions{i}.index_fich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
+                        Lmodel.interactions{i}.indexFich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
                     end
                 end
                 
-                [Lmodel.interactions{i}.centr,Lmodel.interactions{i}.multr,Lmodel.interactions{i}.class,Lmodel.interactions{i}.obs_l,Lmodel.interactions{i}.updated,obslist] = psc(Lmodel.interactions{i}.centr,Lmodel.interactions{i}.nc,Lmodel.interactions{i}.multr,Lmodel.interactions{i}.class,Lmodel.interactions{i}.obs_l,Lmodel.interactions{i}.updated,Lmodel.interactions{i}.mat,obslist);
+                [Lmodel.interactions{i}.centr,Lmodel.interactions{i}.multr,Lmodel.interactions{i}.class,Lmodel.interactions{i}.obsl,Lmodel.interactions{i}.updated,obslist] = psc(Lmodel.interactions{i}.centr,Lmodel.interactions{i}.nc,Lmodel.interactions{i}.multr,Lmodel.interactions{i}.class,Lmodel.interactions{i}.obsl,Lmodel.interactions{i}.updated,Lmodel.interactions{i}.mat,obslist);
             end
             
             if files
-                Lmodel.interactions{i}.index_fich = cfilesys(obslist,red,lred,multr,classr,Lmodel.interactions{i}.index_fich,100,Lmodel.interactions{i}.path,debug); % update of the clustering file system
+                Lmodel.interactions{i}.indexFich = cfilesys(obslist,red,lred,multr,classr,Lmodel.interactions{i}.indexFich,100,Lmodel.interactions{i}.path,debug); % update of the clustering file system
             end
             
         end
         
         if files
-            ind = find(strcmp(Lmodel.interactions{i}.obs_l, 'mixed'));
-            Lmodel.interactions{i}.obs_l(ind) = Lmodel.interactions{i}.index_fich(ind);
+            ind = find(strcmp(Lmodel.interactions{i}.obsl, 'mixed'));
+            Lmodel.interactions{i}.obsl(ind) = Lmodel.interactions{i}.indexFich(ind);
         end
     
     end
@@ -1051,7 +1051,7 @@ function [D, Lmodel] = codglm(F, Lmodel)
 
 % Compute coding matrix from a design matrix for General Linear Models.
 %
-% Related routines: parglm, asca, apca, parglmVS, parglmMC, create_design
+% Related routines: parglm, asca, apca, parglmVS, parglmMC, createDesign
 %
 % D = codglm(F, Lmodel)   % minimum call
 % [D, Lmodel] = codglm(F, Lmodel)   % complete call
@@ -1121,7 +1121,7 @@ function [D, Lmodel] = codglm(F, Lmodel)
 routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-n_factors = Lmodel.n_factors;                 % number of factors
+nFactors = Lmodel.nFactors;                 % number of factors
 levels = Lmodel.levels;
 
 if ~isfield(Lmodel,'anovast'), Lmodel.anovast = []; end
@@ -1133,15 +1133,15 @@ if isequal(Lmodel.anovast.model,'linear')
 end  
     
 if isequal(Lmodel.anovast.model,'interaction')
-    interactions = allinter(n_factors,2);
+    interactions = allinter(nFactors,2);
 end    
 
 if isequal(Lmodel.anovast.model,'full')
-    interactions = allinter(n_factors,n_factors);
+    interactions = allinter(nFactors,nFactors);
 end    
 
-if isnumeric(Lmodel.anovast.model) && isscalar(Lmodel.anovast.model) && Lmodel.anovast.model >= 2 && Lmodel.anovast.model <= n_factors
-        interactions = allinter(n_factors,Lmodel.anovast.model);
+if isnumeric(Lmodel.anovast.model) && isscalar(Lmodel.anovast.model) && Lmodel.anovast.model >= 2 && Lmodel.anovast.model <= nFactors
+        interactions = allinter(nFactors,Lmodel.anovast.model);
 end    
 
 if isnumeric(Lmodel.anovast.model) && ~isscalar(Lmodel.anovast.model)
@@ -1150,29 +1150,29 @@ end
 
 if iscell(Lmodel.anovast.model), interactions = Lmodel.anovast.model; end
     
-if ~isfield(Lmodel.anovast,'ordinal') || isempty(Lmodel.anovast.ordinal), Lmodel.anovast.ordinal = zeros(1,n_factors); end;
-if ~isfield(Lmodel.anovast,'coding') || isempty(Lmodel.anovast.coding), Lmodel.anovast.coding = zeros(1,n_factors); end;
+if ~isfield(Lmodel.anovast,'ordinal') || isempty(Lmodel.anovast.ordinal), Lmodel.anovast.ordinal = zeros(1,nFactors); end;
+if ~isfield(Lmodel.anovast,'coding') || isempty(Lmodel.anovast.coding), Lmodel.anovast.coding = zeros(1,nFactors); end;
 if ~isfield(Lmodel.anovast,'nested'), Lmodel.anovast.nested = []; end;
 
 % Validate dimensions of input data
-assert (isequal(size(Lmodel.anovast.ordinal), [1 n_factors]), 'Dimension Error: ordinal argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(Lmodel.anovast.coding), [1 n_factors]), 'Dimension Error: coding argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Lmodel.anovast.ordinal), [1 nFactors]), 'Dimension Error: ordinal argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(Lmodel.anovast.coding), [1 nFactors]), 'Dimension Error: coding argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
                   
-n_interactions      = length(interactions);      % number of interactions
+nInteractions      = length(interactions);      % number of interactions
 
 % Make structure with general 'variables'
-Lmodel.n_factors      = n_factors;
+Lmodel.nFactors      = nFactors;
 Lmodel.levels         = levels;
-Lmodel.n_interactions = n_interactions;
+Lmodel.nInteractions = nInteractions;
 
 % Create Design Matrix
 n = 1;
 D = ones(size(F,1),1);
 
-for f = 1 : n_factors
+for f = 1 : nFactors
     if Lmodel.anovast.ordinal(f)
         D(:,n+1) = preprocess2D(F(:,f),1);
         Lmodel.factors{f}.Dvars = n+1;
@@ -1181,7 +1181,7 @@ for f = 1 : n_factors
     else
         if isempty(Lmodel.anovast.nested) || isempty(find(Lmodel.anovast.nested(:,2)==f)) % if not nested
             uF = unique(levels{f});
-            Lmodel.n_levels(f) = length(uF);
+            Lmodel.nLevels(f) = length(uF);
             for i = 2:length(uF)
                 D(find(ismember(F(:,f),uF(i))),n+i-1) = 1;
             end
@@ -1197,12 +1197,12 @@ for f = 1 : n_factors
             ind = find(Lmodel.anovast.nested(:,2)==f);
             ref = Lmodel.anovast.nested(ind,1);
             urF = unique(levels{ref});
-            Lmodel.n_levels(f) = 0;
+            Lmodel.nLevels(f) = 0;
             Lmodel.factors{f}.Dvars = [];
             for j = 1:length(urF)
                 rind = find(ismember(levels{f}(:,1),urF(j)));
                 uF = unique(levels{f}(rind,2));
-                Lmodel.n_levels(f) = Lmodel.n_levels(f) + length(uF);
+                Lmodel.nLevels(f) = Lmodel.nLevels(f) + length(uF);
                 for i = 2:length(uF)
                     D(rind(find(ismember(F(rind,f),uF(i)))),n+i-1) = 1;
                 end
@@ -1219,7 +1219,7 @@ for f = 1 : n_factors
     end
 end
 
-for i = 1 : n_interactions
+for i = 1 : nInteractions
     Dout = computaDint(interactions{i},Lmodel.factors,D);
     D = [D Dout];
     Lmodel.interactions{i}.Dvars = n+1:size(D,2);

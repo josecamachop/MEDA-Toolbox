@@ -161,7 +161,7 @@ for i=1:blocks_r
         avs_prep=zeros(ss);
     end
   
-    scs = preprocess2Dapp(sample,av,'SDivideTest',st);
+    scs = preprocess2Dapp(sample,av,'Scale',st);
      
     p = pca_pp(ccs,'Pcs',0:max(pcs));
     

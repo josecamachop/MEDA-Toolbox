@@ -85,7 +85,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPca(x,varargin)
 % pcs = 1:n_PCs;
 % 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
+% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
 % [Dst,Qst,Dstt,Qstt] = mspcPca(X,'Pcs',pcs,'ObsTest',test);
@@ -211,7 +211,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 [Dst,Qst] = mspc(xcs,'InvCovarT',inv(cov(T)),'InSubspace',P);
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,m,'SDivideTest',sc);
+    testcs = preprocess2Dapp(test,m,'Scale',sc);
     [Dstt,Qstt] = mspc(testcs,'InvCovarT',inv(cov(T)),'InSubspace',P);
 else
     Dstt = [];
@@ -258,10 +258,10 @@ if opt(1) == '1'
     end
     
     if opt(2) == '0'
-        plot_scatter([Dsttt,Qsttt], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'D-st','Q-st'}, 'LimCont',{UCLd,UCLq});
+        plotScatter([Dsttt,Qsttt], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'D-st','Q-st'}, 'LimCont',{UCLd,UCLq});
     else
-        plot_vec(Dsttt, label, classes, {[],'D-st'}, UCLd);
-        plot_vec(Qsttt, label, classes, {[],'Q-st'}, UCLq);
+        plotVec(Dsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'D-st'}, 'LimCont', UCLd);
+        plotVec(Qsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'Q-st'}, 'LimCont', UCLq);
     end
 end
         

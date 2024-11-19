@@ -52,9 +52,9 @@ function [Dst,Qst] = mspc(testcs,varargin)
 % UCLq = spe_lim(e,0.01);
 % 
 % n_obst = 10;
-% test = simuleMV(n_obst,n_vars,6,cov(X)*(n_obst-1));
+% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
 % test(6:10,:) = 3*test(6:10,:);
-% testcs = preprocess2Dapp(test,m,'SDivideTest',sc);
+% testcs = preprocess2Dapp(test,m,'Scale',sc);
 % 
 % [Dst,Qst] = mspc(testcs,'InvCovarT',inv(cov(t)),'InSubspace',p);
 % 

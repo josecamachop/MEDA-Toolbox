@@ -72,7 +72,7 @@ function figH = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 % Lmodel = iniLmodel(X);
 %
 % nobst = 10;
-% test = simuleMV(nobst,nvars,'LevelCorr',6,corr(X)*(nobst-1)/(nobs-1));
+% test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(X)*(nobst-1)/(nobs-1));
 %
 % Lmodel.lvs = 1;
 % Lmodel = Lpca(Lmodel);
@@ -184,7 +184,7 @@ if isfield(Lmodel,'scoresV')
 end
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc);
+    testcs = preprocess2Dapp(test,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
     TT = testcs*Lmodel.loads;
 else
     TT = [];

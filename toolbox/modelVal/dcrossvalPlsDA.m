@@ -19,7 +19,7 @@ function [AUCm,AUC,lvso] = dcrossvalPlsDA(x,y,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
 % 'MaxBlock': [1x1] maximum number of blocks of samples (the minimum number
@@ -56,7 +56,7 @@ function [AUCm,AUC,lvso] = dcrossvalPlsDA(x,y,varargin)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
 % lvs = 0:10;
-% [AUCm,AUC,lvso] = dcrossvalPlsDA(X,Y,'LatVars',lvs,'Repetition',5)
+% [AUCm,AUC,lvso] = dcrossvalPlsDA(X,Y,'LVs',lvs,'Repetition',5)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -93,7 +93,7 @@ N2 = repb(2);
 p = inputParser;
 lat=0:rank(x);
 blocks_r = max(3,round(N2/2));
-addParameter(p,'LatVars',lat'); 
+addParameter(p,'LVs',lat'); 
 addParameter(p,'MaxBlock',blocks_r);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
@@ -103,14 +103,14 @@ parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 blocks_r = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 rep = p.Results.Repetitions;
 opt = p.Results.Option;
 
-% Extract LatVars length
+% Extract LVs length
 A = length(lvs);
 
 % Convert column arrays to row arrays
@@ -118,7 +118,7 @@ if size(lvs,2) == 1, lvs = lvs'; end;
 
 % Validate dimensions of input data
 assert (isequal(size(y), [N 1]), 'Dimension Error: parameter ''y'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -130,8 +130,8 @@ lvs = unique(lvs);
 
 % Validate values of input data
 assert (isempty(find(y~=1 & y~=-1)), 'Value Error: parameter ''y'' must not contain values different to 1 or -1. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(lvs<0)), 'Value Error: parameter ''LatVars'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r>3, 'Value Error: parameter ''MaxBlock'' must be above 3. Type ''help %s'' for more info.', routine(1).name);
@@ -180,13 +180,13 @@ for j=1:rep
         [kk,mn1] = preprocess2D(ccs(find(rest_y==-1),:),'Preprocessing',1);
         ccs = preprocess2Dapp(ccs,(m1+mn1)/2);
         
-        vcs = preprocess2Dapp(val,av,'SDivideTest',st);
+        vcs = preprocess2Dapp(val,av,'Scale',st);
         vcs = preprocess2Dapp(vcs,(m1+mn1)/2);
         
-        %vcs_y = preprocess2Dapp(val_y,av_y,st_y);
+        %vcs_y = preprocess2Dapp(val_y,av_y,Scale,st_y);
         vcs_y = val_y;
         
-        AUCt =  crossval_pls_da(rest,rest_y,'LatVars',lvs,'MaxBlock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
+        AUCt =  crossval_pls_da(rest,rest_y,'LVs',lvs,'MaxBlock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
         
         idx=find(AUCt==max(AUCt),1);
         lvso(j,i) = lvs(idx);
@@ -196,7 +196,7 @@ for j=1:rep
             X = ccs;
             Y = ccs_y;
               
-            model = simpls(X,Y,'LatVars',1:lvso(j,i));
+            model = simpls(X,Y,'LVs',1:lvso(j,i));
             
             sr = vcs*model.beta;
             srec1(ind_i1') = sr(1:length(ind_i1));

@@ -158,7 +158,7 @@ for j=1:groups,
     st = size(test);
 
     [cal_c,m,sd] = preprocess2D(cal,'Preprocessing',prep);
-    test_c = preprocess2Dapp(test,m,'SDivideTest',sd);
+    test_c = preprocess2Dapp(test,m,'Scale',sd);
     
     p = pca_pp(cal_c,'Pcs',1:max(pcs));
     alpha2=0;

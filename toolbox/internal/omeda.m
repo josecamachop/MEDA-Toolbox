@@ -54,7 +54,7 @@ function omeda_vec = omeda(testcs,dummy,R,varargin)
 % test(1,1:2) = 10*max(abs(X(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;
-% testcs = preprocess2Dapp(test,m,'SDivideTest',sc);
+% testcs = preprocess2Dapp(test,m,'Scale',sc);
 % 
 % omeda_vec = omeda(testcs,dummy,p);
 % 

@@ -53,7 +53,7 @@ function meda_map = meda(XX,R,varargin)
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % Ycs = preprocess2D(Y,'Preprocessing',2);
 % lvs = 1:10;
-% model = kernelpls(Xcs'*Xcs,Xcs'*Ycs,'LatVars',lvs);
+% model = kernelpls(Xcs'*Xcs,Xcs'*Ycs,'LVs',lvs);
 % R = model.altweights;
 % P = model.loads;
 %

@@ -63,7 +63,7 @@ function omedavec = omedaLpls(Lmodel,test,dummy,opt)
 % Lmodel.lvs = 1:nLVs;
 % 
 % nobst = 10;
-% test = simuleMV(nobst,nvars,'LevelCorr',6,corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
+% test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
 % test(1,1:2) = 10*max(abs(Lmodel.centr(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;
@@ -128,7 +128,7 @@ Lmodel = Lpls(Lmodel);
 R = Lmodel.altweights;
 P = Lmodel.loads;
     
-testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
+testcs = preprocess2Dapp(test,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
 omedavec = omeda(testcs,dummy,R,P);
 
 % heuristic: 95% limit for one-observation-dummy

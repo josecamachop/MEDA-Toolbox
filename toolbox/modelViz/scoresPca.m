@@ -191,7 +191,7 @@ model = pcaEig(xcs,'PCs',pcs);
 T = model.scores;
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
+    testcs = preprocess2Dapp(test,m,'Scale',sd);
     TT = testcs*model.loads;
 else
     TT = [];

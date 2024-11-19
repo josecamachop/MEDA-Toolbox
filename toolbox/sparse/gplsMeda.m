@@ -18,7 +18,7 @@ function  [beta,W,P,Q,R,bel,stree] = gplsMeda(xcs,ycs,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'Latvars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(xcs)
 %
 % 'Gamma': [1x1] correlation threshold to identify groups (0.7 by default)
@@ -60,7 +60,7 @@ function  [beta,W,P,Q,R,bel,stree] = gplsMeda(xcs,ycs,varargin)
 % Y = sum((X(:,1:5)),2);
 % Y = 0.1*randn(obs,1)*std(Y) + Y;
 % lvs = 1;
-% [beta,W,P,Q,R,bel] = gplsMeda(X,Y,'LatVars',lvs);
+% [beta,W,P,Q,R,bel] = gplsMeda(X,Y,'LVs',lvs);
 % 
 % plot_vec(beta,'XYLabel',{'','Regression coefficients'});
 %
@@ -96,13 +96,13 @@ O = size(ycs, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 LVS = 0:rank(xcs);
-addParameter(p,'LatVars',LVS);  
+addParameter(p,'LVs',LVS);  
 addParameter(p,'Gamma',0.7);     
 addParameter(p,'Stree',{});
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 gamma = p.Results.Gamma;
 stree = p.Results.Stree;
 
@@ -118,11 +118,11 @@ A = length(lvs);
 
 % Validate dimensions of input data
 assert (isequal(size(ycs), [N O]), 'Dimension Error: parameter ''ycs'' must be N-by-O. Type ''help %s'' for more info.', routine.name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine.name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine.name);
 assert (isequal(size(gamma), [1 1]), 'Dimension Error: parameter ''Gamma'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine.name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine.name);
 assert (gamma>=0 && gamma<=1, 'Value Error: parameter ''Gamma'' must be between 0 and 1. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -140,4 +140,4 @@ end;
 
 [bel,states,stree] = gia(map,'Gamma',gamma,'MinSize',1,'Stree',stree);
 
-[beta,W,P,Q,R,bel] = gpls(xcs,ycs,states,'LatVars',lvs);
+[beta,W,P,Q,R,bel] = gpls(xcs,ycs,states,'LVs',lvs);

@@ -49,7 +49,7 @@ function [Dstt,Qstt,Rt,Rq] = mspcAdicov(Lmodel,test,index)
 % Lmodel.lvs = 1:nPCs;
 % 
 % nobst = 10;
-% test = simuleMV(nobst,nvars,'LevelCorr',6,corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
+% test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
 % [Dstt,Qstt] = mspcAdicov(Lmodel,test(1:5,:),0)
@@ -129,7 +129,7 @@ if Lmodel.N,
         
         onesV = ones(size(test,1),1);
         
-        tests = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
+        tests = preprocess2Dapp(test,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
         
         if ~isempty(Lmodel.lvs)
             ti = ADICOV(Lmodel.XX,tests,length(Lmodel.lvs),R(:,Lmodel.lvs),P(:,Lmodel.lvs));

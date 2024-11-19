@@ -39,21 +39,21 @@ function Lmodel = updateEwma(list,path,Lmodel,lambda,step,debug,erase)
 %
 % EXAMPLE OF USE: update a random model with new random observations.
 %
-% n_obs = 100;
-% n_vars = 10;
-% Lmodel = iniLmodel(simuleMV(n_obs,n_vars,6));
+% nobs = 100;
+% nvars = 10;
+% Lmodel = iniLmodel(simuleMV(nobs,nvars,'LevelCorr',6));
 % Lmodel.type = 'PCA'; 
 % Lmodel.prep = 2;  
 % Lmodel.lvs = 1;
 % Lmodel.nc = 100; % Number of clusters
-% Lmodel.mat = loadings_Lpca(Lmodel,0);
-% mspc_Lpca(Lmodel);
+% Lmodel.mat = loadingsLpca(Lmodel,0);
+% mspcLpca(Lmodel);
 %
 % for i=1:4,
-%   n_obst = 10;
-%   list(1).x = simuleMV(n_obst,n_vars,6,corr(Lmodel.centr)*(n_obst-1)/(Lmodel.N-1));
+%   nobst = 10;
+%   list(1).x = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
 %   Lmodel = updateEwma(list,[],Lmodel);
-%   mspc_Lpca(Lmodel);
+%   mspcLpca(Lmodel);
 % end
 %
 %
@@ -138,10 +138,10 @@ for t=1:length(list)
         else
             class = ones(size(x,1),1);
         end
-        if ismember('obs_l', vars)
-            obs_l = list(t).obs_l;
+        if ismember('obsl', vars)
+            obsl = list(t).obsl;
         else
-            obs_l = cellstr(num2str((1:size(x,1))'));
+            obsl = cellstr(num2str((1:size(x,1))'));
         end
     else
         vars = whos('-file',[path list{t}]);
@@ -150,10 +150,10 @@ for t=1:length(list)
         else
             class = ones(size(x,1),1);
         end
-        if ismember('obs_l', {vars.name})
-            load([path list{t}],'obs_l')
+        if ismember('obsl', {vars.name})
+            load([path list{t}],'obsl')
         else
-            obs_l = cellstr(num2str((1:size(x,1))'));
+            obsl = cellstr(num2str((1:size(x,1))'));
         end
     end
     
@@ -232,14 +232,14 @@ for t=1:length(list)
     end
     
     Lmodel.multr = lambda*Lmodel.multr;
-    ind_lab = find(Lmodel.multr>=erase);
-    Lmodel.centr =  Lmodel.centr(ind_lab,:);
-    Lmodel.multr = Lmodel.multr(ind_lab);
-    Lmodel.class = Lmodel.class(ind_lab);
-    if ~isempty(Lmodel.obs_l)
-        Lmodel.obs_l = Lmodel.obs_l(ind_lab);    
+    indlab = find(Lmodel.multr>=erase);
+    Lmodel.centr =  Lmodel.centr(indlab,:);
+    Lmodel.multr = Lmodel.multr(indlab);
+    Lmodel.class = Lmodel.class(indlab);
+    if ~isempty(Lmodel.obsl)
+        Lmodel.obsl = Lmodel.obsl(indlab);    
     end
-    Lmodel.updated = zeros(length(ind_lab),1);
+    Lmodel.updated = zeros(length(indlab),1);
 
     s = size(x);
     step2 = max(10,round(s(1)*step));
@@ -248,19 +248,19 @@ for t=1:length(list)
         ss = endv-i+1;
         xstep = xcs(i:endv,:);
         clstep = class(i:endv,:);
-        if isempty(obs_l)
-            obs_step = {};
+        if isempty(obsl)
+            obsstep = {};
         else
-            obs_step = obs_l(i:endv);
+            obsstep = obsl(i:endv);
         end
                
         Lmodel.centr = [Lmodel.centr;xstep];
         Lmodel.multr = [Lmodel.multr;ones(ss,1)];
         Lmodel.class = [Lmodel.class;clstep];
-        Lmodel.obs_l = {Lmodel.obs_l{:} obs_step{:}};
+        Lmodel.obsl = {Lmodel.obsl{:} obsstep{:}};
         Lmodel.updated = [Lmodel.updated;ones(size(xstep,1),1)]; 
             
-        [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obs_l,Lmodel.updated,Lmodel.mat);
+        [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obsl,Lmodel.updated] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obsl,Lmodel.updated,Lmodel.mat);
 
     end
     

@@ -19,7 +19,7 @@ function [Qm,Q,lvso,keepXso] = dcrossvalSpls(x,y,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
 % 'KeepXBlock': [1xK] Numbers of x-block variables kept per latent variable modeled. By default, keepXs = 1:M
@@ -65,9 +65,9 @@ function [Qm,Q,lvso,keepXso] = dcrossvalSpls(x,y,varargin)
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
 % keepXs = 1:10;
-% [Qm,Q,lvso,keepX] = dcrossvalSpls(X,Y,'LatVars',lvs,'KeepXBlock',keepXs,'MaxBlock',5)
-% [Qm_simple,Q_simple,lvso_simple,keepX_simple] = dcrossvalSpls(X,Y,'LatVars',lvs,'KeepXBlock',keepXs,'Alpha',0.5,'MaxBlock',5)
-% [Qm_complete,Q_complete,lvso__complete,keepX__complete] = dcrossvalSpls(X,Y,'LatVars',lvs,'KeepXBlock',keepXs,'Alpha',-0.5,'MaxBlock',5)
+% [Qm,Q,lvso,keepX] = dcrossvalSpls(X,Y,'LVs',lvs,'KeepXBlock',keepXs,'MaxBlock',5)
+% [Qm_simple,Q_simple,lvso_simple,keepX_simple] = dcrossvalSpls(X,Y,'LVs',lvs,'KeepXBlock',keepXs,'Alpha',0.5,'MaxBlock',5)
+% [Qm_complete,Q_complete,lvso__complete,keepX__complete] = dcrossvalSpls(X,Y,'LVs',lvs,'KeepXBlock',keepXs,'Alpha',-0.5,'MaxBlock',5)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -101,7 +101,7 @@ O = size(y, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 lat=0:rank(x);
-addParameter(p,'LatVars',lat'); 
+addParameter(p,'LVs',lat'); 
 keep = 1:M;
 addParameter(p,'KeepXBlock',keep);
 addParameter(p,'Alpha',0);
@@ -114,7 +114,7 @@ parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 alpha = p.Results.Alpha;
 keepXs = p.Results.KeepXBlock;
 blocks_r = p.Results.MaxBlock;
@@ -123,7 +123,7 @@ prepy = p.Results.PreprocessingY;
 rep = p.Results.Repetition;
 opt = p.Results.Option;
 
-% Extract LatVars and Gamma length
+% Extract LVs and Gamma length
 A = length(lvs);
 J =  length(keepXs);
 
@@ -133,7 +133,7 @@ if size(keepXs,2) == 1, keepXs = keepXs'; end;
 
 % Validate dimensions of input data
 assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(keepXs), [1 J]), 'Dimension Error: parameter ''KeepXBlock'' must be 1-by-J. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(alpha), [1 1]), 'Dimension Error: parameter ''Alpha'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -147,8 +147,8 @@ lvs = unique(lvs);
 keepXs = unique(keepXs);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)), 'Value Error: parameter ''LatVars'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(keepXs), keepXs), 'Value Error: parameter ''KeepXBlock'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (alpha>=-1 & alpha<=1, 'Value Error: parameter ''Alpha'' must contain values in [-1, 1]. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
@@ -178,10 +178,10 @@ for j=1:rep
         [ccs,av,st] = preprocess2D(rest,'Preprocessing',prepx);
         [ccs_y,av_y,st_y] = preprocess2D(rest_y,'Preprocessing',prepy);
         
-        vcs = preprocess2Dapp(val,av,'SDivideTest',st);
-        vcs_y = preprocess2Dapp(val_y,av_y,'SDivideTest',st_y);
+        vcs = preprocess2Dapp(val,av,'Scale',st);
+        vcs_y = preprocess2Dapp(val_y,av_y,'Scale',st_y);
         
-        [cumpress,kk,nze] =  crossval_spls(rest,rest_y,'LatVars',lvs,'KeepXBlock',keepXs,'MaxBlock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
+        [cumpress,kk,nze] =  crossval_spls(rest,rest_y,'LVs',lvs,'KeepXBlock',keepXs,'MaxBlock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
         
         cumpressb = (1-abs(alpha))*cumpress/max(max(cumpress)) + alpha*nze/max(max(nze));
         

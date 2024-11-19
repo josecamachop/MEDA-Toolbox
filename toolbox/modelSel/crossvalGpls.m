@@ -14,7 +14,7 @@ function [cumpress,press,nze] = crossvalGpls(x,y,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
 % 'Gamma': [1xJ] gamma values considered. By default, gammas = 0:0.1:1
@@ -57,11 +57,11 @@ function [cumpress,press,nze] = crossvalGpls(x,y,varargin)
 % lvs = 0:10;
 % 
 % % Mean Centering example with default gammas
-% [cumpress,press,nze] = crossvalGpls(X,Y,'LatVars',lvs,'PreprocessingX',1,'PreprocessingY',1);
+% [cumpress,press,nze] = crossvalGpls(X,Y,'LVs',lvs,'PreprocessingX',1,'PreprocessingY',1);
 % legend('show')
 % 
 % % Auto scaling example with gammas
-% [cumpress,press,nze] = crossvalGpls(X,Y,'LatVars',lvs,'Gamma',gammas);
+% [cumpress,press,nze] = crossvalGpls(X,Y,'LVs',lvs,'Gamma',gammas);
 % legend('show')
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -95,7 +95,7 @@ O = size(y, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 lat=0:rank(x);
-addParameter(p,'LatVars',lat'); 
+addParameter(p,'LVs',lat'); 
 gam = 0:0.1:1;
 addParameter(p,'Gamma',gam);
 addParameter(p,'MaxBlock',N);
@@ -106,14 +106,14 @@ parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 gammas = p.Results.Gamma;
 blocks_r = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 opt = p.Results.Option;
 
-% Extract LatVars and Gamma length
+% Extract LVs and Gamma length
 A = length(lvs);
 J =  length(gammas);
 
@@ -123,7 +123,7 @@ if size(gammas,2) == 1, gammas = gammas'; end;
 
 % Validate dimensions of input data
 assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(gammas), [1 J]), 'Dimension Error: parameter ''Gamma'' must be 1-by-J. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: paramter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -135,8 +135,8 @@ lvs = unique(lvs);
 gammas = unique(gammas);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)), 'Value Error: parameter ''LatVars'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(gammas<0 | gammas>1)), 'Value Error: parameter ''Gamma'' must not contain values out of [0,1]. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r>2, 'Value Error: parameter ''MaxBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
@@ -169,20 +169,20 @@ for i=1:blocks_r,
     [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);
     [ccs_y,av_y,st_y] = preprocess2D(calibr_y,'Preprocessing',prepy);
         
-    scs = preprocess2Dapp(sample,av,'SDivideTest',st);
-    scs_y = preprocess2Dapp(sample_y,av_y,'SDivideTest',st_y);
+    scs = preprocess2Dapp(sample,av,'Scale',st);
+    scs_y = preprocess2Dapp(sample_y,av_y,'Scale',st_y);
      
     gammas2 = gammas;
     gammas2(find(gammas==0)) = [];  
     if ~isempty(gammas2)
-        [kk,kk,kk,kk,kk,kk,stree] = gpls_meda(ccs,ccs_y,'LatVars',1:max(lvs),'Gamma',min(gammas2));
+        [kk,kk,kk,kk,kk,kk,stree] = gpls_meda(ccs,ccs_y,'LVs',1:max(lvs),'Gamma',min(gammas2));
     else
         stree = [];
     end
 
     for gamma=1:length(gammas)
         
-        [beta,W,P,Q,R] = gpls_meda(ccs,ccs_y,'LatVars',1:max(lvs),'Gamma',gammas(gamma),'Stree',stree);
+        [beta,W,P,Q,R] = gpls_meda(ccs,ccs_y,'LVs',1:max(lvs),'Gamma',gammas(gamma),'Stree',stree);
             
         for lv=1:length(lvs)
                 

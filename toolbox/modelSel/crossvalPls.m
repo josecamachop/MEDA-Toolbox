@@ -14,7 +14,7 @@ function [cumpress,press] = crossvalPls(x,y,varargin)
 %
 % Optional INPUTS (parameter):
 %
-% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
 % 'MaxBlock': [1x1] maximum number of blocks of samples (N by default)
@@ -47,10 +47,10 @@ function [cumpress,press] = crossvalPls(x,y,varargin)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
-% cumpress = crossvalPls(X,Y,'LatVars',lvs);
+% cumpress = crossvalPls(X,Y,'LVs',lvs);
 % 
 % % Mean centering example
-% cumpress = crossvalPls(X,Y,'LatVars',lvs,'PreprocessingX',1,'PreprocessingY',1);
+% cumpress = crossvalPls(X,Y,'LVs',lvs,'PreprocessingX',1,'PreprocessingY',1);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024
@@ -83,7 +83,7 @@ O = size(y, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 lat=0:rank(x);
-addParameter(p,'LatVars',lat'); 
+addParameter(p,'LVs',lat'); 
 addParameter(p,'MaxBlock',N);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
@@ -92,13 +92,13 @@ parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 blocks_r = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 opt = p.Results.Option;
 
-% Extract LatVars length
+% Extract LVs length
 A = length(lvs);
 
 % Convert int arrays to str
@@ -109,7 +109,7 @@ if size(lvs,2) == 1, lvs = lvs'; end;
 
 % Validate dimensions of input data
 assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -119,8 +119,8 @@ assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must b
 lvs = unique(lvs);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)), 'Value Error: parameter ''LatVars'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r>2, 'Value Error: parameter ''MaxBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
@@ -152,10 +152,10 @@ for i=1:blocks_r
     [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);
     [ccs_y,av_y,st_y] = preprocess2D(calibr_y,'Preprocessing',prepy);
         
-    scs = preprocess2Dapp(sample,av,'SDivideTest',st);
-    scs_y = preprocess2Dapp(sample_y,av_y,'SDivideTest',st_y);
+    scs = preprocess2Dapp(sample,av,'Scale',st);
+    scs_y = preprocess2Dapp(sample_y,av_y,'Scale',st_y);
     
-    model = simpls(ccs,ccs_y,'LatVars',0:max(lvs));
+    model = simpls(ccs,ccs_y,'LVs',0:max(lvs));
     Q = model.yloads;
     R = model.altweights;
     

@@ -15,7 +15,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPls(x,y,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 1:rank(x)
 %
 % 'ObsTest': [LxM] data set with the observations to be compared. These data 
@@ -83,7 +83,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPls(x,y,varargin)
 %
 % X = simuleMV(100,10);
 % Y = 0.1*randn(100,2) + X(:,1:2);
-% [Dst,Qst] = mspcPls(X,Y,'LatVars',1:1);
+% [Dst,Qst] = mspcPls(X,Y,'LVs',1:1);
 %
 %
 % EXAMPLE OF USE: PLS-based MSPC on NOC test data and anomalies.
@@ -100,7 +100,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPls(x,y,varargin)
 % test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
-% [Dst,Qst,Dstt,Qstt] = mspcPls(X,Y,'LatVars',lvs,'ObsTest',test);
+% [Dst,Qst,Dstt,Qstt] = mspcPls(X,Y,'LVs',lvs,'ObsTest',test);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -132,7 +132,7 @@ M = size(x, 2);
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'LatVars',1:rank(x)); 
+addParameter(p,'LVs',1:rank(x)); 
 addParameter(p,'ObsTest',[]);
 addParameter(p,'PreprocessingX',2);
 addParameter(p,'PreprocessingY',2);
@@ -145,7 +145,7 @@ addParameter(p,'LimType',0);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 test = p.Results.ObsTest;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
@@ -201,8 +201,8 @@ lvs(find(lvs==0)) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: parameter ''LatVars'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (A>0, 'Dimension Error: parameter ''LVs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -214,7 +214,7 @@ if ~isempty(p_valueQ), assert (isequal(size(p_valueQ), [Lq 1]), 'Dimension Error
 assert (isequal(size(limtype), [1 1]), 'Dimension Error: parameter ''LimType'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(p_valueD), assert (isempty(find(p_valueD<0 | p_valueD>1)), 'Value Error: parameter ''PValueD'' must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<0 | p_valueQ>1)), 'Value Error: parameter ''PValueQ'' must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
@@ -224,7 +224,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 [xcs,m,sc] = preprocess2D(x,'Preprocessing',prepx);
 ycs = preprocess2D(y,'Preprocessing',prepy);
 
-model = simpls(xcs,ycs,'LatVars',lvs);
+model = simpls(xcs,ycs,'LVs',lvs);
 R = model.altweights;
 P = model.loads;
 T = xcs*R;
@@ -232,7 +232,7 @@ T = xcs*R;
 [Dst,Qst] = mspc(xcs,'InvCovarT',inv(cov(T)),'InSubspace',R,'OutSubspace',P);
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,m,'SDivideTest',sc);
+    testcs = preprocess2Dapp(test,m,'Scale',sc);
     [Dstt,Qstt] = mspc(testcs,'InvCovarT',inv(cov(T)),'InSubspace',R,'OutSubspace',P);
 else
     Dstt = [];
@@ -279,10 +279,10 @@ if opt(1) == '1'
     end
     
     if opt(2) == '0'
-        plot_scatter([Dsttt,Qsttt], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'D-st','Q-st'}, 'LimCont',{UCLd,UCLq});
+        plotScatter([Dsttt,Qsttt], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'D-st','Q-st'}, 'LimCont',{UCLd,UCLq});
     else
-        plot_vec(Dsttt, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{[],'D-st'},'LimCont', UCLd);
-        plot_vec(Qsttt, 'EleLabel',label,'ObsClass', classes, 'XYLabel',{[],'Q-st'}, 'LimCont',UCLq);
+        plotVec(Dsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'D-st'}, 'LimCont', UCLd);
+        plotVec(Qsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'Q-st'}, 'LimCont', UCLq);
     end
 end
         

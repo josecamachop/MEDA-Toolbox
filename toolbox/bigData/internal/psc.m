@@ -47,7 +47,7 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 %
 % EXAMPLE OF USE: Random values from 1000 to 20 clusters
 %
-% X = simuleMV(1000,2,8);
+% X = simuleMV(1000,2,'LevelCorr',8);
 % [centr,multn] = psc(X,20);
 % plot_scatter(centr,[],[],{'Var 1', 'Var 2'},[],[],multn);
 %

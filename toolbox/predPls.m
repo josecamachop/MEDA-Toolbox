@@ -136,7 +136,7 @@ model = simpls(xcs,ycs,'LVs',lvs);
 ypred = (xcs*model.beta).*(ones(N,1)*sdy) + (ones(N,1)*my);
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
+    testcs = preprocess2Dapp(test,m,'Scale',sd);
     testypred = (testcs*model.beta).*(ones(L,1)*sdy) + (ones(L,1)*my);
 else
     testypred = [];

@@ -16,7 +16,7 @@ function [cumpress,press,nze] = crossvalSpls(x,y,varargin)
 %
 % Optional INPUTS:
 %
-% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
 %
 % 'KeepXBlock': [1xK] Numbers of x-block variables kept per latent variable modeled. By default, keepXs = 1:M
@@ -86,7 +86,7 @@ O = size(y, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 lat=0:rank(x);
-addParameter(p,'LatVars',lat'); 
+addParameter(p,'LVs',lat'); 
 keep = 1:M;
 addParameter(p,'KeepXBlock',keep);
 addParameter(p,'MaxBlock',N);
@@ -96,14 +96,14 @@ addParameter(p,'Option',1);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 keepXs = p.Results.KeepXBlock;
 blocks_r = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 opt = p.Results.Option;
 
-% Extract LatVars and KeepXBlock length
+% Extract LVs and KeepXBlock length
 A = length(lvs);
 J =  length(keepXs);
 
@@ -113,7 +113,7 @@ if size(keepXs,2) == 1, keepXs = keepXs'; end;
 
 % Validate dimensions of input data
 assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(keepXs), [1 J]), 'Dimension Error: parameter ''KeepXBlock'' must be 1-by-J. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -125,8 +125,8 @@ lvs = unique(lvs);
 keepXs = unique(keepXs);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)), 'Value Error: parameter ''LatVars'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(keepXs), keepXs), 'Value Error: parameter ''KeepXBlock'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocks_r>2, 'Value Error: parameter ''MaxBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
@@ -159,8 +159,8 @@ for i=1:blocks_r,
     [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);
     [ccs_y,av_y,st_y] = preprocess2D(calibr_y,'Preprocessing',prepy);
         
-    scs = preprocess2Dapp(sample,av,'SDivideTest',st);
-    scs_y = preprocess2Dapp(sample_y,av_y,'SDivideTest',st_y);
+    scs = preprocess2Dapp(sample,av,'Scale',st);
+    scs_y = preprocess2Dapp(sample_y,av_y,'Scale',st_y);
     
     if  ~isempty(find(lvs)),
         

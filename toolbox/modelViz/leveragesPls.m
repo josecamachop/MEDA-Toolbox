@@ -15,7 +15,7 @@ function L = leveragesPls(x,y,varargin)
 %
 % Optional INPUTS (parameter):
 %
-% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 1:rank(x)
 %
 % 'Preprocessingx': [1x1] preprocesing of the x-block
@@ -54,7 +54,7 @@ function L = leveragesPls(x,y,varargin)
 % 
 % X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% L = leveragesPls(X,Y,'LatVars',1:3,'VarsLabel',A);
+% L = leveragesPls(X,Y,'LVs',1:3,'VarsLabel',A);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -87,7 +87,7 @@ O = size(y, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 LVS = 1:rank(x);
-addParameter(p,'LatVars',LVS);  
+addParameter(p,'LVs',LVS);  
 addParameter(p,'PreprocessingX',2);
 addParameter(p,'PreprocessingY',2);
 addParameter(p,'Option',1);
@@ -98,7 +98,7 @@ addParameter(p,'ObsClass',Classes);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 opt = p.Results.Option;
@@ -121,8 +121,8 @@ lvs(find(lvs==0)) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: parameter ''LatVars'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (A>0, 'Dimension Error: parameter ''LVs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -130,7 +130,7 @@ assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' m
 assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''ObsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -139,7 +139,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 xcs = preprocess2D(x,'Preprocessing',prepx);
 ycs = preprocess2D(y,'Preprocessing',prepy);
 
-model = simpls(xcs,ycs,'LatVars',lvs);
+model = simpls(xcs,ycs,'LVs',lvs);
 R = model.altweights;
 P = model.loads;
 

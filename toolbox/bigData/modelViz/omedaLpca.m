@@ -59,7 +59,7 @@ function omedavec = omedaLpca(Lmodel,test,dummy,opt)
 % Lmodel.lvs = 1:nPCs;
 % 
 % nobst = 10;
-% test = simuleMV(nobst,nvars,'LevelCorr',6,corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
+% test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
 % test(1,1:2) = 10*max(abs(Lmodel.centr(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;
@@ -124,7 +124,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must cont
 Lmodel = Lpca(Lmodel);
 P = Lmodel.loads;
     
-testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
+testcs = preprocess2Dapp(test,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
 omedavec = omeda(testcs,dummy,P);
 
 % heuristic: 95% limit for one-observation-dummy

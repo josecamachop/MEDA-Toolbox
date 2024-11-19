@@ -39,7 +39,7 @@ function [SDImap,best] = SDI(T,classes,varargin)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
 % lvs = 0:10;
-% model = simpls(X,Y,'LatVars',lvs);
+% model = simpls(X,Y,'LVs',lvs);
 % T = X*model.altweights;
 % 
 % class = Y;
@@ -111,7 +111,7 @@ for i=1:size(T,2)
             if i~=j
                 XX=T(:,[i j])'*T(:,[i j]);
                 XY=T(:,[i j])'*preprocess2D(classesD(:,k));  
-                model = kernelpls(XX,XY,'LatVars',1);
+                model = kernelpls(XX,XY,'LVs',1);
                 R = model.altweights;
                 T2 = T(:,[i j])*R;
             end

@@ -86,7 +86,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcLpls(Lmodel,test,opt,label,classes,
 % Lmodel.lvs = 1:nLVs;
 % 
 % nobst = 10;
-% test = simuleMV(nobst,nvars,'LevelCorr',6,corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
+% test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
 % [Dst,Qst,Dstt,Qstt] = mspcLpls(Lmodel,test,100,[],[1*ones(5,1);2*ones(5,1)]);
@@ -132,16 +132,16 @@ if isnumeric(opt), opt=num2str(opt); end
 % Complete opt
 if length(opt)<2, opt = strcat(opt,'00'); end
 if length(opt)<3, opt = strcat(opt,'0'); end
-if opt(3) == '1',
+if opt(3) == '1'
     K = L;
 else
     K = N+L;
 end
 
-if nargin < 4 || isempty(label), 
-    if  opt(3) == '1',
+if nargin < 4 || isempty(label)
+    if  opt(3) == '1'
         label = cellstr(num2str((1:L)'));
-    elseif isempty(Lmodel.obsl),
+    elseif isempty(Lmodel.obsl)
         label = cellstr(num2str([1:N 1:L]'));
     else
         if L
@@ -152,8 +152,8 @@ if nargin < 4 || isempty(label),
         end
     end
 else
-    if  opt(3) == '0',
-        if isempty(Lmodel.obsl),
+    if  opt(3) == '0'
+        if isempty(Lmodel.obsl)
             lb1 = cellstr(num2str((1:N)'));
             label = {lb1{:} label{:}};
         else
@@ -162,25 +162,25 @@ else
     end
 end
 
-if nargin < 5 || isempty(classes),
-    if opt(3) == '1', 
+if nargin < 5 || isempty(classes)
+    if opt(3) == '1' 
         classes = ones(L,1); 
     else
         classes = [Lmodel.class;2*ones(L,1)];  
     end
-elseif opt(3) == '0' && length(classes)==L,
+elseif opt(3) == '0' && length(classes)==L
         classes = [Lmodel.class;2*classes];
 end
 
-if nargin < 6 || isempty(pvalueD),
-    if opt(2) == 0 || opt(2) == '0',
+if nargin < 6 || isempty(pvalueD)
+    if opt(2) == 0 || opt(2) == '0'
         pvalueD = 0.01; 
     else
         pvalueD = [0.01 0.05]; 
     end
 end;
-if nargin < 7 || isempty(pvalueQ), 
-    if opt(2) == 0 || opt(2) == '0',
+if nargin < 7 || isempty(pvalueQ) 
+    if opt(2) == 0 || opt(2) == '0'
         pvalueQ = 0.01; 
     else
         pvalueQ = [0.01 0.05]; 
@@ -222,11 +222,11 @@ sdT = Lmodel.sdT;
 
 iTT = diag(1./(sdT.^2));
 
-[Dst,Qst] = mspc(Lmodel.centr,iTT,R,P);
+[Dst,Qst] = mspc(Lmodel.centr,'InvCovarT',iTT,'InSubspace',R,'OutSubspace',P);
 
 if ~isempty(test)
-    testcs = preprocess2Dapp(test,Lmodel.av,Lmodel.sc,Lmodel.weight);
-    [Dstt,Qstt] = mspc(testcs,iTT,R,P);
+    testcs = preprocess2Dapp(test,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
+    [Dstt,Qstt] = mspc(testcs,'InvCovarT',iTT,'InSubspace',R,'OutSubspace',P);
 else
     Dstt = [];
     Qstt = [];
@@ -236,9 +236,9 @@ if limtype==0
     UCLd = [];
     for i=1:Ld
         if isempty(test)
-            UCLd(i) = hotLim(A,N,pvalueD(i),1);
+            UCLd(i) = hotLim(A,N,pvalueD(i),'Phase',1);
         else
-            UCLd(i) = hotLim(A,N,pvalueD(i),2);
+            UCLd(i) = hotLim(A,N,pvalueD(i),'Phase',2);
         end
     end
     
@@ -274,10 +274,10 @@ if opt(1) == '1'
     end
     
     if opt(2) == '0'
-        plotScatter([Dsttt,Qsttt], label, classes, {'D-st','Q-st'}, {UCLd,UCLq}, 1, mult);
+        plotScatter([Dsttt,Qsttt], 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {'D-st','Q-st'}, 'LimCont', {UCLd,UCLq}, 'Option', 11, 'Multiplicity', mult);
     else
-        plotVec(Dsttt, label, classes, {[],'D-st'}, UCLd, 0, mult);
-        plotVec(Qsttt, label, classes, {[],'Q-st'}, UCLq, 0, mult);
+        plotVec(Dsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'D-st'}, 'LimCont', UCLd, 'Option', 0, 'Multiplicity', mult);
+        plotVec(Qsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'Q-st'}, 'LimCont', UCLq, 'Option', 0, 'Multiplicity', mult);
     end
 end
         

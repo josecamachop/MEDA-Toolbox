@@ -17,7 +17,7 @@ function testcs = preprocess2Dapp(test,average,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'SDivideTest': [1xM] scale to divide test. A vector or ones is used by default.
+% 'Scale': [1xM] scale to divide test data. A vector or ones is used by default.
 %
 % 'Weight': [1xM] weight applied after preprocessing scaling. Set to 1 by
 %   default.
@@ -29,7 +29,7 @@ function testcs = preprocess2Dapp(test,average,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 18/Nov/2024
+% last modification: 19/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -58,12 +58,12 @@ M = size(test, 2);
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'SDivideTest',ones(1,M));   
+addParameter(p,'Scale',ones(1,M));   
 addParameter(p,'Weight',ones(1,M));
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-scale = p.Results.SDivideTest;
+scale = p.Results.Scale;
 weight = p.Results.Weight;
 
 

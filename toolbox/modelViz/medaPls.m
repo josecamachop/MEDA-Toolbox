@@ -17,7 +17,7 @@ function [meda_map,ind,ord] = medaPls(x,y,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% LatVars: [1xA] Latent Variables considered (e.g. pcs = 1:2 selects the
+% LVs: [1xA] Latent Variables considered (e.g. pcs = 1:2 selects the
 %   first two LVs). By default, lvs = 1:rank(x)
 %
 % 'PreprocesingX': [1x1] preprocesing of the x-block
@@ -66,7 +66,7 @@ function [meda_map,ind,ord] = medaPls(x,y,varargin)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 1:3;
-% map = medaPls(X,Y,'LatVars',lvs,'Threshold',0.3,'Option','111');
+% map = medaPls(X,Y,'LVs',lvs,'Threshold',0.3,'Option','111');
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -99,7 +99,7 @@ O = size(y, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 LVS = 1:rank(x);
-addParameter(p,'LatVars',LVS);  
+addParameter(p,'LVs',LVS);  
 addParameter(p,'PreprocessingX',2);
 addParameter(p,'PreprocessingY',2);
 addParameter(p,'Threshold',0.1);
@@ -109,7 +109,7 @@ addParameter(p,'Vars',1:M);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 thres = p.Results.Threshold;
@@ -140,8 +140,8 @@ if length(opt)<2, opt = strcat(opt,'00'); end
 if length(opt)<3, opt = strcat(opt,'0'); end
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: parameter ''LatVars'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (A>0, 'Dimension Error: parameter ''LVs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(thres), [1 1]), 'Dimension Error: parameter ''Threshold'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -150,7 +150,7 @@ assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' m
 assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: parameter ''Vars'' must be at most M-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 assert (thres>0 && thres<=1, 'Value Error: parameter ''Threshold'' must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: parameter ''Vars'' must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine(1).name);
@@ -164,7 +164,7 @@ label = label(vars);
 x2 = preprocess2D(x,'Preprocessing',prepx);
 y2 = preprocess2D(y,'Preprocessing',prepy);
 
-model = simpls(x2,y2,'LatVars',lvs);
+model = simpls(x2,y2,'LVs',lvs);
 R = model.altweights;
 P = model.loads;
 

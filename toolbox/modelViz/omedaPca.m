@@ -160,7 +160,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 
 P = pca_pp(xcs,'Pcs',pcs);
     
-testcs = preprocess2Dapp(test,m,'SDivideTest',sd);
+testcs = preprocess2Dapp(test,m,'Scale',sd);
 omeda_vec = omeda(testcs,dummy,P);
 
 % heuristic: 95% limit for one-observation-dummy

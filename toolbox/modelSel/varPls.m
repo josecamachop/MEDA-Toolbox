@@ -15,7 +15,7 @@ function [y_var,t_var] = varPls(x,y,varargin)
 %
 % Optional INPUTS (parameter):
 %
-% 'LatVars': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
+% 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x). The value for 0 PCs is
 %   added at the begining if not specified.
 %
@@ -53,7 +53,7 @@ function [y_var,t_var] = varPls(x,y,varargin)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
-% x_var = varPls(X,Y,'LatVars',lvs);
+% x_var = varPls(X,Y,'LVs',lvs);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -85,14 +85,14 @@ O = size(y, 2);
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'LatVars',0:rank(x));   
+addParameter(p,'LVs',0:rank(x));   
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);   
 addParameter(p,'Option',10);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-lvs = p.Results.LatVars;
+lvs = p.Results.LVs;
 opt = p.Results.Option;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
@@ -111,8 +111,8 @@ lvs = unique(lvs);
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: parameter ''LatVars'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LatVars'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (A>0, 'Dimension Error: parameter ''LVs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
@@ -121,8 +121,8 @@ assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' mu
 lvs = unique([0 lvs]);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)), 'Value Error: parameter ''LatVars'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LatVars'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -132,7 +132,7 @@ xcs = preprocess2D(x,'Preprocessing',prepx);
 ycs = preprocess2D(y,'Preprocessing',prepy); 
 
 %model = kernelpls(xcs'*xcs,xcs'*ycs,1:max(lvs));
-model = simpls(xcs,ycs,'LatVars',1:max(lvs));
+model = simpls(xcs,ycs,'LVs',1:max(lvs));
 Q = model.yloads;
 R = model.altweights;
 
