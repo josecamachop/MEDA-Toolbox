@@ -180,23 +180,15 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 figH = figure;
 hold on;
 
-% Verify if the classes are numerical
-numericalClasses = false;
-if isa(classes, 'double') numericalClasses = true; end
-
 % Sort data for colorbar
 if opt(1)=='0'
     [classes,ord] = sort(classes,'ascend');
     cax = [min(classes) max(classes)];
-    if ~numericalClasses
-        classes = num2str(classes); 
-        classes = cellstr(classes);
-    end
+    classes = num2str(classes); 
+    classes = cellstr(classes);
     bdata = bdata(ord,:);
     elabel = elabel(ord);
     mult = mult(ord);
-
-
 end
 
 % Get ordering of classes
@@ -238,25 +230,37 @@ okabeIto = [0.1,0.1,0.1;
             0.835,0.369,0;
             0.8,0.475,0.655];
 
+nElems = length(uniqueOrdClasses);
+
+if nElems > size(okabeIto,1) %if there are a lot of input colors, repmat to extend the palette.
+    okabeIto = repmat(okabeIto, ceil(nElems/size(okabeIto, 1)), 1);
+end
+
 if(isempty(color))
     if opt(1) == '1'
         if length(uniqueOrdClasses) <= 24
             colorList = okabeIto;
+            colormap(okabeIto)
         else
             colorList = hsv(length(uniqueOrdClasses));
+            colormap('hsv')
         end
     elseif opt(1) == '0'
         colorList = parula(length(uniqueOrdClasses));
+        colormap('parula')
     end
 
 elseif strcmp(color, 'okabe')
     colorList = okabeIto;
+    colormap(okabeIto)
 
 elseif strcmp(color, 'parula')
     colorList = parula(length(uniqueOrdClasses));
+    colormap('parula')
 
 else%if strcmp(color, 'hsv')
-     colorList = hsv(length(uniqueOrdClasses));
+    colorList = hsv(length(uniqueOrdClasses));
+    colormap('hsv')
 end
 
 colors = colorList(ordClasses, :);
@@ -267,11 +271,7 @@ for i=1:length(bins)-1
 end
 
 
-if numericalClasses
-    colors = classes; 
-    classes = num2str(classes);
-    uniqueClasses = string(uniqueClasses);
-end   
+ 
 switch opt(2:4)
     case '000'  % 2D plot, No multiplicity info, filled marks        
         for i=1:length(uniqueOrdClasses)
