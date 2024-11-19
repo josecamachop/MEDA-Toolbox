@@ -1,5 +1,5 @@
 
-function [y_var,t_var] = varPls(x,y,varargin)
+function [yvar,tvar] = varPls(x,y,varargin)
 
 % Variability captured in terms of the number of LVs.
 %
@@ -43,9 +43,9 @@ function [y_var,t_var] = varPls(x,y,varargin)
 %
 % OUTPUTS:
 %
-% y_var: [Ax1] Percentage of captured variance of Y.
+% yvar: [Ax1] Percentage of captured variance of Y.
 %
-% t_var: [Ax1] Percentage of captured variance of the scores.
+% tvar: [Ax1] Percentage of captured variance of the scores.
 %
 %
 % EXAMPLE OF USE: Random data
@@ -53,7 +53,7 @@ function [y_var,t_var] = varPls(x,y,varargin)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % lvs = 0:10;
-% x_var = varPls(X,Y,'LVs',lvs);
+% xvar = varPls(X,Y,'LVs',lvs);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -139,21 +139,21 @@ R = model.altweights;
 lvs(find(lvs>size(R,2))) = [];
 
 totalVt = sum(sum(xcs.^2));
-t_var = ones(length(lvs),1);
+tvar = ones(length(lvs),1);
 totalVy = sum(sum(ycs.^2));
-y_var = ones(length(lvs),1);
+yvar = ones(length(lvs),1);
 for i=1:length(lvs)
-    t_var(i) = t_var(i) - sum(eig(R(:,1:lvs(i))'*xcs'*xcs*R(:,1:lvs(i))))/totalVt;
-    y_var(i) = y_var(i) - sum(eig(Q(:,1:lvs(i))*R(:,1:lvs(i))'*xcs'*xcs*R(:,1:lvs(i))*Q(:,1:lvs(i))'))/totalVy;
+    tvar(i) = tvar(i) - sum(eig(R(:,1:lvs(i))'*xcs'*xcs*R(:,1:lvs(i))))/totalVt;
+    yvar(i) = yvar(i) - sum(eig(Q(:,1:lvs(i))*R(:,1:lvs(i))'*xcs'*xcs*R(:,1:lvs(i))*Q(:,1:lvs(i))'))/totalVy;
 end
     
 %% Show results
            
 if opt(1) == '1'
     if opt(2) == '1'
-        plot_vec(y_var,'EleLabel',lvs,'XYLabel',{'#PCs','% Residual Variance in Y'},'Option','01');
+        plotVec(yvar,'EleLabel',lvs,'XYLabel',{'#PCs','% Residual Variance in Y'},'Option','01');
     else
-        plot_vec([y_var t_var],'EleLabel',lvs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01','VecLabel',{'Y','Scores'});
+        plotVec([yvar tvar],'EleLabel',lvs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01','VecLabel',{'Y','Scores'});
         legend('show');
     end
 end

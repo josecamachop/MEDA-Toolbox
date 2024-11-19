@@ -87,7 +87,7 @@ end
 %% Set some variable
 [nobs, nvar] = size(X);
 Nrep = 2000;
-RAND_EIG = NaN*ones(Nrep, nvar);
+RANDEIG = NaN*ones(Nrep, nvar);
 
 %%
 disp('Generating random data and percentiles')
@@ -120,7 +120,7 @@ switch lower(method)
             end
             
             %Calculate eigenvalues
-            RAND_EIG(qq,:) = sort(eig(CN),'descend')';
+            RANDEIG(qq,:) = sort(eig(CN),'descend')';
             
         end
         
@@ -146,7 +146,7 @@ switch lower(method)
             end
             
             %Calculate eigenvalues
-            RAND_EIG(qq,:) = sort(eig(CN),'descend')';
+            RANDEIG(qq,:) = sort(eig(CN),'descend')';
             
         end
         
@@ -160,7 +160,7 @@ disp('Calculated percentiles')
 
 %% Calculate percentiles for PA
 ALPHA = (1-alpha)*100;
-PERCENTILES = prctile(RAND_EIG,ALPHA);
+PERCENTILES = prctile(RANDEIG,ALPHA);
 
 %% Compute covariance/correlation of the input data matrix X
 switch lower(type)

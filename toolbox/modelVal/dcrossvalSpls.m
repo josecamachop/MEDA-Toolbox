@@ -51,11 +51,11 @@ function [Qm,Q,lvso,keepXso] = dcrossvalSpls(x,y,varargin)
 %
 % Qm: [1x1] Mean Goodness of Prediction
 %
-% Q: [blocks_rx1] Goodness of Prediction
+% Q: [blocksrx1] Goodness of Prediction
 %
-% lvso: [blocks_rx1] optimum number of LVs in the inner loop
+% lvso: [blocksrx1] optimum number of LVs in the inner loop
 %
-% keepXso: [blocks_rx1] optimum number of keepXs in the inner loop
+% keepXso: [blocksrx1] optimum number of keepXs in the inner loop
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
@@ -66,8 +66,8 @@ function [Qm,Q,lvso,keepXso] = dcrossvalSpls(x,y,varargin)
 % lvs = 0:10;
 % keepXs = 1:10;
 % [Qm,Q,lvso,keepX] = dcrossvalSpls(X,Y,'LVs',lvs,'KeepXBlock',keepXs,'MaxBlock',5)
-% [Qm_simple,Q_simple,lvso_simple,keepX_simple] = dcrossvalSpls(X,Y,'LVs',lvs,'KeepXBlock',keepXs,'Alpha',0.5,'MaxBlock',5)
-% [Qm_complete,Q_complete,lvso__complete,keepX__complete] = dcrossvalSpls(X,Y,'LVs',lvs,'KeepXBlock',keepXs,'Alpha',-0.5,'MaxBlock',5)
+% [Qmsimple,Qsimple,lvsosimple,keepXsimple] = dcrossvalSpls(X,Y,'LVs',lvs,'KeepXBlock',keepXs,'Alpha',0.5,'MaxBlock',5)
+% [Qmcomplete,Qcomplete,lvsocomplete,keepXcomplete] = dcrossvalSpls(X,Y,'LVs',lvs,'KeepXBlock',keepXs,'Alpha',-0.5,'MaxBlock',5)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -117,7 +117,7 @@ parse(p,varargin{:});
 lvs = p.Results.LVs;
 alpha = p.Results.Alpha;
 keepXs = p.Results.KeepXBlock;
-blocks_r = p.Results.MaxBlock;
+blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 rep = p.Results.Repetition;
@@ -136,7 +136,7 @@ assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(keepXs), [1 J]), 'Dimension Error: parameter ''KeepXBlock'' must be 1-by-J. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(alpha), [1 1]), 'Dimension Error: parameter ''Alpha'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(rep), [1 1]), 'Dimension Error: parameter ''Repetition'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -151,9 +151,9 @@ assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain n
 assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(keepXs), keepXs), 'Value Error: parameter ''KeepXBlock'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (alpha>=-1 & alpha<=1, 'Value Error: parameter ''Alpha'' must contain values in [-1, 1]. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r>3, 'Value Error: parameter ''MaxBlock'' must be above 3. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocksr), blocksr), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr>3, 'Value Error: parameter ''MaxBlock'' must be above 3. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -162,26 +162,26 @@ for j=1:rep
     % Cross-validation
     
     rows = rand(1,N);
-    [a,r_ind]=sort(rows);
-    elem_r=N/blocks_r;
+    [a,rind]=sort(rows);
+    elemr=N/blocksr;
     
-    for i=1:blocks_r
-        % disp(sprintf('Crossvalidation block %i of %i',i,blocks_r))
-        ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
+    for i=1:blocksr
+        % disp(sprintf('Crossvalidation block %i of %i',i,blocksr))
+        indi = rind(round((i-1)*elemr+1):round(i*elemr)); % Sample selection
         i2 = ones(N,1);
-        i2(ind_i)=0;
-        val = x(ind_i,:);
+        i2(indi)=0;
+        val = x(indi,:);
         rest = x(find(i2),:);
-        val_y = y(ind_i,:);
-        rest_y = y(find(i2),:);
+        valy = y(indi,:);
+        resty = y(find(i2),:);
         
         [ccs,av,st] = preprocess2D(rest,'Preprocessing',prepx);
-        [ccs_y,av_y,st_y] = preprocess2D(rest_y,'Preprocessing',prepy);
+        [ccsy,avy,sty] = preprocess2D(resty,'Preprocessing',prepy);
         
         vcs = preprocess2Dapp(val,av,'Scale',st);
-        vcs_y = preprocess2Dapp(val_y,av_y,'Scale',st_y);
+        vcsy = preprocess2Dapp(valy,avy,'Scale',sty);
         
-        [cumpress,kk,nze] =  crossval_spls(rest,rest_y,'LVs',lvs,'KeepXBlock',keepXs,'MaxBlock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
+        [cumpress,kk,nze] =  crossvalSpls(rest,resty,'LVs',lvs,'KeepXBlock',keepXs,'MaxBlock',blocksr-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
         
         cumpressb = (1-abs(alpha))*cumpress/max(max(cumpress)) + alpha*nze/max(max(nze));
         
@@ -191,18 +191,18 @@ for j=1:rep
         
         if lvso(j,i)~=0
             
-            model = sparsepls2(ccs, ccs_y, lvso(j,i), keepXso(j,i)*ones(size(1:lvso(j,i))), O*ones(size(1:lvso(j,i))), 500, 1e-10, 1, 0);
+            model = sparsepls2(ccs, ccsy, lvso(j,i), keepXso(j,i)*ones(size(1:lvso(j,i))), O*ones(size(1:lvso(j,i))), 500, 1e-10, 1, 0);
             beta = model.R*model.Q';
             
             srec = vcs*beta;
             
         else
             keepXso(j,i) = nan;
-            srec = zeros(size(vcs_y));
+            srec = zeros(size(vcsy));
         end
         
-        Qu(i) = sum(sum((vcs_y-srec).^2));
-        Qd(i) = sum(sum(vcs_y.^2));
+        Qu(i) = sum(sum((vcsy-srec).^2));
+        Qd(i) = sum(sum(vcsy.^2));
     end
     
     Q(j) = 1-sum(Qu)/sum(Qd);
@@ -214,6 +214,6 @@ Qm = mean(Q);
 %% Show results
 
 if opt == 1
-    fig_h = plot_vec(Q,'XYLabel',{'#Repetition','Goodness of Prediction'},'Option','11'); 
+    figh = plotVec(Q,'XYLabel',{'#Repetition','Goodness of Prediction'},'Option','11'); 
 end
 

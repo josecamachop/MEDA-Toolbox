@@ -182,12 +182,12 @@ if opt(1) == '1'
     
     if length(lvs) == 1 || opt(2) == '1'
         for i=1:length(lvs)
-            plot_vec(Pt(:,i),  'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('%s LV %d',text,lvs(i))});
+            plotVec(Pt(:,i),  'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('%s LV %d',text,lvs(i))});
         end
     else
         for i=1:length(lvs)-1
             for j=i+1:length(lvs)
-                plot_scatter([Pt(:,i),Pt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}','BlurIndex',blur);
+                plotScatter([Pt(:,i),Pt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}','BlurIndex',blur);
             end      
         end
     end

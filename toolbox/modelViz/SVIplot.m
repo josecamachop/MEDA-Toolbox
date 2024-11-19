@@ -1,4 +1,4 @@
-function [r2,alpha,q2,res_cross,alpha_cross,betas] = SVIplot(x,varargin)
+function [r2,alpha,q2,resCV,alphaCV,betas] = SVIplot(x,varargin)
 
 % Structural and Variance Information plots. The original paper is 
 % Chemometrics and Intelligent Laboratory Systems 100, 2010, pp. 48-56. 
@@ -45,16 +45,16 @@ function [r2,alpha,q2,res_cross,alpha_cross,betas] = SVIplot(x,varargin)
 %
 % q2: Goodness of prediction.
 %
-% res_cross: residuals by CV
+% resCV: residuals by CV
 %
-% alpha_cross: alpha by CV
+% alphaCV: alpha by CV
 %
 %
 % EXAMPLE OF USE: Random data
 %
 % X = simuleMV(20,10,'LevelCorr',8);
 % var = 1;
-% [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(X,'PCs',1:3,'Vars',var);
+% [r2,alpha,q2,resCV,alphaCV] = SVIplot(X,'PCs',1:3,'Vars',var);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -130,7 +130,8 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 %% Main code
 
 xcs = preprocess2D(x,'preprocessing',prep);
-p = pca_pp(xcs,'Pcs',1:max(pcs));
+model = pcaEig(xcs,'PCs',1:max(pcs));
+p = model.loads;
 
 alpha=0;
 betas=zeros(M-1,1);
@@ -143,56 +144,57 @@ for i=1:length(pcs),
     r2 = [r2 1-sum(res(:,var).^2)/sum(xcs(:,var).^2)];
 end
 
-res_cross=[];
-alpha_cross=[];
-pcs_vect=[];
+resCV=[];
+alphaCV=[];
+pcsvect=[];
 rows = rand(1,N);
-[a,r_ind]=sort(rows);
-elem_r=N/groups;
+[a,rind]=sort(rows);
+elemr=N/groups;
 for j=1:groups,
-    ind_i = r_ind(round((j-1)*elem_r+1):round(j*elem_r)); % Sample selection
+    indi = rind(round((j-1)*elemr+1):round(j*elemr)); % Sample selection
     i2 = ones(N,1);
-    i2(ind_i)=0;
-    test = x(ind_i,:);
+    i2(indi)=0;
+    test = x(indi,:);
     cal = x(find(i2),:);
     st = size(test);
 
-    [cal_c,m,sd] = preprocess2D(cal,'Preprocessing',prep);
-    test_c = preprocess2Dapp(test,m,'Scale',sd);
+    [calc,m,sd] = preprocess2D(cal,'Preprocessing',prep);
+    testc = preprocess2Dapp(test,m,'Scale',sd);
     
-    p = pca_pp(cal_c,'Pcs',1:max(pcs));
+    model = pcaEig(calc,'PCs',1:max(pcs));
+    p = model.loads;
     alpha2=0;
-    res2 = test_c(:,var);
+    res2 = testc(:,var);
     for i=1:length(pcs),
         kk = p(:,1:min(pcs(i),size(p,2)));
         q = kk*kk';
         alpha2 = [alpha2 q(var,var)];
-        res = test_c*(eye(M)-q);
+        res = testc*(eye(M)-q);
         res2 = [res2 res(:,var)];
     end
     
-    alpha_cross=[alpha_cross;alpha2];
-    pcs_vect=[pcs_vect;[0 pcs]];
-    res_cross=[res_cross;res2];
+    alphaCV=[alphaCV;alpha2];
+    pcsvect=[pcsvect;[0 pcs]];
+    resCV=[resCV;res2];
     
 end
 
-q2 = 1-sum(res_cross.^2)/sum(res_cross(:,1).^2);
+q2 = 1-sum(resCV.^2)/sum(resCV(:,1).^2);
 
 
 %% Show results
 
 if opt(1) == '1'
-    fig_h=figure;
+    figh=figure;
     hold on
     plot([0 pcs],r2,'.-');
     plot([0 pcs],alpha,'g-x','LineWidth',2);
     plot([0 pcs],q2,'m.-');
-    plot(pcs_vect(1:end),alpha_cross(1:end),'ro');
-    ch_h=get(fig_h,'Children');
-    set(ch_h,'FontSize',14)
+    plot(pcsvect(1:end),alphaCV(1:end),'ro');
+    chh=get(figh,'Children');
+    set(chh,'FontSize',14)
     legend('R^2_{A,m}','\alpha^A_{m}','Q^2_{A,m}','\alpha^A_{m}(i)','Location','NorthOutside','Orientation','Horizontal')
-    if  opt(2) == '1',
+    if  opt(2) == '1'
         plot([0 pcs],betas','c')
     end
     

@@ -1,16 +1,16 @@
-function App = ADICOV(XX,L,Neig,varargin)
+function App = adicov(XX,L,Neig,varargin)
 
-% Approximation of a DIstribution for a given COVariance (ADICOV). App is a 
+% Approximation of a DIstribution for a given COVariance (adicov). App is a 
 % matrix that approximates L but with covariance equal to XX. Reference: 
 % Camacho, J., Padilla, P., Díaz-Verdejo, J., Smith, K., Lovett, D. 
 % Least-squares approximation of a space distribution for a given 
 % covariance and latent sub-space. Chemometrics and Intelligent Laboratory 
 % Systems, 2011, 105 (2): 171-180.
 %
-% App = ADICOV(XX,L,Neig) % minimum call
+% App = adicov(XX,L,Neig) % minimum call
 %
 %
-% See also: ADindex, simuleMV, MSPC_ADICOV
+% See also: ADindex, simuleMV, mspcAdicov
 %
 %
 % INPUTS:
@@ -54,11 +54,11 @@ function App = ADICOV(XX,L,Neig,varargin)
 % X = randn(100,2);
 % XX = X'*X
 % L = randn(100,2); L(1,:) = 10* L(1,:); % data with an outlier
-% appL = ADICOV(XX,L,2);
+% appL = adicov(XX,L,2);
 % 
 % appL'*appL % same covariance as X
-% plot_scatter(appL); % similar distribution as L
-% plot_scatter(L); 
+% plotScatter(appL); % similar distribution as L
+% plotScatter(L); 
 %
 %
 % EXAMPLE OF USE: (copy and paste the code in the command line)
@@ -67,14 +67,14 @@ function App = ADICOV(XX,L,Neig,varargin)
 % X = randn(100,10);
 % XX = X'*X;
 % L = randn(100,10); L(1,:) = 10* L(1,:); % data with an outlier
-% model = pca_eig(L,'Pcs',1:2);
-% appL = ADICOV(XX,L,2,'InSubspace',model.loads);
+% model = pcaEig(L,'Pcs',1:2);
+% appL = adicov(XX,L,2,'InSubspace',model.loads);
 % 
 % model.loads'*X'*X*model.loads % same covariance as the scores of X
 % model.loads'*appL'*appL*model.loads
 % 
-% plot_scatter(appL*model.loads); % similar distribution as the scores of L
-% plot_scatter(L*model.loads); 
+% plotScatter(appL*model.loads); % similar distribution as the scores of L
+% plotScatter(L*model.loads); 
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)

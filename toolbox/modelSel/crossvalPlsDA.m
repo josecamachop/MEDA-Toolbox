@@ -104,7 +104,7 @@ parse(p,varargin{:});
 % Extract inputs from inputParser for code legibility
 
 lvs = p.Results.LVs;
-blocks_r = p.Results.MaxBlock;
+blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 opt = p.Results.Option;
@@ -118,7 +118,7 @@ if size(lvs,2) == 1, lvs = lvs'; end;
 % Validate dimensions of input data
 assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -130,10 +130,10 @@ lvs = unique(lvs);
 assert (isempty(find(y~=1 & y~=-1)), 'Value Error: parameter ''y'' must not contain values different to 1 or -1. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r>1, 'Value Error: parameter ''MaxBlock'' must be above 1. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r<=N2, 'Value Error: parameter ''MaxBlock'' must be at most %d. Type ''help %s'' for more info.', N2, routine(1).name);
+assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocksr), blocksr), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr>1, 'Value Error: parameter ''MaxBlock'' must be above 1. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr<=N2, 'Value Error: parameter ''MaxBlock'' must be at most %d. Type ''help %s'' for more info.', N2, routine(1).name);
 
 %% Main code
 
@@ -149,34 +149,34 @@ vals = unique(ind);
 for i=1:length(vals)
     y1{i} = find(ind==vals(i));
     rows = rand(1,length(y1{i}));
-    [a,r_indn{i}]=sort(rows);
-    elem_r(i)=length(y1{i})/blocks_r;
+    [a,rindn{i}]=sort(rows);
+    elemr(i)=length(y1{i})/blocksr;
 end
 
 % Cross-validation
 
-for i=1:blocks_r
+for i=1:blocksr
     
     cal = [];
     test = [];
     for j=1:length(vals)
-        ind_in1 = r_indn{j}(round((i-1)*elem_r(j)+1):round(i*elem_r(j))); % Sample selection
+        indin1 = rindn{j}(round((i-1)*elemr(j)+1):round(i*elemr(j))); % Sample selection
         i2 = ones(length(y1{j}),1);
-        i2(ind_in1)=0;
+        i2(indin1)=0;
         cal = [cal;y1{j}(find(i2))];
-        test = [test;y1{j}(ind_in1)];
+        test = [test;y1{j}(indin1)];
     end
     sample = x(test,:);
     calibr = x(cal,:);
-    sample_y = y(test,:);
-    calibr_y = y(cal,:);
+    sampley = y(test,:);
+    calibry = y(cal,:);
     
     [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);
-    %[ccs_y,av_y,st_y] = preprocess2D(calibr_y,prepy);
-    ccs_y = calibr_y;
+    %[ccsy,avy,sty] = preprocess2D(calibry,prepy);
+    ccsy = calibry;
     
-    ind = (size(ccs_y,2)+1)*ones(size(ccs_y,1),1);
-    [r,c]=find(ccs_y==1);
+    ind = (size(ccsy,2)+1)*ones(size(ccsy,1),1);
+    [r,c]=find(ccsy==1);
     [r1,r2]=sort(r);
     ind(r1) = c(r2);
     vals = unique(ind);    
@@ -198,7 +198,7 @@ for i=1:blocks_r
             if lvs(lv)
                 
                 X = ccs;
-                Y = ccs_y;
+                Y = ccsy;
               
                 model = simpls(X,Y,'LVs',1:lvs(lv));
                 
@@ -227,6 +227,6 @@ AAUC =  mean(AUC,2);
 %% Show results
 
 if opt == 1
-    fig_h = plot_vec(AAUC','EleLabel',lvs,'XYLabel',{'#LVs','AUC'},'Option','01');
+    figh = plotVec(AAUC','EleLabel',lvs,'XYLabel',{'#LVs','AUC'},'Option','01');
 end
 

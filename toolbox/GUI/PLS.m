@@ -4,7 +4,7 @@ function varargout = PLS(varargin)
 %
 %This M-file include routines from the EDA Toolbox: 
 %loading_pls.m, meda_pls.m, omeda_pls.m, scores_pls.m,
-%sqresiduals_pls.m and var_pls.m
+%sqresiduals_pls.m and varPls.m
 %
 % PLS % minimum call
 % PLS(x,y,lvs,prepX,prepY) % complete call
@@ -707,15 +707,15 @@ end
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
     case 'Var Y'
-        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',1:lvs,'PreprocessingX',handles.data.prepX,'Preprocessingy',handles.data.prepY,'Option','11');
+        varPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',1:lvs,'PreprocessingX',handles.data.prepX,'Preprocessingy',handles.data.prepY,'Option','11');
     case 'Var Y + scores'
-        var_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',1:lvs,'PreprocessingX',handles.data.prepX,'Preprocessingy',handles.data.prepY,'Option','10');
+        varPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',1:lvs,'PreprocessingX',handles.data.prepX,'Preprocessingy',handles.data.prepY,'Option','10');
     case 'Y-SVI plot'
         chosenVar = str2num(getCurrentPopupString(handles.selectPopup));
         SVIplot([handles.data.data_matrixY handles.data.data_matrixX],'Pcs',1:lvs,'Vars',1,'Groups',7,'Preprocessing',handles.data.prepX);
     case 'Y-crossval'
         [blocks_r blocks_c] = size(handles.data.data_matrixX);
-        crossval_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',0:lvs,'MaxBlock',blocks_r,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1);
+        crossvalPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',0:lvs,'MaxBlock',blocks_r,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1);
     otherwise
         disp('No case detected')
 end
@@ -1560,7 +1560,7 @@ function resomedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',min(handles.data.LVs):max(handles.data.LVs),'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
-plot_vec(Qst,'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'Q-st'},'LimCont',UCLq);
+plotVec(Qst,'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'Q-st'},'LimCont',UCLq);
 
 % --- Executes on selection change in xlvloadingPopup.
 function xlvloadingPopup_Callback(hObject, eventdata, handles)
@@ -2037,7 +2037,7 @@ function modelomedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',min(handles.data.LVs):max(handles.data.LVs),'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
-plot_vec(Dst, 'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'D-st'},'LimCont',UCLd);
+plotVec(Dst, 'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'D-st'},'LimCont',UCLd);
 
 % --- Executes on selection change in generalPopup.
 function generalPopup_Callback(hObject, eventdata, handles)

@@ -47,7 +47,7 @@ function fig_h = biplot(model,varargin)
 % arrows displayed 
 %
 % X = simuleMV(20,10,'LevelCorr',8);
-% [~,~,model] = pca_pp(X,'Pcs',1:2);
+% model = pcaEig(X,'PCs',1:2);
 % 
 % A = cell(1, 20);
 % 
@@ -153,7 +153,7 @@ fig_h = [];
 for i=1:length(model.lvs)-1
     for j=i+1:length(model.lvs)
         
-        fig_h = [fig_h plot_scatter([T(:,i),T(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}','Option',opt,'BlurIndex',blur(1))];
+        fig_h = [fig_h plotScatter([T(:,i),T(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}','Option',opt,'BlurIndex',blur(1))];
         title(tit);
         
         if opt 

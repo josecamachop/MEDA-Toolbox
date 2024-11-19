@@ -39,26 +39,28 @@ function [Dst,Qst] = mspc(testcs,varargin)
 %
 % EXAMPLE OF USE: PCA-based MSPC on NOC test data and anomalies.
 %
-% n_obs = 100;
-% n_vars = 10;
-% n_PCs = 1;
-% X = simuleMV(n_obs,n_vars,'LevelCorr',6);
+% nobs = 100;
+% nvars = 10;
+% nPCs = 1;
+% X = simuleMV(nobs,nvars,'LevelCorr',6);
 % [Xcs, m, sc] = preprocess2D(X,'Preprocessing',2);
 % 
-% pcs = 1:n_PCs;
-% [p,t] = pca_pp(Xcs,'Pcs',pcs);
+% pcs = 1:nPCs;
+% model = pcaEig(Xcs,'PCs',pcs);
+% p = model.loads;
+% t = model.scores;
 % e = Xcs - t*p';
-% UCLd = hot_lim(n_PCs,n_obs,0.05,'Phase',2);
-% UCLq = spe_lim(e,0.01);
+% UCLd = hotLim(nPCs,nobs,0.05,'Phase',2);
+% UCLq = speLim(e,0.01);
 % 
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
+% nobst = 10;
+% test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',cov(X)*(nobst-1));
 % test(6:10,:) = 3*test(6:10,:);
 % testcs = preprocess2Dapp(test,m,'Scale',sc);
 % 
 % [Dst,Qst] = mspc(testcs,'InvCovarT',inv(cov(t)),'InSubspace',p);
 % 
-% plot_scatter([Dst,Qst],'ObsClass',[ones(5,1);2*ones(5,1)],'XYLabel',{'D-st','Q-st'},'LimCont',{UCLd,UCLq}); 
+% plotScatter([Dst,Qst],'ObsClass',[ones(5,1);2*ones(5,1)],'XYLabel',{'D-st','Q-st'},'LimCont',{UCLd,UCLq}); 
 
 % coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024.

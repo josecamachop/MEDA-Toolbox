@@ -62,7 +62,7 @@ function  [beta,W,P,Q,R,bel,stree] = gplsMeda(xcs,ycs,varargin)
 % lvs = 1;
 % [beta,W,P,Q,R,bel] = gplsMeda(X,Y,'LVs',lvs);
 % 
-% plot_vec(beta,'XYLabel',{'','Regression coefficients'});
+% plotVec(beta,'XYLabel',{'','Regression coefficients'});
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)

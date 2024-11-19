@@ -158,7 +158,8 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 
 [xcs,m,sd] = preprocess2D(x,'Preprocessing',prep);
 
-P = pca_pp(xcs,'Pcs',pcs);
+model = pcaEig(xcs,'PCs',pcs);
+P = model.loads;
     
 testcs = preprocess2Dapp(test,m,'Scale',sd);
 omeda_vec = omeda(testcs,dummy,P);
@@ -189,7 +190,7 @@ if opt(1) == '1'
         end
     end
     
-    plot_vec(vec,'EleLabel',label,'ObsClass',classes,'XYLabel',{[],'d^2_A'},'LimCont',[limp -limp]);
+    plotVec(vec,'EleLabel',label,'ObsClass',classes,'XYLabel',{[],'d^2_A'},'LimCont',[limp -limp]);
     
 end
 

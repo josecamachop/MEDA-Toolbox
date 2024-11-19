@@ -88,7 +88,7 @@ for factor = 1 : vascao.nFactors
         vascao.factors{factor}.stasig = true;
         ind = parglmoVS.ordFactors(factor,1:M);
         xf = vascao.factors{factor}.matrix(:,ind);
-        model = pcaEig(xf,'Pcs',1:rank(xf));
+        model = pcaEig(xf,'PCs',1:rank(xf));
     
         fnames = fieldnames(model);
         for n = 1:length(fnames)

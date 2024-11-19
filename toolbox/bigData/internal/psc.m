@@ -49,7 +49,7 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 %
 % X = simuleMV(1000,2,'LevelCorr',8);
 % [centr,multn] = psc(X,20);
-% plot_scatter(centr,[],[],{'Var 1', 'Var 2'},[],[],multn);
+% plotScatter(centr,[],[],{'Var 1', 'Var 2'},[],[],multn);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)

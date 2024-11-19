@@ -42,7 +42,7 @@ function [bel,states,stree] = gia(map,varargin)
 %
 % X = simuleMV(20,10,'LevelCorr',8);
 % pcs = 1:3;
-% map = meda_pca(X,'Pcs',pcs);
+% map = meda_pca(X,'PCs',pcs);
 % [bel,states] = gia(map,'Gamma',0.3);
 %
 %
@@ -50,7 +50,7 @@ function [bel,states,stree] = gia(map,varargin)
 %
 % X = simuleMV(20,100,'LevelCorr',8);
 % pcs = 1:3;
-% map = meda_pca(X,'Pcs',pcs);
+% map = meda_pca(X,'PCs',pcs);
 % C = [0.05:0.05:0.95];
 % 
 % [belv{1},statesv{1},stree] = gia(map,'Gamma',C(1));

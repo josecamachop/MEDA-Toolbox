@@ -158,8 +158,8 @@ end
 for interaction = 1 : apcao.nInteractions
     
     xf = apcao.interactions{interaction}.matrix+apcao.residuals;
-    p = pcaEig(xf,'PCs',1:rank(apcao.interactions{interaction}.matrix));
-    
+    model = pcaEig(xf,'PCs',1:rank(apcao.interactions{interaction}.matrix));
+
     fnames = fieldnames(model);
     for n = 1:length(fnames)
         apcao.interactions{interaction} = setfield(apcao.interactions{interaction},fnames{n},getfield(model,fnames{n}));

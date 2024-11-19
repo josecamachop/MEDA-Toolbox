@@ -4,8 +4,8 @@ function varargout = PCA(varargin)
 %GUI for Principal Components Analysis (PCA) analysis
 %
 %This M-file include routines from the EDA Toolbox: 
-%loading_pca.m, meda_pca.m, omeda_pca.m, pca_pp.m, scores_pca.m,
-%sqresiduals_pca.m and var_pca.m
+%loading_pca.m, meda_pca.m, omeda_pca.m, pcaEig.m, scores_pca.m,
+%sqresiduals_pca.m and varPca.m
 %
 % PCA % minimum call
 % PCA(x,pcs,prep) % complete call
@@ -599,12 +599,12 @@ end
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
     case 'Var X'
-        x_var = var_pca(handles.data.data_matrix,'Pcs',1:pcs,'Preprocessing',handles.data.prep,'Option','11');
+        x_var = varPca(handles.data.data_matrix,'PCs',1:pcs,'Preprocessing',handles.data.prep,'Option','11');
     case 'Var X + ckf'
-        x_var = var_pca(handles.data.data_matrix,'Pcs',1:pcs,'Preprocessing',handles.data.prep,'Option','10');
+        x_var = varPca(handles.data.data_matrix,'PCs',1:pcs,'Preprocessing',handles.data.prep,'Option','10');
     case 'ekf crossval '
         [blocks_r blocks_c] = size(handles.data.data_matrix);
-        x_var = crossval_pca(handles.data.data_matrix,0:pcs,'ValProcedure','ekf','MaxSampleBlock',blocks_r,'MaxVarBlock',blocks_c,'Preprocessing',handles.data.prep);
+        x_var = crossvalPca(handles.data.data_matrix,0:pcs,'ValProcedure','ekf','MaxSampleBlock',blocks_r,'MaxVarBlock',blocks_c,'Preprocessing',handles.data.prep);
     case 'SVI plot'
         chosenVar = str2num(getCurrentPopupString(handles.selectPopup));
         SVIplot(handles.data.data_matrix,'PCs',1:pcs,'Vars',chosenVar,'Groups',7,'Preprocessing',handles.data.prep);
@@ -953,15 +953,15 @@ handles.data.sp_ID_figures=new_sp_ID_figures;%Vector actualizado con los identif
 handles.data.sp_matrix=new_sp_matrix;
 
 if isempty(handles.data.label) && isempty(handles.data.classes)
-    [T,TT]=scores_pca(handles.data.data_matrix,'Pcs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1);
+    [T,TT]=scores_pca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1);
 else
     if ~isempty(handles.data.label) && isempty(handles.data.classes)
-        [T,TT]=scores_pca(handles.data.data_matrix,'Pcs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsLabel',handles.data.label);
+        [T,TT]=scores_pca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsLabel',handles.data.label);
     else
         if isempty(handles.data.label) && ~isempty(handles.data.classes)
-            [T,TT]=scores_pca(handles.data.data_matrix,'Pcs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsClass',handles.data.classes);
+            [T,TT]=scores_pca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsClass',handles.data.classes);
         else
-            [T,TT]=scores_pca(handles.data.data_matrix,'Pcs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+            [T,TT]=scores_pca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
         end
     end
 end
@@ -1397,8 +1397,8 @@ function resomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(handles.data.data_matrix,'Pcs',min(handles.data.PCs):max(handles.data.PCs),'Preprocessing',handles.data.prep,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
-plot_vec(Qst, 'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'Q-st'},'LimCont',UCLq);
+[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(handles.data.data_matrix,'PCs',min(handles.data.PCs):max(handles.data.PCs),'Preprocessing',handles.data.prep,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+plotVec(Qst, 'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'Q-st'},'LimCont',UCLq);
 
 % --- Executes on selection change in xpcvarPopup.
 function xpcvarPopup_Callback(hObject, eventdata, handles)
@@ -1593,12 +1593,12 @@ handles.data.lp_ID_figures=new_lp_ID_figures;%Identificadores de los Loadings Pl
 handles.data.lp_matrix=new_lp_matrix;
 
 if isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
-    P = loadings_pca (handles.data.data_matrix, 'Pcs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1);
+    P = loadings_pca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1);
 else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
-        P = loadings_pca (handles.data.data_matrix, 'Pcs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP);
+        P = loadings_pca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP);
     else if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP)
-            P = loadings_pca (handles.data.data_matrix, 'Pcs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'ObsClass', handles.data.classes_LP);
-        else P = loadings_pca (handles.data.data_matrix, 'Pcs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP, 'ObsClass',handles.data.classes_LP);
+            P = loadings_pca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'ObsClass', handles.data.classes_LP);
+        else P = loadings_pca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP, 'ObsClass',handles.data.classes_LP);
         end
     end
 end
@@ -1709,7 +1709,7 @@ else if get(handles.serRadio,'Value')==1 && get(handles.discardRadio,'Value')==0
     end
 end
 
-[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,'Pcs',pcs,'Preprocessing',handles.data.prep,'Threshold',handles.data.thres,'Option',handles.data.opt,'VarsLabel',handles.data.label_LP);
+[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,'PCs',pcs,'Preprocessing',handles.data.prep,'Threshold',handles.data.thres,'Option',handles.data.opt,'VarsLabel',handles.data.label_LP);
 
 guidata(hObject,handles);
 
@@ -1860,7 +1860,7 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 size_x = size(handles.data.data_matrix);
 PCs = 1:size_x(2);
 PCs(handles.data.PCs) = [];
-E=leverages_pca(handles.data.data_matrix,'Pcs',PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'ObsClass',handles.data.classes_LP);
+E=leverages_pca(handles.data.data_matrix,'PCs',PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'ObsClass',handles.data.classes_LP);
 ylabel('Residuals', 'FontSize', 16);
 
 % --- Executes on button press in modelomedaButton.
@@ -1868,8 +1868,8 @@ function modelomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(handles.data.data_matrix,'Pcs',min(handles.data.PCs):max(handles.data.PCs),'Preprocessing',handles.data.prep,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
-plot_vec(Dst, 'EleLabel',handles.data.label, 'ObsClass',handles.data.classes, 'XYLabel',{[],'D-st'}, 'LimCont',UCLd);
+[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(handles.data.data_matrix,'PCs',min(handles.data.PCs):max(handles.data.PCs),'Preprocessing',handles.data.prep,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+plotVec(Dst, 'EleLabel',handles.data.label, 'ObsClass',handles.data.classes, 'XYLabel',{[],'D-st'}, 'LimCont',UCLd);
 
 % --- Executes on button press in modelmedaButton.
 function modelmedaButton_Callback(hObject, eventdata, handles)
@@ -1877,7 +1877,7 @@ function modelmedaButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 %E=leverage_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),handles.data.prep,1,handles.data.label_LP,handles.data.classes);
-E=leverages_pca(handles.data.data_matrix,'Pcs',handles.data.PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP);
+E=leverages_pca(handles.data.data_matrix,'PCs',handles.data.PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP);
 
 
 % --- Executes on button press in nextButton.

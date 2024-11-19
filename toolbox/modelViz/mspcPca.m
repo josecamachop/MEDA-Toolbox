@@ -14,7 +14,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPca(x,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% 'PCs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 1:rank(xcs)
 %
 % 'ObsTest': [LxM] data set with the observations to be compared. These data 
@@ -88,7 +88,7 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPca(x,varargin)
 % test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
-% [Dst,Qst,Dstt,Qstt] = mspcPca(X,'Pcs',pcs,'ObsTest',test);
+% [Dst,Qst,Dstt,Qstt] = mspcPca(X,'PCs',pcs,'ObsTest',test);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -119,7 +119,7 @@ M = size(x, 2);
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'Pcs',1:rank(x)); 
+addParameter(p,'PCs',1:rank(x)); 
 addParameter(p,'ObsTest',[]);
 addParameter(p,'Preprocessing',2);
 addParameter(p,'Option','100');  
@@ -131,7 +131,7 @@ addParameter(p,'LimType',0);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-pcs = p.Results.Pcs;
+pcs = p.Results.PCs;
 test = p.Results.ObsTest;
 prep = p.Results.Preprocessing;
 opt = p.Results.Option;
@@ -185,8 +185,8 @@ pcs = unique(pcs);
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (A>=0, 'Dimension Error: parameter ''Pcs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (A>=0, 'Dimension Error: parameter ''PCs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''PCs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
@@ -197,7 +197,7 @@ if ~isempty(p_valueQ), assert (isequal(size(p_valueQ), [Lq 1]), 'Dimension Error
 assert (isequal(size(limtype), [1 1]), 'Dimension Error: parameter ''LimType'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''PCs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(p_valueD), assert (isempty(find(p_valueD<0 | p_valueD>1)), 'Value Error: parameter ''PValueD'' must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<0 | p_valueQ>1)), 'Value Error: parameter ''PValueQ'' must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
@@ -206,7 +206,10 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 %% Main code
 
 [xcs,m,sc] = preprocess2D(x,'Preprocessing',prep);
-[P,T] = pca_pp(xcs,'Pcs',pcs);
+
+model = pcaEig(xcs,'Pcs',pcs);
+P = model.loads;
+T = model.scores;
 
 [Dst,Qst] = mspc(xcs,'InvCovarT',inv(cov(T)),'InSubspace',P);
 

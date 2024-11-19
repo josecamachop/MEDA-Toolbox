@@ -90,9 +90,9 @@ addParameter(p,'Plot',true);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-leave_m = p.Results.ValProcedure;
-blocks_r = p.Results.MaxSampleBlock;
-blocks_c = p.Results.MaxVarBlock;
+leavem = p.Results.ValProcedure;
+blocksr = p.Results.MaxSampleBlock;
+blocksc = p.Results.MaxVarBlock;
 prep = p.Results.Preprocessing;
 opt = p.Results.Plot;
 
@@ -101,9 +101,9 @@ if size(pcs,2) == 1, pcs = pcs'; end;
 
 % Validate dimensions of input data
 assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(leave_m), 'Dimension Error: parameter ''ValProcedure'' must be a string. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxSampleBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_c), [1 1]), 'Dimension Error: parameter ''MaxVarBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(leavem), 'Dimension Error: parameter ''ValProcedure'' must be a string. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxSampleBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocksc), [1 1]), 'Dimension Error: parameter ''MaxVarBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Plot'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
@@ -113,13 +113,13 @@ pcs = unique(pcs);
 % Validate values of input data
 assert (isempty(find(pcs<0)), 'Value Error: parameter ''pcs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(pcs), pcs), 'Value Error: parameter ''pcs'' contain integers. Type ''help %s'' for more info.', routine(1).name);
-assert (~isempty(strmatch(leave_m,char('rkf','ekf','cekf'))), 'Value Error: parameter ''ValProcedure'' must be one of the possible strings. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxSampleBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(blocks_c), blocks_c), 'Value Error: parameter ''MaxVarBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r>2, 'Value Error: parameter ''MaxSampleBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_c>2, 'Value Error: parameter ''MaxVarBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r<=N, 'Value Error: parameter ''MaxSampleBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_c<=M, 'Value Error: parameter ''MaxVarBlock'' must be at most M. Type ''help %s'' for more info.', routine(1).name);
+assert (~isempty(strmatch(leavem,char('rkf','ekf','cekf'))), 'Value Error: parameter ''ValProcedure'' must be one of the possible strings. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocksr), blocksr), 'Value Error: parameter ''MaxSampleBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocksc), blocksc), 'Value Error: parameter ''MaxVarBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr>2, 'Value Error: parameter ''MaxSampleBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksc>2, 'Value Error: parameter ''MaxVarBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr<=N, 'Value Error: parameter ''MaxSampleBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksc<=M, 'Value Error: parameter ''MaxVarBlock'' must be at most M. Type ''help %s'' for more info.', routine(1).name);
 assert (islogical(opt), 'Value Error: parameter ''Plot'' must contain a boolean. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -134,21 +134,21 @@ if ~pcs
 end
 
 rows = rand(1,N);
-[a,r_ind]=sort(rows);
-elem_r=N/blocks_r;
+[a,rind]=sort(rows);
+elemr=N/blocksr;
 
 cols = rand(1,M);
-[a,c_ind]=sort(cols);
-elem_c=M/blocks_c;
+[a,cind]=sort(cols);
+elemc=M/blocksc;
 
 
 % Cross-validation
-for i=1:blocks_r
+for i=1:blocksr
     
-    ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
+    indi = rind(round((i-1)*elemr+1):round(i*elemr)); % Sample selection
     i2 = ones(N,1);
-    i2(ind_i)=0;
-    sample = x(ind_i,:);
+    i2(indi)=0;
+    sample = x(indi,:);
     calibr = x(find(i2),:); 
     sc = size(calibr);
     ss = size(sample);
@@ -156,14 +156,15 @@ for i=1:blocks_r
     [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prep);
     
     if ~prep
-        avs_prep=ones(ss(1),1)*mean(ccs);
+        avsprep=ones(ss(1),1)*mean(ccs);
     else
-        avs_prep=zeros(ss);
+        avsprep=zeros(ss);
     end
   
     scs = preprocess2Dapp(sample,av,'Scale',st);
      
-    p = pca_pp(ccs,'Pcs',0:max(pcs));
+    model = pcaEig(ccs,'PCs',0:max(pcs));
+    p = model.loads;
     
     for pc=1:length(pcs)
         
@@ -171,54 +172,55 @@ for i=1:blocks_r
                                
             p2 = p(:,1:min(pcs(pc),end));
             
-            switch lower(leave_m)
+            switch lower(leavem)
                 
                 case 'rkf'
-                    t_est = scs*p2;
-                    srec = t_est*p2';
+                    test = scs*p2;
+                    srec = test*p2';
                     pem = sum((scs-srec).^2,1);
                                      
                 case 'ekf'
-                    t_est = scs*p2;
-                    srec = t_est*p2';
+                    test = scs*p2;
+                    srec = test*p2';
                     erec = scs - srec;
-                    term3_p = erec;
-                    if blocks_c == M
-                        term1_p = (scs-avs_prep).*(ones(ss(1),1)*(sum(p2.*p2,2))');
+                    term3p = erec;
+                    if blocksc == M
+                        term1p = (scs-avsprep).*(ones(ss(1),1)*(sum(p2.*p2,2))');
                     else
-                        term1_p = zeros(size(term3_p));
-                        for j=1:blocks_c
-                            ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection
-                            term1_p(:,ind_j) = (scs(:,ind_j)-avs_prep(:,ind_j))*(p2(ind_j,:)*p2(ind_j,:)');
+                        term1p = zeros(size(term3p));
+                        for j=1:blocksc
+                            indj = cind(round((j-1)*elemc+1):round(j*elemc)); % Variables selection
+                            term1p(:,indj) = (scs(:,indj)-avsprep(:,indj))*(p2(indj,:)*p2(indj,:)');
                         end
                     end
                     
-                    term1 = sum(term1_p.^2,1);
-                    term2 = sum(2*term1_p.*term3_p,1);
-                    term3 = sum(term3_p.^2,1);
+                    term1 = sum(term1p.^2,1);
+                    term2 = sum(2*term1p.*term3p,1);
+                    term3 = sum(term3p.^2,1);
                     
                     pem = term1 + term2 + term3;
                     
                 case 'cekf'
-                    t_cest = ccs*p2;
-                    t_sest = scs*p2;
+                    tcest = ccs*p2;
+                    tsest = scs*p2;
                     
-                    rec = t_cest*p2';
-                    rec_sam = t_sest*p2';
-                    for j=1:blocks_c
-                        ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection
-                        p3 = pca_pp([ccs rec(:,ind_j)],pc);
-                        scs2 = [scs rec_sam(:,ind_j)];
-                        scs2(:,ind_j) = avs_prep(:,ind_j);
-                        t_est = scs2*p3;
-                        pred = t_est*p3';
-                        srec(:,ind_j) = pred(:,ind_j);
+                    rec = tcest*p2';
+                    recsam = tsest*p2';
+                    for j=1:blocksc
+                        indj = cind(round((j-1)*elemc+1):round(j*elemc)); % Variables selection
+                        model3 = pcaEig([ccs rec(:,indj)],pc);
+                        p3 = model3.loads;
+                        scs2 = [scs recsam(:,indj)];
+                        scs2(:,indj) = avsprep(:,indj);
+                        test = scs2*p3;
+                        pred = test*p3';
+                        srec(:,indj) = pred(:,indj);
                     end
                     
                     pem = sum((scs-srec).^2,1);
             
                 otherwise
-                    error('Incorrect leave_m.');
+                    error('Incorrect leavem.');
                     
             end
             
@@ -237,6 +239,6 @@ cumpress = sum(press,2);
 %% Show results
 
 if opt    
-    fig_h = plot_vec(cumpress,'EleLabel',pcs,'XYLabel',{'#PCs','PRESS'},'Option','01'); 
+    figh = plotVec(cumpress,'EleLabel',pcs,'XYLabel',{'#PCs','PRESS'},'Option','01'); 
 end
 

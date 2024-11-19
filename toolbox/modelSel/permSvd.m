@@ -44,7 +44,7 @@ function [npcf,Fratioreal,Fratioperm]=permSvd(x,varargin)
 % EXAMPLE OF USE: Random data
 %
 % x = simuleMV(20,10,'LevelCorr',8);
-% npcf = permsvd(x,'MaxPerm',400);
+% npcf = permSvd(x,'MaxPerm',400);
 %
 %
 % codified by: Raffaele Vitale (rvitale86@gmail.com)
@@ -92,20 +92,20 @@ conf = p.Results.Confidence;
 % Preprocessing
 
 if flagprep==0
-    x_p=x;
+    xp=x;
 elseif flagprep==1
-    x_p=x-repmat(mean(x),size(x,1),1);
+    xp=x-repmat(mean(x),size(x,1),1);
 elseif flagprep==2
-    x_p=(x-repmat(mean(x),size(x,1),1))./repmat(std(x),size(x,1),1);
+    xp=(x-repmat(mean(x),size(x,1),1))./repmat(std(x),size(x,1),1);
 end
 
 % Singular Value Decomposition of x
 
-[u,s,v]=svd(x_p);
+[u,s,v]=svd(xp);
 t=u*s;
 eigreal=diag(s.^2)';
 
-rkeff=rank(x_p);
+rkeff=rank(xp);
 for npc=1:rkeff
     Fratioreal(npc)=(eigreal(npc))/(sum(eigreal(npc:rkeff)));  
 end
@@ -114,8 +114,8 @@ end
 
 for nperm=1:npermmax
     
-    for nvar=1:size(x_p,2)
-        xperm(:,nvar)=x_p(randperm(size(x_p,1)),nvar);
+    for nvar=1:size(xp,2)
+        xperm(:,nvar)=xp(randperm(size(xp,1)),nvar);
     end
     
     [~,sperm,~]=svds(xperm,1);
@@ -127,7 +127,7 @@ end
 
 while  size(Fratioperm,2)<size(Fratioreal,2) && Fratioreal(size(Fratioperm,2))>prctile(Fratioperm(:,end),conf)
 
-    e=x_p-t(:,1:size(Fratioperm,2))*v(:,1:size(Fratioperm,2))';
+    e=xp-t(:,1:size(Fratioperm,2))*v(:,1:size(Fratioperm,2))';
     
     for nperm=1:npermmax
     
@@ -175,11 +175,11 @@ while  size(Fratioperm,2)<size(Fratioreal,2) && Fratioreal(size(Fratioperm,2))>p
         end
         
         [~,sresperm,~]=svds(epermorth,1);
-        Fratioperm_tmp(nperm,1)=sresperm.^2/sum(sum(epermorth.^2));
+        Fratiopermtmp(nperm,1)=sresperm.^2/sum(sum(epermorth.^2));
         
     end
     
-    Fratioperm=[Fratioperm Fratioperm_tmp];
+    Fratioperm=[Fratioperm Fratiopermtmp];
     
 end
 

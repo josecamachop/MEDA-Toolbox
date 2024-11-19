@@ -50,7 +50,7 @@ function [AngD, VarA] =  sparseart(X,sparseLoadings)
 % f = figure; subplot(2,1,1), hold on, plot(T,'o-'),
 % title('Simulated','FontSize',20), subplot(2,1,2), hold on, bar(P),axis tight 
 % 
-% [p,t,bel] = gpca(X,groups,'Pcs',1:2);
+% [p,t,bel] = gpca(X,groups,'PCs',1:2);
 % 
 % [AngD, VarA] = sparseart(X,p)
 % 
@@ -82,7 +82,7 @@ function [AngD, VarA] =  sparseart(X,sparseLoadings)
 % f = figure; subplot(2,1,1), hold on, plot(T,'o-'),
 % title('Simulated','FontSize',20), subplot(2,1,2), hold on, bar(P),axis tight 
 % 
-% [p,t,bel] = gpca(X,groups,'Pcs',1:3);
+% [p,t,bel] = gpca(X,groups,'PCs',1:3);
 % 
 % [AngD, VarA] = sparseart(X,p)
 % 
@@ -132,7 +132,8 @@ sparseLoadings(ind,:) = [];
 vars = size(X,2);
 
 % Perfoma a standard PCA on the data to get standard PCA score T
-[~, T] = pca_pp(X);
+model = pcaEig(X);
+T = model.scores;
 
 % Define spase loadings and scores
 t = X*sparseLoadings*pinv(sparseLoadings'*sparseLoadings);

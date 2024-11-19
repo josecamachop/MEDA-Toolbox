@@ -208,6 +208,6 @@ if opt(1) == '1'
     map = map(ord2,ord2);
     label = label(ord2);
     
-    plot_map(map,'VarsLabel',label);
+    plotMap(map,'VarsLabel',label);
     
 end  

@@ -1,5 +1,5 @@
 
-function [x_var,cumpress] = varPca(x,varargin)
+function [xvar,cumpress] = varPca(x,varargin)
 
 % Variability captured in terms of the number of PCs. It includes the ckf
 % algorithm.
@@ -37,7 +37,7 @@ function [x_var,cumpress] = varPca(x,varargin)
 %
 % OUTPUTS:
 %
-% x_var: [Ax1] Percentage of captured variance of X.
+% xvar: [Ax1] Percentage of captured variance of X.
 %
 % cumpress: [Ax1] ckf curve.
 %
@@ -46,7 +46,7 @@ function [x_var,cumpress] = varPca(x,varargin)
 %
 % X = simuleMV(20,10,'LevelCorr',8);
 % pcs = 0:10;
-% x_var = varPca(X,'Pcs',pcs);
+% xvar = varPca(X,'PCs',pcs);
 %
 %
 % codified by: Jose Camacho (josecamacho@ugr.es)
@@ -77,13 +77,13 @@ M = size(x, 2);
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'Pcs',0:rank(x));   
+addParameter(p,'PCs',0:rank(x));   
 addParameter(p,'Preprocessing',2);   
 addParameter(p,'Option',10);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-pcs = p.Results.Pcs;
+pcs = p.Results.PCs;
 opt = p.Results.Option;
 prep = p.Results.Preprocessing;
 
@@ -119,14 +119,16 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 
 xcs = preprocess2D(x,'Preprocessing',prep); 
 
-[P,T] = pca_pp(xcs,'Pcs',1:max(pcs));
+model = pcaEig(xcs,'PCs',1:max(pcs));
+P = model.loads;
+T = model.scores;
 pcs(find(pcs>size(P,2))) = [];
 
 totalVx = sum(sum(xcs.^2));
-x_var = ones(length(pcs),1);
+xvar = ones(length(pcs),1);
 
 for i = 1:length(pcs)
-    x_var(i) = x_var(i) - sum(eig(T(:,1:pcs(i))'*T(:,1:pcs(i))))/totalVx;
+    xvar(i) = xvar(i) - sum(eig(T(:,1:pcs(i))'*T(:,1:pcs(i))))/totalVx;
 end
 
 cumpress = zeros(length(pcs),1);
@@ -142,9 +144,9 @@ end
 
 if opt(1) == '1'
     if opt(2) == '1'
-        plot_vec(x_var,'EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01');
+        plotVec(xvar,'EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01');
     else
-        plot_vec([x_var cumpress/cumpress(1)],'EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01','VecLabel',{'X','ckf'});
+        plotVec([xvar cumpress/cumpress(1)],'EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01','VecLabel',{'X','ckf'});
         legend('show');
     end
 end

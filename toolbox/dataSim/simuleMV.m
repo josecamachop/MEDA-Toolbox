@@ -1,5 +1,4 @@
 function X = simuleMV(obs,vars,varargin)
-% LAST FUNCTION TO PARSE INPUTS
 % Simulation of multivariate data with ADICOV. Reference: Camacho, J. On 
 % the Generation of Random Multivariate Data. Chemometrics and Intelligent
 % Laboratory Systems, 2017, 160: 40-51.
@@ -30,16 +29,16 @@ function X = simuleMV(obs,vars,varargin)
 % use the following call:
 %
 % X = simuleMV(100,10,'LevelCorr',6);
-% plot_map(corr(X)); % visualization 
-% var_pca(X)
+% plotMap(corr(X)); % visualization 
+% varPca(X)
 %
 %
 % EXAMPLE OF USE: To obtain a matrix 100x10 with random covariance matrix 
 %   of complete rank:
 %
 % X = simuleMV(100,10,'LevelCorr',8) + 0.1*randn(100,10);
-% plot_map(corr(X)); % visualization 
-% var_pca(X)
+% plotMap(corr(X)); % visualization 
+% varPca(X)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -110,7 +109,7 @@ if uselevel
         if obs < obs2
             disp('Warning: correlation level too low. Resulting matrix may show a higher correlation due to structural constraints.')
         end
-        X = real(ADICOV(eye(vars),randn(obs2,vars),vars));
+        X = real(adicov(eye(vars),randn(obs2,vars),vars));
         Xs = preprocess2D(X);
         COV = Xs'*Xs/(size(X,1)-1);
         corM = COV + 0.01*eye(vars);
@@ -121,7 +120,7 @@ if uselevel
     end
 end
 
-X = real(ADICOV(corM,randn(obs,vars),vars));
+X = real(adicov(corM,randn(obs,vars),vars));
 
 
 function y = Floc(x,xdata)

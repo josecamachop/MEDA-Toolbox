@@ -15,7 +15,7 @@ function P = loadingsPca(x,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% 'PCs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 1:rank(xcs)
 %
 % 'Preprocessing': [1x1] preprocesing of the data
@@ -57,13 +57,13 @@ function P = loadingsPca(x,varargin)
 % end
 % 
 % X = simuleMV(20,10,'LevelCorr',8);
-% P = loadingsPca(X,'Pcs',1:3,'VarsLabel',A);
+% P = loadingsPca(X,'PCs',1:3,'VarsLabel',A);
 %
 %
 % EXAMPLE OF USE: Line plot of random scores
 %
-% X = real(ADICOV(randn(10,10).^19,randn(100,10),10));
-% P = loadingsPca(X,'Pcs',1:3,'Option',11);
+% X = real(adicov(randn(10,10).^19,randn(100,10),10));
+% P = loadingsPca(X,'PCs',1:3,'Option',11);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -96,7 +96,7 @@ M = size(x, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 PCS = 1:rank(x);
-addParameter(p,'Pcs',PCS);  
+addParameter(p,'PCs',PCS);  
 addParameter(p,'Preprocessing',2);
 addParameter(p,'Option',10);  
 addParameter(p,'VarsLabel',1:M);
@@ -105,7 +105,7 @@ addParameter(p,'BlurIndex',1);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-pcs = p.Results.Pcs;
+pcs = p.Results.PCs;
 prep = p.Results.Preprocessing;
 opt = p.Results.Option;
 label = p.Results.VarsLabel;
@@ -131,8 +131,8 @@ pcs(find(pcs==0)) = [];
 A = length(pcs);
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: parameter ''Pcs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (A>0, 'Dimension Error: parameter ''PCs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''PCs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
@@ -140,7 +140,7 @@ assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''ObsClass'' 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''PCs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 

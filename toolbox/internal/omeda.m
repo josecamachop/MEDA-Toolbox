@@ -47,7 +47,8 @@ function omeda_vec = omeda(testcs,dummy,R,varargin)
 % X = simuleMV(n_obs,n_vars,'LevelCorr',6);
 % [Xcs, m, sc] = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:n_PCs;
-% p = pca_pp(Xcs,'Pcs',pcs);
+% model = pcaEig(Xcs,'PCs',pcs);
+% p = model.loads;
 % 
 % n_obst = 10;
 % test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
@@ -58,7 +59,7 @@ function omeda_vec = omeda(testcs,dummy,R,varargin)
 % 
 % omeda_vec = omeda(testcs,dummy,p);
 % 
-% plot_vec(omeda_vec);
+% plotVec(omeda_vec);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)

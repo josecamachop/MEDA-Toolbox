@@ -47,7 +47,7 @@ function [L,E] = leveragesPca(x,varargin)
 % end
 % 
 % X = simuleMV(20,10,'LevelCorr',8);
-% L = leveragesPca(X,'Pcs',1:3,'VarsLabel',A);
+% L = leveragesPca(X,'PCs',1:3,'VarsLabel',A);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -79,7 +79,7 @@ M = size(x, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 PCS = 1:rank(x);
-addParameter(p,'Pcs',PCS);  
+addParameter(p,'PCs',PCS);  
 addParameter(p,'Preprocessing',2);
 addParameter(p,'Option',1);
 Label = [1:M];
@@ -89,7 +89,7 @@ addParameter(p,'ObsClass',Classes);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-pcs = p.Results.Pcs;
+pcs = p.Results.PCs;
 prep = p.Results.Preprocessing;
 opt = p.Results.Option;
 label = p.Results.VarsLabel;
@@ -128,8 +128,10 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' m
 %% Main code
 
 xcs = preprocess2D(x,'Preprocessing',prep);
-[P,T] = pca_pp(xcs,'Pcs',pcs);
-
+model = pcaEig(xcs,'PCs',pcs);
+P = model.loads;
+T = model.scores;
+        
 %L = diag(P*P');
 %E = sum((xcs-T*P').^2);
 L = sum((T*P').^2)./sum(xcs.^2);
@@ -137,6 +139,6 @@ L = sum((T*P').^2)./sum(xcs.^2);
 %% Show results
 
 if opt == '1' 
-    plot_vec(L, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'Variables','Leverages'});
+    plotVec(L, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'Variables','Leverages'});
 end
         

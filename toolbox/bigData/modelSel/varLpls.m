@@ -99,5 +99,5 @@ end
 %% Show results
 
 if opt == '1',
-    plot_vec([y_var t_var],Lmodel.lvs,[],{'#PCs','% Residual Variance'},[],0,{'Y','Scores'});
+    plotVec([y_var t_var],Lmodel.lvs,[],{'#PCs','% Residual Variance'},[],0,{'Y','Scores'});
 end

@@ -10,7 +10,7 @@ function [ind,diff] = ADindex(L,App,varargin)
 % ind = ADindex(L,App) % minimum call
 %
 %
-% See also: ADICOV, simuleMV, MSPC_ADICOV
+% See also: adicov, simuleMV, mspcAdicov
 %
 %
 % INPUTS:
@@ -45,7 +45,7 @@ function [ind,diff] = ADindex(L,App,varargin)
 % X = randn(100,2);
 % XX = X'*X;
 % L = randn(100,2); L(1,:) = 10* L(1,:); % data with an outlier
-% appL = ADICOV(XX,L,2);
+% appL = adicov(XX,L,2);
 % 
 % ind = ADindex(L,appL)
 %
@@ -56,8 +56,8 @@ function [ind,diff] = ADindex(L,App,varargin)
 % X = randn(100,10);
 % XX = X'*X;
 % L = randn(100,10); L(1,:) = 10* L(1,:); % data with an outlier
-% model = pca_eig(L,'Pcs',1:2);
-% appL = ADICOV(XX,L,2,'InSubspace',model.loads);
+% model = pcaEig(L,'Pcs',1:2);
+% appL = adicov(XX,L,2,'InSubspace',model.loads);
 % 
 % ind = ADindex(L,appL,'InSubspace',model.loads)
 %

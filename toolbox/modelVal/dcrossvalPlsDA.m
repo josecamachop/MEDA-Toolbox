@@ -48,7 +48,7 @@ function [AUCm,AUC,lvso] = dcrossvalPlsDA(x,y,varargin)
 %
 % AUC: [rep x 1] Area Under the ROC
 %
-% lvso: [rep x blocks_r] optimum number of LVs in the inner loop
+% lvso: [rep x blocksr] optimum number of LVs in the inner loop
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
@@ -92,9 +92,9 @@ N2 = repb(2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 lat=0:rank(x);
-blocks_r = max(3,round(N2/2));
+blocksr = max(3,round(N2/2));
 addParameter(p,'LVs',lat'); 
-addParameter(p,'MaxBlock',blocks_r);
+addParameter(p,'MaxBlock',blocksr);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
 addParameter(p,'Repetitions',10);
@@ -104,7 +104,7 @@ parse(p,varargin{:});
 % Extract inputs from inputParser for code legibility
 
 lvs = p.Results.LVs;
-blocks_r = p.Results.MaxBlock;
+blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 rep = p.Results.Repetitions;
@@ -119,7 +119,7 @@ if size(lvs,2) == 1, lvs = lvs'; end;
 % Validate dimensions of input data
 assert (isequal(size(y), [N 1]), 'Dimension Error: parameter ''y'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(rep), [1 1]), 'Dimension Error: parameter ''Repetitions'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -132,10 +132,10 @@ lvs = unique(lvs);
 assert (isempty(find(y~=1 & y~=-1)), 'Value Error: parameter ''y'' must not contain values different to 1 or -1. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' contain integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r>3, 'Value Error: parameter ''MaxBlock'' must be above 3. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocksr), blocksr), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr>3, 'Value Error: parameter ''MaxBlock'' must be above 3. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -147,46 +147,46 @@ for j=1:rep
     yn1 = find(y==-1);
     
     rows = rand(1,length(y1));
-    [a,r_ind1]=sort(rows);
-    elem_r1=length(y1)/blocks_r;
+    [a,rind1]=sort(rows);
+    elemr1=length(y1)/blocksr;
     
     rows = rand(1,length(yn1));
-    [a,r_indn1]=sort(rows);
-    elem_rn1=length(yn1)/blocks_r;
+    [a,rindn1]=sort(rows);
+    elemrn1=length(yn1)/blocksr;
     
-    for i=1:blocks_r
+    for i=1:blocksr
         
-        ind_i1 = r_ind1(round((i-1)*elem_r1+1):round(i*elem_r1)); % Sample selection
+        indi1 = rind1(round((i-1)*elemr1+1):round(i*elemr1)); % Sample selection
         i2 = ones(length(y1),1);
-        i2(ind_i1)=0;
-        val = x(y1(ind_i1),:);
+        i2(indi1)=0;
+        val = x(y1(indi1),:);
         rest = x(y1(find(i2)),:);
-        val_y = y(y1(ind_i1),:);
-        rest_y = y(y1(find(i2)),:);
+        valy = y(y1(indi1),:);
+        resty = y(y1(find(i2)),:);
         
-        ind_in1 = r_indn1(round((i-1)*elem_rn1+1):round(i*elem_rn1)); % Sample selection
+        indin1 = rindn1(round((i-1)*elemrn1+1):round(i*elemrn1)); % Sample selection
         i2 = ones(length(yn1),1);
-        i2(ind_in1)=0;
-        val = [val;x(yn1(ind_in1),:)];
+        i2(indin1)=0;
+        val = [val;x(yn1(indin1),:)];
         rest = [rest;x(yn1(find(i2)),:)];
-        val_y = [val_y;y(yn1(ind_in1),:)];
-        rest_y = [rest_y;y(yn1(find(i2)),:)];  
+        valy = [valy;y(yn1(indin1),:)];
+        resty = [resty;y(yn1(find(i2)),:)];  
         
         [ccs,av,st] = preprocess2D(rest,'Preprocessing',prepx);
-        %[ccs_y,av_y,st_y] = preprocess2D(rest_y,prepy);
-        ccs_y = rest_y;
+        %[ccsy,avy,sty] = preprocess2D(resty,prepy);
+        ccsy = resty;
         
-        [kk,m1] = preprocess2D(ccs(find(rest_y==1),:),'Preprocessing',1);  % additional subtraction of class mean
-        [kk,mn1] = preprocess2D(ccs(find(rest_y==-1),:),'Preprocessing',1);
+        [kk,m1] = preprocess2D(ccs(find(resty==1),:),'Preprocessing',1);  % additional subtraction of class mean
+        [kk,mn1] = preprocess2D(ccs(find(resty==-1),:),'Preprocessing',1);
         ccs = preprocess2Dapp(ccs,(m1+mn1)/2);
         
         vcs = preprocess2Dapp(val,av,'Scale',st);
         vcs = preprocess2Dapp(vcs,(m1+mn1)/2);
         
-        %vcs_y = preprocess2Dapp(val_y,av_y,Scale,st_y);
-        vcs_y = val_y;
+        %vcsy = preprocess2Dapp(valy,avy,Scale,sty);
+        vcsy = valy;
         
-        AUCt =  crossval_pls_da(rest,rest_y,'LVs',lvs,'MaxBlock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
+        AUCt =  crossvalPlsDA(rest,resty,'LVs',lvs,'MaxBlock',blocksr-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
         
         idx=find(AUCt==max(AUCt),1);
         lvso(j,i) = lvs(idx);
@@ -194,17 +194,17 @@ for j=1:rep
         if lvso(j,i)~=0
             
             X = ccs;
-            Y = ccs_y;
+            Y = ccsy;
               
             model = simpls(X,Y,'LVs',1:lvso(j,i));
             
             sr = vcs*model.beta;
-            srec1(ind_i1') = sr(1:length(ind_i1));
-            srecn1(ind_in1') = sr(length(ind_i1)+1:end);
+            srec1(indi1') = sr(1:length(indi1));
+            srecn1(indin1') = sr(length(indi1)+1:end);
             
         else
-             srec1(ind_i1') = 0;
-             srecn1(ind_in1') = 0;
+             srec1(indi1') = 0;
+             srecn1(indin1') = 0;
         end
         
     end
@@ -217,6 +217,6 @@ AUCm = mean(AUC);
 %% Show results
 
 if opt == 1
-    fig_h = plot_vec(AUC,'XYLabel',{'#Repetition','AUC'},'Option',11);
+    figh = plotVec(AUC,'XYLabel',{'#Repetition','AUC'},'Option',11);
 end
 

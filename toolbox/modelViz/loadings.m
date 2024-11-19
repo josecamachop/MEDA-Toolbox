@@ -53,7 +53,7 @@ function figH = loadings(model,varargin)
 % end
 % 
 % X = simuleMV(20,10,'LevelCorr',8);
-% [~,~,model] = pcaEig(X,'Pcs',1:2);
+% model = pcaEig(X,'PCs',1:2);
 % 
 % P = loadings(model,'VarsLabel',A);
 %

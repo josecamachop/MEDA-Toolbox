@@ -44,11 +44,11 @@ function [Qm,Q,lvso,gammaso] = dcrossvalGpls(x,y,varargin)
 %
 % Qm: [1x1] Mean Goodness of Prediction
 %
-% Q: [blocks_rx1] Goodness of Prediction
+% Q: [blocksrx1] Goodness of Prediction
 %
-% lvso: [blocks_rx1] optimum number of LVs in the inner loop
+% lvso: [blocksrx1] optimum number of LVs in the inner loop
 %
-% gammaso: [blocks_rx1] optimum gamma in the inner loop
+% gammaso: [blocksrx1] optimum gamma in the inner loop
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
@@ -63,7 +63,7 @@ function [Qm,Q,lvso,gammaso] = dcrossvalGpls(x,y,varargin)
 % lvs = 0:10;
 % gammas = [0 0.5:0.1:1];
 % [Qm,Q,lvso,gammaso] = dcrossvalGpls(X,Y,'LVs',lvs,'Gamma',gammas,'MaxBlock',5)
-% [Qm_simple,Q_simple,lvso_simple,gammaso_simple] = dcrossvalGpls(X,Y,'LVs',lvs,'Gamma',gammas,'Alpha',0.5,'MaxBlock',5)
+% [Qmsimple,Qsimple,lvsosimple,gammasosimple] = dcrossvalGpls(X,Y,'LVs',lvs,'Gamma',gammas,'Alpha',0.5,'MaxBlock',5)
 % 
 
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -112,7 +112,7 @@ parse(p,varargin{:});
 lvs = p.Results.LVs;
 gammas = p.Results.Gamma;
 alpha = p.Results.Alpha;
-blocks_r = p.Results.MaxBlock;
+blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 opt = p.Results.Option;
@@ -130,7 +130,7 @@ assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(gammas), [1 J]), 'Dimension Error: parameter ''Gamma'' must be 1-by-J. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(alpha), [1 1]), 'Dimension Error: parameter ''Alpha'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -144,9 +144,9 @@ assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain n
 assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(gammas<0 | gammas>1)), 'Value Error: parameter ''Gamma'' must not contain values out of [0,1]. Type ''help %s'' for more info.', routine(1).name);
 assert (alpha>=-1 & alpha<=1, 'Value Error: parameter ''Alpha'' must not be out of [1,1]. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r>3, 'Value Error: parameter ''MaxBlock'' must be above 3. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocksr), blocksr), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr>3, 'Value Error: parameter ''MaxBlock'' must be above 3. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -154,20 +154,20 @@ assert (blocks_r<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Typ
 % Cross-validation
 
 rows = rand(1,N);
-[a,r_ind]=sort(rows);
-elem_r=N/blocks_r;
+[a,rind]=sort(rows);
+elemr=N/blocksr;
         
-for i=1:blocks_r,
-    disp(sprintf('Crossvalidation block %i of %i',i,blocks_r))
-    ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
+for i=1:blocksr,
+    disp(sprintf('Crossvalidation block %i of %i',i,blocksr))
+    indi = rind(round((i-1)*elemr+1):round(i*elemr)); % Sample selection
     i2 = ones(N,1);
-    i2(ind_i)=0;
-    val = x(ind_i,:);
+    i2(indi)=0;
+    val = x(indi,:);
     rest = x(find(i2),:); 
-    val_y = y(ind_i,:);
-    rest_y = y(find(i2),:);
+    valy = y(indi,:);
+    resty = y(find(i2),:);
         
-    [cumpress,kk,nze] =  crossval_gpls(rest,rest_y,'LVs',lvs,'Gamma',gammas,'Maxblock',blocks_r-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
+    [cumpress,kk,nze] =  crossvalGpls(rest,resty,'LVs',lvs,'Gamma',gammas,'Maxblock',blocksr-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
        
     cumpressb = (1-abs(alpha))*cumpress/max(max(cumpress)) + alpha*nze/max(max(nze));
     
@@ -176,15 +176,15 @@ for i=1:blocks_r,
     gammaso(i) = gammas(g(1));
     
     [ccs,av,st] = preprocess2D(rest,'Preprocessing',prepx);
-    [ccs_y,av_y,st_y] = preprocess2D(rest_y,'Preprocessing',prepy);
+    [ccsy,avy,sty] = preprocess2D(resty,'Preprocessing',prepy);
     
     vcs = preprocess2Dapp(val,av,'Scale',st);
-    vcs_y = preprocess2Dapp(val_y,av_y,'Scale',st_y);
+    vcsy = preprocess2Dapp(valy,avy,'Scale',sty);
     
-    beta = gpls_meda(ccs,ccs_y,'LVs',1:lvso(i),'Gamma',gammaso(i));
+    beta = gplsMeda(ccs,ccsy,'LVs',1:lvso(i),'Gamma',gammaso(i));
     srec = vcs*beta;
     
-    Q(i) = 1 - sum(sum((vcs_y-srec).^2))/sum(sum(vcs_y.^2));
+    Q(i) = 1 - sum(sum((vcsy-srec).^2))/sum(sum(vcsy.^2));
     
 end
 
@@ -193,6 +193,6 @@ Qm = mean(Q);
 %% Show results
 
 if opt == 1
-    fig_h = plot_vec(Q,'XYLabel',{'#Split','Goodness of Prediction'},'Option','11'); 
+    figh = plotVec(Q,'XYLabel',{'#Split','Goodness of Prediction'},'Option','11'); 
 end
 

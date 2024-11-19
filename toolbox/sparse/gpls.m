@@ -57,7 +57,7 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 % [bel,states] = gia(map,'Gamma',0.4,'MinSize',1);
 % [beta,W,P,Q,R,bel] = gpls(Xcs,Ycs,states,'LVs',lvs);
 % 
-% plot_vec(beta,'XYLabel',{'','Regression coefficients'});
+% plotVec(beta,'XYLabel',{'','Regression coefficients'});
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/2024

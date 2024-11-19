@@ -149,6 +149,6 @@ L = sum((xcs*R*P').^2)./sum(xcs.^2);
 %% Show results
 
 if opt == '1'
-    plot_vec(L, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'Variables','Leverages'});
+    plotVec(L, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'Variables','Leverages'});
 end
         

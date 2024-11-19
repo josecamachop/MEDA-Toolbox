@@ -38,12 +38,12 @@ function meda_map = meda(XX,R,varargin)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % pcs = 1:3;
-% p = pca_pp(Xcs,'Pcs',pcs);
+% model = pcaEig(Xcs,'PCs',pcs);
 % 
-% meda_map = meda(Xcs'*Xcs,p);
+% meda_map = meda(Xcs'*Xcs,model.loads);
 % 
 % [meda_map,ord] = seriation(meda_map);
-% plot_map(meda_map,'VarsLabel',ord);
+% plotMap(meda_map,'VarsLabel',ord);
 %
 %
 % EXAMPLE OF USE: MEDA on PLS
@@ -60,7 +60,7 @@ function meda_map = meda(XX,R,varargin)
 % meda_map = meda(Xcs'*Xcs,R,'OutSubspace',P);
 % 
 % [meda_map,ord] = seriation(meda_map);
-% plot_map(meda_map,'VarsLabel',ord);
+% plotMap(meda_map,'VarsLabel',ord);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)

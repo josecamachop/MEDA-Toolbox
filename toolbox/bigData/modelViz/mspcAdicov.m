@@ -132,12 +132,12 @@ if Lmodel.N,
         tests = preprocess2Dapp(test,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
         
         if ~isempty(Lmodel.lvs)
-            ti = ADICOV(Lmodel.XX,tests,length(Lmodel.lvs),R(:,Lmodel.lvs),P(:,Lmodel.lvs));
+            ti = adicov(Lmodel.XX,tests,length(Lmodel.lvs),R(:,Lmodel.lvs),P(:,Lmodel.lvs));
         else
             ti = tests;
         end
         if ~isempty(res)
-            ri = ADICOV(Lmodel.XX,tests,length(res),R(:,res),P(:,res));
+            ri = adicov(Lmodel.XX,tests,length(res),R(:,res),P(:,res));
         else
             ri = tests;
         end

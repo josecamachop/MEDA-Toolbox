@@ -74,7 +74,7 @@ function figH = scores(model,varargin)
 % model.lvs = 1:3;
 % [Xcs,model.av,model.sc] = preprocess2D(X);
 % model.var = trace(Xcs'*Xcs);
-% [model.loads,model.scores] = pcaEig(Xcs,'Pcs',model.lvs);
+% model = pcaEig(Xcs,'PCs',model.lvs);
 % 
 % scores(model);
 %
@@ -88,7 +88,7 @@ function figH = scores(model,varargin)
 % model.lvs = 1:2;
 % [Xcs,model.av,model.sc] = preprocess2D(X);
 % model.var = trace(Xcs'*Xcs);
-% [model.loads,model.scores] = pcaEig(Xcs,'Pcs',model.lvs);
+% model = pcaEig(Xcs,'PCs',model.lvs);
 % 
 % nObst = 10;
 % test = simuleMV(nObst,nVars,'LevelCorr',6,'Covar',corr(X)*(nObst-1)/(nObs-1));

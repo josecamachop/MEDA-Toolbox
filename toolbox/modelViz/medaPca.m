@@ -15,7 +15,7 @@ function [meda_map,ind,ord] = medaPca(x,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'Pcs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+% 'PCs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 1:rank(xcs)
 %
 % 'Preprocessing': [1x1] preprocesing of the data
@@ -57,7 +57,7 @@ function [meda_map,ind,ord] = medaPca(x,varargin)
 %
 % X = simuleMV(20,10,'LevelCorr',8);
 % pcs = 1:3;
-% map = medaPca(X,'Pcs',pcs,'Threshold',0.3,'Option','111');
+% map = medaPca(X,'PCs',pcs,'Threshold',0.3,'Option','111');
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -89,7 +89,7 @@ M = size(x, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 PCS = 1:rank(x);
-addParameter(p,'Pcs',PCS);  
+addParameter(p,'PCs',PCS);  
 addParameter(p,'Preprocessing',2);
 addParameter(p,'Threshold',0.1);
 addParameter(p,'Option',100);  
@@ -98,7 +98,7 @@ addParameter(p,'Vars',1:M);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-pcs = p.Results.Pcs;
+pcs = p.Results.PCs;
 prep = p.Results.Preprocessing;
 thres = p.Results.Threshold;
 opt = p.Results.Option;
@@ -127,8 +127,8 @@ if length(opt)<3, opt = strcat(opt,'0'); end
 
 
 % Validate dimensions of input data
-assert (A>0, 'Dimension Error: parameter ''Pcs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (A>0, 'Dimension Error: parameter ''PCs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''PCs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(thres), [1 1]), 'Dimension Error: parameter ''Threshold'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
@@ -136,7 +136,7 @@ assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' m
 assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: parameter ''Vars'' must be at most M-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''PCs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 assert (thres>=0 && thres<=1, 'Value Error: parameter ''Threshold'' must be in [0,1]. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: parameter ''Vars'' must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine(1).name);
@@ -149,8 +149,9 @@ label = label(vars);
 
 x2 = preprocess2D(x,'Preprocessing',prep);
 
-P = pca_pp(x2,'Pcs',pcs);
-        
+model = pcaEig(x2,'Pcs',pcs);
+P = model.loads;     
+   
 meda_map = meda(x2'*x2,P);
 
 if opt(3) == '1'
@@ -191,7 +192,7 @@ if opt(1) == '1'
     map = map(ord2,ord2);
     label = label(ord2);
     
-    plot_map(map,'VarsLabel',label);
+    plotMap(map,'VarsLabel',label);
     
 end  
 

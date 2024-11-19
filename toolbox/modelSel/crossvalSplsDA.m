@@ -188,7 +188,7 @@ for i=1:blocksR
     calibrY = y(cal,:);  
     
     [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);    
-    %[ccsY,av_y,st_y] = preprocess2D(calibrY,prepy);
+    %[ccsY,avy,sty] = preprocess2D(calibrY,prepy);
     ccsY = calibrY;
     
     ind = (size(ccsY,2)+1)*ones(size(ccsY,1),1);
@@ -251,7 +251,7 @@ AAUC =  mean(AUC,3);
 %% Show results
 
 if opt == 1
-    figH = plot_vec(AAUC','EleLabel',keepXs,'XYLabel',{'#NZV','AUC'},'Option','01','VecLabel',lvs); 
+    figH = plotVec(AAUC','EleLabel',keepXs,'XYLabel',{'#NZV','AUC'},'Option','01','VecLabel',lvs); 
     legend('show')
 end
 

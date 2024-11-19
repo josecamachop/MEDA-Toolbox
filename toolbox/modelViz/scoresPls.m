@@ -227,12 +227,12 @@ if opt(1) == '1'
     
     if length(lvs) == 1 || opt(2) == '1'
         for i=1:length(lvs)
-            plot_vec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+            plotVec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
         end
     else
         for i=1:length(lvs)-1
             for j=i+1:length(lvs)
-                plot_scatter([Tt(:,i),Tt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores LV %d (%.0f%%)',lvs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','Option',opt(4),'BlurIndex',blur);
+                plotScatter([Tt(:,i),Tt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores LV %d (%.0f%%)',lvs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','Option',opt(4),'BlurIndex',blur);
             end      
         end
     end

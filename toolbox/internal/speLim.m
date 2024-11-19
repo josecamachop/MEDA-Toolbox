@@ -28,7 +28,9 @@ function lim = speLim(res,p_value)
 % X = simuleMV(100,10,'LevelCorr',8);
 % Xcs = preprocess2D(X,'preprocessing',2);
 % pcs = 1:2;
-% [p,t] = pca_pp(Xcs,'Pcs',pcs);
+% model = pcaEig(Xcs,'PCs',pcs);
+% p = model.loads;
+% t = model.scores;
 % res = Xcs - t*p'; 
 % lim = speLim(res,0.01)
 %

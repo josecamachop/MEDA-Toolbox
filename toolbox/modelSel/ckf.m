@@ -37,7 +37,9 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 % EXAMPLE OF USE: Random curve, two examples of use.
 %
 % X = simuleMV(20,10,'LevelCorr',8);
-% [P,T] = pca_pp(X);
+% model = pcaEig(X);
+% P = model.loads;
+% T = model.scores;
 % 
 % % Plot ('Option' default 1)
 % cumpress = ckf(X,T,P);
@@ -106,16 +108,16 @@ for i=0:A,
         p2 = P(:,1:i);
         srec = T(:,1:i)*p2';
         erec = xcs - srec;
-        term3_p = erec;
-        term1_p = xcs.*(ones(s(1),1)*(sum(p2.*p2,2))');
+        term3p = erec;
+        term1p = xcs.*(ones(s(1),1)*(sum(p2.*p2,2))');
     else % Modelling with the average
-        term1_p = zeros(size(xcs));
-        term3_p = xcs;
+        term1p = zeros(size(xcs));
+        term3p = xcs;
     end
     
-    term1 = term1_p.^2;
-    term2 = 2*term1_p.*term3_p;
-    term3 = term3_p.^2;
+    term1 = term1p.^2;
+    term2 = 2*term1p.*term3p;
+    term3 = term3p.^2;
     
     press(i+1,:) = sum([sum(term1,1);sum(term2,1);sum(term3,1)]);
     
@@ -128,7 +130,7 @@ end
 if opt == '1'
     A = size(T, 2);
     Z = 0:A;
-    fig_h = plot_vec(cumpress/cumpress(1),'EleLabel',Z,'XYLabel',{'#PCs','ckf'},'Option','01'); 
+    figh = plotVec(cumpress/cumpress(1),'EleLabel',Z,'XYLabel',{'#PCs','ckf'},'Option','01'); 
 end
 
         

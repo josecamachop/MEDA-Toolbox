@@ -48,7 +48,7 @@ function gascao = gasca(paranovao_st,c)
 % 
 % for i=1:length(paranovao_st.factors)
 %   map = corr(paranovao_st.factors{i}.matrix);
-%   plot_map(map);
+%   plotMap(map);
 %   c = input('Introduce threshold for correlation in interval (0,1): ');
 %   [bel,paranovao_st.factors{i}.states] = gia(map,'Gamma',c);
 % end

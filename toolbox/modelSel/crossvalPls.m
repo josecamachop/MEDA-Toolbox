@@ -93,7 +93,7 @@ parse(p,varargin{:});
 % Extract inputs from inputParser for code legibility
 
 lvs = p.Results.LVs;
-blocks_r = p.Results.MaxBlock;
+blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 opt = p.Results.Option;
@@ -110,7 +110,7 @@ if size(lvs,2) == 1, lvs = lvs'; end;
 % Validate dimensions of input data
 assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(blocks_r), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -121,9 +121,9 @@ lvs = unique(lvs);
 % Validate values of input data
 assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(fix(blocks_r), blocks_r), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r>2, 'Value Error: parameter ''MaxBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
-assert (blocks_r<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(blocksr), blocksr), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr>2, 'Value Error: parameter ''MaxBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
+assert (blocksr<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -134,28 +134,28 @@ cumpress = zeros(length(lvs),1);
 press = zeros(length(lvs),O);
 
 rows = rand(1,N);
-[a,r_ind]=sort(rows);
-elem_r=N/blocks_r;
+[a,rind]=sort(rows);
+elemr=N/blocksr;
 
 % Cross-validation
         
-for i=1:blocks_r
+for i=1:blocksr
     
-    ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection
+    indi = rind(round((i-1)*elemr+1):round(i*elemr)); % Sample selection
     i2 = ones(N,1);
-    i2(ind_i)=0;
-    sample = x(ind_i,:);
+    i2(indi)=0;
+    sample = x(indi,:);
     calibr = x(find(i2),:); 
-    sample_y = y(ind_i,:);
-    calibr_y = y(find(i2),:); 
+    sampley = y(indi,:);
+    calibry = y(find(i2),:); 
 
     [ccs,av,st] = preprocess2D(calibr,'Preprocessing',prepx);
-    [ccs_y,av_y,st_y] = preprocess2D(calibr_y,'Preprocessing',prepy);
+    [ccsy,avy,sty] = preprocess2D(calibry,'Preprocessing',prepy);
         
     scs = preprocess2Dapp(sample,av,'Scale',st);
-    scs_y = preprocess2Dapp(sample_y,av_y,'Scale',st_y);
+    scsy = preprocess2Dapp(sampley,avy,'Scale',sty);
     
-    model = simpls(ccs,ccs_y,'LVs',0:max(lvs));
+    model = simpls(ccs,ccsy,'LVs',0:max(lvs));
     Q = model.yloads;
     R = model.altweights;
     
@@ -165,10 +165,10 @@ for i=1:blocks_r
             beta = R(:,1:min(lvs(lv),end))*Q(:,1:min(lvs(lv),end))';
             srec = scs*beta;
             
-            pem = scs_y-srec;
+            pem = scsy-srec;
             
         else % Modelling with the average
-            pem = scs_y;
+            pem = scsy;
         end
         
         press(lv,:) = press(lv,:) + sum(pem.^2,1);
@@ -181,6 +181,6 @@ cumpress = sum(press,2);
 %% Show results
 
 if opt == '1' 
-    fig_h = plot_vec(cumpress,'EleLabel',lvs,'XYLabel',{'#LVs','PRESS'},'Option','01'); 
+    figh = plotVec(cumpress,'EleLabel',lvs,'XYLabel',{'#LVs','PRESS'},'Option','01'); 
 end
 

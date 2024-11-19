@@ -145,8 +145,8 @@ end
 if opt==1
     for k=1:length(ucl)
         Mv = max(max(squeeze(SDImap(:,:,k))));
-       % plot_map(SDImap(:,:,k),[],[0,Mv]);
-       plot_map(SDImap(:,:,k),'ColorInt',[0,Mv]);
+       % plotMap(SDImap(:,:,k),[],[0,Mv]);
+       plotMap(SDImap(:,:,k),'ColorInt',[0,Mv]);
         ylabel('#LV','FontSize',18)
         xlabel('#LV','FontSize',18)
     end  
