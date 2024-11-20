@@ -46,7 +46,7 @@ function figH = plotScatter(bdata,varargin)
 %
 % 'Multiplicity': [Nx1] multiplicity of each row (1s by default)
 %
-% 'Threshold': [1x3] thresholds for the different markers.
+% 'Markers': [1x3] thresholds for the different markers.
 %       maxv(1): maximum threshold for marker 'd' for opt = 1101 (20 by default)
 %       maxv(2): maximum threshold for marker 'o' for opt = 1101 (50 by default)
 %       maxv(3): maximum threshold for marker 's' for opt = 1101 (100 by default)
@@ -83,7 +83,7 @@ function figH = plotScatter(bdata,varargin)
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 18/Nov/2024
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -118,7 +118,7 @@ addParameter(p,'XYLabel',{'',''});
 addParameter(p,'LimCont',[]);
 addParameter(p,'Option','100');
 addParameter(p,'Multiplicity',ones(N,1));
-addParameter(p,'Threshold',[20 50 100]);
+addParameter(p,'Markers',[20 50 100]);
 addParameter(p,'BlurIndex',1);
 addParameter(p,'Color',[]);
 parse(p,varargin{:});
@@ -130,7 +130,7 @@ xylabel = p.Results.XYLabel;
 lcont = p.Results.LimCont;
 opt = p.Results.Option;
 mult = p.Results.Multiplicity;
-maxv = p.Results.Threshold;
+maxv = p.Results.Markers;
 blur = p.Results.BlurIndex;
 color=p.Results.Color;
 
@@ -167,7 +167,7 @@ if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: parameter 
 if ~isempty(lcont), assert (iscell(lcont) && isequal(size(lcont), [2 1]), 'Dimension Error: parameter ''LimCont'' must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end;
 assert (ischar(opt) && length(opt)==4, 'Dimension Error: parameter ''Option'' must be a string or num of maximum 4 bits. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: parameter ''Multiplicity'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: parameter ''Threshold'' must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: parameter ''Markers'' must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 
 % Validate values of input data

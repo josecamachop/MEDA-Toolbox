@@ -1,9 +1,9 @@
-function index_fich2 = cfilesys(obslist,centr,label,mult,class,index_fich,thres,path,debug)
+function indexFich2 = cfilesys(obslist,centr,label,mult,class,indexFich,thres,path,debug)
 
 % Update of the clustering file system. 
 %
-% index_fich2 = cfilesys(obslist,centr,label,mult,class,index_fich,thres,path) % minimum call
-% index_fich2 = cfilesys(obslist,centr,label,mult,class,index_fich,thres,path,debug) % complete call
+% indexFich2 = cfilesys(obslist,centr,label,mult,class,indexFich,thres,path) % minimum call
+% indexFich2 = cfilesys(obslist,centr,label,mult,class,indexFich,thres,path,debug) % complete call
 %
 %
 % INPUTS:
@@ -22,7 +22,7 @@ function index_fich2 = cfilesys(obslist,centr,label,mult,class,index_fich,thres,
 %
 % class: [Lx1] class associated to each cluster prior to the update.
 %
-% index_fich: [1xL] cell with the names of the files in the clustering file
+% indexFich: [1xL] cell with the names of the files in the clustering file
 %   system prior to the update.
 %
 % thres: [1x1] maximum number of entries in a file.
@@ -39,7 +39,7 @@ function index_fich2 = cfilesys(obslist,centr,label,mult,class,index_fich,thres,
 %
 % OUTPUTS:
 %
-% index_fich2: [1xN] cell with the names of the files in the clustering file
+% indexFich2: [1xN] cell with the names of the files in the clustering file
 %   system after the update.
 %
 %
@@ -78,14 +78,14 @@ if size(mult,1)  == 1, mult = mult'; end;
 if size(class,1)  == 1, class = class'; end;
 
 % Convert column arrays to row arrays
-if size(index_fich,2)  == 1, index_fich = index_fich'; end;
+if size(indexFich,2)  == 1, indexFich = indexFich'; end;
 
 % Validate dimensions of input data
 assert (isequal(size(obslist), [N 1]), 'Dimension Error: 1st argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [L 1]), 'Dimension Error: 3rd argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(mult), [L 1]), 'Dimension Error: 4th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(class), [L 1]), 'Dimension Error: 5th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(index_fich), [1 L]), 'Dimension Error: 6th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(indexFich), [1 L]), 'Dimension Error: 6th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(thres), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(debug), [1 1]), 'Dimension Error: 9th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
@@ -101,47 +101,47 @@ assert (debug==0 || debug==1 || debug==2, 'Value Error: 9th argument must be 0, 
 s = length(obslist);
 sc = size(centr,2);
 
-for i=1:s,
+for i=1:s
     s2 = length(obslist{i});
     indi = obslist{i}(1);
-    index_fich2{i} = index_fich{indi};
+    indexFich2{i} = indexFich{indi};
 
-    if s2 > 1,
+    if s2 > 1
         
         indj = find(mult(obslist{i}(2:end))==1);       
-        recovered_column = centr(obslist{i}(indj+1),:);
-        recovered_label = label(obslist{i}(indj+1));
+        recoveredcolumn = centr(obslist{i}(indj+1),:);
+        recoveredlabel = label(obslist{i}(indj+1));
   
-        if ~isempty(recovered_column),
-            if mult(indi)>1,
-                add_data(index_fich2{i},path,recovered_column,recovered_label,class(indi),'a',thres,[],debug);
+        if ~isempty(recoveredcolumn)
+            if mult(indi)>1
+                addData(indexFich2{i},path,recoveredcolumn,recoveredlabel,class(indi),'a',thres,[],debug);
             else
-                add_data(index_fich2{i},path,[centr(indi,:);recovered_column],{label{indi} recovered_label{:}},class(indi),'w',thres,[],debug);
+                addData(indexFich2{i},path,[centr(indi,:);recoveredcolumn],{label{indi} recoveredlabel{:}},class(indi),'w',thres,[],debug);
             end
         end
                
         indj = find(mult(obslist{i}(2:end))>1);
         
-        for j=1:length(indj),
+        for j=1:length(indj)
             indj2 = obslist{i}(indj(j)+1);
-            if mult(indj2)>thres,
-                indices = read_indices(index_fich{indj2},path,debug);
+            if mult(indj2)>thres
+                indices = readIndices(indexFich{indj2},path,debug);
                 if ispc
-                    system(['del ' path index_fich{indj2} '.txt']);
+                    system(['del ' path indexFich{indj2} '.txt']);
                 else
-                    system(['rm ' path index_fich{indj2} '.txt']);
+                    system(['rm ' path indexFich{indj2} '.txt']);
                 end
-                if debug>1, disp(['delete file: ' path index_fich{indj2} '.txt ...']), end;
-                add_indices(index_fich2{i},path,indices,debug);
+                if debug>1, disp(['delete file: ' path indexFich{indj2} '.txt ...']), end;
+                addIndices(indexFich2{i},path,indices,debug);
             else
-                [recovered_column,recovered_label] = read_data(index_fich{indj2},path,sc,debug);
+                [recoveredcolumn,recoveredlabel] = readData(indexFich{indj2},path,sc,debug);
                 if ispc
-                    system(['del ' path index_fich{indj2} '.txt']);
+                    system(['del ' path indexFich{indj2} '.txt']);
                 else
-                    system(['rm ' path index_fich{indj2} '.txt']);
+                    system(['rm ' path indexFich{indj2} '.txt']);
                 end
-                if debug>1, disp(['delete file: ' path index_fich{indj2} '.txt ...']), end;
-                add_data(index_fich2{i},path,recovered_column,recovered_label,class(indi),'a',thres,[],debug);
+                if debug>1, disp(['delete file: ' path indexFich{indj2} '.txt ...']), end;
+                addData(indexFich2{i},path,recoveredcolumn,recoveredlabel,class(indi),'a',thres,[],debug);
             end
         end
 

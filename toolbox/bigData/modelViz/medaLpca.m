@@ -125,7 +125,7 @@ if nargout > 1 || opt(3) == '1'
     ind = find(Dmap > thres);
 end
 
-if nargout > 2 || opt(2) == '1',
+if nargout > 2 || opt(2) == '1'
     [map, ord] = seriation(medamap(ind,ind));
 end
    

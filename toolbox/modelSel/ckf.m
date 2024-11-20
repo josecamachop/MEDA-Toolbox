@@ -48,7 +48,7 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 % cumpress = ckf(X,T,P,'Option',0);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 22/Apr/2024
+% last modification: 19/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

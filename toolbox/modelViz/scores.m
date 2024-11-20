@@ -86,15 +86,16 @@ function figH = scores(model,varargin)
 % X = simuleMV(nObs,nVars,'LevelCorr',8);
 % 
 % model.lvs = 1:2;
-% [Xcs,model.av,model.sc] = preprocess2D(X);
-% model.var = trace(Xcs'*Xcs);
+% [Xcs,av,sc] = preprocess2D(X);
 % model = pcaEig(Xcs,'PCs',model.lvs);
+% model.var = trace(Xcs'*Xcs);
+% model.av = av;
+% model.sc = sc;
 % 
 % nObst = 10;
-% test = simuleMV(nObst,nVars,'LevelCorr',6,'Covar',corr(X)*(nObst-1)/(nObs-1));
+% test = simuleMV(nObst,nVars,'LevelCorr',8,'Covar',corr(X)*(nObst-1)/(nObs-1));
 % 
 % scores(model,'ObsTest',test);
-
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 18/Nov/2024

@@ -20,22 +20,25 @@ function figH = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 % test: [LxM] data set with the observations to be visualized in the Lmodel
 %   space. By default, Lmodel.scores are plotted.
 %
-% opt: (str) options for data plotting: binary code of the form 'abc' for:
+% opt: (str or num) options for data plotting: binary code of the form 'abcd' for:
 %       a:
-%           0: scatter plot of pairs of LVs 
-%           1: bar plot of each single LV
+%           0: scatter plot of pairs of PCs 
+%           1: bar plot of each single PC
 %       b:
 %           0: plot calibration and test data
 %           1: plot only test data 
 %       c:
+%           0: plot for categorical classes (consistent with a legend)
+%           1: plot for numerical classes (consistent with a colorbar) 
+%       d:
 %           00: plot multiplicity info in the size of the markers.
 %           01: plot multiplicity info in the form of the markers.
 %           10: plot multiplicity information in the Z axis.
 %           11: plot multiplicity info in the size of the markers and 
 %               classes in Z-axis
-%
-%   By deafult, opt = '0000'. If less than 4 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, and c=00.
+%           
+%   By deafult, opt = '00000'. If less than 5 digits are specified, least 
+%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0, d=00 
 %
 % tit: (str) title for the plots. Empty by default;
 %
@@ -74,6 +77,8 @@ function figH = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 % nobst = 10;
 % test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(X)*(nobst-1)/(nobs-1));
 %
+% Lmodel.multr = ceil(10*rand(nobs,1));
+%
 % Lmodel.lvs = 1;
 % Lmodel = Lpca(Lmodel);
 % scoresL(Lmodel,test);
@@ -84,7 +89,7 @@ function figH = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -110,15 +115,17 @@ N = size(Lmodel.scores, 1);
 [M,A] = size(Lmodel.loads);
 if nargin < 2, test = []; end;
 L = size(test, 1);
-if nargin < 3 || isempty(opt), opt = 0; end; 
+if nargin < 3 || isempty(opt), opt = '00000'; end; 
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
 
 % Complete opt
-while length(opt)<4, opt = strcat(opt,'0'); end
+while length(opt)<5, opt = strcat(opt,'0'); end
 
-if opt(2) == 1 || opt(2) == '1'
+if opt(3) == '0', opt(3) = '1'; else,  opt(3) = '0'; end
+
+if opt(2) == '1'
     K = L;
 else
     K = N+L;
@@ -126,37 +133,41 @@ end
 
 if nargin < 4, tit = ''; end 
 if nargin < 5 || isempty(label) 
-    if isempty(Lmodel.obsl)
-        if opt(2) == 1 || opt(2) == '1'
-            label = 1:L;
-        else
-            label = [1:N 1:L]; 
-        end
+    if  opt(2) == '1'
+        label = cellstr(num2str((1:L)'));
+    elseif isempty(Lmodel.obsl)
+        label = cellstr(num2str([1:N 1:L]'));
     else
-        if opt(2) == 1 || opt(2) == '1'
-            label = Lmodel.obsl;
+        if L
+            lb1 = cellstr(num2str((1:L)'));
+            label = {Lmodel.obsl{:} lb1{:}};
         else
             label = Lmodel.obsl;
-            for i=1:L, label{end+1} = sprintf('test%i',i); end
+        end
+    end
+else
+    if  opt(2) == '0'
+        if isempty(Lmodel.obsl)
+            lb1 = cellstr(num2str((1:N)'));
+            label = {lb1{:} label{:}};
+        else
+            label = {Lmodel.obsl{:} label{:}};
         end
     end
 end
+
+label(find(ismember(label, 'mixed'))) = {''};
+
 if nargin < 6 || isempty(classes)
-    if isempty(Lmodel.class)
-        if opt(2) == 1 || opt(2) == '1' 
-            classes = ones(L,1); 
-        else
-            classes = [ones(N,1);2*ones(L,1)];  
-        end
+    if opt(2) == '1' 
+        classes = ones(L,1); 
     else
-        if opt(2) == 1 || opt(2) == '1' 
-            classes = Lmodel.class; 
-        else
-            classes = Lmodel.class;
-            classes(end+1:end+L) = max(Lmodel.class)+1;
-        end
+        classes = [Lmodel.class;2*ones(L,1)];  
     end
+elseif opt(2) == '0' && length(classes)==L
+        classes = [Lmodel.class;2*classes];
 end
+
 if nargin < 7 || isempty(blur),    blur    = 1;       end;
 
 % Convert row arrays to column arrays
@@ -166,7 +177,7 @@ if size(classes,1) == 1, classes = classes'; end;
 
 % Validate dimensions of input data
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 2nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
-assert (ischar(opt) && length(opt)==4, 'Dimension Error: 3rd argument must be a string or num of 4 bits. Type ''help %s'' for more info.', routine(1).name);
+assert (ischar(opt) && length(opt)==5, 'Dimension Error: 3rd argument must be a string or num of 4 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: 5th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: 6th argument must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: 7th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
@@ -201,20 +212,20 @@ else
     mult = ones(size(TT,1));
 end
 
-M = max(10,max(Lmodel.multr))/10;
-m = max(1,M/100);
-int = 10^((log10(M)-log10(m))/2 + log10(m));
-markers = [m,int,M];
+indM = floor(log10((max(Lmodel.multr)+1)));
+indm = floor(log10((min(Lmodel.multr)+1)));
+markers = 10.^[indm indm+(indM-indm)/2 indM];
 figH = [];
+if sum(markers)<100, markers = []; end
 if length(Lmodel.lvs) == 1 || opt(1) == '1'
     for i=1:length(Lmodel.lvs)
-        figH = [figH plotVec(Tt(:,i), label, classes, {'',sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*Lmodel.sdT(Lmodel.lvs(i))/Lmodel.var)})];
+        figH = [figH plotVec(Tt(:,i),'EleLabel',label,'ObsClass',classes,'XYLabel',{'',sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*Lmodel.sdT(Lmodel.lvs(i))/Lmodel.var)},'Multiplicity',mult,'Markers',markers)];
         title(tit);
     end
 else
     for i=1:length(Lmodel.lvs)-1
         for j=i+1:length(Lmodel.lvs)
-            figH = [figH plotScatter([Tt(:,i),Tt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*Lmodel.sdT(Lmodel.lvs(i))/Lmodel.var),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*Lmodel.sdT(Lmodel.lvs(j))/Lmodel.var)},[], strcat('11',opt(3:4)), mult, markers,blur)];
+            figH = [figH plotScatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*Lmodel.sdT(Lmodel.lvs(i))/Lmodel.var),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*Lmodel.sdT(Lmodel.lvs(j))/Lmodel.var)},'Option',strcat(opt(3),'1',opt(4:5)),'Multiplicity',mult,'Markers',markers,'BlurIndex',blur)];
             title(tit);
         end
     end

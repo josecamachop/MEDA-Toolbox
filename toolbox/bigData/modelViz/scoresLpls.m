@@ -5,8 +5,8 @@ function [T,TT,figH] = scoresLpls(Lmodel,test,opt,label,classes)
 % Approach and Research Challenges. Chemometrics and Intelligent Laboratory
 % Systems, 2014, 135: 110-125.
 %
-% scores_Lpca(Lmodel) % minimum call
-% [T,TT] = scores_Lpca(Lmodel,test,opt,label,classes) % complete call
+% sscoresLpca(Lmodel) % minimum call
+% [T,TT] = scoresLpca(Lmodel,test,opt,label,classes) % complete call
 %
 %
 % INPUTS:
@@ -82,14 +82,17 @@ function [T,TT,figH] = scoresLpls(Lmodel,test,opt,label,classes)
 % nobst = 10;
 % test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(X)*(nobst-1)/(nobs-1));
 %
+% Lmodel.multr = ceil(10*rand(nobs,1));
+%
 % Lmodel.lvs = 1;
-% scoresLpca(Lmodel,test);
+% scoresLpls(Lmodel,test);
+%
 % Lmodel.lvs = 1:2;
 % [T,TT] = scoresLpls(Lmodel,test);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -213,19 +216,19 @@ end
 
 [yvar,tvar] = varLpls(Lmodel,0);
 
-M = max(Lmodel.multr)/10;
-m = max(1,M/100);
-int = 10^((log10(M)-log10(m))/2 + log10(m));
-markers = [m,int,M];
+indM = floor(log10((max(Lmodel.multr)+1)));
+indm = floor(log10((min(Lmodel.multr)+1)));
+markers = 10.^[indm indm+(indM-indm)/2 indM];
+if sum(markers)<100, markers = []; end
 if length(Lmodel.lvs) == 1 || opt(1) == '1'
     for i=1:length(Lmodel.lvs)
-        figH(i) = plotVec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1)))}, [], [], [], mult, markers);
+        figH(i) = plotVec(ttt(:,i),'EleLabel',label,'ObsClass',classes,'XYLabel',{'',sprintf('Compressed Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(Lmodel.lvs(i)) - tvar(Lmodel.lvs(i)+1)))},'Multiplicity',mult,'Markers',markers);
     end
 else
     h = 1;
     for i=1:length(Lmodel.lvs)-1
         for j=i+1:length(Lmodel.lvs)
-            figH(h) = plotScatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(t_var(Lmodel.lvs(i)) - t_var(Lmodel.lvs(i)+1))),sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(j),100*(t_var(j) - t_var(j+1)))}, [], strcat(opt(3),'1',opt(4:5)), mult, markers, 0.1);
+            figH(h) = plotScatter([ttt(:,i),ttt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(Lmodel.lvs(i)) - tvar(Lmodel.lvs(i)+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))},'Option',strcat(opt(3),'1',opt(4:5)),'Multiplicity',mult,'Markers',markers,'BlurIndex',0.1);
             h = h+1;
         end
     end

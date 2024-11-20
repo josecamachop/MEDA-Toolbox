@@ -1,11 +1,11 @@
 
-function [meda_map,ind,ord] = medaPls(x,y,varargin)
+function [medaMap,ind,ord] = medaPls(x,y,varargin)
 
 % Missing data methods for exploratory data analysis in PCA. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
 % 8-18. 
 %
-% meda_map = medaPls(x,y) % minimum call
+% medaMap = medaPls(x,y) % minimum call
 %
 %
 % INPUTS:
@@ -53,7 +53,7 @@ function [meda_map,ind,ord] = medaPls(x,y,varargin)
 %
 % OUTPUTS:
 %
-% meda_map: [MxM] non-seriated MEDA matrix.
+% medaMap: [MxM] non-seriated MEDA matrix.
 %
 % ind: [M2x1] indices of seriated variables over the input threshold (M2 < M).
 %
@@ -168,17 +168,17 @@ model = simpls(x2,y2,'LVs',lvs);
 R = model.altweights;
 P = model.loads;
 
-meda_map = meda(x2'*x2,R,'OutSubspace',P);
+medaMap = meda(x2'*x2,R,'OutSubspace',P);
 
 if opt(3) == '1'
-    Dmap = diag(meda_map);
+    Dmap = diag(medaMap);
     ind = find(Dmap > thres);
 else
     ind = 1:length(vars);
 end
 
 if opt(2) == '1'
-    [map, ord] = seriation(meda_map(ind,ind));
+    [map, ord] = seriation(medaMap(ind,ind));
 else
     ord = 1:length(vars);
 end
@@ -188,7 +188,7 @@ end
 
 if opt(1) == '1'
     
-    map = meda_map;
+    map = medaMap;
 
     if opt(3) == '1'
         ind2 = ind;

@@ -101,13 +101,13 @@ if opt(1) == '1'
     
     if length(Lmodel.lvs) == 1 || opt(2) == '1'
         for i=1:length(Lmodel.lvs)
-                figH(i) = plotVec(P(:,i), Lmodel.varl, Lmodel.vclass, {'',sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(i) - tvar(i+1)))});
+                figH(i) = plotVec(P(:,i),'EleLabel',Lmodel.varl,'ObsClass',Lmodel.vclass,'XYLabel',{'',sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(i) - tvar(i+1)))});
         end
     else
         h = 1;
         for i=1:length(Lmodel.lvs)-1
             for j=i+1:length(Lmodel.lvs)
-                figH(h) = plotScatter([P(:,i),P(:,j)], Lmodel.varl, Lmodel.vclass, {sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(i) - tvar(i+1))),sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))}',[],[],[],[],blur);
+                figH(h) = plotScatter([P(:,i),P(:,j)],'EleLabel',Lmodel.varl,'ObsClass',Lmodel.vclass,'XYLabel',{sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(i) - tvar(i+1))),sprintf('Loadings PC %d (%.0f%%)',Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))}','BlurIndex',blur);
                 h = h+1;
             end      
         end

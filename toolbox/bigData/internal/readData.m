@@ -83,9 +83,9 @@ lev=a(1);
 s=a(2);
 class=a(3);
 
-if lev==0,
+if lev==0
     data = zeros(s,nvars);
-    for i=1:s,
+    for i=1:s
         label{i}=fscanf(fid,'%s:',1);
         label{i}(end)=[]; 
         a=fscanf(fid,'%s',1);
@@ -93,9 +93,9 @@ if lev==0,
         data(i,:) = cell2mat(b);
     end
     fclose(fid);
-elseif lev == 1,
+elseif lev == 1
     fclose(fid);
-    [data,class,lev,s]=read_indices(name,path,debug);
+    [data,class,lev,s]=readIndices(name,path,debug);
     label = {};
 else
     error('Error in the level.');

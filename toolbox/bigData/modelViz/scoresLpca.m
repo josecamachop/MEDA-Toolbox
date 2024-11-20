@@ -79,14 +79,17 @@ function [T,TT,figH] = scoresLpca(Lmodel,test,opt,label,classes)
 % nobst = 10;
 % test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(X)*(nobst-1)/(nobs-1));
 %
+% Lmodel.multr = ceil(10*rand(nobs,1));
+%
 % Lmodel.lvs = 1;
 % scoresLpca(Lmodel,test);
+%
 % Lmodel.lvs = 1:2;
 % [T,TT] = scoresLpca(Lmodel,test);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -214,21 +217,19 @@ end
 
 tvar = varLpca(Lmodel,0);
 
-indx = floor(log10(max(Lmodel.multr)));
-
-1:(indx-1)/3:indx;
-
-indx = floor(log10(max(Lmodel.multr)));
-markers = 10.^((1+(indx-1)/3):(indx-1)/3:indx);
+indM = floor(log10((max(Lmodel.multr)+1)));
+indm = floor(log10((min(Lmodel.multr)+1)));
+markers = 10.^[indm indm+(indM-indm)/2 indM];
+if sum(markers)<100, markers = []; end
 if length(Lmodel.lvs) == 1 || opt(1) == '1'
     for i=1:length(Lmodel.lvs)
-        figH(i) = plotVec(ttt(:,i), label, classes, {'',sprintf('Compressed Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(Lmodel.lvs(i)) - tvar(Lmodel.lvs(i)+1)))}, [], [], [], mult, markers);
+        figH(i) = plotVec(ttt(:,i),'EleLabel',label,'ObsClass',classes,'XYLabel',{'',sprintf('Compressed Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(Lmodel.lvs(i)) - tvar(Lmodel.lvs(i)+1)))},'Multiplicity',mult,'Markers',markers);
     end
 else
     h = 1;
     for i=1:length(Lmodel.lvs)-1
         for j=i+1:length(Lmodel.lvs)
-            figH(h) = plotScatter([ttt(:,i),ttt(:,j)], label, classes, {sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(Lmodel.lvs(i)) - tvar(Lmodel.lvs(i)+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))}, [], strcat(opt(3),'1',opt(4:5)), mult, markers, 0.1);
+            figH(h) = plotScatter([ttt(:,i),ttt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(Lmodel.lvs(i)) - tvar(Lmodel.lvs(i)+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))},'Option',strcat(opt(3),'1',opt(4:5)),'Multiplicity',mult,'Markers',markers,'BlurIndex',0.1);
             h = h+1;
         end
     end

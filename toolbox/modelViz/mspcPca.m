@@ -77,15 +77,15 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPca(x,varargin)
 %
 % EXAMPLE OF USE: PCA-based MSPC on NOC test data and anomalies.
 %
-% n_obs = 100;
-% n_vars = 10;
-% n_PCs = 1;
-% X = simuleMV(n_obs,n_vars,'LevelCorr',6);
+% nobs = 100;
+% nvars = 10;
+% nPCs = 1;
+% X = simuleMV(nobs,nvars,'LevelCorr',6);
 % 
-% pcs = 1:n_PCs;
+% pcs = 1:nPCs;
 % 
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
+% nobst = 10;
+% test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',cov(X)*(nobst-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
 % [Dst,Qst,Dstt,Qstt] = mspcPca(X,'PCs',pcs,'ObsTest',test);
@@ -137,8 +137,8 @@ prep = p.Results.Preprocessing;
 opt = p.Results.Option;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
-p_valueD = p.Results.PValueD;
-p_valueQ = p.Results.PValueQ;
+pvalueD = p.Results.PValueD;
+pvalueQ = p.Results.PValueQ;
 limtype = p.Results.LimType;
 
 L = size(test, 1);
@@ -172,10 +172,10 @@ end
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
-if ~isempty(p_valueD) && size(p_valueD,1) == 1,     p_valueD = p_valueD'; end;
-if ~isempty(p_valueQ) && size(p_valueQ,1) == 1, p_valueQ = p_valueQ'; end;
-Ld = size(p_valueD,1);
-Lq = size(p_valueQ,1);
+if ~isempty(pvalueD) && size(pvalueD,1) == 1,     pvalueD = pvalueD'; end;
+if ~isempty(pvalueQ) && size(pvalueQ,1) == 1, pvalueQ = pvalueQ'; end;
+Ld = size(pvalueD,1);
+Lq = size(pvalueQ,1);
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -192,14 +192,14 @@ assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'
 assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: parameter ''ObsLabel'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: parameter ''ObsClass'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
-if ~isempty(p_valueD), assert (isequal(size(p_valueD), [Ld 1]), 'Dimension Error: parameter ''PValueD'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(p_valueQ), assert (isequal(size(p_valueQ), [Lq 1]), 'Dimension Error: parameter ''PValueQ'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(pvalueD), assert (isequal(size(pvalueD), [Ld 1]), 'Dimension Error: parameter ''PValueD'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(pvalueQ), assert (isequal(size(pvalueQ), [Lq 1]), 'Dimension Error: parameter ''PValueQ'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isequal(size(limtype), [1 1]), 'Dimension Error: parameter ''LimType'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''PCs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-if ~isempty(p_valueD), assert (isempty(find(p_valueD<0 | p_valueD>1)), 'Value Error: parameter ''PValueD'' must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
-if ~isempty(p_valueQ), assert (isempty(find(p_valueQ<0 | p_valueQ>1)), 'Value Error: parameter ''PValueQ'' must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(pvalueD), assert (isempty(find(pvalueD<0 | pvalueD>1)), 'Value Error: parameter ''PValueD'' must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
+if ~isempty(pvalueQ), assert (isempty(find(pvalueQ<0 | pvalueQ>1)), 'Value Error: parameter ''PValueQ'' must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
 assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -225,26 +225,26 @@ if limtype==0
     UCLd = [];
     for i=1:Ld
         if isempty(test)
-            UCLd(i) = hot_lim(A,N,p_valueD(i),'Phase',1);
+            UCLd(i) = hotLim(A,N,pvalueD(i),'Phase',1);
         else
-            UCLd(i) = hot_lim(A,N,p_valueD(i),'Phase',2);
+            UCLd(i) = hotLim(A,N,pvalueD(i),'Phase',2);
         end
     end
     
     E = xcs - T*P'; 
     UCLq = [];   
     for i=1:Lq
-        UCLq(i) = spe_lim(E,p_valueQ(i));
+        UCLq(i) = speLim(E,pvalueQ(i));
     end
 else
     UCLd = [];   
     for i=1:Ld
-        UCLd(i) = prctile(Dst,100*(1-p_valueD(i)));
+        UCLd(i) = prctile(Dst,100*(1-pvalueD(i)));
     end
     
     UCLq = [];   
     for i=1:Lq
-        UCLq(i) = prctile(Qst,100*(1-p_valueQ(i)));
+        UCLq(i) = prctile(Qst,100*(1-pvalueQ(i)));
     end
 end
 

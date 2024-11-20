@@ -1,9 +1,9 @@
-function x_var = varLpca(Lmodel,opt)
+function xvar = varLpca(Lmodel,opt)
 
 % Variability captured in terms of the number of PCs.
 %
 % varLpca(Lmodel) % minimum call
-% x_var = varLpca(Lmodel,opt) %complete call
+% xvar = varLpca(Lmodel,opt) %complete call
 %
 %
 % INPUTS:
@@ -20,21 +20,20 @@ function x_var = varLpca(Lmodel,opt)
 %
 % OUTPUTS:
 %
-% x_var: [Ax1] Percentage of captured variance of X.
+% xvar: [Ax1] Percentage of captured variance of X.
 %
 %
 % EXAMPLE OF USE: Random data
 %
-% Lmodel = iniLmodel(simuleMV(20,10,8));
+% Lmodel = iniLmodel(simuleMV(20,10,'LevelCorr',8));
 % Lmodel.lvs = 0:10;
-% x_var = varLpca(Lmodel);
+% xvar = varLpca(Lmodel);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 30/Oct/2016
+% last modification: 20/Nov/2024
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -80,13 +79,13 @@ Lmodel = Lpca(Lmodel);
 P = Lmodel.loads;
 
 totalVx = sum(eig(Lmodel.XX));
-x_var = ones(max(Lmodel.lvs)+1,1);
+xvar = ones(max(Lmodel.lvs)+1,1);
 for i=1:max(Lmodel.lvs)
-    x_var(i+1) = x_var(i+1) - sum(eig(P(:,1:i)'*Lmodel.XX*P(:,1:i)))/totalVx;
+    xvar(i+1) = xvar(i+1) - sum(eig(P(:,1:i)'*Lmodel.XX*P(:,1:i)))/totalVx;
 end
     
 %% Show results
 
 if opt == '1'
-    plotVec(x_var,Lmodel.lvs,[],{'#PCs','% Residual Variance'},[],0);
+    plotVec(xvar,'EleLabel',[0 Lmodel.lvs],'XYLabel',{'#PCs','% Residual Variance'},'Option','01');
 end

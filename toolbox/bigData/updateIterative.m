@@ -12,8 +12,9 @@ function Lmodel = updateIterative(list,path,Lmodel,step,files,debug)
 % list: {Fx1} list of strings with the names of the files for the update or
 %   struct array with x (and optionally y) matrices.
 %
-% path: (str) path to the directory where the data files are located ('' by
-%   default)
+% path: (str) If list is a string of filenames, path to the directory where 
+%   the data files are located ('' by default). Not to confuse with where
+%   the output files are stored (which is Lmodel.path)
 %
 % Lmodel: (struct Lmodel) model to update (initialized to PCA model with 1
 %   PC and auto-scaling by default)
@@ -49,7 +50,7 @@ function Lmodel = updateIterative(list,path,Lmodel,step,files,debug)
 % can be chaged in this routine (line app. 399).
 %
 %
-% EXAMPLE OF USE: model a large number of observations.
+% EXAMPLE OF USE: to model a large number of observations.
 %
 % nobs = 100;
 % nvars = 10;
@@ -64,6 +65,26 @@ function Lmodel = updateIterative(list,path,Lmodel,step,files,debug)
 % end
 %
 % Lmodel = updateIterative(list,[],Lmodel);
+% mspcLpca(Lmodel);
+%
+%
+% EXAMPLE OF USE: to model a large number of observations creating a
+% filesystem with debug (level 2)
+%
+% nobs = 100;
+% nvars = 10;
+% Lmodel = iniLmodel;
+% Lmodel.type = 'PCA'; 
+% Lmodel.prep = 2;  
+% Lmodel.lvs = 1;
+% Lmodel.nc = 100; % Number of clusters
+% Lmodel.path = '.\deleteMe\'; % MODIFY PATH TO YOUR CONVENIENCE
+% 
+% for i=1:10,
+%   list(i).x = simuleMV(nobs,nvars,'LevelCorr',6);
+% end
+%
+% Lmodel = updateIterative(list,[],Lmodel,0.1,1,2);
 % mspcLpca(Lmodel);
 %
 %
@@ -112,7 +133,13 @@ assert (isempty(find(step<=0 | step>1)), 'Value Error: 4th argument must contain
 assert (isempty(find(files~=0 & files~=1)), 'Value Error: 5th argument must contain 0 or 1. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(debug~=0 & debug~=1 & debug~=2)), 'Value Error: 6th argument must contain 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 
-
+if files == 1
+    if isempty(Lmodel.path)
+        Lmodel.path = '.\updtIterOutput\';
+    end
+    mkdir(Lmodel.path);
+end
+    
 %% Main code
 
 Lmodel.update = 2; 

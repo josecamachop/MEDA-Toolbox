@@ -1,12 +1,12 @@
 
-function [omeda_vec,lim] = omedaPca(x,pcs,test,dummy,varargin)
+function [omedaVec,lim] = omedaPca(x,pcs,test,dummy,varargin)
 
 % Observation-based Missing data methods for Exploratory Data Analysis 
 % (oMEDA) for PCA. The original paper is Journal of Chemometrics, 2011, 25 
 % (11): 592-600. This algorithm follows the direct computation for
 % Known Data Regression (KDR) missing data imputation.
 %
-% omeda_vec = omedaPca(x,pcs,test,dummy) % minimum call
+% omedaVec = omedaPca(x,pcs,test,dummy) % minimum call
 %
 %
 % INPUTS:
@@ -52,27 +52,27 @@ function [omeda_vec,lim] = omedaPca(x,pcs,test,dummy,varargin)
 %
 % OUTPUTS:
 %
-% omeda_vec: [Mx1] oMEDA vector.
+% omedaVec: [Mx1] oMEDA vector.
 %
 % lim: [Mx1] oMEDA limits.
 %
 %
 % EXAMPLE OF USE: Anomaly on first observation and first 2 variables.
 % 
-% n_obs = 100;
-% n_vars = 10;
-% n_PCs = 10;
-% X = simuleMV(n_obs,n_vars,'LevelCorr',6);
+% nobs = 100;
+% nvars = 10;
+% nPCs = 10;
+% X = simuleMV(nobs,nvars,'LevelCorr',6);
 % 
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
+% nobst = 10;
+% test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',cov(X)*(nobst-1));
 % test(1,1:2) = 10*max(abs(X(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;
 % 
-% pcs = 1:n_PCs;
+% pcs = 1:nPCs;
 % 
-% omeda_vec = omedaPca(X,pcs,test,dummy,'Preprocessing',1);
+% omedaVec = omedaPca(X,pcs,test,dummy,'Preprocessing',1);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -162,19 +162,19 @@ model = pcaEig(xcs,'PCs',pcs);
 P = model.loads;
     
 testcs = preprocess2Dapp(test,m,'Scale',sd);
-omeda_vec = omeda(testcs,dummy,P);
+omedaVec = omeda(testcs,dummy,P);
 
 % heuristic: 95% limit for one-observation-dummy
 xr = xcs*P*P';
-omeda_x = abs((2*xcs-xr).*(xr));
-lim = prctile(omeda_x,95)';
+omedax = abs((2*xcs-xr).*(xr));
+lim = prctile(omedax,95)';
     
 
 %% Show results
 
 if opt(1) == '1'
     
-    vec = omeda_vec;
+    vec = omedaVec;
  
     if opt(2) == '1'
         limp = lim;

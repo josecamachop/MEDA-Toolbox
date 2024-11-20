@@ -38,7 +38,7 @@ function [p,t,bel,e] = gpca(xcs,states,varargin)
 %
 % x = simuleMV(20,10,'LevelCorr',8);
 % pcs = 1:2;
-% map = meda_pca(x,'PCs',pcs,'Option',0);
+% map = medaPca(x,'PCs',pcs,'Option',0);
 % [map,ord] = seriation(map);
 % plotMap(map);
 % x = x(:,ord);
@@ -129,11 +129,11 @@ for j = 1:max(pcs)
     R = zeros(M,length(states));
     S = zeros(N,length(states));
     for i=1:length(states) % construct eigenvectors according to states
-        map_aux = zeros(size(map));
-        map_aux(states{i},states{i})= map(states{i},states{i});
+        mapaux = zeros(size(map));
+        mapaux(states{i},states{i})= map(states{i},states{i});
        
-        if find(map_aux>tol)
-            [V,D] = eig(map_aux);
+        if find(mapaux>tol)
+            [V,D] = eig(mapaux);
             ind = find(diag(D)==max(diag(D)),1);
             R(:,i) = V(:,ind)/sqrt((V(:,ind)'*B*V(:,ind)));
             S(:,i) = xcs*R(:,i);   

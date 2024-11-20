@@ -128,7 +128,7 @@ if nargout > 1 || opt(3) == '1'
     ind = find(Dmap > thres);
 end
 
-if nargout > 2 || opt(2) == '1',
+if nargout > 2 || opt(2) == '1'
     [map, ord] = seriation(medamap(ind,ind));
 end
     
@@ -157,7 +157,7 @@ if opt(1) == '1'
     map = map(ord2,ord2);
     label = label(ord2);
     
-    plotMap(map,label);
+    plotMap(map,'VarsLabel',label);
     
 end  
 

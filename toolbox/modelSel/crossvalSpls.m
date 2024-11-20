@@ -146,7 +146,7 @@ elemr=N/blocksr;
 
 % Cross-validation
         
-for i=1:blocksr,
+for i=1:blocksr
     
     indi = rind(round((i-1)*elemr+1):round(i*elemr)); % Sample selection
     i2 = ones(N,1);
@@ -162,13 +162,13 @@ for i=1:blocksr,
     scs = preprocess2Dapp(sample,av,'Scale',st);
     scsy = preprocess2Dapp(sampley,avy,'Scale',sty);
     
-    if  ~isempty(find(lvs)),
+    if  ~isempty(find(lvs))
         
-        for lv=1:length(lvs),
+        for lv=1:length(lvs)
 
-            for keepX=1:length(keepXs),
+            for keepX=1:length(keepXs)
                 
-                if lvs(lv),
+                if lvs(lv)
                     model = sparsepls2(ccs, ccsy, lvs(lv), keepXs(keepX)*ones(size(1:lvs(lv))), O*ones(size(1:lvs(lv))), 500, 1e-10, 1, 0);
                     beta = model.R*model.Q';
 
@@ -198,7 +198,7 @@ cumpress = sum(press,3);
 
 %% Show results
 
-if opt == 1,
+if opt == 1
     figh = plotVec(cumpress','EleLabel',keepXs,'XYLabel',{'#NZV','PRESS'},'Option','01','VecLabel',lvs); 
 end
 

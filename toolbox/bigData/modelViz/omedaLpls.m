@@ -158,7 +158,7 @@ if opt(1) == '1'
         end
     end
     
-    plotVec(vec,Lmodel.varl,[],{[],'d^2_A'},[limp -limp]);
+    plotVec(vec,'EleLabel',Lmodel.varl,'XYLabel',{[],'d^2_A'},'LimCont',[limp -limp]);
     
 end
 

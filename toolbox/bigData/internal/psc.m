@@ -1,16 +1,16 @@
-function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,olab,updated,mat,obslist)
+function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,nmin,mult,class,olab,updated,mat,obslist)
 
 % Projected Sequential Clustering. 
 %
-% [centr,multn,classn] = psc(x,n_min)          % minimum call
-% [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,olab,updated,mat,obslist) % complete call
+% [centr,multn,classn] = psc(x,nmin)          % minimum call
+% [centr,multn,classn,olabn,updatedn,obslist] = psc(x,nmin,mult,class,olab,updated,mat,obslist) % complete call
 %
 %
 % INPUTS:
 %
 % x: [NxM] original matrix with centroids.
 %
-% n_min: [1x1] number of output clusters.
+% nmin: [1x1] number of output clusters.
 %
 % mult: [Nx1] multiplicity of each cluster.
 %
@@ -29,19 +29,19 @@ function [centr,multn,classn,olabn,updatedn,obslist] = psc(x,n_min,mult,class,ol
 %
 % OUTPUTS:
 %
-% centr: [n_minxM] output centroids.
+% centr: [nminxM] output centroids.
 %
-% multn: [n_minx1] output multiplicity.
+% multn: [nminx1] output multiplicity.
 %
-% classn: [n_minx1] output classes.
+% classn: [nminx1] output classes.
 %
-% olabn: {n_minx1} output labels.
+% olabn: {nminx1} output labels.
 %
-% updatedn: {n_minx1} output updated values
+% updatedn: {nminx1} output updated values
 %   0: old point
 %   1: new point or combination with a new point
 %
-% obslist: [n_minx1] output list of observations for the clustering file
+% obslist: [nminx1] output list of observations for the clustering file
 %   system.
 %
 %
@@ -85,7 +85,7 @@ if nargin < 7 || isempty(mat), mat = eye(M); end;
 if nargin < 8, obslist = {}; end;
 
 % Validate dimensions of input data
-assert (isequal(size(n_min), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(nmin), [1 1]), 'Dimension Error: 2nd argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(mult), [N 1]), 'Dimension Error: 3rd argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(class), [N 1]), 'Dimension Error: 4th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(updated), [N 1]), 'Dimension Error: 6th argument must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -94,7 +94,7 @@ assert (size(mat,2)<=M, 'Dimension Error: 7th argument must be M-by-A. Type ''he
 
 
 % Validate values of input data
-assert (n_min>0, 'Value Error: 2nd argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
+assert (nmin>0, 'Value Error: 2nd argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(mult<=0)), 'Value Error: 3rd argument must be above 0. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -122,19 +122,19 @@ multn = mult;
 classn = class;
 olabn = olab;
 updatedn = updated;
-for i=N-1:-1:n_min % reduction to n_min clusters
+for i=N-1:-1:nmin % reduction to nmin clusters
     
     % Computation of the minimum distance between observations or clusters
-    min_dist = find(min(min(D))==D,1);
+    mindist = find(min(min(D))==D,1);
     
     % Location of the element with minimum distance
-    row = mod(min_dist,i+1);
+    row = mod(mindist,i+1);
     if ~row, row = i+1; end
-    column = ceil(min_dist/(i+1)); 
+    column = ceil(mindist/(i+1)); 
     if multn(column)>multn(row)
-        aux_v = row;
+        auxv = row;
         row = column;
-        column = aux_v;
+        column = auxv;
     end
     
     % Actualization of the list
@@ -157,11 +157,11 @@ for i=N-1:-1:n_min % reduction to n_min clusters
     % Actualization of the distance
     u(row,:) = centr(row,:)*mat;
     r = u-ones((i+1),1)*u(row,:);
-    new_dist = sum(r.^2,2); 
+    newdist = sum(r.^2,2); 
     classdiff = find(~ismember(classn,classn(row))); 
-    new_dist(classdiff) = Inf; 
-    D(1:(row-1),row) = new_dist(1:(row-1));
-    D(row,(row+1):end) = new_dist((row+1):end);
+    newdist(classdiff) = Inf; 
+    D(1:(row-1),row) = newdist(1:(row-1));
+    D(row,(row+1):end) = newdist((row+1):end);
    
     % Delete old cluster references
     if ~isempty(obslist)

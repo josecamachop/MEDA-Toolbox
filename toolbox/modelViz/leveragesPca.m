@@ -47,7 +47,7 @@ function [L,E] = leveragesPca(x,varargin)
 % end
 % 
 % X = simuleMV(20,10,'LevelCorr',8);
-% L = leveragesPca(X,'PCs',1:3,'VarsLabel',A);
+% L = leveragesPca(X,'PCs',1,'VarsLabel',A);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)

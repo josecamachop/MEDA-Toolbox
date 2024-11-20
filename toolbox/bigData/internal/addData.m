@@ -88,23 +88,23 @@ assert (debug==0 || debug==1 || debug==2, 'Value Error: 9th argument must be 0, 
 
 %% Main code
 
-preci_str = sprintf('%%.%df,',preci);
+precistr = sprintf('%%.%df,',preci);
 
 s=size(data);
 file=[path name '.txt'];
 
 if debug>1, disp(['add data in file: ' file ' ...']), end;
 
-if isequal('a',type),
+if isequal('a',type)
     fid=fopen(file,'r');
     a = fscanf(fid,'%d',3);
     lev=a(1);
     s2=a(2);
-    if lev == 0,
+    if lev == 0
         fclose(fid);
         stot = s(1) + s2;
-        if stot > thres,
-            [data2, label2] = read_data(name,path,s(2),debug);
+        if stot > thres
+            [data2, label2] = readData(name,path,s(2),debug);
             data = [data2;data];
             label = {label{:} label2{:}};
             addData1(name,path,data,label,class,'w',thres,1,preci);
@@ -115,7 +115,7 @@ if isequal('a',type),
             fprintf(fid,'%s\n',str);  
             fseek(fid,0,'eof');
             for u=1:s(1),
-                a=num2str(data(u,:),preci_str);
+                a=num2str(data(u,:),precistr);
                 i=find(~isspace(a));
                 a=a(i);
                 fprintf(fid,'%s: %s\n',label{u},a);
@@ -123,25 +123,25 @@ if isequal('a',type),
             fclose(fid);
         end
     else
-        for i=1:s2,
+        for i=1:s2
             name2 = fscanf(fid,'%s',1);
         end  
         fclose(fid);
-        [data2, label2] = read_data(name2,path,s(2),debug);
+        [data2, label2] = readData(name2,path,s(2),debug);
         data = [data2;data];
         label = {label{:} label2{:}};
         addData1(name,path,data,label,class,'a',thres,s2,preci);
     end
 else
-    if s(1) > thres,
+    if s(1) > thres
         addData1(name,path,data,label,class,'w',thres,1,preci);
     else
         fid=fopen(file,'w');
         str=sprintf('%d %d %d',0,s(1),class); 
         str = [str char(12*ones(1,10-length(str)))];
         fprintf(fid,'%s\n',str);  
-        for u=1:s(1),
-            a=num2str(data(u,:),preci_str);
+        for u=1:s(1)
+            a=num2str(data(u,:),precistr);
             i=find(~isspace(a));
             a=a(i);
             fprintf(fid,'%s: %s\n',label{u},a);
@@ -156,12 +156,12 @@ function addData1(name,path,data,label,class,type,thres,s2,preci)
 if nargin < 8, error('Error in the number of arguments.'); end;
 if nargin < 9, preci=8; end;
 
-preci_str = sprintf('%%.%df,',preci);
+precistr = sprintf('%%.%df,',preci);
 
 s=size(data);   
 nfich = ceil(s(1)/thres);
 file=[path name '.txt'];
-if isequal('a',type),
+if isequal('a',type)
     fid=fopen(file,'r+');
 else
     fid=fopen(file,'w');
@@ -172,7 +172,7 @@ fprintf(fid,'%s\n',str);
 fseek(fid,0,'eof');
 
 
-for i=s2:nfich+s2-1,
+for i=s2:nfich+s2-1
     if ~(i==s2 && isequal('a',type)), fprintf(fid,'%s_%d\n',name,i); end;
     file=[path name '_' num2str(i) '.txt'];
     fid2=fopen(file,'w');
@@ -180,8 +180,8 @@ for i=s2:nfich+s2-1,
     str=sprintf('%d %d %d',0,length(indu),class); 
     str = [str char(12*ones(1,10-length(str)))];
     fprintf(fid2,'%s\n',str);    
-    for u=indu,
-        a=num2str(data(u,:),preci_str);
+    for u=indu
+        a=num2str(data(u,:),precistr);
         i=find(~isspace(a));
         a=a(i);
         fprintf(fid2,'%s: %s\n',label{u},a);

@@ -1,9 +1,9 @@
-function [y_var,t_var] = varLpls(Lmodel,opt)
+function [yvar,tvar] = varLpls(Lmodel,opt)
 
 % Variability captured in terms of the number of LVs.
 %
 % varLpls(Lmodel) % minimum call
-% [y_var,t_var] = varLpls(Lmodel,opt) %complete call
+% [yvar,tvar] = varLpls(Lmodel,opt) %complete call
 %
 %
 % INPUTS:
@@ -23,9 +23,9 @@ function [y_var,t_var] = varLpls(Lmodel,opt)
 %
 % OUTPUTS:
 %
-% y_var: [Ax1] Percentage of captured variance of Y.
+% yvar: [Ax1] Percentage of captured variance of Y.
 %
-% t_var: [Ax1] Percentage of captured variance of the scores.
+% tvar: [Ax1] Percentage of captured variance of the scores.
 %
 %
 % EXAMPLE OF USE: Random data
@@ -34,14 +34,13 @@ function [y_var,t_var] = varLpls(Lmodel,opt)
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % Lmodel = iniLmodel(X,Y);
 % Lmodel.lvs = 0:10;
-% x_var = varLpls(Lmodel);
+% xvar = varLpls(Lmodel);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 26/May/17.
+% last modification: 20/Nov/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -88,16 +87,16 @@ R = Lmodel.altweights;
 Q = Lmodel.yloads;
 
 totalVt = sum(eig(Lmodel.XX));
-t_var = ones(maxlvs+1,1);
+tvar = ones(maxlvs+1,1);
 totalVy = sum(eig(Lmodel.YY));
-y_var = ones(maxlvs+1,1);
+yvar = ones(maxlvs+1,1);
 for i=1:maxlvs
-    t_var(i+1) = t_var(i+1) - sum(eig(R(:,1:i)'*Lmodel.XX*R(:,1:i)))/totalVt;
-    y_var(i+1) = y_var(i+1) - sum(eig(Q(:,1:i)*R(:,1:i)'*Lmodel.XX*R(:,1:i)*Q(:,1:i)'))/totalVy;
+    tvar(i+1) = tvar(i+1) - sum(eig(R(:,1:i)'*Lmodel.XX*R(:,1:i)))/totalVt;
+    yvar(i+1) = yvar(i+1) - sum(eig(Q(:,1:i)*R(:,1:i)'*Lmodel.XX*R(:,1:i)*Q(:,1:i)'))/totalVy;
 end
     
 %% Show results
 
-if opt == '1',
-    plotVec([y_var t_var],Lmodel.lvs,[],{'#PCs','% Residual Variance'},[],0,{'Y','Scores'});
+if opt == '1'
+    plotVec([yvar tvar],'EleLabel',[0 Lmodel.lvs],'XYLabel',{'#LVs','% Residual Variance'},'Option','01','VecLabel',{'Y','Scores'});
 end

@@ -1,12 +1,12 @@
 
-function [omeda_vec,lim] = omedaPls(x,y,lvs,test,dummy,varargin)
+function [omedaVec,lim] = omedaPls(x,y,lvs,test,dummy,varargin)
 
 % Observation-based Missing data methods for Exploratory Data Analysis 
 % (oMEDA) for PLS. The original paper is Journal of Chemometrics, 2011, 25 
 % (11): 592-600. This algorithm follows the direct computation for
 % Known Data Regression (KDR) missing data imputation.
 %
-% omeda_vec = omedaPls(x,y,lvs,test,dummy) % minimum call
+% omedaVec = omedaPls(x,y,lvs,test,dummy) % minimum call
 %
 %
 % INPUTS:
@@ -58,28 +58,28 @@ function [omeda_vec,lim] = omedaPls(x,y,lvs,test,dummy,varargin)
 %
 % OUTPUTS:
 %
-% omeda_vec: [Mx1] oMEDA vector.
+% omedaVec: [Mx1] oMEDA vector.
 %
 % lim: [Mx1] oMEDA limits.
 %
 %
 % EXAMPLE OF USE: Anomaly on first observation and first 2 variables.
 %
-% n_obs = 100;
-% n_vars = 10;
-% n_LVs = 10;
-% X = simuleMV(n_obs,n_vars,'LevelCorr',6);
-% Y = 0.1*randn(n_obs,2) + X(:,1:2);
+% nobs = 100;
+% nvars = 10;
+% nLVs = 10;
+% X = simuleMV(nobs,nvars,'LevelCorr',6);
+% Y = 0.1*randn(nobs,2) + X(:,1:2);
 % 
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',cov(X)*(n_obst-1));
+% nobst = 10;
+% test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',cov(X)*(nobst-1));
 % test(1,1:2) = 10*max(abs(X(:,1:2))); 
 % dummy = zeros(10,1);
 % dummy(1) = 1;
 % 
-% lvs = 1:n_LVs;
+% lvs = 1:nLVs;
 % 
-% omeda_vec = omedaPls(X,Y,lvs,test,dummy);
+% omedaVec = omedaPls(X,Y,lvs,test,dummy);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -175,19 +175,19 @@ R = model.altweights;
 P = model.loads;
 
 testcs = preprocess2Dapp(test,m,'Scale',sd);
-omeda_vec = omeda(testcs,dummy,R,'OutSubspace',P);
+omedaVec = omeda(testcs,dummy,R,'OutSubspace',P);
     
 % heuristic: 95% limit for one-observation-dummy
 xr = xcs*R*P';
-omeda_x = abs((2*xcs-xr).*(xr));
-lim = prctile(omeda_x,95)';
+omedax = abs((2*xcs-xr).*(xr));
+lim = prctile(omedax,95)';
 
 
 %% Show results
 
 if opt(1) == '1'
     
-    vec = omeda_vec;
+    vec = omedaVec;
  
     if opt(2) == '1'
         limp = lim;

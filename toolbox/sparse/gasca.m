@@ -1,4 +1,4 @@
-function gascao = gasca(paranovao_st,c)
+function gascao = gasca(paranovaost,c)
 
 % GASCA is a data analysis algorithm for designed experiments. It does a
 % group-wise principal component analysis on the level averages of each
@@ -8,12 +8,14 @@ function gascao = gasca(paranovao_st,c)
 % simultaneous component analysis for designed omics experiments.
 % Submitted to Metabolomics, 2018.
 %
-% gascao = gasca(paranovao_st,c)   % complete call
+% gascao = gasca(paranovaost,c)   % complete call
+%
+% See also: parglm, paranova, asca, apca, createDesign 
 %
 %
 % INPUTS:
 %
-% paranovao_st (structure): structure with the factor and interaction
+% paranovaost (structure): structure with the factor and interaction
 % matrices, p-values and explained variance. Obtained with parallel anova
 % and where the field 'states' contains cells with the groups of variables 
 % per factor and interaction.
@@ -34,7 +36,7 @@ function gascao = gasca(paranovao_st,c)
 % int1 = 10:15;
 % int2 = 30:37;
 % 
-% F = create_design(levels,'Replicates',reps);
+% F = createDesign(levels,'Replicates',reps);
 % 
 % X = 0.1*randn(size(F,1),vars);
 % for i = 1:length(levels{1}),
@@ -44,16 +46,16 @@ function gascao = gasca(paranovao_st,c)
 %   X(find(F(:,2) == levels{2}(i)),int2) = X(find(F(:,2) == levels{2}(i)),int2) + simuleMV(reps*length(levels{1}),length(int2),'LevelCorr',8) + repmat(randn(1,length(int2)),reps*length(levels{1}),1);
 % end
 % 
-% [table, paranovao_st] = parglm(X, F);
+% [table, paranovaost] = parglm(X, F);
 % 
-% for i=1:length(paranovao_st.factors)
-%   map = corr(paranovao_st.factors{i}.matrix);
+% for i=1:length(paranovaost.factors)
+%   map = corr(paranovaost.factors{i}.matrix);
 %   plotMap(map);
 %   c = input('Introduce threshold for correlation in interval (0,1): ');
-%   [bel,paranovao_st.factors{i}.states] = gia(map,'Gamma',c);
+%   [bel,paranovaost.factors{i}.states] = gia(map,'Gamma',c);
 % end
 % 
-% gascao = gasca(paranovao_st,c);
+% gascao = gasca(paranovaost,c);
 % 
 % for i=1:2,
 %   scores(gascao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',gascao.design(:,i));
@@ -68,7 +70,7 @@ function gascao = gasca(paranovao_st,c)
 % int1 = 10:15;
 % int2 = 30:37;
 % 
-% F = create_design(levels,'Replicates',reps);
+% F = createDesign(levels,'Replicates',reps);
 % 
 % X = 0.1*randn(size(F,1),vars);
 % for i = 1:length(levels{1}),
@@ -78,23 +80,21 @@ function gascao = gasca(paranovao_st,c)
 %   X(find(F(:,2) == levels{2}(i)),int2) = X(find(F(:,2) == levels{2}(i)),int2) + simuleMV(reps*length(levels{1}),length(int2),'LevelCorr',8) + repmat(randn(1,length(int2)),reps*length(levels{1}),1);
 % end
 % 
-% [table, paranovao_st] = parglm(X, F);
+% [table, paranovaost] = parglm(X, F);
 % 
-% for i=1:length(paranovao_st.factors),
-%   map = meda_pca(paranovao_st.factors{i}.matrix+paranovao_st.residuals,'Preprocessing',0,'Threshold',0.3,'Option','100');
+% for i=1:length(paranovaost.factors),
+%   map = medaPca(paranovaost.factors{i}.matrix+paranovaost.residuals,'Preprocessing',0,'Threshold',0.3,'Option','100');
 %   c = input('Introduce threshold for correlation in interval (0,1): ');
-%   [bel,paranovao_st.factors{i}.states] = gia(map,'Gamma',c);
+%   [bel,paranovaost.factors{i}.states] = gia(map,'Gamma',c);
 % end
 % 
-% gascao = gasca(paranovao_st,c);
+% gascao = gasca(paranovaost,c);
 % 
 % for i=1:2,
 %   scores(gascao.factors{i},'Title',sprintf('Factor %d',i),'ObsClass',gascao.design(:,i));
 %   loadings(gascao.factors{i},'Title',sprintf('Factor %d',i));
 % end
 %
-%
-% Related routines: parglm, paranova, asca, apca, create_design 
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 22/Apr/24
@@ -123,15 +123,15 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 
 %% Main code
 
-gascao = paranovao_st;
+gascao = paranovaost;
 
 %Do GPCA on level averages for each factor
-for factor = 1 : gascao.n_factors
+for factor = 1 : gascao.nFactors
     
     xf = gascao.factors{factor}.matrix;
-    map = meda_pca(xf,'Preprocessing',0,'Threshold',0.3,'Option','000');
+    map = medaPca(xf,'Preprocessing',0,'Threshold',0.3,'Option','000');
     
-    gascao.factors{factor}.states = transform_crit(map,c(factor));
+    gascao.factors{factor}.states = transformCrit(map,c(factor));
     
     p = gpca(xf,gascao.factors{factor}.states,1:rank(xf));
     
@@ -143,11 +143,11 @@ for factor = 1 : gascao.n_factors
 end
 
 %Do GPCA on interactions
-for interaction = 1 : gascao.n_interactions
+for interaction = 1 : gascao.nInteractions
     
     xf = gascao.interactions{interaction}.matrix;
-    map = meda_pca(xf,'Preprocessing',0,'Threshold',0.3,'Option','000');
-    gascao.interactions{interaction}.states = transform_crit(map,c(length(gascao.factors)+interaction));
+    map = medaPca(xf,'Preprocessing',0,'Threshold',0.3,'Option','000');
+    gascao.interactions{interaction}.states = transformCrit(map,c(length(gascao.factors)+interaction));
     
     p = gpca(xf,gascao.interactions{interaction}.states,1:rank(xf));
     
@@ -164,7 +164,7 @@ end
 
 %% Auxiliary
 
-function states = transform_crit(map,c)
+function states = transformCrit(map,c)
 
 lim = 1e-5;
 

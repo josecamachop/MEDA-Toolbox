@@ -48,8 +48,10 @@ function [P,W,Q,figH] = loadingsLpls(Lmodel,opt)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
 % Lmodel = iniLmodel(X,Y);
-% loadingsPls(X,Y,1);
-% [P,W,Q] = loadingsPls(X,Y,1:3);
+% Lmodel.lvs = 1;
+% loadingsLpls(Lmodel);
+% Lmodel.lvs = 1:2;
+% loadingsLpls(Lmodel);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -97,7 +99,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must cont
 Lmodel = Lpls(Lmodel);
 W = Lmodel.weights;
 Q = Lmodel.yloads;
-P = Lomdel.loads;
+P = Lmodel.loads;
 
 
 %% Show results
@@ -117,13 +119,13 @@ if opt(1) == '1'
      
     if length(Lmodel.lvs) == 1 || opt(2) == '1'
         for i=1:length(Lmodel.lvs)
-            figH(i) = plotVec(Pt(:,i), Lmodel.varl, Lmodel.vclass, {'',sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i)),100*(tvar(i) - tvar(i+1))});
+            figH(i) = plotVec(Pt(:,i),'EleLabel',Lmodel.varl,'ObsClass',Lmodel.vclass,'XYLabel',{'',sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i),100*(tvar(i) - tvar(i+1)))});
         end
     else
         h = 1;
         for i=1:length(Lmodel.lvs)-1
             for j=i+1:length(Lmodel.lvs)
-                figH(h) = plotScatter([Pt(:,i),Pt(:,j)], Lmodel.varl, Lmodel.vclass, {sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i),100*(tvar(i) - tvar(i+1))),sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))}');
+                figH(h) = plotScatter([Pt(:,i),Pt(:,j)],'EleLabel',Lmodel.varl,'ObsClass',Lmodel.vclass,'XYLabel',{sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(i),100*(tvar(i) - tvar(i+1))),sprintf('%s LV %d (%.0f%%)',text,Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))}');
                 h = h+1;
             end      
         end

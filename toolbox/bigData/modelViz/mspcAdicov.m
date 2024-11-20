@@ -104,7 +104,7 @@ assert (index==0 || index==1, 'Value Error: 3rd argument must be 0 or 1. Type ''
 
 %% Main code
     
-if Lmodel.N,        
+if Lmodel.N        
     Lm = Lmodel;
     Lm.lvs = 1:size(Lm.XX,1); 
     if max(Lm.lvs) > 0
@@ -142,12 +142,12 @@ if Lmodel.N,
             ri = tests;
         end
             
-        if isempty(R(:,Lmodel.lvs)),
+        if isempty(R(:,Lmodel.lvs))
             iti = 0;
         else
             iti = ADindex(tests,ti,R(:,Lmodel.lvs)*diag(1./d(Lmodel.lvs)),index);
         end
-        if isempty(R(:,res)),
+        if isempty(R(:,res))
             iri = 0;
         else
             iri = ADindex(tests,ri,R(:,res),index);

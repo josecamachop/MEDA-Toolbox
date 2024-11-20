@@ -50,7 +50,7 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 % Y = sum((X(:,1:5)),2);
 % Y = 0.1*randn(obs,1)*std(Y) + Y;
 % lvs = 1;
-% map = meda_pls(X,Y,'LVs',lvs,'option',0);
+% map = medaPls(X,Y,'LVs',lvs,'option',0);
 % 
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % Ycs = preprocess2D(Y,'preprocessing',2);
@@ -113,7 +113,7 @@ assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1
 
 % Validate values of input data
 assert (iscell(states), 'Value Error: parameter ''states'' must be a cell of positive integers. Type ''help %s'' for more info.', routine.name);
-for i=1:length(states),
+for i=1:length(states)
     assert (isempty(find(states{i}<1)) && isequal(fix(states{i}), states{i}), 'Value Error: 3rd argument must be a cell of positive integers. Type ''help %s'' for more info.', routine.name);
     assert (isempty(find(states{i}>M)), 'Value Error: parameter ''states'' must contain values not higher than M. Type ''help %s'' for more info.', routine.name);
 end
@@ -136,7 +136,7 @@ bel = zeros(1,max(lvs));
 R = zeros(M,max(lvs));
 ind = 1;
     
-for j = 1:max(lvs),  
+for j = 1:max(lvs)  
 
     Rt = zeros(M,length(states));
     Tt = zeros(N,length(states));
@@ -144,18 +144,18 @@ for j = 1:max(lvs),
     Pt = zeros(M,length(states));
     Qt = zeros(O,length(states));
 
-    for i=1:length(states), % construct eigenvectors according to states
-        mapy_aux = zeros(size(mapy));
-        mapy_aux(states{i},:)= mapy(states{i},:);
-        if find(mapy_aux>tol),
+    for i=1:length(states) % construct eigenvectors according to states
+        mapyaux = zeros(size(mapy));
+        mapyaux(states{i},:)= mapy(states{i},:);
+        if find(mapyaux>tol)
             Wi = zeros(M,1);
-            if O == 1,
-                Wi = mapy_aux;
+            if O == 1
+                Wi = mapyaux;
             else
-                [C,D] = eig(mapy_aux'*mapy_aux);
+                [C,D] = eig(mapyaux'*mapyaux);
                 dd = diag(D);
                 if find(dd)
-                    Wi = (mapy_aux*C(:,find(dd==max(dd))));
+                    Wi = (mapyaux*C(:,find(dd==max(dd))));
                 end
             end
 
@@ -166,7 +166,7 @@ for j = 1:max(lvs),
     end
 
     sS = sum((preprocess2D(Tt,'Preprocessing',2)'*ycs).^2,2); % select pseudo-eigenvector with the highest covariance
-    if max(sS),
+    if max(sS)
         ind = find(sS==max(sS),1);
     else
         break;

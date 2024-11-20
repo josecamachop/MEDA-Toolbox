@@ -151,9 +151,9 @@ end
            
 if opt(1) == '1'
     if opt(2) == '1'
-        plotVec(yvar,'EleLabel',lvs,'XYLabel',{'#PCs','% Residual Variance in Y'},'Option','01');
+        plotVec(yvar,'EleLabel',lvs,'XYLabel',{'#LVs','% Residual Variance in Y'},'Option','01');
     else
-        plotVec([yvar tvar],'EleLabel',lvs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01','VecLabel',{'Y','Scores'});
+        plotVec([yvar tvar],'EleLabel',lvs,'XYLabel',{'#LVs','% Residual Variance'},'Option','01','VecLabel',{'Y','Scores'});
         legend('show');
     end
 end

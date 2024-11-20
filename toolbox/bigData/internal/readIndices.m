@@ -2,8 +2,7 @@ function [data,y,lev,s]=readIndices(name,path,debug)
 
 % Read the data from a file in the clustering file system.  
 %
-% [data,class,lev,s,indp]=read_data(name,path,nvars) % minimum call
-% [data,class,lev,s,indp]=read_data(name,path,nvars,indp,debug) % complete call
+% [data,class,lev,s]=readIndices(name,path,debug) % complete call
 %
 %
 % INPUTS:

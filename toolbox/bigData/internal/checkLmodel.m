@@ -45,9 +45,9 @@ function [ok,Lmodel] = checkLmodel(Lmodel)
 %
 % Lmodel.updated: [ncx1] specifies whether a data point is new.
 %
-% Lmodel.obs_l: {ncx1} label of each cluster.
+% Lmodel.obsl: {ncx1} label of each cluster.
 %
-% Lmodel.var_l: {Mx1} label of each variable.
+% Lmodel.varl: {Mx1} label of each variable.
 %
 % Lmodel.mat: [MxA] projection matrix for distance computation.
 %
@@ -67,7 +67,7 @@ function [ok,Lmodel] = checkLmodel(Lmodel)
 %
 % Lmodel.YY: [LxL] sample cross-product matrix of Y.
 %
-% Lmodel.index_fich: {ncx1} file system with the original observations in
+% Lmodel.indexFich: {ncx1} file system with the original observations in
 %   each cluster for ITERATIVE models.
 %
 % Lmodel.path: (str) path to the file system for ITERATIVE models.
@@ -110,18 +110,18 @@ if Lmodel.nc>0
     if ~isfield(Lmodel,'multr') || isempty(Lmodel.multr), Lmodel.multr = ones(size(Lmodel.centr,1),1); end
     if ~isfield(Lmodel,'class') || isempty(Lmodel.class), Lmodel.class = ones(size(Lmodel.centr,1),1); end
     if ~isfield(Lmodel,'updated') || isempty(Lmodel.updated), Lmodel.updated = ones(size(Lmodel.centr,1),1); end
-    if ~isfield(Lmodel,'obs_l') || isempty(Lmodel.obs_l) 
+    if ~isfield(Lmodel,'obsl') || isempty(Lmodel.obsl) 
         if size(Lmodel.centr,1)>1
-            Lmodel.obs_l = cellstr(num2str((1:size(Lmodel.centr,1))')); 
+            Lmodel.obsl = cellstr(num2str((1:size(Lmodel.centr,1))')); 
         else
-            Lmodel.obs_l = {};
+            Lmodel.obsl = {};
         end
     end
 else
     if ~isfield(Lmodel,'multr'), Lmodel.multr = []; end
     if ~isfield(Lmodel,'class'), Lmodel.class = []; end
     if ~isfield(Lmodel,'updated'), Lmodel.updated = []; end
-    if ~isfield(Lmodel,'obs_l'), Lmodel.obs_l = {}; end
+    if ~isfield(Lmodel,'obsl'), Lmodel.obsl = {}; end
 end
 if ~isfield(Lmodel,'XX') || isempty(Lmodel.XX)
     if isempty(Lmodel.centr)
@@ -136,13 +136,13 @@ if M>0
     if ~isfield(Lmodel,'sc') || isempty(Lmodel.sc), Lmodel.sc = ones(1,M); end
     if ~isfield(Lmodel,'vclass') || isempty(Lmodel.vclass), Lmodel.vclass = ones(1,M); end
     if ~isfield(Lmodel,'weight') || isempty(Lmodel.weight), Lmodel.weight = ones(1,M); end
-    if ~isfield(Lmodel,'var_l') || isempty(Lmodel.var_l), Lmodel.var_l = cellstr(num2str((1:M)')); end
+    if ~isfield(Lmodel,'varl') || isempty(Lmodel.varl), Lmodel.varl = cellstr(num2str((1:M)')); end
 else
     if ~isfield(Lmodel,'av'), Lmodel.av = []; end
     if ~isfield(Lmodel,'sc'), Lmodel.sc = []; end
     if ~isfield(Lmodel,'vclass'), Lmodel.vclass = []; end
     if ~isfield(Lmodel,'weight'), Lmodel.weight = []; end
-    if ~isfield(Lmodel,'var_l'), Lmodel.var_l = {}; end
+    if ~isfield(Lmodel,'varl'), Lmodel.varl = {}; end
 end
 if ~isfield(Lmodel,'YY') || isempty(Lmodel.YY) 
     if isempty(Lmodel.centrY) 
@@ -179,7 +179,7 @@ assert (isequal(size(Lmodel.XX), [M M]), 'Dimension Error: Lmodel.XX must be M-b
 assert (isequal(size(Lmodel.lvs), [1 A]) | isequal(size(Lmodel.lvs), [0 1]), 'Dimension Error: Lmodel.lvs must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
-assert (isempty(find(~strcmp(Lmodel.type,'PCA') & strcmp(Lmodel.type,'PLS') & ~strcmp(Lmodel.type,'ASCA'))), 'Value Error: Lmodel.type must contain 1, 2 or 3. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(~strcmp(Lmodel.type,'PCA') & ~strcmp(Lmodel.type,'PLS') & ~strcmp(Lmodel.type,'ASCA'))), 'Value Error: Lmodel.type must contain ''PCA'', ''PLS'' or ''ASCA''. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(Lmodel.update~=1 & Lmodel.update~=2)), 'Value Error: Lmodel.update must contain 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(Lmodel.lvs<0)), 'Value Error: Lmodel.lvs must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(Lmodel.lvs), Lmodel.lvs), 'Value Error: Lmodel.lvs must contain integers. Type ''help %s'' for more info.', routine(1).name);

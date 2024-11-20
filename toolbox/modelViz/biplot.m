@@ -1,9 +1,9 @@
 
-function fig_h = biplot(model,varargin)
+function figH = biplot(model,varargin)
 
 % Compute and plot scores and loadings of a model.
 %
-% fig_h = biplot(model) % minimum call
+% figH = biplot(model) % minimum call
 %
 %
 % INPUTS:
@@ -40,7 +40,7 @@ function fig_h = biplot(model,varargin)
 %
 % OUTPUTS:
 %
-% fig_h: set of figure handles
+% figH: set of figure handles
 %
 %
 % EXAMPLE OF USE: Random scores and loadings, two percentages of loading 
@@ -52,7 +52,7 @@ function fig_h = biplot(model,varargin)
 % A = cell(1, 20);
 % 
 % for i = 1:20
-%     A{i} = ['A_{', num2str(i), '}'];
+%     A{i} = ['A{', num2str(i), '}'];
 % end
 % 
 % A = A';
@@ -149,11 +149,11 @@ end
 
 %% Show results
 
-fig_h = [];
+figH = [];
 for i=1:length(model.lvs)-1
     for j=i+1:length(model.lvs)
         
-        fig_h = [fig_h plotScatter([T(:,i),T(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}','Option',opt,'BlurIndex',blur(1))];
+        figH = [figH plotScatter([T(:,i),T(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}','Option',opt,'BlurIndex',blur(1))];
         title(tit);
         
         if opt 
@@ -179,7 +179,7 @@ for i=1:length(model.lvs)-1
             plot([0 P2(ind(ii),i)],[0 P2(ind(ii),j)],'k-^');
         end
         
-        text_scatter(fig_h(end),[P2(ind,i),P2(ind,j)],'EleLabel',vlabel(ind),'BlurIndex',blur(2));
+        textScatter(figH(end),[P2(ind,i),P2(ind,j)],'EleLabel',vlabel(ind),'BlurIndex',blur(2));
         
         axis auto
         ax = axis;

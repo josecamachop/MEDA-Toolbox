@@ -316,7 +316,7 @@ end
 axes_h = axes_h(i); 
 
 % Set ticks and labels
-if ~isempty(elabel) & ~isnumeric(elabel),
+if ~isempty(elabel) & ~isnumeric(elabel)
     label_length = max(cellfun('length', elabel));
     label_size = 300/(length(find(~cellfun('isempty', elabel)))*label_length);
     set(axes_h, 'FontSize', max(min(14,round(label_size)), 10));

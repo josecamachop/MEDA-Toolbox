@@ -1,11 +1,11 @@
 
-function [AngD, VarA] =  sparseart(X,sparseLoadings)
+function [AngD, VarA] =  sparseArt(X,sparseLoadings)
 
 % Function to calculate the AngD and VarH statistics. The original paper is
 % Camacho, Smilde, Saccenti, Westerhuis and Bro. All Sparse PCA Models Are 
 % Wrong, But Some Are Useful. Part II: Limitations and Problems of Deflation 
 %
-% [AngD, VarA] = sparseart(X,sparseLoadings) % complete call
+% [AngD, VarA] = sparseArt(X,sparseLoadings) % complete call
 %
 %
 % INPUTS:
@@ -52,7 +52,7 @@ function [AngD, VarA] =  sparseart(X,sparseLoadings)
 % 
 % [p,t,bel] = gpca(X,groups,'PCs',1:2);
 % 
-% [AngD, VarA] = sparseart(X,p)
+% [AngD, VarA] = sparseArt(X,p)
 % 
 % f = figure; subplot(2,1,1), hold on, plot(t,'o-'), 
 % title('GPCA','FontSize',20), subplot(2,1,2), hold on, bar(p),axis tight 
@@ -84,7 +84,7 @@ function [AngD, VarA] =  sparseart(X,sparseLoadings)
 % 
 % [p,t,bel] = gpca(X,groups,'PCs',1:3);
 % 
-% [AngD, VarA] = sparseart(X,p)
+% [AngD, VarA] = sparseArt(X,p)
 % 
 % f = figure; subplot(2,1,1), hold on, plot(t,'o-'), 
 % title('GPCA','FontSize',20), subplot(2,1,2), hold on, bar(p),axis tight 

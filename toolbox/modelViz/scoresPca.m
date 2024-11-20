@@ -74,7 +74,7 @@ function [T,TT] = scoresPca(x,varargin)
 % X = simuleMV(nObs,nVars,'LevelCorr',8);
 % 
 % nObst = 10;
-% test = simuleMV(nObst,nVars,'LevelCorr',6,'Covar',corr(X)*(nObst-1)/(nObs-1));
+% test = simuleMV(nObst,nVars,'LevelCorr',8,'Covar',corr(X)*(nObst-1)/(nObs-1));
 % 
 % scoresPca(X,'PCs',1,'ObsTest',test);
 % scoresPca(X,'PCs',1:2,'ObsTest',test);
@@ -82,9 +82,9 @@ function [T,TT] = scoresPca(x,varargin)
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 23/Apr/2024
+% last modification: 18/Nov/2024
 %
-% Copyright (C) 2024 University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -210,12 +210,12 @@ if opt(1) == '1'
     
     if length(pcs) == 1 || opt(2) == '1'
         for i=1:length(pcs)
-            plotVec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+            plotVec(Tt(:,i), 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {'',sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
         end
     else
         for i=1:length(pcs)-1
             for j=i+1:length(pcs)
-                plotScatter([Tt(:,i),Tt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','Option',opt(4),'BlurIndex',blur);
+                plotScatter([Tt(:,i),Tt(:,j)], 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))), sprintf('Scores PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}', 'Option', opt(4), 'BlurIndex', blur);
             end      
         end
     end

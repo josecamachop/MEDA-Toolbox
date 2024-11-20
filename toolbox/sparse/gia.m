@@ -42,7 +42,7 @@ function [bel,states,stree] = gia(map,varargin)
 %
 % X = simuleMV(20,10,'LevelCorr',8);
 % pcs = 1:3;
-% map = meda_pca(X,'PCs',pcs);
+% map = medaPca(X,'PCs',pcs);
 % [bel,states] = gia(map,'Gamma',0.3);
 %
 %
@@ -50,7 +50,7 @@ function [bel,states,stree] = gia(map,varargin)
 %
 % X = simuleMV(20,100,'LevelCorr',8);
 % pcs = 1:3;
-% map = meda_pca(X,'PCs',pcs);
+% map = medaPca(X,'PCs',pcs);
 % C = [0.05:0.05:0.95];
 % 
 % [belv{1},statesv{1},stree] = gia(map,'Gamma',C(1));
@@ -147,26 +147,26 @@ if isempty(stree)
     
     map = abs(map);
     map = map(indm,indm);
-    map_v = map - tril(map) + diag(diag(map)); % triangular inferior part is set to zero
-    map_v = map_v(:);
+    mapv = map - tril(map) + diag(diag(map)); % triangular inferior part is set to zero
+    mapv = mapv(:);
 
     columns = ones(M,1)*(1:M);
     rows = columns';
-    columns_v = columns(:);
-    rows_v = rows(:);
+    columnsv = columns(:);
+    rowsv = rows(:);
 
     states = {};
     bel = cell(M,1);
     
-    ind = find(map_v==max(map_v),1);
+    ind = find(mapv==max(mapv),1);
     tree = {};
     index = [];
-    while map_v(ind)>=gamma
+    while mapv(ind)>=gamma
         
-        val = map_v(ind);
+        val = mapv(ind);
         
-        r = rows_v(ind); % r is always minor than c
-        c = columns_v(ind);
+        r = rowsv(ind); % r is always minor than c
+        c = columnsv(ind);
         
         if c==r
             if isempty(bel{r})
@@ -174,22 +174,22 @@ if isempty(stree)
                 bel{r} = [bel{r} length(states)];
             end
         else
-            bel_r = setdiff(bel{r},bel{c});
+            belr = setdiff(bel{r},bel{c});
             
             mod = [];
             
-            for i=1:length(bel_r) % Should c be added to an state of r?
-                state_rec = states{bel_r(i)};
+            for i=1:length(belr) % Should c be added to an state of r?
+                staterec = states{belr(i)};
                 
                 j = 1;
-                while j<=length(state_rec) && map(state_rec(j),c)> val-1e-10
+                while j<=length(staterec) && map(staterec(j),c)> val-1e-10
                     j = j+1;
                 end
                 
-                if j > length(state_rec),
-                    states{bel_r(i)} = [state_rec c];
-                    bel{c} = [bel{c} bel_r(i)];
-                    mod(end+1) = bel_r(i);
+                if j > length(staterec),
+                    states{belr(i)} = [staterec c];
+                    bel{c} = [bel{c} belr(i)];
+                    mod(end+1) = belr(i);
                 end             
             end
                      
@@ -219,20 +219,20 @@ if isempty(stree)
                 end
             end
             
-            bel_c = setdiff(bel{c},bel{r});
+            belc = setdiff(bel{c},bel{r});
             
-            for i=1:length(bel_c) % Should r be added to an state of c?
-                state_rec = states{bel_c(i)};
+            for i=1:length(belc) % Should r be added to an state of c?
+                staterec = states{belc(i)};
                 
                 j = 1;
-                while j<=length(state_rec) && map(state_rec(j),r)> val-1e-10,
+                while j<=length(staterec) && map(staterec(j),r)> val-1e-10,
                     j = j+1;
                 end
                 
-                if j > length(state_rec)
-                    states{bel_c(i)} = [state_rec r];
-                    bel{r} = [bel{r} bel_c(i)];
-                    mod(end+1) = bel_c(i);
+                if j > length(staterec)
+                    states{belc(i)} = [staterec r];
+                    bel{r} = [bel{r} belc(i)];
+                    mod(end+1) = belc(i);
                     
                 end
             end
@@ -248,8 +248,8 @@ if isempty(stree)
         
         
         
-        map_v(ind) = 0;
-        ind = find(map_v==max(map_v),1); 
+        mapv(ind) = 0;
+        ind = find(mapv==max(mapv),1); 
         
         index(end+1) = val;
         tree{end+1} = {states bel};

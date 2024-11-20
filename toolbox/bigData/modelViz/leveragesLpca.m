@@ -78,5 +78,5 @@ L = diag(P*P');
 %% Show results
 
 if opt == '1' 
-    plotVec(L, Lmodel.varl, Lmodel.vclass, {'Variables','Leverages'});
+    plotVec(L,'EleLabel',Lmodel.varl,'ObsClass',Lmodel.vclass,'XYLabel',{'Variables','Leverages'});
 end

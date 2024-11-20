@@ -76,14 +76,14 @@ function [T,TT] = scoresPls(x,y,varargin)
 %
 % EXAMPLE OF USE: Calibration and Test, both line and scatter plots
 %
-% n_obs = 100;
-% n_vars = 10;
-% n_PCs = 10;
-% X = simuleMV(n_obs,n_vars,'LevelCorr',8);
-% Y = 0.1*randn(n_obs,2) + X(:,1:2);
+% nobs = 100;
+% nvars = 10;
+% nPCs = 10;
+% X = simuleMV(nobs,nvars,'LevelCorr',8);
+% Y = 0.1*randn(nobs,2) + X(:,1:2);
 % 
-% n_obst = 10;
-% test = simuleMV(n_obst,n_vars,'LevelCorr',6,'Covar',corr(X)*(n_obst-1)/(n_obs-1));
+% nobst = 10;
+% test = simuleMV(nobst,nvars,'LevelCorr',8,'Covar',corr(X)*(nobst-1)/(nobs-1));
 % 
 % scoresPls(X,Y,'LVs',1,'ObsTest',test);
 % scoresPls(X,Y,'LVs',1:2,'ObsTest',test);
