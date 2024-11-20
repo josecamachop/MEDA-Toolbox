@@ -1,4 +1,4 @@
-function fig_h = plotVec(vec,varargin)
+function figH = plotVec(vec,varargin)
 
 % Bar or line plot.
 %
@@ -41,28 +41,28 @@ function fig_h = plotVec(vec,varargin)
 %
 % 'Markers': [1x3] thresholds for the different marker size (20, 50 and 100 by default)
 %
-% 'Color': Choose a color for your data. By default will use Okabe_ito. 
+% 'Color': Choose a color for your data. By default will use OkabeIto. 
 %   'parula' for parula palette, 'hsv' for hsv palette.
 %
 %
 % OUTPUTS:
 %
-% fig_h: (1x1) figure handle.
+% figH: (1x1) figure handle.
 %
 %
 % EXAMPLE OF USE: To plot three lines with constant control limits:
 %
-% fig_h = plotVec(randn(100,3),'XYLabel',{'Functions','Time'},'LimCont',[1, -1, 3],'Color','parula');
+% figH = plotVec(randn(100,3),'XYLabel',{'Functions','Time'},'LimCont',[1, -1, 3],'Color','parula');
 %
 %
 % EXAMPLE OF USE: with labels and classes in observations and variable limit:
 %
-% fig_h = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Option','11');
+% figH = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Option','11');
 %
 %
 % EXAMPLE OF USE: with labels, multiplicity and classes in observations and variable limit:
 %
-% fig_h = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Option',11,'Multiplicity',100*rand(5,1),'Markers',[20 50 100]);
+% figH = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Option',11,'Multiplicity',100*rand(5,1),'Markers',[20 50 100]);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -161,14 +161,14 @@ if ~isempty(lcont) && ~isequal(size(lcont,1), N), lcont = (lcont*ones(1,N))'; en
     
 % Exception: bar plot with multivariate vec and one-observation class  
 if ~opt(1) && ~isempty(classes) && size(vec, 2)>1
-    unique_classes = unique(classes);
+    uniqueClasses = unique(classes);
     assert (min(hist(classes,unique(classes)))>1, 'Exception: Cannot visualize a multivariate bar plot with one-observation classes. Try setting the 6th argument to 1.'); 
 end;
 
 %% Main code
 
 % Create figure window
-fig_h = figure;
+figH = figure;
 hold on;
 
 % Sort data for colorbar
@@ -183,13 +183,13 @@ if opt(2)=='0'
 end
 
 % Get ordering of classes
-unique_classes = unique(classes,'stable');
+uniqueClasses = unique(classes,'stable');
 if iscell(classes)
-    ord_classes = arrayfun(@(x) find(strcmp(unique_classes, x), 1), classes);
+    ordClasses = arrayfun(@(x) find(strcmp(uniqueClasses, x), 1), classes);
 else
-    ord_classes = arrayfun(@(x) find(unique_classes == x, 1), classes);
+    ordClasses = arrayfun(@(x) find(uniqueClasses == x, 1), classes);
 end
-unique_ord_classes = unique(ord_classes);
+uniqueOrdClasses = unique(ordClasses);
 
 % Plot vectors
 
@@ -213,7 +213,7 @@ end
 if ~isempty(classes)
 
 %Choosing the color
-okabe_ito = [0.1,0.1,0.1;
+okabeIto = [0.1,0.1,0.1;
             0.902,0.624,0;
             0.337,0.706,0.914;
             0,0.620,0.451;
@@ -238,32 +238,44 @@ okabe_ito = [0.1,0.1,0.1;
             0.835,0.369,0;
             0.8,0.475,0.655];
 
+nElems = length(uniqueOrdClasses);
+
+if nElems > size(okabeIto,1) %if there are a lot of input colors, repmat to extend the palette.
+    okabeIto = repmat(okabeIto, ceil(nElems/size(okabeIto, 1)), 1);
+end
+
 if(isempty(color))
     if opt(2) == '1'
-        if length(unique_ord_classes) <= 24
-            color_list = okabe_ito;
+        if length(uniqueOrdClasses) <= 24
+            colorList = okabeIto;
+            colormap(okabeIto)
         else
-            color_list = hsv(length(unique_ord_classes));
+            colorList = hsv(length(uniqueOrdClasses));
+            colormap('hsv')
         end
     elseif opt(2) == '0'
-        color_list = parula(length(unique_ord_classes));
+        colorList = parula(length(uniqueOrdClasses));
+        colormap('parula')
     end
 
 elseif strcmp(color, 'okabe')
-    color_list = okabe_ito;
+    colorList = okabeIto;
+    colormap(okabeIto)
 
 elseif strcmp(color, 'parula')
-    color_list = parula(length(unique_ord_classes));
+    colorList = parula(length(uniqueOrdClasses));
+    colormap('parula')
 
 else%if strcmp(color, 'hsv')
-     color_list = hsv(length(unique_ord_classes));
+    colorList = hsv(length(uniqueOrdClasses));
+    colormap('hsv')
 end
 
-% colors = color_list(ord_classes, :);
+% colors = colorList(ordClasses, :);
 
 
-    for i=1:length(unique_ord_classes)
-        ind = ord_classes == unique_ord_classes(i);
+    for i=1:length(uniqueOrdClasses)
+        ind = ordClasses == uniqueOrdClasses(i);
         if isnumeric(elabel) && length(elabel)==length(unique(elabel))
             vind = elabel(find(ind));
         else
@@ -271,25 +283,25 @@ end
         end
             
         if opt(1) == '0'
-           plot(vind, vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', color_list(i,:), 'DisplayName', unique_classes{i});
+           plot(vind, vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', colorList(i,:), 'DisplayName', uniqueClasses{i});
         else 
-           bar(vind, vec(ind,:), 0.8, 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', unique_classes{i});
+           bar(vind, vec(ind,:), 0.8, 'FaceColor', colorList(i,:), 'EdgeColor', 'none', 'DisplayName', uniqueClasses{i});
         end
     end 
 else
-    color_list = hsv(M);
+    colorList = hsv(M);
     for i=1:M
         if opt(1) == '0'
             if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                plot(elabel, vec(:,i), 'LineWidth', 2, 'Color', color_list(i,:), 'DisplayName', vlabel{i});
+                plot(elabel, vec(:,i), 'LineWidth', 2, 'Color', colorList(i,:), 'DisplayName', vlabel{i});
             else
-                plot(vec(:,i), 'LineWidth', 2, 'Color', color_list(i,:), 'DisplayName', vlabel{i});
+                plot(vec(:,i), 'LineWidth', 2, 'Color', colorList(i,:), 'DisplayName', vlabel{i});
             end
         else
             if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                bar(elabel, vec(:,i), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
+                bar(elabel, vec(:,i), 'FaceColor', colorList(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
             else
-                bar(vec(:,i), 'FaceColor', color_list(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
+                bar(vec(:,i), 'FaceColor', colorList(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
             end
         end
     end    
@@ -306,28 +318,28 @@ if ~isempty(lcont)
 end    
 
 % Get axes handler
-axes_h = get(fig_h,'Children');
-for i=1:length(axes_h)
-    if strcmp(get(axes_h(i), 'type'), 'axes')
-        set(axes_h(i), 'FontSize', 14);
+axesH = get(figH,'Children');
+for i=1:length(axesH)
+    if strcmp(get(axesH(i), 'type'), 'axes')
+        set(axesH(i), 'FontSize', 14);
         val=i;
     end
 end
-axes_h = axes_h(i); 
+axesH = axesH(i); 
 
 % Set ticks and labels
 if ~isempty(elabel) & ~isnumeric(elabel)
-    label_length = max(cellfun('length', elabel));
-    label_size = 300/(length(find(~cellfun('isempty', elabel)))*label_length);
-    set(axes_h, 'FontSize', max(min(14,round(label_size)), 10));
-    stepN = ceil(0.2*N/label_size);
+    labelLength = max(cellfun('length', elabel));
+    labelSize = 300/(length(find(~cellfun('isempty', elabel)))*labelLength);
+    set(axesH, 'FontSize', max(min(14,round(labelSize)), 10));
+    stepN = ceil(0.2*N/labelSize);
     if stepN==1,
         vals = 1:N;
-        set(axes_h,'XTick',vals);
-        set(axes_h,'XTickLabel',elabel(vals));
+        set(axesH,'XTick',vals);
+        set(axesH,'XTickLabel',elabel(vals));
     else
-        set(axes_h,'XTickMode','auto');
-        set(axes_h, 'FontSize', 14);
+        set(axesH,'XTickMode','auto');
+        set(axesH, 'FontSize', 14);
     end
 end
 
@@ -342,6 +354,11 @@ ax = axis;
 axis auto;
 ax2 = axis;
 axis([ax(1:2) ax2(3:4)]);
+
+% Set caxis if colorbar
+if opt(2)=='0'
+    caxis(cax);
+end
 
 %legend off
 box on;
