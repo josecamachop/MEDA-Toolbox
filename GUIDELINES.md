@@ -1,14 +1,14 @@
 ﻿MEDA Toolbox for its use in MATLAB. Guidelines of use.
 
 Contact person: Jose Camacho (josecamacho@ugr.es)
-Last modification of this document: 10/Nov/22
+Last modification of this document: 20/Nov/24
 
 The Multivariate Exploratory Data Analysis (MEDA) Toolbox in Matlab is a set of multivariate analysis tools for the exploration of data sets. 
 There are several alternative tools in the market for that purpose, both commercial and free. The PLS_Toolbox from Eigenvector Inc. 
 is a very nice example. The MEDA Toolbox is not intended to replace or being a competitor of any of these toolkits. Rather, the MEDA
 Toolbox is a complementary tool which includes several of our recent contributions to the field. Thus, traditional exploratory plots 
 based on Principal Component Analysis (PCA) or Partial Least Squares (PLS), such as score, loading and residual plots, are combined 
-with new methods: MEDA, oMEDA, SVI plots, ADICOV, EKF & CKF crossvalidation, CSP, GPCA, SPLS crossvalidation, .... 
+with new methods: MEDA, oMEDA, SVI plots, ADICOV, EKF & CKF crossvalidation, CSP, GPCA, SPLS crossvalidation, ASCA and VASCA .... 
 
 The MEDA Toolbox can be used to analyze normal size data sets (several hundreds of observations times several hundreds of variables)
 There is also an extension of the toolbox for large data sets, with millions of items, under folder BigData. 
@@ -47,7 +47,7 @@ An introduction to the exploratory tools in the MEDA toolbox can be found in:
 
 - SDI ==> Chemometrics and Intelligent Laboratory Systems, 2020, 206: 104160.
 
-- VASCA ==> Bioinformatics, 2022 (submitted)
+- VASCA ==> Bioinformatics, 2023, 39 (1): btac795.
 
 Loading and Score plots in the toolbox are 2D scatter plots in the sub-space of the PCA or PLS model. Residual plots are line/bar plots
 of the squared residuals of the variables/observations. Leverage plots are line/bar plots of the squared scores of the variables/observations.
@@ -73,8 +73,6 @@ simuleMV is a simulation engine for multivariate data.
 
 GPLS and GASCA are the GPCA extension to PLS and ASCA, respectively.
 
-XCAN is a contrained version of PCA, that can apply constrains in rows and columns.
-
 SDI is a procedure to find interesting subspaces in a PLS-DA model.
 
 VASCA is a variable-selection version of ASCA.
@@ -84,7 +82,7 @@ VASCA is a variable-selection version of ASCA.
  
 There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (expert user). The GUI is self 
 explanatory. It incorporates help messages to guide its use. To launch the GUI, type "MEDA" in the command line of Matlab after the 
-installation, as explained in the README.txt document. 
+installation, as explained in the README.md document. 
 
 The commands provide of much more functionality. Each command includes helping information, that can be seen by typing "help <command>" 
 in the command line of Matlab. This helping information includes examples. Also, in the Examples directory, several real data examples 
