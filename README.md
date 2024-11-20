@@ -11,15 +11,39 @@ Installation
 
 	- <directory_path>\toolbox
 
-For step 2, in the MATLAB command line, you may use commands addpath and genpath, e.g.: 
+For step 2, in the MATLAB command line, you may use commands 'addpath' and 'genpath', e.g.: 
 
 	>> addpath(genpath('<directory_path>\toolbox')) 
 
-and then savepath, or you may use the pathtool.
+and then 'savepath'. You may alternatively use the 'pathtool' from the command line or the menu.
 
-Please, acknowledge the use of this software by referencing: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at https://github.com/CoDaSLab/MEDA-Toolbox". Please check the documentation of the routines for more related references. 
+Please, acknowledge the use of this software by referencing: "Camacho, J., PÃ©rez, A., RodrÃ­guez, R., JimÃ©nez-MaÃ±as, E. Multivariate Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at https://github.com/CoDaSLab/MEDA-Toolbox". Please check the documentation of the routines for more related references. 
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
+
+Items in the folder:
+
+- GUIDELINES.md: Guidelines for the use of the MEDA Toolbox (Please, read first)
+
+- LICENSE.txt: License for reuse
+
+- toolbox: latent variable models and auxility methods, including pcaEig (PCA), kernelpls & simpls (PLS), asca & apca & vasca (ANOVA+PCA) 
+
+   	- anova: routines for factorization of data coming from an experimental design
+   	- auxiliary: general routines for hanlding input/output data
+   	- bigData: extended routines for massive observations
+   	- dataSim: routines for data simulation
+   	- dataViz: routines for data visualization, including line plots, scatter plots, and map plots
+   	- GUI: Graphical User Interface routines
+   	- internal: routines not meant to be directly used, but rather called from other routines
+   	- modelSel: routines for model selection, including scree plots and crossvalidation, among others
+   	- modelVal: double cross-validation routines
+   	- modelViz: routines for the visualization of latent variable models, including score and loading plots, biplots and 		other tools
+   	- sparse: sparse versions of latent variable models, inclding group-wise models
+
+- examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox
+  
+- techReports: Technical Reports that make use of the tolbox
 
 We would like to thank the direct or indirect contribution of several colleagues:
 
@@ -30,38 +54,6 @@ We would like to thank the direct or indirect contribution of several colleagues
 - E. Saccenti for the Horn's Parallel Analysis to determine the number of Principal Components.
 
 - R. Vitale for the Dray's method and permutation testing method to determine the number of Principal Components.
-
-Items in the folder:
-
-- GUIDELINES.txt: Guidelines for the use of the MEDA Toolbox (Please, read first)
-
-- \toolbox: projection models and auxility methods: 
-
-	- pcaEig (PCA), kernelpls & simpls (PLS), asca & apca & 		vasca(ANOVA+PCA)
-
-     - missTsr2D, preprocess2D, preprocess2Dapp and predPls  
-
-	- exploratory & visualization tools: SVIplot.m (SVI plots), scores_pca.m & scores_pls.m (Socre plots), loadings_pca.m & loadings_pls.m (Loading plots), meda_pca.m & meda_pls.m (MEDA), omeda_pca.m & omeda_pls.m (oMEDA), mspc_pca.m & mspc_pls.m (MSPC), leverages_pca.m & leverages_pls.m (leverages of variables)
-		
-	- exploratory tools without visualization: meda.m, omeda.m, mspc.m
-
-	- tools to select the number of LVs: var_pca.m & var_pls.m (Variance plots) crossval_pca, ckf, crossval_pls, dcrossval_pls (Cross-validation routines), PAtest, permsvd, dray
-
-	- tools to select the number of LVs & sparsity in SPLS: crossval_spls, dcrossval_spls, crossval_spls_da, dcrossval_spls_da
-
-	- tools to select the number of LVs & sparsity in GPLS: crossval_gpls, dcrossval_gpls
-
-	- graphical tools: plot_scatter.m, plot_vec.m, plot_map.m 
-
-	- auxiliary routines: preprocess2D.m, preprocess2Dapp.m, seriation.m, spe_lim.m, hot_lim.m   
-
-	- data simulation tools: ADICOV.m, simuleMV.m  
-
-- BigData: Big Data routines.
-
-- GUI: Graphical User Interface routines.
-
-- Examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox.
 
 Copyright (C) 2024  Universidad de Granada
  
