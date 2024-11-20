@@ -1,33 +1,45 @@
-ï»¿Multivariate Exploratory Data Analysis (MEDA) Toolbox for its use in MATLAB 
+Multivariate Exploratory Data Analysis (MEDA) Toolbox for its use in MATLAB 
 
 Contact person: Jose Camacho (josecamacho@ugr.es)
-Last modification of this document: 17/Nov/24
+Last modification of this document: 20/Nov/24
 
 Installation
 
 1 - Download and extract (or git clone) in a directory of your choice <directory_path>
 
-2 - Add to the MATLAB path the following directory with its subdirectories (you may either use command addpath and genpath, e.g. addpath(genpath('<path>/toolbox')), and then savepath, or you may use the pathtool):
-	- <directory_path>/toolbox
+2 - Add to the MATLAB path the following directory with its subdirectories:
 
-Please, acknowledge the use of this software by referencing: "Camacho, J., PÃ©rez, A., RodrÃ­guez, R., JimÃ©nez-MaÃ±as, E. Multivariate Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at https://github.com/CoDaSLab/MEDA-Toolbox". Please check the documentation of the routines used for more related references. 
+	- <directory_path>\toolbox
+
+For step 2, in the MATLAB command line, you may use commands addpath and genpath, e.g.: 
+
+	>> addpath(genpath('<directory_path>\toolbox')) 
+
+and then savepath, or you may use the pathtool.
+
+Please, acknowledge the use of this software by referencing: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at https://github.com/CoDaSLab/MEDA-Toolbox". Please check the documentation of the routines for more related references. 
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
 
-We would like to thanks the direct or indirect contribution of several colleagues:
+We would like to thank the direct or indirect contribution of several colleagues:
 
 - E. Szymanska, G.H. Tinnevelt and T.P.J. Offermans for the Sparse Partial Least Squares (SPLS) routine.
-- G. Zwanenburg, H.C.J. Hoefsloot, J.A. Westerhuis, J.J. Jansen and A.K. Smilde for the ANOVA Simultaneous Component Analysis (ASCA) routine.
+
+- G. Zwanenburg, H.C.J. Hoefsloot, J.A. Westerhuis, J.J. Jansen and A.K. Smilde for the original ANOVA Simultaneous Component Analysis (ASCA) routine.
+
 - E. Saccenti for the Horn's Parallel Analysis to determine the number of Principal Components.
+
 - R. Vitale for the Dray's method and permutation testing method to determine the number of Principal Components.
 
 Items in the folder:
 
 - GUIDELINES.txt: Guidelines for the use of the MEDA Toolbox (Please, read first)
 
-- toolbox routines:
+- \toolbox: projection models and auxility methods: 
 
-	- projection models: pca_pp.m (PCA), kernel_pls.m & simpls.m (PLS), parglm & asca & apca (ANOVA+PCA) gia & gpca (GPCA), sparsepls2 (SPLS), gpls, gasca, SDI, parglmVS (VASCA) 
+	- pcaEig (PCA), kernelpls & simpls (PLS), asca & apca & 		vasca(ANOVA+PCA)
+
+     - missTsr2D, preprocess2D, preprocess2Dapp and predPls  
 
 	- exploratory & visualization tools: SVIplot.m (SVI plots), scores_pca.m & scores_pls.m (Socre plots), loadings_pca.m & loadings_pls.m (Loading plots), meda_pca.m & meda_pls.m (MEDA), omeda_pca.m & omeda_pls.m (oMEDA), mspc_pca.m & mspc_pls.m (MSPC), leverages_pca.m & leverages_pls.m (leverages of variables)
 		
