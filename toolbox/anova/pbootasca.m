@@ -73,10 +73,9 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 %
 % coded by: Rafa Vitale (raffaele.vitale@univ-lille.fr)
 %           Jose Camacho (josecamacho@ugr.es)
-% last modification: 11/Nov/2024
+% last modification: 20/Nov/2024
 %
-% Copyright (C) 2024  Raffael Vitale, Lille University
-% Copyright (C) 2024  Jose Camacho, Universidad de Granada
+% Copyright (C) 2024  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

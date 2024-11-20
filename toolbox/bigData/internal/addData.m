@@ -38,10 +38,9 @@ function addData(name,path,data,label,class,type,thres,preci,debug)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 12/Jan/2021
+% last modification: 20/Nov/2024
 %
-% Copyright (C) 2021  University of Granada, Granada
-% Copyright (C) 2021  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

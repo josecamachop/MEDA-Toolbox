@@ -58,10 +58,9 @@ function Lmodel = updateEwma(list,path,Lmodel,lambda,step,debug,erase)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 24/Aug/18
+% last modification: 20/Nov/2024
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

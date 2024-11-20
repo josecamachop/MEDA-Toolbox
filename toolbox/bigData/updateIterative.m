@@ -1123,11 +1123,10 @@ function [D, Lmodel] = codglm(F, Lmodel)
 % Lmodel (structure)
 %
 %
-%
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 16/Jun/23
+% last modification: 20/Nov/2024
 %
-% Copyright (C) 2023  Universidad de Granada
+% Copyright (C) 2024  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

@@ -60,7 +60,7 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 % plotVec(beta,'XYLabel',{'','Regression coefficients'});
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 22/Apr/2024
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

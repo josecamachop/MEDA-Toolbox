@@ -2,12 +2,11 @@ function varargout = MEDA(varargin)
 %%
 %Initialize MEDA Graphic User Interface
 %
-% coded by: Elena JimÃ©nez MaÃ±as (elenajm@correo.ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
-% last modification: 31/Jan/15.
+% last modification: 20/Nov/2024
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016 Elena Jiménez Mañas, Rafael Rodriguez Gomez
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

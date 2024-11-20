@@ -63,7 +63,7 @@ function [Dst,Qst] = mspc(testcs,varargin)
 % plotScatter([Dst,Qst],'ObsClass',[ones(5,1);2*ones(5,1)],'XYLabel',{'D-st','Q-st'},'LimCont',{UCLd,UCLq}); 
 
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 22/Apr/2024.
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

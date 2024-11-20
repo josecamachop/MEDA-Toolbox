@@ -135,9 +135,9 @@ function [T, parglmo] = parglm(X, F, varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 11/Nov/2024
+% last modification: 20/Nov/2024
 %
-% Copyright (C) 2024  Universidad de Granada
+% Copyright (C) 2024  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

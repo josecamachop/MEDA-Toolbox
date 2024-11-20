@@ -26,10 +26,9 @@ function addIndices(name,path,data,debug)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/May/2017
+% last modification: 20/Nov/2024
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

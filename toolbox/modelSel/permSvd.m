@@ -48,10 +48,9 @@ function [npcf,Fratioreal,Fratioperm]=permSvd(x,varargin)
 %
 %
 % codified by: Raffaele Vitale (rvitale86@gmail.com)
-% last modification: 23/Apr/2024
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  Universitat Politecnica de Valencia, Valencia
-% Copyright (C) 2024  Raffaele Vitale
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

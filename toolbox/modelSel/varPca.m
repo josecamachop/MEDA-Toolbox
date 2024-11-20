@@ -50,7 +50,7 @@ function [xvar,cumpress] = varPca(x,varargin)
 %
 %
 % codified by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 23/Apr/2024
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

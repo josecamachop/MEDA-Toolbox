@@ -49,7 +49,7 @@ function [NoComp, PERCENTILES, Eigs2test]  = PAtest(X,alpha,method,type,corrtype
 % [NoComp, PERCENTILES, Eigs2test]  = PAtest(X,0.05,'correlation','random','pearson',1)
 
 % coded by: Edoardo Saccenti (esaccenti@gmail.com)
-% last modification: 10/Apr/2024
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  Wageningen Univeristy & Research
 %

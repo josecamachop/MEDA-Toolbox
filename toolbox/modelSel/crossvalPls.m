@@ -53,7 +53,7 @@ function [cumpress,press] = crossvalPls(x,y,varargin)
 % cumpress = crossvalPls(X,Y,'LVs',lvs,'PreprocessingX',1,'PreprocessingY',1);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 22/Apr/2024
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

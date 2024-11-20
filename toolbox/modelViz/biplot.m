@@ -60,7 +60,7 @@ function figH = biplot(model,varargin)
 % T = biplot(model, 'Title', 'Random Biplot 20%', 'ObsLabel', A, 'PercArrows',25); 
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 22/Apr/2024
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

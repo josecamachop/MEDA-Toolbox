@@ -31,7 +31,7 @@ function [list,var_l] = dat2mat(path,files,output_dir,opt,vars)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 23/Jan/17
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

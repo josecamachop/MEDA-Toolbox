@@ -74,9 +74,9 @@ function [ok,Lmodel] = checkLmodel(Lmodel)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 15/Jun/2023
+% last modification: 20/Nov/2024
 %
-% Copyright (C) 2023  University of Granada, Granada
+% Copyright (C) 2024  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
