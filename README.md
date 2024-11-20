@@ -1,6 +1,6 @@
 <h1>Multivariate Exploratory Data Analysis (MEDA) Toolbox for its use in MATLAB</h1> 
 
-Contact person: Jose Camacho (josecamacho@ugr.es)
+Contact person: Jose Camacho (josecamacho@ugr.es) <br>
 Last modification of this document: 20/Nov/24
 
 The Multivariate Exploratory Data Analysis (MEDA) Toolbox in Matlab is a set of multivariate analysis tools for the exploration of data sets. 
@@ -14,6 +14,10 @@ The MEDA Toolbox can be used to analyze normal size data sets (several hundreds 
 There is also an extension of the toolbox for large data sets, with millions of items, under folder BigData. 
 
 The MEDA Toolbox is expected to work on Octave.
+
+Please, acknowledge the use of this software by referencing: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at https://github.com/CoDaSLab/MEDA-Toolbox". Please check the documentation of the routines for more related references. 
+
+Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
 
 <h2>Installation</h2>
 
@@ -29,9 +33,19 @@ For step 2, in the MATLAB command line, you may use commands 'addpath' and 'genp
 
 and then 'savepath'. You may alternatively use the 'pathtool' from the command line or the menu.
 
-Please, acknowledge the use of this software by referencing: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at https://github.com/CoDaSLab/MEDA-Toolbox". Please check the documentation of the routines for more related references. 
+<h2>Working with the MEDA Toolbox</h2>
+ 
+There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (expert user). The GUI is self 
+explanatory. It incorporates help messages to guide its use. To launch the GUI, type "MEDA" in the command line of Matlab after the 
+installation. 
 
-Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
+The commands provide of much more functionality. Each command includes helping information, that can be seen by typing "help <command>" 
+in the command line of Matlab. This helping information includes examples. Also, in the Examples directory, several real data examples 
+are included. It is suggested to have a look at these examples.
+
+There are two types of commands or routines. Those that do not provide visualization (e.g. meda, mspc, omeda, ...) are optimized for data 
+computing. Those that issue a plot (e.g meda_pca, meda_pls, scores_pca, ...) are optimized for interactive scripting
+
 
 <h2>Items in the folder</h2>
 
@@ -57,18 +71,6 @@ Please, note that the software is provided "as is" and we do not accept any resp
   
 - techReports: Technical Reports that make use of the tolbox
 
-<h2>Working with the MEDA Toolbox</h2>
- 
-There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (expert user). The GUI is self 
-explanatory. It incorporates help messages to guide its use. To launch the GUI, type "MEDA" in the command line of Matlab after the 
-installation. 
-
-The commands provide of much more functionality. Each command includes helping information, that can be seen by typing "help <command>" 
-in the command line of Matlab. This helping information includes examples. Also, in the Examples directory, several real data examples 
-are included. It is suggested to have a look at these examples.
-
-There are two types of commands or routines. Those that do not provide visualization (e.g. meda, mspc, omeda, ...) are optimized for data 
-computing. Those that issue a plot (e.g meda_pca, meda_pls, scores_pca, ...) are optimized for interactive scripting
 
 <h2>The Tools</h2>
 
