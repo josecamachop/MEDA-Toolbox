@@ -1,4 +1,4 @@
-Multivariate Exploratory Data Analysis (MEDA) Toolbox for its use in MATLAB 
+<h1>Multivariate Exploratory Data Analysis (MEDA) Toolbox for its use in MATLAB</h1> 
 
 Contact person: Jose Camacho (josecamacho@ugr.es)
 Last modification of this document: 20/Nov/24
@@ -15,7 +15,7 @@ There is also an extension of the toolbox for large data sets, with millions of 
 
 The MEDA Toolbox is expected to work on Octave.
 
-Installation
+<h2>Installation</h2>
 
 1 - Download and extract (or git clone) in a directory of your choice <directory_path>
 
@@ -33,7 +33,7 @@ Please, acknowledge the use of this software by referencing: "Camacho, J., Pére
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
 
-Items in the folder:
+<h2>Items in the folder</h2>
 
 - GUIDELINES.md: Guidelines for the use of the MEDA Toolbox (Please, read first)
 
@@ -57,7 +57,7 @@ Items in the folder:
   
 - techReports: Technical Reports that make use of the tolbox
 
-Working with the MEDA Toolbox
+<h2>Working with the MEDA Toolbox</h2>
  
 There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (expert user). The GUI is self 
 explanatory. It incorporates help messages to guide its use. To launch the GUI, type "MEDA" in the command line of Matlab after the 
@@ -70,7 +70,7 @@ are included. It is suggested to have a look at these examples.
 There are two types of commands or routines. Those that do not provide visualization (e.g. meda, mspc, omeda, ...) are optimized for data 
 computing. Those that issue a plot (e.g meda_pca, meda_pls, scores_pca, ...) are optimized for interactive scripting
 
-The Tools
+<h2>The Tools</h2>
 
 An introduction to the exploratory tools in the MEDA toolbox can be found in:
 
@@ -132,6 +132,8 @@ SDI is a procedure to find interesting subspaces in a PLS-DA model.
 
 VASCA is a variable-selection version of ASCA.
 
+<h2>ACKs</h2>
+
 We would like to thank the direct or indirect contribution of several colleagues:
 
 - E. Szymanska, G.H. Tinnevelt and T.P.J. Offermans for the Sparse Partial Least Squares (SPLS) routine.
@@ -141,6 +143,9 @@ We would like to thank the direct or indirect contribution of several colleagues
 - E. Saccenti for the Horn's Parallel Analysis to determine the number of Principal Components.
 
 - R. Vitale for the Dray's method and permutation testing method to determine the number of Principal Components.
+
+
+<h2>Copyright</h2>
 
 Copyright (C) 2024  Universidad de Granada
  
