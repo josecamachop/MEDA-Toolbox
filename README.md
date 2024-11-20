@@ -49,8 +49,6 @@ computing. Those that issue a plot (e.g meda_pca, meda_pls, scores_pca, ...) are
 
 <h2>Items in the folder</h2>
 
-- GUIDELINES.md: Guidelines for the use of the MEDA Toolbox (Please, read first)
-
 - LICENSE.txt: License for reuse
 
 - toolbox: latent variable models and auxility methods, including pcaEig (PCA), kernelpls & simpls (PLS), asca & apca & vasca (ANOVA+PCA) 
