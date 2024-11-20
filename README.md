@@ -3,6 +3,18 @@ Multivariate Exploratory Data Analysis (MEDA) Toolbox for its use in MATLAB
 Contact person: Jose Camacho (josecamacho@ugr.es)
 Last modification of this document: 20/Nov/24
 
+The Multivariate Exploratory Data Analysis (MEDA) Toolbox in Matlab is a set of multivariate analysis tools for the exploration of data sets. 
+There are several alternative tools in the market for that purpose, both commercial and free. The PLS_Toolbox from Eigenvector Inc. 
+is a very nice example. The MEDA Toolbox is not intended to replace or being a competitor of any of these toolkits. Rather, the MEDA
+Toolbox is a complementary tool which includes several of our recent contributions to the field. Thus, traditional exploratory plots 
+based on Principal Component Analysis (PCA) or Partial Least Squares (PLS), such as score, loading and residual plots, are combined 
+with new methods: MEDA, oMEDA, SVI plots, ADICOV, EKF & CKF crossvalidation, CSP, GPCA, SPLS crossvalidation, ASCA and VASCA .... 
+
+The MEDA Toolbox can be used to analyze normal size data sets (several hundreds of observations times several hundreds of variables)
+There is also an extension of the toolbox for large data sets, with millions of items, under folder BigData. 
+
+The MEDA Toolbox is expected to work on Octave.
+
 Installation
 
 1 - Download and extract (or git clone) in a directory of your choice <directory_path>
@@ -44,6 +56,81 @@ Items in the folder:
 - examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox
   
 - techReports: Technical Reports that make use of the tolbox
+
+Working with the MEDA Toolbox
+ 
+There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (expert user). The GUI is self 
+explanatory. It incorporates help messages to guide its use. To launch the GUI, type "MEDA" in the command line of Matlab after the 
+installation. 
+
+The commands provide of much more functionality. Each command includes helping information, that can be seen by typing "help <command>" 
+in the command line of Matlab. This helping information includes examples. Also, in the Examples directory, several real data examples 
+are included. It is suggested to have a look at these examples.
+
+There are two types of commands or routines. Those that do not provide visualization (e.g. meda, mspc, omeda, ...) are optimized for data 
+computing. Those that issue a plot (e.g meda_pca, meda_pls, scores_pca, ...) are optimized for interactive scripting
+
+The Tools
+
+An introduction to the exploratory tools in the MEDA toolbox can be found in:
+
+- Loading plots, Score plots, Residual plots, Leverage plots ==> Kim H. Esbensen. Multivariate Data Analysis: in practice. Camo. ISBN: 82-993330-3-2.
+
+- MEDA ==> Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp. 8-18.  
+
+- oMEDA ==> Journal of Chemometrics, 2011, 25 (11), pp. 592-600.
+
+- SVI plots ==> Chemometrics and Intelligent Laboratory Systems 100, 2010, pp. 48-56.
+
+- ADICOV ==> Chemometrics and Intelligent Laboratory Systems 105(2), 2011, pp. 171-180.
+
+- EKF ==> Chemometrics and Intelligent Laboratory Systems 131, 2014, pp. 37-50
+
+- CKF ==> Journal of Chemometrics, 29(8), 2015, pp. 467-478.
+
+- CSP ==> Chemometrics and Intelligent Laboratory Systems, 135, 2014, pp. 110-125.
+
+- GPCA ==> Journal of Computational and Graphical Statistics , 2017, 26 (3): 501-512.
+
+- simuleMV ==> Chemometrics and Intelligent Laboratory Systems, 2017, 160: 40-51.
+
+- GPLS ==> Journal of Chemometrics, 2018, 32: 1-11.
+
+- GASCA ==> Metabolomics. 2018; 14(6): 73.
+
+- XCAN ==> Chemometrics and Intelligent Laboratory Systems, 2020, 203: 104038.
+
+- SDI ==> Chemometrics and Intelligent Laboratory Systems, 2020, 206: 104160.
+
+- VASCA ==> Bioinformatics, 2023, 39 (1): btac795.
+
+Loading and Score plots in the toolbox are 2D scatter plots in the sub-space of the PCA or PLS model. Residual plots are line/bar plots
+of the squared residuals of the variables/observations. Leverage plots are line/bar plots of the squared scores of the variables/observations.
+
+MEDA plots are map plots that contain the relationship between each pair of variables. They look similar to correlation plots, but 
+they present better properties for exploration.
+
+oMEDA plots are bar plots that compute the differences between groups of observations in the latent subspace. They are similar to 
+contribution plots but again with better properties.
+
+SVI plots are useful to understand how a variable is related to the rest of the data set. The reading of the reference above is recommended.
+
+ADICOV is a method to approximate a specific data distribution imposing a certain correlation structure. It is very useful for realistic data
+simulation.
+
+EKF and CKF are different versions of cross-validation in PCA, useful in some applications to infer an adequate number of PCs.
+
+CSP are compressed versions of score plots, where millions of observations can be visualized thanks to clustering techniques.
+
+GPCA is a PCA modification where loadings are constrain to one group of variables.
+
+simuleMV is a simulation engine for multivariate data.
+
+GPLS and GASCA are the GPCA extension to PLS and ASCA, respectively.
+
+SDI is a procedure to find interesting subspaces in a PLS-DA model.
+
+VASCA is a variable-selection version of ASCA.
 
 We would like to thank the direct or indirect contribution of several colleagues:
 
