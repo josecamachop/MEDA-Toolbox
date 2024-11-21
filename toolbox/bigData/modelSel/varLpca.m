@@ -70,8 +70,6 @@ checkLmodel(Lmodel);
 % Preprocessing
 Lmodel.lvs = unique([0 Lmodel.lvs]);
 
-if nargin < 2 || isempty(opt), opt = '1'; end;
-
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
 
