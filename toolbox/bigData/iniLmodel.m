@@ -3,7 +3,6 @@ function Lmodel = iniLmodel(X,Y,obsl,varl)
 % Large model inicialization
 %
 % iniLmodel % minimum call
-% Lmodel = iniLmodel(X,Y,obsl,varl) % complete call
 %
 %
 % INOUTS:
@@ -91,7 +90,7 @@ function Lmodel = iniLmodel(X,Y,obsl,varl)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 21/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

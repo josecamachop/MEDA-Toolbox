@@ -14,8 +14,8 @@ classdef bigDataTest < matlab.unittest.TestCase
         function testvarLpca(testCase)
             model = iniLmodel(simuleMV(20,10,'LevelCorr',8));
             model.lvs = 0:10;
-            varLpca(model, 'Option', '0')
-            varLpca(model, 'Option', '1')
+            varLpca(model, 'Option', '0');
+            varLpca(model, 'Option', '1');
             close all
         end
 
@@ -24,8 +24,8 @@ classdef bigDataTest < matlab.unittest.TestCase
             Y = 0.1*randn(20,2) + X(:,1:2);
             model = iniLmodel(X,Y);
             model.lvs = 0:10;
-            varLpls(model, 'Option', '0')
-            varLpls(model, 'Option', '1')
+            varLpls(model, 'Option', '0');
+            varLpls(model, 'Option', '1');
             close all
         end
     end

@@ -215,7 +215,7 @@ else
     mult = ones(size(TT,1));
 end
 
-tvar = varLpca(Lmodel,0);
+tvar = varLpca(Lmodel,'Option',0);
 
 indM = floor(log10((max(Lmodel.multr)+1)));
 indm = floor(log10((min(Lmodel.multr)+1)));

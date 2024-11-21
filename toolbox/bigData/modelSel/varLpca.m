@@ -3,7 +3,7 @@ function xvar = varLpca(Lmodel,varargin)
 % Variability captured in terms of the number of PCs.
 %
 % varLpca(Lmodel) % minimum call
-% xvar = varLpca(Lmodel,opt) %complete call
+% xvar = varLpca(Lmodel,'Option',1) %complete call
 %
 %
 % INPUTS:

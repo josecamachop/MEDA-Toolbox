@@ -97,7 +97,7 @@ P = Lmodel.loads;
 figH = [];
 if opt(1) == '1'
     
-    tvar = varLpca(Lmodel,0);
+    tvar = varLpca(Lmodel,'Option',0);
     
     if length(Lmodel.lvs) == 1 || opt(2) == '1'
         for i=1:length(Lmodel.lvs)

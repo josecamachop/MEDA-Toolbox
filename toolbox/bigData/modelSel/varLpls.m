@@ -3,7 +3,7 @@ function [yvar,tvar] = varLpls(Lmodel,varargin)
 % Variability captured in terms of the number of LVs.
 %
 % varLpls(Lmodel) % minimum call
-% [yvar,tvar] = varLpls(Lmodel,opt) %complete call
+% [yvar,tvar] = varLpls(Lmodel,'Option',1) %complete call
 %
 %
 % INPUTS:

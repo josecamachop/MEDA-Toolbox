@@ -214,7 +214,7 @@ else
     mult = ones(size(TT,1));
 end
 
-[yvar,tvar] = varLpls(Lmodel,0);
+[yvar,tvar] = varLpls(Lmodel,'Option',0);
 
 indM = floor(log10((max(Lmodel.multr)+1)));
 indm = floor(log10((min(Lmodel.multr)+1)));
