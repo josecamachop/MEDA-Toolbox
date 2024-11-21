@@ -1,16 +1,17 @@
-function Lmodel = updateEwma(list,path,Lmodel,lambda,step,debug,erase)
+function Lmodel = updateEwma(list,varargin)%,path,Lmodel,lambda,step,debug,erase)
 
 % Big data analysis based on bilinear proyection models (PCA and PLS) with
 % the exponentially weighted moving average approach.
 %
 % Lmodel = updateEwma(list)          % minimum call
-% Lmodel = updateEwma(list,path,Lmodel,lambda,step,debug,erase) % complete call
 %
 %
 % INPUTS:
 %
 % list: {Fx1} list of strings with the names of the files for the update or
 %   struct array with x (and optionally y) matrices.
+%
+% Optional INPUTS (parameter):
 %
 % path: (str) path to the directory where the data files are located ('' by
 %   default)
@@ -52,13 +53,13 @@ function Lmodel = updateEwma(list,path,Lmodel,lambda,step,debug,erase)
 % for i=1:4,
 %   nobst = 10;
 %   list(1).x = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
-%   Lmodel = updateEwma(list,[],Lmodel);
+%   Lmodel = updateEwma(list,'path',[],'Lmodel',Lmodel);
 %   mspcLpca(Lmodel);
 % end
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 21/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -81,18 +82,26 @@ function Lmodel = updateEwma(list,path,Lmodel,lambda,step,debug,erase)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-if nargin < 2 || isempty(path), path = ''; end;
-if nargin < 3 || isempty(Lmodel)
-    Lmodel = iniLmodel; 
-    Lmodel.type = 'PCA';
-    Lmodel.lvs = 0;
-    Lmodel.prep = 2;
-end;
-[ok, Lmodel] = checkLmodel(Lmodel);
-if nargin < 4 || isempty(lambda), lambda = 1; end;
-if nargin < 5 || isempty(step), step = 1; end;
-if nargin < 6 || isempty(debug), debug = 1; end;
-if nargin < 7 || isempty(erase), erase = 1; end;
+p = inputParser;
+addParameter(p,'path','');   
+    defmodel = iniLmodel; 
+    defmodel.type = 'PCA';
+    defmodel.lvs = 0;
+    defmodel.prep = 2;
+addParameter(p,'Lmodel',defmodel);   
+addParameter(p,'lambda',1);   
+addParameter(p,'step',1);   
+addParameter(p,'debug',1);  
+addParameter(p,'erase',1);    
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+path = p.Results.path;
+Lmodel = p.Results.Lmodel;
+lambda = p.Results.lambda;
+step = p.Results.step;
+debug = p.Results.debug;
+erase = p.Results.erase;
 
 % Validate dimensions of input data
 assert (isequal(size(lambda), [1 1]), 'Dimension Error: 4th argument must be a scalar. Type ''help %s'' for more info.', routine(1).name);

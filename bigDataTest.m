@@ -28,6 +28,26 @@ classdef bigDataTest < matlab.unittest.TestCase
             varLpls(model, 'Option', '1');
             close all
         end
+
+        function testupdateEwma(testCase)
+        nobs = 100;
+        nvars = 10;
+        Lmodel = iniLmodel(simuleMV(nobs,nvars,'LevelCorr',6));
+        Lmodel.type = 'PCA'; 
+        Lmodel.prep = 2;  
+        Lmodel.lvs = 1;
+        Lmodel.nc = 100; % Number of clusters
+        Lmodel.mat = loadingsLpca(Lmodel,0);
+        mspcLpca(Lmodel);
+
+        for i=1:4,
+          nobst = 10;
+          list(1).x = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
+          Lmodel = updateEwma(list,'path',[],'Lmodel',Lmodel);
+          mspcLpca(Lmodel);
+        end
+        close all
+        end
     end
 
 end
