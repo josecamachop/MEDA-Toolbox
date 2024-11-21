@@ -1,4 +1,4 @@
-function Lmodel = updateEwma(list,varargin)%,path,Lmodel,lambda,step,debug,erase)
+function Lmodel = updateEwma(list,varargin)
 
 % Big data analysis based on bilinear proyection models (PCA and PLS) with
 % the exponentially weighted moving average approach.

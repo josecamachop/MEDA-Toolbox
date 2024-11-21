@@ -3,7 +3,7 @@ classdef bigDataTest < matlab.unittest.TestCase
 
     methods(Test)
         function testiniLmodel(testCase)
-            X = rand(20, 10);
+            X = simuleMV(20,10,'LevelCorr',8);
             model = iniLmodel(X);
             ok = checkLmodel(model);
             assert((ok==true) )
