@@ -1,5 +1,5 @@
 function X = simuleMV(obs,vars,varargin)
-% Simulation of multivariate data with ADICOV. Reference: Camacho, J. On 
+% Simulation of multivariate data with adicov. Reference: Camacho, J. On 
 % the Generation of Random Multivariate Data. Chemometrics and Intelligent
 % Laboratory Systems, 2017, 160: 40-51.
 %

@@ -44,7 +44,7 @@ in the command line of Matlab. This helping information includes examples. Also,
 are included. It is suggested to have a look at these examples.
 
 There are two types of commands or routines. Those that do not provide visualization (e.g. meda, mspc, omeda, ...) are optimized for data 
-computing. Those that issue a plot (e.g meda_pca, meda_pls, scores_pca, ...) are optimized for interactive scripting
+computing. Those that issue a plot (e.g medaPca, medaPls, scoresPca, ...) are optimized for interactive scripting
 
 
 <h2>Items in the folder</h2>
@@ -62,7 +62,7 @@ computing. Those that issue a plot (e.g meda_pca, meda_pls, scores_pca, ...) are
    	- internal: routines not meant to be directly used, but rather called from other routines
    	- modelSel: routines for model selection, including scree plots and crossvalidation, among others
    	- modelVal: double cross-validation routines
-   	- modelViz: routines for the visualization of latent variable models, including score and loading plots, biplots and 		other tools
+   	- modelViz: routines for the visualization of latent variable models, including score and loading plots, biplots and other tools
    	- sparse: sparse versions of latent variable models, inclding group-wise models
 
 - examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox
