@@ -1,4 +1,4 @@
-function xvar = varLpca(Lmodel,opt)
+function xvar = varLpca(Lmodel,varargin)
 
 % Variability captured in terms of the number of PCs.
 %
@@ -13,7 +13,9 @@ function xvar = varLpca(Lmodel,opt)
 %       Lmodel.XX: (MxM) X-block cross-product matrix.
 %       Lmodel.lvs: (1x1) number of PCs.
 %
-% opt: (str or num) options for data plotting.
+% Optional INPUTS (parameters):
+%
+% 'Option': (str or num) options for data plotting.
 %       0: no plots.
 %       1: bar plot (default)
 %
@@ -54,6 +56,14 @@ function xvar = varLpca(Lmodel,opt)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Option','1');
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+opt = p.Results.Option;
 
 checkLmodel(Lmodel);
 
