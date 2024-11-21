@@ -13,20 +13,20 @@ function Lmodel = updateIterative(list,varargin)
 %
 % Optional INPUTS (parameter):
 %
-% path: (str) If list is a string of filenames, path to the directory where 
+% 'path: (str) If list is a string of filenames, path to the directory where 
 %   the data files are located ('' by default). Not to confuse with where
 %   the output files are stored (which is Lmodel.path)
 %
-% Lmodel: (struct Lmodel) model to update (initialized to PCA model with 1
+% 'Lmodel: (struct Lmodel) model to update (initialized to PCA model with 1
 %   PC and auto-scaling by default)
 %
-% step: [1x1] percentage of the data in the file to be used in each
+% 'step: [1x1] percentage of the data in the file to be used in each
 %   iteration. For time-course data 1 is suggested (1 by default)
 %
-% files: [1x1] create the file system with the original data (1) or not (0, by
+% 'files: [1x1] create the file system with the original data (1) or not (0, by
 %   default)
 %
-% debug: [1x1] disply debug messages
+% 'debug: [1x1] disply debug messages
 %       0: no messages are displayed.
 %       1: display only main messages (default)
 %       2: display all messages.

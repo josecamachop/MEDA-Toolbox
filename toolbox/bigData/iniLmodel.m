@@ -12,9 +12,9 @@ function Lmodel = iniLmodel(X,Y,varargin)
 %
 % Optional INPUTS (parameter):
 %
-% obsl: {Nx1} label of each observation.
+% 'ObsLabel': {Nx1} label of each observation.
 %
-% varl: {Mx1} label of each variable.
+% 'VarLabel': {Mx1} label of each variable.
 %
 % OUTPUTS:
 %

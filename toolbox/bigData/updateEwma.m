@@ -13,24 +13,24 @@ function Lmodel = updateEwma(list,varargin)
 %
 % Optional INPUTS (parameter):
 %
-% path: (str) path to the directory where the data files are located ('' by
+% 'path': (str) path to the directory where the data files are located ('' by
 %   default)
 %
-% Lmodel: (struct Lmodel) model to update (initialized to PCA model with 1
+% 'Lmodel': (struct Lmodel) model to update (initialized to PCA model with 1
 %   PC and auto-scaling by default)
 %
-% lambda: [1x1] forgetting factor between 0 (fast adaptation) and 1 (long
+% 'lambda': [1x1] forgetting factor between 0 (fast adaptation) and 1 (long
 %   history) (1 by default)
 %
-% step: [1x1] percentage of the data in the file to be used in each
+% 'step': [1x1] percentage of the data in the file to be used in each
 %   iteration. For time-course data 1 is suggested (1 by default)
 %
-% debug: [1x1] disply debug messages
+% 'debug': [1x1] disply debug messages
 %       0: no messages are displayed.
 %       1: display only main messages (default)
 %       2: display all messages.  
 %
-% erase: [1x1] threshold to erase an observation (1 by default)
+% 'erase': [1x1] threshold to erase an observation (1 by default)
 %
 %
 % OUTPUTS:
