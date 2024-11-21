@@ -1,10 +1,10 @@
 function varargout = PLS(varargin)
-%%
-%GUI for Partial Least Squares (PLS) analysis
+
+% GUI for Partial Least Squares (PLS) analysis
 %
-%This M-file include routines from the EDA Toolbox: 
-%loading_pls.m, meda_pls.m, omeda_pls.m, scores_pls.m,
-%sqresiduals_pls.m and varPls.m
+% This M-file include routines from the MEDA Toolbox: 
+% loadingsPls.m, medaPls.m, omedaPls.m, scoresPls.m,
+% mspcPls, leveragesPls and varPls.m
 %
 % PLS % minimum call
 % PLS(x,y,lvs,prepX,prepY) % complete call
@@ -30,10 +30,10 @@ function varargout = PLS(varargin)
 %       2: auto-scaling 
 %
 %
-% coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
+% coded by: Elena Jim�nez Ma�as (elenajm@correo.ugr.es).
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
 %           Jose Camacho (josecamacho@ugr.es)
-% last modification: 30/May/18.
+% last modification: 20/Nov/2024
 %
 % Copyright (C) 2018 University of Granada, Granada
 % Copyright (C) 2018 Elena Jiménez Mañas, Rafael Rodriguez Gomez, Jose Camacho

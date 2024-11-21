@@ -1,6 +1,6 @@
 function varargout = MEDA(varargin)
-%%
-%Initialize MEDA Graphic User Interface
+
+% Initialize MEDA Graphic User Interface
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)

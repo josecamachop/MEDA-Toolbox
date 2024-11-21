@@ -115,7 +115,7 @@ addParameter(p,'VarsClass',ones(M,1));
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-prep = p.Results.Preprocessing;
+prep = p.Results.Preprocessing; 
 opt = p.Results.Option;
 label = p.Results.VarsLabel;
 classes = p.Results.VarsClass;

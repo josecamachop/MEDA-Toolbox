@@ -1,11 +1,9 @@
 function varargout = PCA(varargin)
 
-%%
-%GUI for Principal Components Analysis (PCA) analysis
+% GUI for Principal Components Analysis (PCA) analysis
 %
-%This M-file include routines from the EDA Toolbox: 
-%loading_pca.m, meda_pca.m, omeda_pca.m, pcaEig.m, scores_pca.m,
-%sqresiduals_pca.m and varPca.m
+% This M-file include routines from the MEDA Toolbox: 
+% loadingsPca.m, medaPca.m, omedaPca.m, scoresPca.m, mspcPca, leveragesPca and varPca.m
 %
 % PCA % minimum call
 % PCA(x,pcs,prep) % complete call
@@ -27,11 +25,9 @@ function varargout = PCA(varargin)
 % coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
 %           Jose Camacho (josecamacho@ugr.es)
-% last modification: 30/May/18.
+% last modification: 20/Nov/2024
 %
-%
-% Copyright (C) 2018 University of Granada, Granada
-% Copyright (C) 2018 Elena Jiménez Mañas, Rafael Rodriguez Gomez, Jose Camacho
+% Copyright (C) 2024 University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -302,6 +298,9 @@ if isequal(get(handles.dataPopup,'Enable'),'on')
     if isa(data_matrix,'double')   
         sumtext = sprintf('Data Loaded:\n%s - > <%dx%d>\nMin %d\nMax %d',string_evaluation,M,N,min(min(handles.data.data_matrix)),max(max(handles.data.data_matrix)));
         handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
+    else
+        sumtext = 'Data do not appear to be suited for PCA.';
+        handles.data.sumtext=cprint(handles.sumText,sumtext,handles.data.sumtext,0);
     end
 else
     [M N]=size(handles.data.data_matrix);
@@ -315,13 +314,13 @@ end
 set(handles.selectPopup,'String',cellPopup);
 
 set(handles.labscorePopup,'Value',1);
-handles.data.label={};
+handles.data.label = repmat({''},size(handles.data.data_matrix,1),1);
 set(handles.classcorePopup,'Value',1);
-handles.data.classes=[];
+handles.data.classes = repmat({'1'},size(handles.data.data_matrix,1),1);
 set(handles.labvarPopup,'Value',1);
-handles.data.label_LP={};
+handles.data.label_LP = repmat({''},size(handles.data.data_matrix,2),1);
 set(handles.clasvarPopup,'Value',1);
-handles.data.classes_LP=[];
+handles.data.classes_LP = repmat({'1'},size(handles.data.data_matrix,2),1);
 
 guidata(hObject, handles);
 
@@ -781,25 +780,25 @@ incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.labscore{incoming_data};
 handles.data.nameLabscore=string_evaluation;
 if strcmp(string_evaluation,'emptylabel')
-    label={};
-    handles.data.label={};
+    label = [];
+    handles.data.label = repmat({''},size(handles.data.data_matrix,1),1);
 else
     label=evalin('base',string_evaluation);
     handles.data.label=label;
-end
 
-if ~isempty(handles.data.label)
-    if max(size(label))~=size(handles.data.data_matrix,1) || min(size(label))~=1,
-        errordlg('Label must have as many tags as number of observations in the data matrix.');
-        handles.data.nameLabscore='emptylabel';
-        handles.data.label={};
-        nombres=cellstr(get(hObject,'String'));
-        for i=1:length(nombres)
-            if strcmp(nombres(i),'emptylabel')
-                val=i;
+    if ~isempty(handles.data.label)
+        if max(size(label))~=size(handles.data.data_matrix,1) || min(size(label))~=1
+            errordlg('Label must have as many tags as number of observations in the data matrix.');
+            handles.data.nameLabscore='emptylabel';
+            handles.data.label={};
+            nombres=cellstr(get(hObject,'String'));
+            for i=1:length(nombres)
+                if strcmp(nombres(i),'emptylabel')
+                    val=i;
+                end
             end
+            set(hObject,'Value',val);
         end
-        set(hObject,'Value',val);
     end
 end
 
@@ -854,25 +853,25 @@ incoming_data=get(hObject,'Value');
 string_evaluation=handles.data.classcore{incoming_data};
 handles.data.nameClasscore=string_evaluation;
 if strcmp(string_evaluation,'emptyclasses')
-    classes=[];
-    handles.data.classes=[];
+    classes = [];
+    handles.data.classes = repmat({''},size(handles.data.data_matrix,1),1);
 else
     classes=evalin('base',string_evaluation);
     handles.data.classes=classes;
-end
 
-if ~isempty(handles.data.classes)
-    if max(size(classes))~=size(handles.data.data_matrix,1) || min(size(classes))~=1,
-        errordlg('Classes must have as many tags as number of observations in the data matrix.');
-        handles.data.nameClasscore='emptyclasses';
-        handles.data.classes=[];
-        nombres=cellstr(get(hObject,'String'));
-        for i=1:length(nombres)
-            if strcmp(nombres(i),'emptyclasses')
-                val=i;
+    if ~isempty(handles.data.classes)
+        if max(size(classes))~=size(handles.data.data_matrix,1) || min(size(classes))~=1
+            errordlg('Classes must have as many tags as number of observations in the data matrix.');
+            handles.data.nameClasscore='emptyclasses';
+            handles.data.classes=[];
+            nombres=cellstr(get(hObject,'String'));
+            for i=1:length(nombres)
+                if strcmp(nombres(i),'emptyclasses')
+                    val=i;
+                end
             end
+            set(hObject,'Value',val);
         end
-        set(hObject,'Value',val);
     end
 end
 
@@ -953,15 +952,15 @@ handles.data.sp_ID_figures=new_sp_ID_figures;%Vector actualizado con los identif
 handles.data.sp_matrix=new_sp_matrix;
 
 if isempty(handles.data.label) && isempty(handles.data.classes)
-    [T,TT]=scores_pca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1);
+    [T,TT]=scoresPca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1);
 else
     if ~isempty(handles.data.label) && isempty(handles.data.classes)
-        [T,TT]=scores_pca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsLabel',handles.data.label);
+        [T,TT]=scoresPca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsLabel',handles.data.label);
     else
         if isempty(handles.data.label) && ~isempty(handles.data.classes)
-            [T,TT]=scores_pca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsClass',handles.data.classes);
+            [T,TT]=scoresPca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsClass',handles.data.classes);
         else
-            [T,TT]=scores_pca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+            [T,TT]=scoresPca(handles.data.data_matrix,'PCs',[handles.data.PC1 handles.data.PC2],'Preprocessing',handles.data.prep,'Option',1,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
         end
     end
 end
@@ -1378,16 +1377,16 @@ else
     return;
 end
 
-if isequal(handles.data.dummy{1,ID},zeros(1,size(handles.data.dummy{1,ID},2))) && isempty(handles.data.weightDummy{1,ID}),
+if isequal(handles.data.dummy{1,ID},zeros(1,size(handles.data.dummy{1,ID},2))) && isempty(handles.data.weightDummy{1,ID})
     errordlg('To perform oMEDA you must select a Score Plot with at least one object selected.');
     return;
 end
 
 if ~isempty(handles.data.weightDummy{1,ID})
     handles.data.weightDummy{1,ID}=handles.data.weightDummy{1,ID}./abs(max(handles.data.weightDummy{1,ID}));
-    omeda_pca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.weightDummy{1,ID}','Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
+    omedaPca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.weightDummy{1,ID}','Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
 else
-    omeda_pca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.dummy{1,ID}','Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
+    omedaPca(handles.data.data_matrix,[min(handles.data.PC1,handles.data.PC2) max(handles.data.PC1,handles.data.PC2)],handles.data.data_matrix,handles.data.dummy{1,ID}','Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
 end
 
 guidata(hObject,handles);
@@ -1397,7 +1396,7 @@ function resomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(handles.data.data_matrix,'PCs',min(handles.data.PCs):max(handles.data.PCs),'Preprocessing',handles.data.prep,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPca(handles.data.data_matrix,'PCs',min(handles.data.PCs):max(handles.data.PCs),'Preprocessing',handles.data.prep,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
 plotVec(Qst, 'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'Q-st'},'LimCont',UCLq);
 
 % --- Executes on selection change in xpcvarPopup.
@@ -1439,25 +1438,25 @@ incoming_data=get(hObject,'Value');
 string_evaluation=handles.data.labvar{incoming_data};
 handles.data.nameLabvar=string_evaluation;
 if strcmp(string_evaluation,'emptylabel')
-    label_LP={};
-    handles.data.label_LP={};
+    label_LP = [];
+    handles.data.label_LP = repmat({''},size(handles.data.data_matrix,2),1);
 else
     label_LP=evalin('base',string_evaluation);
     handles.data.label_LP=label_LP;
-end
 
-if ~isempty(handles.data.label_LP)
-    if max(size(label_LP))~=size(handles.data.data_matrix,2) || min(size(label_LP))~=1,
-        errordlg('Label must have as many tags as number of variables in the data matrix.');
-        handles.data.nameLabvar='emptylabel';
-        handles.data.label_LP={};
-        nombres=cellstr(get(hObject,'String'));
-        for i=1:length(nombres)
-            if strcmp(nombres(i),'emptylabel')
-                val=i;
+    if ~isempty(handles.data.label_LP)
+        if max(size(label_LP))~=size(handles.data.data_matrix,2) || min(size(label_LP))~=1
+            errordlg('Label must have as many tags as number of variables in the data matrix.');
+            handles.data.nameLabvar='emptylabel';
+            handles.data.label_LP={};
+            nombres=cellstr(get(hObject,'String'));
+            for i=1:length(nombres)
+                if strcmp(nombres(i),'emptylabel')
+                    val=i;
+                end
             end
+            set(hObject,'Value',val);
         end
-        set(hObject,'Value',val);
     end
 end
 
@@ -1511,25 +1510,25 @@ incoming_data=get(hObject,'Value');%Incoming data position
 string_evaluation=handles.data.clasvar{incoming_data};%Nombre correspondiente a la posiciï¿½n
 handles.data.nameClasvar=string_evaluation;
 if strcmp(string_evaluation,'emptyclasses')
-    classes_LP={};
-    handles.data.classes_LP={};
+    classes_LP = [];
+    handles.data.classes_LP = repmat({''},size(handles.data.data_matrix,2),1);
 else
     classes_LP=evalin('base',string_evaluation);%Contenido de ese nombre(los datos en si)
     handles.data.classes_LP=classes_LP;
-end
 
-if ~isempty(handles.data.classes_LP)
-    if max(size(classes_LP))~=size(handles.data.data_matrix,2) || min(size(classes_LP))~=1,
-        errordlg('Classes must have as many entries as number of variables in the data matrix.');
-        handles.data.nameClasvar='emptyclasses';
-        handles.data.classes_LP=[];
-        nombres=cellstr(get(hObject,'String'));
-        for i=1:length(nombres)
-            if strcmp(nombres(i),'emptyclasses')
-                val=i;
+    if ~isempty(handles.data.classes_LP) 
+        if max(size(classes_LP))~=size(handles.data.data_matrix,2) || min(size(classes_LP))~=1
+            errordlg('Classes must have as many entries as number of variables in the data matrix.');
+            handles.data.nameClasvar='emptyclasses';
+            handles.data.classes_LP=[];
+            nombres=cellstr(get(hObject,'String'));
+            for i=1:length(nombres)
+                if strcmp(nombres(i),'emptyclasses')
+                    val=i;
+                end
             end
+            set(hObject,'Value',val);
         end
-        set(hObject,'Value',val);
     end
 end
 
@@ -1593,12 +1592,12 @@ handles.data.lp_ID_figures=new_lp_ID_figures;%Identificadores de los Loadings Pl
 handles.data.lp_matrix=new_lp_matrix;
 
 if isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
-    P = loadings_pca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1);
+    P = loadingsPca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1);
 else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
-        P = loadings_pca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP);
+        P = loadingsPca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP);
     else if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP)
-            P = loadings_pca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'ObsClass', handles.data.classes_LP);
-        else P = loadings_pca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP, 'ObsClass',handles.data.classes_LP);
+            P = loadingsPca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'ObsClass', handles.data.classes_LP);
+        else P = loadingsPca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP, 'ObsClass',handles.data.classes_LP);
         end
     end
 end
@@ -1709,7 +1708,7 @@ else if get(handles.serRadio,'Value')==1 && get(handles.discardRadio,'Value')==0
     end
 end
 
-[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,'PCs',pcs,'Preprocessing',handles.data.prep,'Threshold',handles.data.thres,'Option',handles.data.opt,'VarsLabel',handles.data.label_LP);
+[meda_map,meda_dis]=medaPca(handles.data.data_matrix,'PCs',pcs,'Preprocessing',handles.data.prep,'Threshold',handles.data.thres,'Option',handles.data.opt,'VarsLabel',handles.data.label_LP);
 
 guidata(hObject,handles);
 
@@ -1847,8 +1846,7 @@ else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1
     end
 end
 
-%[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,[min(handles.data.PC1_LP,handles.data.PC2_LP) max(handles.data.PC1_LP,handles.data.PC2_LP)],handles.data.prep,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
-[meda_map,meda_dis]=meda_pca(handles.data.data_matrix,pcs,handles.data.prep,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
+[meda_map,meda_dis]=medaPca(handles.data.data_matrix,'PCs',pcs,'Preprocessing',handles.data.prep,'Threshold',handles.data.thres,'Option',handles.data.opt,'VarsLabel',handles.data.label_LP,'Vars',vector_vars);
 
 guidata(hObject,handles);
 
@@ -1860,7 +1858,7 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 size_x = size(handles.data.data_matrix);
 PCs = 1:size_x(2);
 PCs(handles.data.PCs) = [];
-E=leverages_pca(handles.data.data_matrix,'PCs',PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'ObsClass',handles.data.classes_LP);
+E = leveragesPca(handles.data.data_matrix,'PCs',PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'ObsClass',handles.data.classes_LP);
 ylabel('Residuals', 'FontSize', 16);
 
 % --- Executes on button press in modelomedaButton.
@@ -1868,7 +1866,7 @@ function modelomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(handles.data.data_matrix,'PCs',min(handles.data.PCs):max(handles.data.PCs),'Preprocessing',handles.data.prep,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPca(handles.data.data_matrix,'PCs',min(handles.data.PCs):max(handles.data.PCs),'Preprocessing',handles.data.prep,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
 plotVec(Dst, 'EleLabel',handles.data.label, 'ObsClass',handles.data.classes, 'XYLabel',{[],'D-st'}, 'LimCont',UCLd);
 
 % --- Executes on button press in modelmedaButton.
@@ -1876,8 +1874,7 @@ function modelmedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-%E=leverage_pca(handles.data.data_matrix,min(handles.data.PCs):max(handles.data.PCs),handles.data.prep,1,handles.data.label_LP,handles.data.classes);
-E=leverages_pca(handles.data.data_matrix,'PCs',handles.data.PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP);
+E = leveragesPca(handles.data.data_matrix,'PCs',handles.data.PCs,'Preprocessing',handles.data.prep,'Option',1,'VarsLabel',handles.data.label_LP,'ObsClass',handles.data.classes_LP);
 
 
 % --- Executes on button press in nextButton.
