@@ -103,7 +103,7 @@ handles.data.sumtext = [];
 
 %Information Panel:
 handles.data.messageNum=0;
-handles.data.messageNum_max=10;
+handles.data.messageNum_max=12;
 handles.data.text=[];
 information_message(handles);
 
@@ -547,27 +547,31 @@ guidata(hObject,handles);
 function information_message(handles)
     switch handles.data.messageNum
         case 0
-            text=sprintf('Preprocessing section (top-left): To begin the analysis choose a data matrix and select the preprocessing of the data from the corresponding popupmenus. If no data appears, please reload the WorkSpace clicking the REFRESH button.');
+            text=sprintf('Preprocessing section (top-left): To begin the analysis, choose a data matrix and select the preprocessing of the data from the corresponding pop-up menus. If no data appears, please make sure the data is in the Matlab workspace, and reload the GUI WorkSpace by clicking the REFRESH button.');
         case 1
-            text=sprintf('For aid in the selection of the number of PCs go to General Plots section (left), enter the maximum number of PCs and select between Var X, Var X + ckf (suggested), SVI plot and ekf crossvalidation. If SVI plot is selected a variable should be additionally chosen.\nThen press the plot button.');
+            text=sprintf('General Plots section (left): For aid in the selection of the number of PCs, enter a maximum number of PCs (e.g., write 10 in the ''PCs'' field) and select an option (''Var X + ckf'' suggested). If ''SVI plot'' is selected, a variable should be additionally chosen. Then, press the plot button.');
         case 2
-            text=sprintf('Select the number of principal components for the model and press the PCA button to perform the initial analysis and activate the Score Plot, Loading Plot and MEDA menus.');
+            text=sprintf('PCA Analysis section (left): Select the number of principal components for the model (field ''PCs'') and press the PCA button. This will fit the model and activate the Score Plot, Loading Plot and MEDA menus.');
         case 3
-            text=sprintf('Plot a Score plot, a Loading plot, a MEDA plot or Residual/Model plot, by acting on the proper menu.');
+            text=sprintf('Exploratory plots of observations (Score plots, oMEDA plots) and variables (Loading plot, MEDA plots) and corresponding Model/Residuals plots, are issued by acting on the proper menu at the left (for observations) and right (for variables), respectively.');
         case 4
-            text=sprintf('Label is a cell containing as many tags as the number of observations.');
+            text=sprintf('Observations section (down-left): ''Label'' is a cell array or vector with as many tags as the number of observations. ''Classes'' is a cell array or vector with as many entries as the number of observations. These are loaded to the GUI from the Matlab workspace.');
         case 5
-            text=sprintf('Classes is a numerical array with as many entries as the number of observations.');
+            text=sprintf('Variables section (down-right): ''Label'' is a cell array or vector with as many tags as the number of X-variables. ''Classes'' is a cell array or vector with as many entries as the number of variables. These are loaded to the GUI from the Matlab workspace.');
         case 6
-            text=sprintf('To use labels or classes, load them from the Workspace by clicking the REFRESH button.');
+            text=sprintf('To use labels or classes, load them from the Workspace by clicking the REFRESH button (you will need to start over, make sure to select the proper dataset again)');
         case 7
-            text=sprintf('To perform oMEDA upon selection of observations on the score plot, push the SELECT button in the oMEDA menu.');
+            text=sprintf('To generate a score plot, select the components (''X-axes'' and ''Y-axes''), optionally a label and class array, and press ''Plot''. If you select the same component for both axes, a bar plot will be issued. Labels and classes will be inherited by the observation-wise Model/Residuals plots.');
         case 8
-            text=sprintf('Over the selected Score Plot draw a polinomial enclosing the required points and push on the (+) button to assign them +1 or on the (-) button to assign them -1.');
+            text=sprintf('To generate a loading plot, follow the same approach. Labels and classes will be inherited by the oMEDA and the variable-wise Model/Residuals plots.');        
         case 9
-            text=sprintf('Optionally push the Trend button and draw a line over the Score Plot to include weigths in the analysis.\nFinally push the Plot button to obtain the oMEDA plot.');
+            text=sprintf('oMEDA works for a 2D score plot, that you should have selected in the foreground (current figure). Create the 2D score plot and press the ''SELECT'' button in oMEDA, and describe a polygon on top of the score plot to encircle one group of observations. Then, press button ''+''.');
         case 10
-            text=sprintf('To perform MEDA upon selection of variables on the loading plot, push the SELECT button in the MEDA menu.\nOver the selected Loading Plot draw a polinomial enclosing the required points.');
+            text=sprintf('If there is a second ground of observations to compare, repeat the same operation and now press button ''-''.');        
+        case 11
+            text=sprintf('To issue the oMEDA plot, press the ''Plot'' button. This will allow you to understand the differences between the first group and the rest of observations (if you only selected one group) or between the two groups.');
+        case 12    
+            text=sprintf('To use MEDA, upon selection of variables on the loading plot, push the SELECT button in the MEDA menu. Over the selected Loading Plot draw a polinomial enclosing the required points.');
         otherwise
             disp('No case detected')
     end
@@ -1005,7 +1009,7 @@ check_tag=get(ID,'Tag');
 if strcmp(check_tag,'ScorePlot')
     figure(ID);%Lanzar el Score Plot seleccionado para hacer oMEDA.
 else
-    errordlg('To perform oMEDA you must select a Score Plot.');
+    errordlg('To perform oMEDA you must select a 2D Score Plot.');
     return;
 end
 
