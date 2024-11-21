@@ -1,4 +1,4 @@
-function [yvar,tvar] = varLpls(Lmodel,opt)
+function [yvar,tvar] = varLpls(Lmodel,varargin)
 
 % Variability captured in terms of the number of LVs.
 %
@@ -16,7 +16,9 @@ function [yvar,tvar] = varLpls(Lmodel,opt)
 %       Lmodel.YY: (LxL) Y-block cross-product matrix.
 %       Lmodel.lvs: (1x1) number of PCs.
 %
-% opt: (str or num) options for data plotting.
+% Optional INPUTS (parameters):
+%
+% 'Option': (str or num) options for data plotting.
 %       0: no plots.
 %       1: bar plot (default)
 %
@@ -38,7 +40,7 @@ function [yvar,tvar] = varLpls(Lmodel,opt)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 21/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -61,6 +63,14 @@ function [yvar,tvar] = varLpls(Lmodel,opt)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Option','1');
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+opt = p.Results.Option;
 
 checkLmodel(Lmodel);
 
