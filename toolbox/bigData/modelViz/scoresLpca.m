@@ -1,4 +1,4 @@
-function [T,TT,figH] = scoresLpca(Lmodel,test,opt,label,classes)
+function [T,TT,figH] = scoresLpca(Lmodel,varargin)
 
 % Compute and plot compressed scores in PCA for large data. The original 
 % paper is Camacho J. Visualizing Big data with Compressed Score Plots: 
@@ -23,10 +23,12 @@ function [T,TT,figH] = scoresLpca(Lmodel,test,opt,label,classes)
 %       Lmodel.sc: [1xM] sample scale according to the preprocessing method
 %       Lmodel.weight: [1xM] weight applied after the preprocessing method
 %
-% test: [LxM] data set with the observations to be compared. These data 
+% Optional INPUTS (parameters):
+%
+% 'Test': [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abcd' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'abcd' for:
 %       a:
 %           0: scatter plot of pairs of PCs 
 %           1: bar plot of each single PC
@@ -46,9 +48,9 @@ function [T,TT,figH] = scoresLpca(Lmodel,test,opt,label,classes)
 %   By deafult, opt = '00000'. If less than 5 digits are specified, least 
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0, d=00 
 %
-% label: [Lx1] name of the test observations (numbers are used by default)
+% 'ObsLabel': [Lx1] name of the test observations (numbers are used by default)
 %
-% classes: [Lx1] groups in test for different visualization (a single group 
+% 'ObsClass': [Lx1] groups in test for different visualization (a single group 
 %   by default)
 %
 %
@@ -82,14 +84,14 @@ function [T,TT,figH] = scoresLpca(Lmodel,test,opt,label,classes)
 % Lmodel.multr = ceil(10*rand(nobs,1));
 %
 % Lmodel.lvs = 1;
-% scoresLpca(Lmodel,test);
+% scoresLpca(Lmodel,'Test',test);
 %
 % Lmodel.lvs = 1:2;
-% [T,TT] = scoresLpca(Lmodel,test);
+% [T,TT] = scoresLpca(Lmodel,'Test',test);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 22/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -117,11 +119,22 @@ checkLmodel(Lmodel);
 
 N = size(Lmodel.centr,1);
 M = size(Lmodel.XX, 2);
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Test',[]);
+addParameter(p,'Option','00000');
+addParameter(p,'ObsLabel',[]);
+addParameter(p,'ObsClass',[]);
+parse(p,varargin{:});
 
-if nargin < 2, test = []; end;
+% Extract inputs from inputParser for code legibility
+test = p.Results.Test;
+opt = p.Results.Option;
+label = p.Results.ObsLabel;
+classes = p.Results.ObsClass;
+
 L = size(test, 1);
 
-if nargin < 3 || isempty(opt), opt = '00000'; end; 
 
 A = length(Lmodel.lvs);
 
@@ -139,7 +152,7 @@ else
     K = N+L;
 end
 
-if nargin < 4 || isempty(label)
+if isempty(label)
     if  opt(2) == '1'
         label = cellstr(num2str((1:L)'));
     elseif isempty(Lmodel.obsl)
@@ -165,7 +178,7 @@ end
 
 label(find(ismember(label, 'mixed'))) = {''};
 
-if nargin < 5 || isempty(classes)
+if isempty(classes)
     if opt(2) == '1' 
         classes = ones(L,1); 
     else
@@ -215,7 +228,7 @@ else
     mult = ones(size(TT,1));
 end
 
-tvar = varLpca(Lmodel,0);
+tvar = varLpca(Lmodel,'Option',0);
 
 indM = floor(log10((max(Lmodel.multr)+1)));
 indm = floor(log10((min(Lmodel.multr)+1)));

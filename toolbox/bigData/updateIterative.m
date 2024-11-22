@@ -1,10 +1,9 @@
-function Lmodel = updateIterative(list,path,Lmodel,step,files,debug)
+function Lmodel = updateIterative(list,varargin)
 
 % Big data analysis based on bilinear proyection models (PCA, PLS and ASCA),
 % iterative approach.
 %
 % Lmodel = updateIterative(list)          % minimum call
-% Lmodel = updateIterative(list,path,Lmodel,step,files,debug) % complete call
 %
 %
 % INPUTS:
@@ -12,20 +11,22 @@ function Lmodel = updateIterative(list,path,Lmodel,step,files,debug)
 % list: {Fx1} list of strings with the names of the files for the update or
 %   struct array with x (and optionally y) matrices.
 %
-% path: (str) If list is a string of filenames, path to the directory where 
+% Optional INPUTS (parameter):
+%
+% 'path: (str) If list is a string of filenames, path to the directory where 
 %   the data files are located ('' by default). Not to confuse with where
 %   the output files are stored (which is Lmodel.path)
 %
-% Lmodel: (struct Lmodel) model to update (initialized to PCA model with 1
+% 'Lmodel: (struct Lmodel) model to update (initialized to PCA model with 1
 %   PC and auto-scaling by default)
 %
-% step: [1x1] percentage of the data in the file to be used in each
+% 'step: [1x1] percentage of the data in the file to be used in each
 %   iteration. For time-course data 1 is suggested (1 by default)
 %
-% files: [1x1] create the file system with the original data (1) or not (0, by
+% 'files: [1x1] create the file system with the original data (1) or not (0, by
 %   default)
 %
-% debug: [1x1] disply debug messages
+% 'debug: [1x1] disply debug messages
 %       0: no messages are displayed.
 %       1: display only main messages (default)
 %       2: display all messages.
@@ -64,7 +65,7 @@ function Lmodel = updateIterative(list,path,Lmodel,step,files,debug)
 %   list(i).x = simuleMV(nobs,nvars,'LevelCorr',6);
 % end
 %
-% Lmodel = updateIterative(list,[],Lmodel);
+% Lmodel = updateIterative(list,'path',[],'Lmodel',Lmodel);
 % mspcLpca(Lmodel);
 %
 %
@@ -84,12 +85,12 @@ function Lmodel = updateIterative(list,path,Lmodel,step,files,debug)
 %   list(i).x = simuleMV(nobs,nvars,'LevelCorr',6);
 % end
 %
-% Lmodel = updateIterative(list,[],Lmodel,0.1,1,2);
+% Lmodel = updateIterative(list,'path',[],'Lmodel',Lmodel,'step',0.1,'files',1,'debug',2);
 % mspcLpca(Lmodel);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Feb/2024
+% last modification: 21/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -108,20 +109,28 @@ function Lmodel = updateIterative(list,path,Lmodel,step,files,debug)
       
 %% Arguments checking
 
+% Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-if nargin < 2 || isempty(path), path = ''; end;
-if nargin < 3 || isempty(Lmodel) 
-    Lmodel = iniLmodel; 
-    Lmodel.type = 'PCA';
-    Lmodel.lvs = 0;
-    Lmodel.prep = 2;
-end;
-[ok, Lmodel] = checkLmodel(Lmodel);
-if nargin < 4 || isempty(step), step = 1; end;
-if nargin < 5 || isempty(files), files = 0; end;
-if nargin < 6 || isempty(debug), debug = 1; end;
+p = inputParser;
+addParameter(p,'path','');   
+    defmodel = iniLmodel; 
+    defmodel.type = 'PCA';
+    defmodel.lvs = 0;
+    defmodel.prep = 2;
+addParameter(p,'Lmodel',defmodel);   
+addParameter(p,'step',1);   
+addParameter(p,'files',1);   
+addParameter(p,'debug',1);     
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+path = p.Results.path;
+Lmodel = p.Results.Lmodel;
+step = p.Results.step;
+files = p.Results.files;
+debug = p.Results.debug;
 
 % Validate dimensions of input data
 assert (isequal(size(step), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);

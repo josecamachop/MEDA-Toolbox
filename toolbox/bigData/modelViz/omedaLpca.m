@@ -1,4 +1,4 @@
-function omedavec = omedaLpca(Lmodel,test,dummy,opt)
+function omedavec = omedaLpca(Lmodel,test,dummy,varargin)
 
 % Observation-based Missing data methods for Exploratory Data Analysis 
 % (oMEDA) for PCA in Big Data. The original paper is Journal of Chemometrics, 2011, 25 
@@ -6,7 +6,6 @@ function omedavec = omedaLpca(Lmodel,test,dummy,opt)
 % Known Data Regression (KDR) missing data imputation.
 %
 % omedavec = omedaLpca(Lmodel,test,dummy) % minimum call
-% [omedavec,lim] = omedaLpca(Lmodel,test,dummy,opt) %complete call
 %
 %
 % INPUTS:
@@ -27,7 +26,9 @@ function omedavec = omedaLpca(Lmodel,test,dummy,opt)
 % dummy: [Lx1] dummy variable containing weights for the observations to 
 %   compare, and 0 for the rest of observations
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% Optional INPUTS (parameter):
+%
+% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
 %           1: plot oMEDA vector
@@ -68,7 +69,7 @@ function omedavec = omedaLpca(Lmodel,test,dummy,opt)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 22/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -98,7 +99,13 @@ M = size(Lmodel.XX, 2);
 
 L = size(test, 1);
 if isempty(dummy), dummy = ones(L,1); end;
-if nargin < 4 || isempty(opt), opt = '100'; end; 
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Option','100');     
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+opt = p.Results.Option;
 
 A = length(Lmodel.lvs);
 

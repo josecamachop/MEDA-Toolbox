@@ -1,20 +1,20 @@
-function Lmodel = iniLmodel(X,Y,obsl,varl)
+function Lmodel = iniLmodel(X,Y,varargin)
 
 % Large model inicialization
 %
 % iniLmodel % minimum call
-% Lmodel = iniLmodel(X,Y,obsl,varl) % complete call
 %
-%
-% INOUTS:
+% INPUTS:
 %
 % X: [NxM] billinear data set for model fitting
 %
 % Y: [NxO] billinear data set of predicted variables
 %
-% obsl: {Nx1} label of each observation.
+% Optional INPUTS (parameter):
 %
-% varl: {Mx1} label of each variable.
+% 'ObsLabel': {Nx1} label of each observation.
+%
+% 'VarLabel': {Mx1} label of each variable.
 %
 % OUTPUTS:
 %
@@ -91,7 +91,7 @@ function Lmodel = iniLmodel(X,Y,obsl,varl)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 21/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -114,20 +114,26 @@ if nargin < 1, X = []; end;
 N = size(X, 1);
 M = size(X, 2);
 if nargin < 2, Y = []; end;
-if nargin < 3 || isempty(obsl) 
+
+p = inputParser;
     if N>0 
         obsl = cellstr(num2str((1:N)')); 
     else
         obsl = {}; 
     end;
-end
-if nargin < 4 || isempty(varl) 
+addParameter(p,'ObsLabel',obsl);   
     if M>0
         varl = cellstr(num2str((1:M)')); 
     else
         varl = {};
     end
-end;
+addParameter(p,'VarLabel',varl);    
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+obsl = p.Results.ObsLabel;
+varl = p.Results.VarLabel;
+
 
 Lmodel.centr = X;
 Lmodel.centrY = Y;
