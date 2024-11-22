@@ -569,7 +569,7 @@ function information_message(handles)
         case 10
             text=sprintf('An oMEDA plot simplifies the understanding of the relationship between patterns in the scores and the correlated variables. It is like a biplot that combines scores and loadings, but clearer and easier to interpret. With oMEDA, we can interpret outliers, trends, clusters, etc.');
         case 11
-            text=sprintf('In the GUI, oMEDA works for a 2D score plot, that you should have selected in the foreground (current figure). Create the 2D score plot and press the ''SELECT'' button in oMEDA, and describe a polygon on top of the score plot to encircle one group of observations. Then, press button ''+''.');
+            text=sprintf('In the GUI, oMEDA works for a 2D score plot, that you should have selected in the foreground (current figure). Create the 2D score plot and press the ''SELECT'' button in the oMEDA section, and describe a polygon on top of the score plot to encircle one group of observations. Then, press the button ''+''.');
         case 12
             text=sprintf('If there is a second group of observations to compare, repeat the same operation and now press button ''-''.');        
         case 13

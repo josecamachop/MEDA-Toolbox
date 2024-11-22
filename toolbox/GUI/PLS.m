@@ -325,7 +325,7 @@ function information_message(handles)
         case 12
             text=sprintf('If there is a second group of observations to compare, repeat the same operation and now press button ''-''.');        
         case 13
-            text=sprintf('To issue the oMEDA plot, press the ''Plot'' button. This will allow you to understand the differences between the first group and the rest of observations (if you only selected one group) or between the two groups.');
+            text=sprintf('To issue the oMEDA plot, press the ''Plot'' button. This will allow you to understand the differences between the first group and the rest of the observations (if you only selected one group) or between the two groups.');
         case 14    
             text=sprintf('The MEDA plot is complementary to loadings plots, and allows you to better understand the correlation among variables in specific subspaces of your model.');
         case 15    
