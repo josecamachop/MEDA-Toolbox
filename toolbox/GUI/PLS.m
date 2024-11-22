@@ -299,35 +299,35 @@ end
 function information_message(handles)
     switch handles.data.messageNum
         case 0
-            text=sprintf('When you open the PLS GUI, the Matlab workspace is automatically loaded into the inner GUI workspace, and you can interact with the data. At any point, you can reload the Matlab workspace by clicking the ''REFRESH'' button, and re-start your analysis.');
+            text=sprintf('When you open the PLS GUI, the MATLAB workspace is automatically loaded into the inner GUI workspace, and you can interact with the data. At any point, you can reload the MATLAB workspace by clicking the ''REFRESH'' button, and restart your analysis.');
         case 1
-            text=sprintf('Load Data section (top-left): To begin the analysis, choose a data matrix and select the preprocessing of the data from the corresponding drop down menus. If no data set appears, please make sure the data is in the Matlab workspace, and reload the GUI workSpace with the ''REFRESH'' button.');
+            text=sprintf('Load Data section (top-left): To begin the analysis, choose a data matrix and select the preprocessing of the data from the corresponding drop down menu. If no dataset appears, please make sure the data is in the MATLAB workspace, then reload the GUI workspace with the ''REFRESH'' button.');
         case 2
-            text=sprintf('Select LVs section (left): For aid in the selection of the number of LVs, enter the maximum number of LVs (e.g., write 10 in the ''LVs'' field) and select an option (''Var Y + scores'' suggested). Then, press the plot button.');
+            text=sprintf('Select LVs section (left): To aid in the selection of the number of LVs, enter the maximum number of LVs (e.g., write 10 in the ''LVs'' field) and select an option (''Var Y + scores'' is suggested). Then, press the plot button.');
         case 3
-            text=sprintf('PLS Analysis section (left): Select the number of latent variables for the model (field ''LVs'') and press the PLS button. This will fit the model and activate the Score Plot, Loading Plot and MEDA menus.');
+            text=sprintf('PLS Analysis section (left): Select the number of latent variables for the model (field ''LVs'') and press the PLS button. This will fit the model and activate the Scores Plot, Loadings Plot and MEDA menus.');
         case 4
-            text=sprintf('Exploratory plots of observations (Score plots, oMEDA plots) and variables (Loading plot, MEDA plots) and corresponding Model/Residuals plots, are issued by acting on the proper menu at the left (for observations) and right (for variables), respectively.');
+            text=sprintf('Exploratory plots of observations (Scores plots, oMEDA plots) and variables (Loadings plot, MEDA plots) and corresponding Model/Residuals plots, are issued by acting on the proper menu at the left (for observations) and right (for variables), respectively.');
         case 5
-            text=sprintf('Observations section (down-left): ''Label'' and ''Classes'' are cell arrays or vectors with as many tags as the number of observations. These are loaded to the GUI from the Matlab workspace. Labels and classes apply to score plots and observation-wise Model/Residuals plots.');
+            text=sprintf('Observations section (down-left): ''Labels'' and ''Classes'' are cell arrays or vectors with as many tags as the number of observations. These are loaded to the GUI from the MATLAB workspace. Labels and classes apply to scores plots and observation-wise Model/Residuals plots.');
         case 6
-            text=sprintf('Variables section (down-right): ''Label'' and ''Classes'' are cell arrays or vectors with as many entries as the number of variables. Labels and classes apply to loading plots, oMEDA and MEDA plots, and variable-wise Model/Residuals plots. ');
+            text=sprintf('Variables section (down-right): ''Labels'' and ''Classes'' are cell arrays or vectors with as many entries as the number of variables. Labels and classes apply to loading plots, oMEDA and MEDA plots, and variable-wise Model/Residuals plots. ');
         case 7
-            text=sprintf('You can create labels or classes in the Matlab environment and load them to the GUI by clicking the REFRESH button (you will need to start over, make sure to select the proper datasets again)');
+            text=sprintf('You can create labels or classes in the MATLAB environment and load them to the GUI by clicking the REFRESH button (you will need to start over, make sure to select the proper datasets again)');
         case 8
-            text=sprintf('To generate a score plot, select the components (''X-axis'' and ''Y-axis''), optionally a label and class array, and press ''Plot''. If you select the same component for both axes, a single-LV bar plot will be issued.');
+            text=sprintf('To generate a scores plot, select the components (''X-axis'' and ''Y-axis''), optionally select a label and class array, and press ''Plot''. If you select the same component for both axes, a single-LV bar plot will be issued.');
         case 9
-            text=sprintf('To generate a loading plot, follow the same approach.');        
+            text=sprintf('To generate a loadings plot, follow the same approach.');        
         case 10
-            text=sprintf('An oMEDA plot simplifies the understanding of the relationship between patterns in the scores and the correlated variables. It is like a biplot that combines scores and loadings, but clearer and easier to interpret. With oMEDA, we can interpret outliers, trends, clusters, etc.');
+            text=sprintf('An oMEDA plot simplifies the understanding of the relationship between patterns in the scores and the correlated variables. It is like a biplot that combines scores and loadings, but is clearer and easier to interpret. With oMEDA, we can interpret outliers, trends, clusters, etc.');
         case 11
-            text=sprintf('In the GUI, oMEDA works for a 2D score plot, that you should have selected in the foreground (current figure). Create the 2D score plot and press the ''SELECT'' button in oMEDA, and describe a polygon on top of the score plot to encircle one group of observations. Then, press button ''+''.');
+            text=sprintf('In the GUI, oMEDA works for a 2D score plot, that you should have selected in the foreground (current figure). Create the 2D score plot and press the ''SELECT'' button in oMEDA, and describe a polygon on top of the score plot to encircle one group of observations. Then, press the button ''+''.');
         case 12
-            text=sprintf('If there is a second group of observations to compare, repeat the same operation and now press button ''-''.');        
+            text=sprintf('If there is a second group of observations to compare, repeat the same operation and now press the button ''-''.');        
         case 13
             text=sprintf('To issue the oMEDA plot, press the ''Plot'' button. This will allow you to understand the differences between the first group and the rest of the observations (if you only selected one group) or between the two groups.');
         case 14    
-            text=sprintf('The MEDA plot is complementary to loadings plots, and allows you to better understand the correlation among variables in specific subspaces of your model.');
+            text=sprintf('The MEDA plot is complementary to loadings plots, and allows you to better understand the correlations among variables in specific subspaces of your model.');
         case 15    
             text=sprintf('Select a subspace in the drop down menu (#A:#B, where A <= B both represent a LV) and press ''Plot''. You may modify this plot by activating ''Seriation'', to reorder the variables (suggested), and ''Discard'', to delete variables with less variance in the plot than the selected ''Threshold''.'); 
         case 16    
@@ -538,7 +538,7 @@ if ~isempty(handles.data.WorkSpace)
         handles.data.nameDatay=string_evaluation;
     end
     
-    %Refresh de los popupmenus Label y Classes:
+    %Refresh de los popupmenus Labels y Classes:
     contents=get(handles.classcorePopup,'String');
     aux=[];
     for i=1:length(handles.data.WorkSpace)
@@ -964,7 +964,7 @@ else
 
     if ~isempty(handles.data.label)
         if max(size(label))~=size(handles.data.data_matrixX,1) || min(size(label))~=1
-            errordlg('Label must have as many tags as number of observations in the data matrix.');
+            errordlg('Labels must have as many tags as number of observations in the data matrix.');
             handles.data.nameLabscore='emptylabel';
             handles.data.label={};
             nombres=cellstr(get(hObject,'String'));
@@ -1623,7 +1623,7 @@ else
 
     if ~isempty(handles.data.label_LP)
         if max(size(label_LP))~=size(handles.data.data_matrixX,2) || min(size(label_LP))~=1,
-            errordlg('Label must have as many tags as number of variables in the data matrix.');
+            errordlg('Labels must have as many tags as number of variables in the data matrix.');
             handles.data.nameLabvar='emptylabel';
             handles.data.label_LP={};
             nombres=cellstr(get(hObject,'String'));
