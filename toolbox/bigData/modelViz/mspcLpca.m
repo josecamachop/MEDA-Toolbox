@@ -1,5 +1,5 @@
 
-function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcLpca(Lmodel,test,opt,label,classes,pvalueD,pvalueQ,limtype)
+function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcLpca(Lmodel,varargin)
 
 % Compute D-st and Q-st in PCA-based Multivariate Statistical Process 
 % Control
@@ -21,10 +21,12 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcLpca(Lmodel,test,opt,label,classes,
 %       Lmodel.weight: [1xM] weight applied after the preprocessing method.
 %       Lmodel.obsl: {ncx1} label of each cluster.
 %
-% test: [LxM] data set with the observations to be compared. These data 
+% Optional INPUTS (parameters):
+%
+% 'Test': [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
 %           1: plot MSPC charts
@@ -38,20 +40,20 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcLpca(Lmodel,test,opt,label,classes,
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
 %   If a=0, then b and c are ignored.
 %
-% label: [Lx1] name of the test observations (numbers are used by default)
+% 'ObsLabel': [Lx1] name of the test observations (numbers are used by default)
 %
-% classes: [Lx1] groups in test for different visualization (a single group 
+% 'ObsClass': [Lx1] groups in test for different visualization (a single group 
 %   by default)
 %
-% pvalueD: [Ldx1] p-values for control limits in the D-st, in (0,1]. 
+% 'pvalueD': [Ldx1] p-values for control limits in the D-st, in (0,1]. 
 %   Values equal to 0.01 and 0.05 are used by default in bar plots, and
 %   0.01 in scatter plots
 %
-% pvalueQ: [Lqx1] p-values for control limits in the Q-st, in (0,1]. 
+% 'pvalueQ': [Lqx1] p-values for control limits in the Q-st, in (0,1]. 
 %   Values equal to 0.01 and 0.05 are used by default in bar plots, and
 %   0.01 in scatter plots
 %
-% limtype: [1x1] type of control limit
+% 'limType': [1x1] type of control limit
 %       0: theoretical (statistical distribution based, by default)
 %       otherwise: percentiles
 %
@@ -84,11 +86,10 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcLpca(Lmodel,test,opt,label,classes,
 % test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
-% [Dst,Qst,Dstt,Qstt] = mspcLpca(Lmodel,test,100,[],[1*ones(5,1);2*ones(5,1)]);
-%
+% [Dst,Qst,Dstt,Qstt] = mspcLpca(Lmodel,'Test',test,'Option',100,'ObsLabel',[],'ObsClass',[1*ones(5,1);2*ones(5,1)]);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 22/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -116,10 +117,27 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 N = min(Lmodel.nc,size(Lmodel.centr,1));
 M = size(Lmodel.XX, 2);
 
-if nargin < 2, test = []; end;
-L = size(test, 1);
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Test',[]);
+addParameter(p,'Option','100');
+addParameter(p,'ObsLabel',[]);
+addParameter(p,'ObsClasses',[]);
+addParameter(p,'pvalueD',[]);
+addParameter(p,'pvalueQ',[]);
+addParameter(p,'limType',0);
+parse(p,varargin{:});
 
-if nargin < 3 || isempty(opt), opt = '100'; end; 
+% Extract inputs from inputParser for code legibility
+test = p.Results.Test;
+opt = p.Results.Option;
+label = p.Results.ObsLabel;
+classes = p.Results.ObsClasses;
+pvalueQ = p.Results.pvalueQ;
+pvalueD = p.Results.pvalueD;
+limtype = p.Results.limType;
+
+L = size(test, 1);
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -133,7 +151,7 @@ else
     K = N+L;
 end
 
-if nargin < 4 || isempty(label)
+if isempty(label)
     if  opt(3) == '1'
         label = cellstr(num2str((1:L)'));
     elseif isempty(Lmodel.obsl)
@@ -157,7 +175,7 @@ else
     end
 end
 
-if nargin < 5 || isempty(classes)
+if isempty(classes)
     if opt(3) == '1' 
         classes = ones(L,1); 
     else
@@ -167,21 +185,20 @@ elseif opt(3) == '0' && length(classes)==L
         classes = [Lmodel.class;2*classes];
 end
 
-if nargin < 6 || isempty(pvalueD)
+if isempty(pvalueD)
     if opt(2) == 0 || opt(2) == '0'
         pvalueD = 0.01; 
     else
         pvalueD = [0.01 0.05]; 
     end
 end;
-if nargin < 7 || isempty(pvalueQ) 
+if isempty(pvalueQ) 
     if opt(2) == 0 || opt(2) == '0'
         pvalueQ = 0.01; 
     else
         pvalueQ = [0.01 0.05]; 
     end
 end;
-if nargin < 8, limtype = 0; end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;

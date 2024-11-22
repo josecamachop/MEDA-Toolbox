@@ -140,6 +140,23 @@ classdef bigDataTest < matlab.unittest.TestCase
         [Dstta,Qstta] = mspcAdicov(Lmodel,'Test',test(6:10,:),'Index',0);
         end
 
+        function testmspcLpca(testCase)
+        nobs = 100;
+        nvars = 10;
+        nPCs = 1;
+        Lmodel = iniLmodel(simuleMV(nobs,nvars,'LevelCorr',6));
+        Lmodel.multr = 100*rand(nobs,1); 
+        Lmodel.lvs = 1:nPCs;
+
+        nobst = 10;
+        test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
+        test(6:10,:) = 3*test(6:10,:);
+
+        [Dst,Qst,Dstt,Qstt] = mspcLpca(Lmodel,'Test',test,'Option',100, ...
+            'ObsLabel',[],'ObsClass',[1*ones(5,1);2*ones(5,1)]);
+        end
+        close all
+
     end
 
 end
