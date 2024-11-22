@@ -69,7 +69,6 @@ classdef bigDataTest < matlab.unittest.TestCase
         rmdir(Lmodel.path, 's')
         end
 
-
         function testleveragesLpca(testCase)
             X = simuleMV(20,10,'LevelCorr',8);
             Lmodel = iniLmodel(X);
@@ -77,6 +76,16 @@ classdef bigDataTest < matlab.unittest.TestCase
             L = leveragesLpca(Lmodel, 'Option', 0);
             L = leveragesLpca(Lmodel, 'Option', 1);
             close all
+        end
+
+        function testleveragesLpls(testCase)
+        X = simuleMV(20,10,'LevelCorr',8);
+        Y = 0.1*randn(20,2) + X(:,1:2);
+        Lmodel = iniLmodel(X,Y);
+        Lmodel.lvs = 1:3;
+        L = leveragesLpls(Lmodel, 'Option', '0');
+        L = leveragesLpls(Lmodel, 'Option', 1);
+        close all
         end
 
     end

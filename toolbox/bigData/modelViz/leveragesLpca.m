@@ -3,7 +3,6 @@ function L = leveragesLpca(Lmodel,varargin)
 % Compute and plot the leverages of variables in the PCA model for large data.
 %
 % L = leveragesLpca(Lmodel) % minimum call
-% L = leveragesLpca(Lmodel,opt) % complete call
 %
 % INPUTS:
 %

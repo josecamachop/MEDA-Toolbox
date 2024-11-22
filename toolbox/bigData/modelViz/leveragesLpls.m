@@ -1,10 +1,9 @@
 
-function L = leveragesLpls(Lmodel,opt)
+function L = leveragesLpls(Lmodel,varargin)
 
 % Compute and plot the leverages of variables in PLS for large data.
 %
 % L = leveragesLpls(Lmodel) % minimum call
-% L = leveragesLpls(Lmodel,opt) % complete call
 %
 % INPUTS:
 %
@@ -17,9 +16,11 @@ function L = leveragesLpls(Lmodel,opt)
 %       Lmodel.vclass: [Mx1] class associated to each variable.
 %       Lmodel.varl: {ncx1} label of each variable.
 %
-% opt: (str or num) options for data plotting
+% Optional INPUTS (parameters):
+%
+% 'Option': (str or num) options for data plotting.
 %       0: no plots.
-%       1: plot bar plot of leverages (default) 
+%       1: plot bar plot of leverages (default)
 %
 %
 % OUTPUTS:
@@ -37,7 +38,7 @@ function L = leveragesLpls(Lmodel,opt)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 22/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -60,7 +61,13 @@ function L = leveragesLpls(Lmodel,opt)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 [ok, Lmodel] = checkLmodel(Lmodel);
-if nargin < 2 || isempty(opt), opt = 1; end; 
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Option','1');
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+opt = p.Results.Option;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
