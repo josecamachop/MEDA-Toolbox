@@ -549,9 +549,9 @@ function information_message(handles)
         case 0
             text=sprintf('When you open the PCA GUI, the Matlab workspace is automatically loaded into the inner GUI workspace, and you can interact with the data. At any point, you can reload the Matlab workspace by clicking the ''REFRESH'' button, and re-start your analysis.');
         case 1
-            text=sprintf('Preprocessing section (top-left): To begin the analysis, choose a data matrix and select the preprocessing of the data from the corresponding drop down menus. If no data set appears, please make sure the data is in the Matlab workspace, and reload the GUI workSpace with the ''REFRESH'' button.');
+            text=sprintf('Load Data section (top-left): To begin the analysis, choose a data matrix and select the preprocessing of the data from the corresponding drop down menus. If no data set appears, please make sure the data is in the Matlab workspace, and reload the GUI workSpace with the ''REFRESH'' button.');
         case 2
-            text=sprintf('General Plots section (left): For aid in the selection of the number of PCs, enter a maximum number of PCs (e.g., write 10 in the ''PCs'' field) and select an option (''Var X + ckf'' suggested). If ''SVI plot'' is selected, a variable should be additionally chosen. Then, press the plot button.');
+            text=sprintf('Select PCs section (left): For aid in the selection of the number of PCs, enter a maximum number of PCs (e.g., write 10 in the ''PCs'' field) and select an option (''Var X + ckf'' suggested). If ''SVI plot'' is selected, a variable should be additionally chosen. Then, press the plot button.');
         case 3
             text=sprintf('PCA Analysis section (left): Select the number of principal components for the model (field ''PCs'') and press the PCA button. This will fit the model and activate the Score Plot, Loading Plot and MEDA menus.');
         case 4

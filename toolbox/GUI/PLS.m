@@ -301,9 +301,9 @@ function information_message(handles)
         case 0
             text=sprintf('When you open the PLS GUI, the Matlab workspace is automatically loaded into the inner GUI workspace, and you can interact with the data. At any point, you can reload the Matlab workspace by clicking the ''REFRESH'' button, and re-start your analysis.');
         case 1
-            text=sprintf('Preprocessing section (top-left): To begin the analysis, choose a data matrix and select the preprocessing of the data from the corresponding drop down menus. If no data set appears, please make sure the data is in the Matlab workspace, and reload the GUI workSpace with the ''REFRESH'' button.');
+            text=sprintf('Load Data section (top-left): To begin the analysis, choose a data matrix and select the preprocessing of the data from the corresponding drop down menus. If no data set appears, please make sure the data is in the Matlab workspace, and reload the GUI workSpace with the ''REFRESH'' button.');
         case 2
-            text=sprintf('General Plots section (left): For aid in the selection of the number of LVs, enter the maximum number of LVs (e.g., write 10 in the ''LVs'' field) and select an option (''Var Y + scores'' suggested). Then, press the plot button.');
+            text=sprintf('Select LVs section (left): For aid in the selection of the number of LVs, enter the maximum number of LVs (e.g., write 10 in the ''LVs'' field) and select an option (''Var Y + scores'' suggested). Then, press the plot button.');
         case 3
             text=sprintf('PLS Analysis section (left): Select the number of latent variables for the model (field ''LVs'') and press the PLS button. This will fit the model and activate the Score Plot, Loading Plot and MEDA menus.');
         case 4

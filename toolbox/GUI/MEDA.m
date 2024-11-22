@@ -76,7 +76,7 @@ function MEDA_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for MEDA
 handles.output = hObject;
-handles.data.version='1.3';
+handles.data.version='1.5';
 %Change icon
 %warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
 %javaFrame = get(hObject,'JavaFrame');
