@@ -154,8 +154,27 @@ classdef bigDataTest < matlab.unittest.TestCase
 
         [Dst,Qst,Dstt,Qstt] = mspcLpca(Lmodel,'Test',test,'Option',100, ...
             'ObsLabel',[],'ObsClass',[1*ones(5,1);2*ones(5,1)]);
-        end
         close all
+        end
+
+        function testmspcLpls(testCase)
+        nobs = 100;
+        nvars = 10;
+        nLVs = 1;
+        X = simuleMV(nobs,nvars,'LevelCorr',6);
+        Y = 0.1*randn(nobs,2) + X(:,1:2);
+        Lmodel = iniLmodel(X,Y);
+        Lmodel.multr = 100*rand(nobs,1); 
+        Lmodel.lvs = 1:nLVs;
+
+        nobst = 10;
+        test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
+        test(6:10,:) = 3*test(6:10,:);
+
+        [Dst,Qst,Dstt,Qstt] = mspcLpls(Lmodel,'Test',test,'Option',100,'ObsClass',[1*ones(5,1);2*ones(5,1)]);
+
+        close all
+        end
 
     end
 
