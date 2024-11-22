@@ -1,4 +1,4 @@
-function [medamap,ind,ord,Lmodel] = medaLpca(Lmodel,thres,opt,vars)
+function [medamap,ind,ord,Lmodel] = medaLpca(Lmodel,varargin)
 
 % Missing data methods for exploratory data analysis in PCA. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
@@ -16,9 +16,11 @@ function [medamap,ind,ord,Lmodel] = medaLpca(Lmodel,thres,opt,vars)
 %       Lmodel.XX: [MxM] X-block cross-product matrix.
 %       Lmodel.lvs: [1x1] number of PCs.
 %
-% thres: [1x1] threshold (0,1] for discretization and discarding (0.1 by default) 
+% Optional INPUTS (parameters):
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% 'Threshold':: [1x1] threshold (0,1] for discretization and discarding (0.1 by default) 
+%
+% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
 %           1: plot MEDA matrix
@@ -32,7 +34,7 @@ function [medamap,ind,ord,Lmodel] = medaLpca(Lmodel,thres,opt,vars)
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
 %   If a=0, then b and c are ignored.
 %
-% vars: [Sx1] Subset of variables to plot (1:M by default)
+% 'VarIndex': [Sx1] Subset of variables to plot (1:M by default)
 %
 %
 % OUTPUTS:
@@ -51,11 +53,11 @@ function [medamap,ind,ord,Lmodel] = medaLpca(Lmodel,thres,opt,vars)
 % X = simuleMV(20,10,'LevelCorr',8);
 % Lmodel = iniLmodel(X);
 % Lmodel.lvs = 1:3;
-% map = medaLpca(Lmodel,0.3,'111');
+% map = medaLpca(Lmodel,'Threshold', 0.3,'Option','111');
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 22/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -80,9 +82,17 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 [ok, Lmodel] = checkLmodel(Lmodel);
 M = size(Lmodel.centr,2);
-if nargin < 2 || isempty(thres), thres = 0.1; end; 
-if nargin < 3 || isempty(opt), opt = '100'; end; 
-if nargin < 4 || isempty(vars), vars = 1:M; end;
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Threshold',0.1);
+addParameter(p,'Option','100');
+addParameter(p,'VarIndex',1:M);  
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+thres = p.Results.Threshold;
+opt = p.Results.Option;
+vars = p.Results.VarIndex;
 
 % Convert row arrays to column arrays
 if size(vars,1)  == 1, vars = vars'; end;

@@ -107,6 +107,14 @@ classdef bigDataTest < matlab.unittest.TestCase
         close all
         end
 
+        function testmedaLpca(testCase)
+        X = simuleMV(20,10,'LevelCorr',8);
+        Lmodel = iniLmodel(X);
+        Lmodel.lvs = 1:3;
+        map = medaLpca(Lmodel,'Threshold', 0.3,'Option','111');
+        close all
+        end
+
     end
 
 end
