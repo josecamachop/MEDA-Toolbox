@@ -119,6 +119,7 @@ checkLmodel(Lmodel);
 
 N = size(Lmodel.centr,1);
 M = size(Lmodel.XX, 2);
+% Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'Test',[]);
 addParameter(p,'Option','00000');
@@ -131,6 +132,7 @@ test = p.Results.Test;
 opt = p.Results.Option;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
+
 L = size(test, 1);
 
 
