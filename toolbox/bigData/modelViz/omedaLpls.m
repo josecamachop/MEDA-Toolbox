@@ -1,4 +1,4 @@
-function omedavec = omedaLpls(Lmodel,test,dummy,opt)
+function omedavec = omedaLpls(Lmodel,test,dummy,varargin)
 
 % Observation-based Missing data methods for Exploratory Data Analysis 
 % (oMEDA) for PCA. The original paper is Journal of Chemometrics, 
@@ -29,7 +29,9 @@ function omedavec = omedaLpls(Lmodel,test,dummy,opt)
 % dummy: [Lx1] dummy variable containing weights for the observations to 
 %   compare, and 0 for the rest of observations
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% Optional INPUTS (parameter):
+%
+% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
 %           1: plot oMEDA vector
@@ -101,7 +103,13 @@ N = Lmodel.nc;
 M = size(Lmodel.XX, 2);
 L = size(test, 1);
 if isempty(dummy), dummy = ones(L,1); end;
-if nargin < 4 || isempty(opt), opt = '100'; end; 
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Option','100');     
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+opt = p.Results.Option;
 
 A = length(Lmodel.lvs);
 
@@ -129,7 +137,7 @@ R = Lmodel.altweights;
 P = Lmodel.loads;
     
 testcs = preprocess2Dapp(test,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
-omedavec = omeda(testcs,dummy,R,P);
+omedavec = omeda(testcs,dummy,R,'OutSubspace',P);
 
 % heuristic: 95% limit for one-observation-dummy
 xcs = Lmodel.centr;

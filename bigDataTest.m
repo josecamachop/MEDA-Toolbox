@@ -176,6 +176,44 @@ classdef bigDataTest < matlab.unittest.TestCase
         close all
         end
 
+        function testomedaLpca(testCase)
+        nobs = 100;
+        nvars = 10;
+        nPCs = 10;
+        Lmodel = iniLmodel(simuleMV(nobs,nvars,'LevelCorr',6));
+        Lmodel.multr = 100*rand(nobs,1); 
+        Lmodel.lvs = 1:nPCs;
+
+        nobst = 10;
+        test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
+        test(1,1:2) = 10*max(abs(Lmodel.centr(:,1:2))); 
+        dummy = zeros(10,1);
+        dummy(1) = 1;
+
+        omedavec = omedaLpca(Lmodel,test,dummy);
+        close all
+        end
+
+        function testomedaLpls(testCase)
+        nobs = 100;
+        nvars = 10;
+        nLVs = 10;
+        X = simuleMV(nobs,nvars,'LevelCorr',6);
+        Y = 0.1*randn(nobs,2) + X(:,1:2);
+        Lmodel = iniLmodel(X,Y);
+        Lmodel.multr = 100*rand(nobs,1); 
+        Lmodel.lvs = 1:nLVs;
+
+        nobst = 10;
+        test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
+        test(1,1:2) = 10*max(abs(Lmodel.centr(:,1:2))); 
+        dummy = zeros(10,1);
+        dummy(1) = 1;
+
+        omedavec = omedaLpls(Lmodel,test,dummy);
+        close all
+        end
+
     end
 
 end
