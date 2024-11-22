@@ -1,5 +1,5 @@
 
-function figH = scoresL(Lmodel,test,opt,tit,label,classes,blur)
+function figH = scoresL(Lmodel,varargin)
 
 % Compute and plot scores.
 %
@@ -17,10 +17,12 @@ function figH = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 %   loads: [MxA] Lmodel parameters.
 %   scores: [NxA] data scores.
 %
-% test: [LxM] data set with the observations to be visualized in the Lmodel
+% Optional INPUTS (parameters):
+%
+% 'Test': [LxM] data set with the observations to be visualized in the Lmodel
 %   space. By default, Lmodel.scores are plotted.
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abcd' for:
+% 'Option': (str or num) options for data plotting: binary code of the form 'abcd' for:
 %       a:
 %           0: scatter plot of pairs of PCs 
 %           1: bar plot of each single PC
@@ -40,15 +42,15 @@ function figH = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 %   By deafult, opt = '00000'. If less than 5 digits are specified, least 
 %   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0, d=00 
 %
-% tit: (str) title for the plots. Empty by default;
+% 'Title': (str) title for the plots. Empty by default;
 %
-% label: [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
+% 'ObsLabel': [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
 %   are used by default)
 %
-% classes: [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
+% 'ObsClass': [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
 %   visualization (a single group by default per calibration and test)
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels (1 by default)
 %
 %
@@ -89,7 +91,7 @@ function figH = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 22/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -112,10 +114,28 @@ function figH = scoresL(Lmodel,test,opt,tit,label,classes,blur)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(Lmodel.scores, 1);
+
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Test',[]);
+addParameter(p,'Title','');
+addParameter(p,'Option','00000');
+addParameter(p,'ObsLabel',[]);
+addParameter(p,'ObsClass',[]);
+addParameter(p,'BlurIndex','1');  
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+test = p.Results.Test;
+tit = p.Results.Title;
+opt = p.Results.Option;
+label = p.Results.ObsLabel;
+classes = p.Results.ObsClass;
+blur = p.Results.BlurIndex;
+
 [M,A] = size(Lmodel.loads);
-if nargin < 2, test = []; end;
 L = size(test, 1);
-if nargin < 3 || isempty(opt), opt = '00000'; end; 
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -131,8 +151,7 @@ else
     K = N+L;
 end
 
-if nargin < 4, tit = ''; end 
-if nargin < 5 || isempty(label) 
+if isempty(label) 
     if  opt(2) == '1'
         label = cellstr(num2str((1:L)'));
     elseif isempty(Lmodel.obsl)
@@ -158,7 +177,7 @@ end
 
 label(find(ismember(label, 'mixed'))) = {''};
 
-if nargin < 6 || isempty(classes)
+if isempty(classes)
     if opt(2) == '1' 
         classes = ones(L,1); 
     else
@@ -168,7 +187,6 @@ elseif opt(2) == '0' && length(classes)==L
         classes = [Lmodel.class;2*classes];
 end
 
-if nargin < 7 || isempty(blur),    blur    = 1;       end;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;

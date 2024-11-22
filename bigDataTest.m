@@ -214,6 +214,27 @@ classdef bigDataTest < matlab.unittest.TestCase
         close all
         end
 
+        function testscoresL(testCase)
+        nobs = 100;
+        nvars = 10;
+        X = simuleMV(nobs,nvars,'LevelCorr',8);
+        Lmodel = iniLmodel(X);
+
+        nobst = 10;
+        test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(X)*(nobst-1)/(nobs-1));
+
+        Lmodel.multr = ceil(10*rand(nobs,1));
+
+        Lmodel.lvs = 1;
+        Lmodel = Lpca(Lmodel);
+        scoresL(Lmodel,'Test',test);
+
+        Lmodel.lvs = 1:2;
+        Lmodel = Lpca(Lmodel);
+        scoresL(Lmodel,'Test',test);
+        % close all
+        end
+
     end
 
 end
