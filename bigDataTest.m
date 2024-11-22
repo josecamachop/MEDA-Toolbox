@@ -88,6 +88,14 @@ classdef bigDataTest < matlab.unittest.TestCase
         close all
         end
 
+        function testloadingsLpca(testCase)
+        X = simuleMV(20,10,'LevelCorr',8);
+        Lmodel = iniLmodel(X);
+        Lmodel.lvs = 1:3;
+        P = loadingsLpca(Lmodel, 'Option', 1, 'BlurIndex', .05);
+        close all
+        end
+
     end
 
 end

@@ -1,4 +1,4 @@
-function [P,figH] = loadingsLpca(Lmodel,opt,blur)
+function [P,figH] = loadingsLpca(Lmodel,varargin)
 
 % Compute and plot loadings in PCA for large data.
 %
@@ -14,7 +14,9 @@ function [P,figH] = loadingsLpca(Lmodel,opt,blur)
 %       Lmodel.vclass: [Mx1] class associated to each variable.
 %       Lmodel.varl: {ncx1} label of each variable.
 %
-% opt: (str or num) options for data plotting: binary code of the form 'ab' for:
+% Optional INPUTS (parameters):
+%
+% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
 %       a:
 %           0: no plots
 %           1: plot loadings
@@ -25,7 +27,7 @@ function [P,figH] = loadingsLpca(Lmodel,opt,blur)
 %   significant digit is set to 0, i.e. opt = 1 means a=1 and b=0. If a=0, 
 %   then b is ignored.
 %
-% blur: [1x1] avoid blur when adding labels. The higher, the more labels 
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels (1 by default)
 %
 %
@@ -45,7 +47,7 @@ function [P,figH] = loadingsLpca(Lmodel,opt,blur)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 22/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -68,7 +70,15 @@ function [P,figH] = loadingsLpca(Lmodel,opt,blur)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 [ok, Lmodel] = checkLmodel(Lmodel);
-if nargin < 2 || isempty(opt), opt = '10'; end; 
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Option','1');
+addParameter(p,'BlurIndex','1');  
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+opt = p.Results.Option;
+blur = p.Results.BlurIndex;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -76,7 +86,6 @@ if isnumeric(opt), opt=num2str(opt); end
 % Complete opt
 if length(opt)<2, opt = strcat(opt,'0'); end
 
-if nargin < 3 || isempty(blur),    blur    = 1;       end;
 
 % Validate dimensions of input data
 assert (ischar(opt) && length(opt)==2, 'Dimension Error: 2nd argument must be a string or num of maximum 2 bits. Type ''help %s'' for more info.', routine(1).name);
