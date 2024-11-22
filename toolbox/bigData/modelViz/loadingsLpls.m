@@ -1,5 +1,5 @@
 
-function [P,W,Q,figH] = loadingsLpls(Lmodel,opt)
+function [P,W,Q,figH] = loadingsLpls(Lmodel,varargin)
 
 % Compute and plot loadings in PLS for large data.
 %
@@ -17,7 +17,9 @@ function [P,W,Q,figH] = loadingsLpls(Lmodel,opt)
 %       Lmodel.vclass: [Mx1] class associated to each variable.
 %       Lmodel.varl: {ncx1} label of each variable.
 %
-% opt: (str or num) options for data plotting: binary code of the form 'abc' for:
+% Optional INPUTS (parameters):
+%
+% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:
 %           0: no plots
 %           1: plot loadings
@@ -55,7 +57,7 @@ function [P,W,Q,figH] = loadingsLpls(Lmodel,opt)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 22/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -78,7 +80,14 @@ function [P,W,Q,figH] = loadingsLpls(Lmodel,opt)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 [ok, Lmodel] = checkLmodel(Lmodel);
-if nargin < 2 || isempty(opt), opt = '100'; end; 
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Option','100');
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+opt = p.Results.Option;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end

@@ -72,7 +72,7 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 [ok, Lmodel] = checkLmodel(Lmodel);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'Option','1');
+addParameter(p,'Option','10');
 addParameter(p,'BlurIndex','1');  
 parse(p,varargin{:});
 

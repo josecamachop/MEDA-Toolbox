@@ -96,6 +96,17 @@ classdef bigDataTest < matlab.unittest.TestCase
         close all
         end
 
+        function testloadingsLpls(testCase)
+        X = simuleMV(20,10,'LevelCorr',8);
+        Y = 0.1*randn(20,2) + X(:,1:2);
+        Lmodel = iniLmodel(X,Y);
+        Lmodel.lvs = 1;
+        loadingsLpls(Lmodel);
+        Lmodel.lvs = 1:2;
+        loadingsLpls(Lmodel, 'Option', '0');
+        close all
+        end
+
     end
 
 end
