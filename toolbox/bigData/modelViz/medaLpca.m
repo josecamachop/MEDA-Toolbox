@@ -6,7 +6,6 @@ function [medamap,ind,ord,Lmodel] = medaLpca(Lmodel,varargin)
 % makes use of the covariance matrices.
 %
 % [medamap,ind,ord,Lmodel] = medaLpca(Lmodel) % minimum call
-% [medamap,ind,ord,Lmodel] = medaLpca(Lmodel,thres,opt,vars) %complete call
 %
 %
 % INPUTS:
@@ -18,7 +17,7 @@ function [medamap,ind,ord,Lmodel] = medaLpca(Lmodel,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'Threshold':: [1x1] threshold (0,1] for discretization and discarding (0.1 by default) 
+% 'Threshold': [1x1] threshold (0,1] for discretization and discarding (0.1 by default) 
 %
 % 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
 %       a:

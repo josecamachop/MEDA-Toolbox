@@ -3,7 +3,6 @@ function [P,figH] = loadingsLpca(Lmodel,varargin)
 % Compute and plot loadings in PCA for large data.
 %
 % loadingsLpca(Lmodel) % minimum call
-% loadingsLpca(Lmodel,opt,blur) % complete call
 %
 % INPUTS:
 %

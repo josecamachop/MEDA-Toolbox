@@ -115,6 +115,15 @@ classdef bigDataTest < matlab.unittest.TestCase
         close all
         end
 
+        function testmedaLpls(testCase)
+        X = simuleMV(20,10,'LevelCorr',8);
+        Y = 0.1*randn(20,2) + X(:,1:2);
+        Lmodel = iniLmodel(X,Y);
+        Lmodel.lvs = 1:3;
+        map = medaLpls(Lmodel,'Threshold',0.3,'Option','111');
+        close all
+        end
+
     end
 
 end

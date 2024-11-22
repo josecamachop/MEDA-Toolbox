@@ -4,7 +4,6 @@ function [P,W,Q,figH] = loadingsLpls(Lmodel,varargin)
 % Compute and plot loadings in PLS for large data.
 %
 % loadingsLpls(Lmodel) % minimum call
-% [P,W,Q] = loadingsLpls(Lmodel,opt) % complete call
 %
 % INPUTS:
 %
