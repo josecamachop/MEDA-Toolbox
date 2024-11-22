@@ -1,12 +1,11 @@
 
-function [Dstt,Qstt,Rt,Rq] = mspcAdicov(Lmodel,test,index)
+function [Dstt,Qstt,Rt,Rq] = mspcAdicov(Lmodel,varargin)
 
 % Compute D-st and Q-st in Covariance MSPC using ADICOV. Unlike e.g. mspcLpca, 
 % here we do not compute the statistics of calibration data or control limits,
 % since a set of Lmodels would be needed for that.
 %
 % mspcAdicov(Lmodel,test) % minimum call
-% [Dstt,Qstt,Rt,Rq] = mspcAdicov(Lmodel,test,index,opt,label,classes,pvalueD,pvalueQ,limtype) % complete call
 %
 %
 % INPUTS:
@@ -19,10 +18,12 @@ function [Dstt,Qstt,Rt,Rq] = mspcAdicov(Lmodel,test,index)
 %       Lmodel.sc: [1xM] sample scale according to the preprocessing method.
 %       Lmodel.weight: [1xM] weight applied after the preprocessing method.
 %
-% test: [LxM] data set with the observations to be compared. These data 
-%   are preprocessed in the same way than calibration data
+% Optional INPUTS (parameters):
 %
-% index: (1x1) MSPC index definition
+% 'Test': [LxM] data set with the observations to be compared. These data 
+%   are preprocessed in the same way than calibration data
+% 
+% 'Index': (1x1) MSPC index definition
 %       0: ADICOV similarity index according to Chemometrics and Intelligent 
 %           Laboratory Systems 105, 2011, pp. 171-180 (default)
 %       1: Modified index 
@@ -52,12 +53,12 @@ function [Dstt,Qstt,Rt,Rq] = mspcAdicov(Lmodel,test,index)
 % test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
 % test(6:10,:) = 3*test(6:10,:);
 % 
-% [Dstt,Qstt] = mspcAdicov(Lmodel,test(1:5,:),0)
-% [Dstta,Qstta] = mspcAdicov(Lmodel,test(6:10,:),0)
+% [Dstt,Qstt] = mspcAdicov(Lmodel,'Test', test(1:5,:),'Index',0)
+% [Dstta,Qstta] = mspcAdicov(Lmodel,'Test',test(6:10,:),'Index',0)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 22/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -84,11 +85,17 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 
 N = Lmodel.nc;
 M = size(Lmodel.XX, 2);
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'Test',[]);
+addParameter(p,'Index',1);
+parse(p,varargin{:});
 
-if nargin < 2, test = []; end;
+% Extract inputs from inputParser for code legibility
+test = p.Results.Test;
+index = p.Results.Index;
+
 L = size(test, 1);
-
-if nargin < 3 || isempty(index), index = 1; end;
 
 Lmodel.lvs = unique(Lmodel.lvs);
 Lmodel.lvs(find(Lmodel.lvs==0))=[];
@@ -132,12 +139,12 @@ if Lmodel.N
         tests = preprocess2Dapp(test,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
         
         if ~isempty(Lmodel.lvs)
-            ti = adicov(Lmodel.XX,tests,length(Lmodel.lvs),R(:,Lmodel.lvs),P(:,Lmodel.lvs));
+            ti = adicov(Lmodel.XX,tests,length(Lmodel.lvs),'InSubspace',R(:,Lmodel.lvs),'OutSubspace',P(:,Lmodel.lvs));
         else
             ti = tests;
         end
         if ~isempty(res)
-            ri = adicov(Lmodel.XX,tests,length(res),R(:,res),P(:,res));
+            ri = adicov(Lmodel.XX,tests,length(res),'InSubspace',R(:,res),'OutSubspace',P(:,res));
         else
             ri = tests;
         end
@@ -145,12 +152,12 @@ if Lmodel.N
         if isempty(R(:,Lmodel.lvs))
             iti = 0;
         else
-            iti = ADindex(tests,ti,R(:,Lmodel.lvs)*diag(1./d(Lmodel.lvs)),index);
+            iti = ADindex(tests,ti,'InSubspace',R(:,Lmodel.lvs)*diag(1./d(Lmodel.lvs)),'Index',index);
         end
         if isempty(R(:,res))
             iri = 0;
         else
-            iri = ADindex(tests,ri,R(:,res),index);
+            iri = ADindex(tests,ri,'InSubspace',R(:,res),'Index',index);
         end
         Dstt = iti;
         Qstt = iri;

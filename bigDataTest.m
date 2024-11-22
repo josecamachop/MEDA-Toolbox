@@ -37,7 +37,7 @@ classdef bigDataTest < matlab.unittest.TestCase
         Lmodel.prep = 2;  
         Lmodel.lvs = 1;
         Lmodel.nc = 100; % Number of clusters
-        Lmodel.mat = loadingsLpca(Lmodel,0);
+        Lmodel.mat = loadingsLpca(Lmodel,'Option',0);
         mspcLpca(Lmodel);
 
         for i=1:4,
@@ -122,6 +122,22 @@ classdef bigDataTest < matlab.unittest.TestCase
         Lmodel.lvs = 1:3;
         map = medaLpls(Lmodel,'Threshold',0.3,'Option','111');
         close all
+        end
+
+        function testmspcAdicov(testCase)
+        nobs = 100;
+        nvars = 10;
+        nPCs = 1;
+        Lmodel = iniLmodel(simuleMV(nobs,nvars,'LevelCorr',6));
+        Lmodel.multr = 100*rand(nobs,1); 
+        Lmodel.lvs = 1:nPCs;
+
+        nobst = 10;
+        test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
+        test(6:10,:) = 3*test(6:10,:);
+
+        [Dstt,Qstt] = mspcAdicov(Lmodel,'Test', test(1:5,:),'Index',0);
+        [Dstta,Qstta] = mspcAdicov(Lmodel,'Test',test(6:10,:),'Index',0);
         end
 
     end
