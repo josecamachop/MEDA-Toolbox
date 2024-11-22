@@ -1,7 +1,7 @@
 ﻿Big Data Extension for the MEDA Toolbox for its use in MATLAB.
 
-Coded by: Jose Camacho (josecamacho@ugr.es)
-Last modification of this document: 27/May/17
+Coded by: José Camacho (josecamacho@ugr.es), Jesús García (gsus@ugr.es)
+Last modification of this document: 22/Nov/2024
 
 
 Please, acknowledge the use of this software by refercing it: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate 
@@ -10,7 +10,7 @@ https://github.com/josecamachop/MEDA-Toolbox" Also, please check the documentati
 
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have 
-suggestions, please contact josecamacho@ugr.es
+suggestions, please contact josecamacho@ugr.es or gsus@ugr.es
 
 
 Items in the folder:
@@ -19,11 +19,11 @@ Items in the folder:
 
 	- projection models: Lpca.m (PCA), Lpls.m (PLS), Lgpca.m (GPCA)
 
-	- exploratory tools: scores_Lpca.m & scores_Lpls.m (Socre plots), loadings_Lpca.m & loadings_Lpls.m (Loading plots), 
-		meda_Lpca.m & meda_Lpls.m (MEDA), omeda_Lpca.m & omeda_Lpls.m (oMEDA) mspc_Lpca.m & mspc_Lpls.m & mspc_ADICOV (MSPC), 
-		leverages_Lpca.m & leverages_Lpls.m (leverages of variables)
+	- exploratory tools: scoresLpca.m & scoresLpls.m (Score plots), loadingsLpca.m & loadingsLpls.m (Loading plots), 
+		medaLpca.m & medaLpls.m (MEDA), omedaLpca.m & omedaLpls.m (oMEDA) mspcLpca.m & mspcLpls.m & mspcAdicov (MSPC), 
+		leveragesLpca.m & leveragesLpls.m (leverages of variables)
 
-	- tools to select the number of LVs: var_Lpca.m & var_Lpls.m (Variance plots) 
+	- tools to select the number of LVs: varLpca.m & varLpls.m (Variance plots) 
 
 	- auxiliary routines: preprocess2Di.m, psc.m 
 
@@ -31,7 +31,7 @@ Items in the folder:
 
 	- Lmodel update routines: updateEwma.m, updateIterative.m
 
-	- file management routines: add_data.m, add_indices.m, cfilesys.m, read_data.m, read_indices.m, VCfile.m 
+	- file management routines: addData.m, addDndices.m, cfilesys.m, readData.m, readIndices.m, VCfile.m 
   
 
 You may find an example of use in the Examples\Networkmetric\KDD directory.
@@ -42,8 +42,8 @@ corresponding to each file should be in variable 'x', output/quality variables f
 class for the observations should be stored in variable 'class'. Variables 'x' and 'class' should be in the mat file, while 'y' is optional. 
 For an example of this, please have a look at the data directory in the KDD example. 
 
-Copyright (C) 2017  Universidad de Granada
-Copyright (C) 2017  Jose Camacho
+Copyright (C) 2024  Universidad de Granada
+Copyright (C) 2024  Jose Camacho
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
