@@ -1,6 +1,6 @@
 ﻿VAST 2012 Challenge data. 
 
-Prepared by: José Camacho Páez
+Prepared by: Jose Camacho
 Last modification of this document: 25/Jan/17
 
 Items in the folder:
