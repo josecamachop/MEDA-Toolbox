@@ -17,7 +17,8 @@ function vascao = vasca(parglmoVS,siglev)
 % p-values and explained variance. Obtained with parallel general linear model
 % with variable selection (parglmVS).
 %
-% siglev: [1x1] significance level (0.01 by default)
+% siglev: [1x1] significance level (0.01 by default). If negative, it
+% determines the number of variables selected.
 %
 %
 % OUTPUTS:
@@ -48,7 +49,7 @@ function vascao = vasca(parglmoVS,siglev)
 % end
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 18/Nov/2024
+% last modification: 26/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -83,8 +84,15 @@ vascao = parglmoVS;
 for factor = 1 : vascao.nFactors
     
     pvals = parglmoVS.p(parglmoVS.ordFactors(factor,:),factor); 
-    M = find(pvals==min(pvals)); M = M(end);
-    if pvals(M) <= siglev
+    if siglev > 0
+        M = find(pvals==min(pvals)); M = M(end);
+        thres = siglev;
+    else
+        M = -siglev;
+        thres = Inf;
+    end
+    
+    if pvals(M) <= thres
         vascao.factors{factor}.stasig = true;
         ind = parglmoVS.ordFactors(factor,1:M);
         xf = vascao.factors{factor}.matrix(:,ind);

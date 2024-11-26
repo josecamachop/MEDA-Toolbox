@@ -1773,11 +1773,14 @@ handles.data.lp_ID_figures=new_lp_ID_figures;%Identificadores de los Loadings Pl
 handles.data.lp_matrix=new_lp_matrix;
 if isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
     P = loadingsPls (handles.data.data_matrixX, handles.data.data_matrixY, 'LVs',[LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1);
-else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
+else
+    if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
         P = loadingsPls (handles.data.data_matrixX, handles.data.data_matrixY,'LVs', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1, 'VarsLabel',handles.data.label_LP);
-    else if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP)
-            P = loadingsPls (handles.data.data_matrixX, handles.data.data_matrixY,'LVs', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1, 'ObsClass',handles.data.classes_LP);
-        else         P = loadingsPls (handles.data.data_matrixX, handles.data.data_matrixY,'LVs', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1, 'VarsLabel',handles.data.label_LP, 'ObsClass',handles.data.classes_LP);
+    else
+        if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP)
+            P = loadingsPls (handles.data.data_matrixX, handles.data.data_matrixY,'LVs', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1, 'VarsClass',handles.data.classes_LP);
+        else
+            P = loadingsPls (handles.data.data_matrixX, handles.data.data_matrixY,'LVs', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1, 'VarsLabel',handles.data.label_LP, 'VarsClass',handles.data.classes_LP);
         end
     end
 end
