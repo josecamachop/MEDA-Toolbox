@@ -360,10 +360,9 @@ end
 % Set caxis if colorbar
 if opt(1)=='0'
     caxis(cax);
+else
+    if length(uniqueOrdClasses) == 1, legend off; else legend('show','Location','best'); end
 end
-
-
-if length(uniqueOrdClasses) == 1, legend off; else legend('show','Location','best'); end
 box on
 hold off
 
