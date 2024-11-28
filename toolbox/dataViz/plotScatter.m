@@ -54,8 +54,11 @@ function figH = plotScatter(bdata,varargin)
 % 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels
 %   are printer (the higher blur). Inf shows all the labels (1 by default).
 %
-% 'Color': Choose a color for your data. By default will use okabeIto. 
-%   'parula' for parula palette, 'hsv' for hsv palette.
+% 'Color': Choose a color for your data.  
+%   - 'hsv' for hsv palette 
+%   - 'parula' for parula palette
+%   - 'okabeIto' for color blindness (by default for multiple classes) 
+%
 %
 % OUTPUTS:
 %
@@ -83,7 +86,7 @@ function figH = plotScatter(bdata,varargin)
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 20/Nov/2024
+% last modification: 25/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -237,15 +240,15 @@ if nElems > size(okabeIto,1) %if there are a lot of input colors, repmat to exte
 end
 
 if(isempty(color))
-    if opt(1) == '1'
-        if length(uniqueOrdClasses) <= 24
+    if opt(1) == '1' 
+        if length(uniqueOrdClasses) <= 24 && length(uniqueOrdClasses) > 1
             colorList = okabeIto;
             colormap(okabeIto)
         else
             colorList = hsv(length(uniqueOrdClasses));
             colormap('hsv')
         end
-    elseif opt(1) == '0'
+    else
         colorList = parula(length(uniqueOrdClasses));
         colormap('parula')
     end
@@ -357,10 +360,9 @@ end
 % Set caxis if colorbar
 if opt(1)=='0'
     caxis(cax);
+else
+    if length(uniqueOrdClasses) == 1, legend off; else legend('show','Location','best'); end
 end
-
-
-legend off
 box on
 hold off
 

@@ -61,6 +61,11 @@ function figH = scores(model,varargin)
 % 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels (1 by default)
 %
+% 'Color': Choose a color for your data.  
+%   - 'hsv' for hsv palette 
+%   - 'parula' for parula palette
+%   - 'okabeIto' for color blindness (by default for multiple classes) 
+%
 %
 % OUTPUTS:
 %
@@ -98,7 +103,7 @@ function figH = scores(model,varargin)
 % scores(model,'ObsTest',test);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 18/Nov/2024
+% last modification: 25/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -132,6 +137,7 @@ addParameter(p,'Title',' ');
 addParameter(p,'BlurIndex',1);
 addParameter(p,'ObsLabel',[]);
 addParameter(p,'ObsClass',[]);
+addParameter(p,'Color',[]);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -142,6 +148,7 @@ tit = p.Results.Title;
 blur = p.Results.BlurIndex;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
+color = p.Results.Color;
 
 L = size(test, 1);
 
@@ -232,13 +239,13 @@ end
 figH = [];
 if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
-        figH = [figH plotVec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var)})];
+        figH = [figH plotVec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var)},'Color',color)];
         title(tit);
     end
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            figH = [figH plotScatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}','Option',opt(3:end),'BlurIndex',blur)];
+            figH = [figH plotScatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}','Option',opt(3:end),'BlurIndex',blur,'Color',color)];
             title(tit);
         end
     end

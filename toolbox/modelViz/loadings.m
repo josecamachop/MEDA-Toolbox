@@ -32,11 +32,16 @@ function figH = loadings(model,varargin)
 %
 % 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
-% 'ObsClass': [Mx1] groups for different visualization (a single group 
+% 'VarsClass': [Mx1] groups for different visualization (a single group 
 %   by default)
 %
 % 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
 %   are printer (the higher blur). Inf shows all the labels (1 by default)
+%
+% 'Color': Choose a color for your data.  
+%   - 'hsv' for hsv palette 
+%   - 'parula' for parula palette
+%   - 'okabeIto' for color blindness (by default for multiple classes) 
 %
 %
 % OUTPUTS:
@@ -59,7 +64,7 @@ function figH = loadings(model,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 25/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -90,16 +95,18 @@ p = inputParser;
 addParameter(p,'Option',00);  
 addParameter(p,'Title',' ');
 addParameter(p,'VarsLabel',1:M);
-addParameter(p,'ObsClass',ones(M,1));   
-addParameter(p,'BlurIndex',1);     
+addParameter(p,'VarsClass',ones(M,1));   
+addParameter(p,'BlurIndex',1);   
+addParameter(p,'Color',[]);  
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 opt = p.Results.Option;
 tit = p.Results.Title;
 label = p.Results.VarsLabel;
-classes = p.Results.ObsClass;
+classes = p.Results.VarsClass;
 blur = p.Results.BlurIndex;
+color = p.Results.Color;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -116,7 +123,7 @@ if size(classes,1) == 1, classes = classes'; end;
 % Validate dimensions of input data
 assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: parameter''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''ObsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''VarsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
@@ -141,13 +148,13 @@ end
 figH = [];
 if length(model.lvs) == 1 || opt(1) == '1'
     for i=1:length(model.lvs)
-        figH = [figH plotVec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings %s %d',dim,model.lvs(i))})];
+        figH = [figH plotVec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings %s %d',dim,model.lvs(i))},'Color',color)];
         title(tit);
     end
 else
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            figH = [figH plotScatter([P(:,i),P(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Loadings %s %d',dim,model.lvs(i)),sprintf('Loadings %s %d',dim,model.lvs(j))}','Option',opt(2),'BlurIndex',blur)];
+            figH = [figH plotScatter([P(:,i),P(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Loadings %s %d',dim,model.lvs(i)),sprintf('Loadings %s %d',dim,model.lvs(j))}','Option',opt(2),'BlurIndex',blur,'Color',color)];
             title(tit);
         end
     end

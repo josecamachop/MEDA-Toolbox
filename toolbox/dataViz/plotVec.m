@@ -41,8 +41,10 @@ function figH = plotVec(vec,varargin)
 %
 % 'Markers': [1x3] thresholds for the different marker size (20, 50 and 100 by default)
 %
-% 'Color': Choose a color for your data. By default will use OkabeIto. 
-%   'parula' for parula palette, 'hsv' for hsv palette.
+% 'Color': Choose a color for your data.  
+%   - 'hsv' for hsv palette 
+%   - 'parula' for parula palette
+%   - 'okabeIto' for color blindness (by default for multiple classes) 
 %
 %
 % OUTPUTS:
@@ -67,7 +69,7 @@ function figH = plotVec(vec,varargin)
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 20/Nov/2024
+% last modification: 25/Nov/2024
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 
@@ -163,7 +165,8 @@ if ~isempty(lcont) && ~isequal(size(lcont,1), N), lcont = (lcont*ones(1,N))'; en
 if ~opt(1) && ~isempty(classes) && size(vec, 2)>1
     uniqueClasses = unique(classes);
     assert (min(hist(classes,unique(classes)))>1, 'Exception: Cannot visualize a multivariate bar plot with one-observation classes. Try setting the 6th argument to 1.'); 
-end;
+end
+
 
 %% Main code
 
@@ -246,14 +249,14 @@ end
 
 if(isempty(color))
     if opt(2) == '1'
-        if length(uniqueOrdClasses) <= 24
+        if length(uniqueOrdClasses) <= 24 && length(uniqueOrdClasses) > 1
             colorList = okabeIto;
             colormap(okabeIto)
         else
             colorList = hsv(length(uniqueOrdClasses));
             colormap('hsv')
         end
-    elseif opt(2) == '0'
+    else
         colorList = parula(length(uniqueOrdClasses));
         colormap('parula')
     end
@@ -360,7 +363,7 @@ if opt(2)=='0'
     caxis(cax);
 end
 
-%legend off
+if length(uniqueOrdClasses) == 1, legend off; else legend('show','Location','best'); end
 box on;
 hold off;
         

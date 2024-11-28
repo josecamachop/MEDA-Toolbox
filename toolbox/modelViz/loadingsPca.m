@@ -36,7 +36,7 @@ function P = loadingsPca(x,varargin)
 %
 % 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
-% 'ObsClass': [Mx1] groups for different visualization (a single group 
+% 'VarsClass': [Mx1] groups for different visualization (a single group 
 %   by default)
 %
 % 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
@@ -100,7 +100,7 @@ addParameter(p,'PCs',PCS);
 addParameter(p,'Preprocessing',2);
 addParameter(p,'Option',10);  
 addParameter(p,'VarsLabel',1:M);
-addParameter(p,'ObsClass',ones(M,1));   
+addParameter(p,'VarsClass',ones(M,1));   
 addParameter(p,'BlurIndex',1);     
 parse(p,varargin{:});
 
@@ -109,7 +109,7 @@ pcs = p.Results.PCs;
 prep = p.Results.Preprocessing;
 opt = p.Results.Option;
 label = p.Results.VarsLabel;
-classes = p.Results.ObsClass;
+classes = p.Results.VarsClass;
 blur = p.Results.BlurIndex;
 
 % Convert int arrays to str
@@ -136,7 +136,7 @@ assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''PCs'' must be 1
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''ObsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''VarsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data

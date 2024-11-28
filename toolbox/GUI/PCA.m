@@ -1607,11 +1607,14 @@ handles.data.lp_matrix=new_lp_matrix;
 
 if isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
     P = loadingsPca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1);
-else if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
+else
+    if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
         P = loadingsPca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP);
-    else if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP)
-            P = loadingsPca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'ObsClass', handles.data.classes_LP);
-        else P = loadingsPca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP, 'ObsClass',handles.data.classes_LP);
+    else
+        if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP)
+            P = loadingsPca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsClass', handles.data.classes_LP);
+        else
+            P = loadingsPca (handles.data.data_matrix, 'PCs',[handles.data.PC1_LP handles.data.PC2_LP], 'Preprocessing',handles.data.prep, 'Option',1, 'VarsLabel',handles.data.label_LP, 'VarsClass',handles.data.classes_LP);
         end
     end
 end
