@@ -139,8 +139,8 @@ addParameter(p,'PreprocessingY',2);
 addParameter(p,'Option','100');  
 addParameter(p,'ObsLabel',[]);  
 addParameter(p,'ObsClass',[]);  
-addParameter(p,'PValueD',0.1);  
-addParameter(p,'PValueQ',0.1);  
+addParameter(p,'PValueD',0.01);  
+addParameter(p,'PValueQ',0.01);  
 addParameter(p,'LimType',0);  
 parse(p,varargin{:});
 
