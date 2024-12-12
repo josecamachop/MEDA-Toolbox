@@ -361,7 +361,7 @@ end
 if opt(1)=='0'
     caxis(cax);
 else
-    if length(uniqueOrdClasses) == 1, legend off; else legend('show','Location','best'); end
+    if length(uniqueOrdClasses) < 2, legend off; else legend('show','Location','best'); end
 end
 box on
 hold off
