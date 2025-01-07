@@ -35,7 +35,7 @@ and then 'savepath'. You may alternatively use the 'pathtool' from the command l
 
 <h2>Working with the MEDA Toolbox</h2>
 
-To get started check the <a href="https://github.com/josecamachop/MEDA-Toolbox/edit/master/gettingStarted.mlx">gettingStarted.mlx</a> file.
+To get started check the <a href="https://github.com/josecamachop/MEDA-Toolbox/edit/master/gettingStarted.mlx">gettingStarted.mlx</a> file at the root folder.
 
 There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (advanced users). The GUI is self 
 explanatory. It incorporates helping messages to guide its use. To launch the GUI, type "MEDA" in the command line of Matlab after the 
@@ -52,6 +52,8 @@ computing. Those that issue a plot (e.g medaPca, medaPls, scoresPca, ...) are op
 <h2>Items in the folder</h2>
 
 - LICENSE.txt: License for reuse
+  
+- gettingStarted.mlx: MATLAB Live Script with information on how to use the toolbox.
 
 - toolbox: latent variable models and auxility methods, including pcaEig (PCA), kernelpls & simpls (PLS), asca & apca & vasca (ANOVA+PCA) 
 
