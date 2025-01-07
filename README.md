@@ -34,7 +34,9 @@ For step 2, in the MATLAB command line, you may use commands 'addpath' and 'genp
 and then 'savepath'. You may alternatively use the 'pathtool' from the command line or the menu.
 
 <h2>Working with the MEDA Toolbox</h2>
- 
+
+To get started check the <a href="https://github.com/josecamachop/MEDA-Toolbox/edit/master/gettingStarted.mlx">gettingStarted.mlx</a> file.
+
 There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (advanced users). The GUI is self 
 explanatory. It incorporates helping messages to guide its use. To launch the GUI, type "MEDA" in the command line of Matlab after the 
 installation. 
