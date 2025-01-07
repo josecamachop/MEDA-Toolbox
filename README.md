@@ -11,7 +11,7 @@ based on Principal Component Analysis (PCA) or Partial Least Squares (PLS), such
 with new methods: MEDA, oMEDA, SVI plots, ADICOV, EKF & CKF crossvalidation, CSP, GPCA, SPLS crossvalidation, ASCA and VASCA .... 
 
 The MEDA Toolbox can be used to analyze normal size data sets (several hundreds of observations times several hundreds of variables)
-There is also an extension of the toolbox for large data sets, with millions of items, under folder BigData. 
+There is also an extension of the toolbox for large data sets, with millions of items, under folder toolbox/bigData. 
 
 The MEDA Toolbox is expected to work on Octave.
 
@@ -35,11 +35,11 @@ and then 'savepath'. You may alternatively use the 'pathtool' from the command l
 
 <h2>Working with the MEDA Toolbox</h2>
  
-There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (expert user). The GUI is self 
-explanatory. It incorporates help messages to guide its use. To launch the GUI, type "MEDA" in the command line of Matlab after the 
+There are two ways to work with the MEDA toolbox: using the GUI (starting users) and using the commands (advanced users). The GUI is self 
+explanatory. It incorporates helping messages to guide its use. To launch the GUI, type "MEDA" in the command line of Matlab after the 
 installation. 
 
-The commands provide of much more functionality. Each command includes helping information, that can be seen by typing "help <command>" 
+The commands provide of much more functionality. Each command includes helping information, that can be displayed by typing "help <command>" 
 in the command line of Matlab. This helping information includes examples. Also, in the Examples directory, several real data examples 
 are included. It is suggested to have a look at these examples.
 
@@ -66,8 +66,6 @@ computing. Those that issue a plot (e.g medaPca, medaPls, scoresPca, ...) are op
    	- sparse: sparse versions of latent variable models, inclding group-wise models
 
 - examples: Examples of Exploratory Data Analysis, including data sets and MATLAB scripts based on the toolbox
-  
-- techReports: Technical Reports that make use of the tolbox
 
 
 <h2>The Tools</h2>
