@@ -52,21 +52,31 @@ function figH = plotVec(vec,varargin)
 % EXAMPLE OF USE: To plot three lines with constant control limits:
 %
 % figH = plotVec(randn(100,3),'XYLabel',{'Functions','Time'},'LimCont',[1, -1, 3],'Color','parula');
+% figH = plotVec(randn(100,3),'XYLabel',{'Functions','Time'},'LimCont',[1, -1, 3],'Color','parula','PlotType','Lines');
+%
+%
+% EXAMPLE OF USE: To plot thirty lines with constant control limits:
+%
+% figH = plotVec(randn(100,30),'XYLabel',{'Functions','Time'},'LimCont',[1, -1, 3],'Color','parula');
+% figH = plotVec(randn(100,30),'XYLabel',{'Functions','Time'},'LimCont',[1, -1, 3],'Color','parula','PlotType','Lines');
 %
 %
 % EXAMPLE OF USE: with labels and categorical classes in observations and variable limit:
 %
 % figH = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1));
+% figH = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'PlotType','Lines');
 %
 %
 % EXAMPLE OF USE: with numerical classes in observations and variable limit:
 %
 % figH = plotVec(randn(10,3),'ObsClass',1:10,'ClassType','Numerical','XYLabel',{[],'Functions'},'LimCont',randn(10,1));
+% figH = plotVec(randn(10,3),'ObsClass',1:10,'ClassType','Numerical','XYLabel',{[],'Functions'},'LimCont',randn(10,1),'PlotType','Lines');
 %
 %
 % EXAMPLE OF USE: with labels, multiplicity and classes in observations and variable limit:
 %
 % figH = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Multiplicity',100*rand(5,1),'Markers',[20 50 100]);
+% figH = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Multiplicity',100*rand(5,1),'Markers',[20 50 100],'PlotType','Lines');
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
@@ -257,41 +267,46 @@ if ~isempty(classes)
     for i=1:length(uniqueOrdClasses)
         ind = ordClasses == uniqueOrdClasses(i);
         if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-            vind = elabel(find(ind));
+            vind = elabel;
         else
-            vind = find(ind);
+            vind = 1:N;
         end
         
+        inter = 1/(4*(M+2)+1*(M-1)); 
+        vec2 = zeros(size(vec));
+        vec2(find(ind),:) = vec(find(ind),:);
         if opt(1) == '0'
-            plot(vind, vec(find(ind),round(M/2)), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', colorList(i,:));
-            plot(vind, vec(find(ind),:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', colorList(i,:),'HandleVisibility', 'off');
-        else
-            inter = 1/(4*(M+2)+1*(M-1)); 
-            vec2 = zeros(size(vec));
-            vec2(find(ind),:) = vec(find(ind),:);
             if mod(M,2)
-                bar(vec2(:,ceil(M/2)), inter, 'FaceColor', colorList(i,:), 'EdgeColor', 'none');
+                plot(vind, vec2(:,ceil(M/2)), 'Color', colorList(i,:), 'Marker', 'o');
             else
-                bar(1:N+2.5*inter, vec2(:,M/2+1), inter, 'FaceColor', colorList(i,:), 'EdgeColor', 'none');
+                plot(vind+2.5*inter, vec2(:,M/2+1), 'Color', colorList(i,:), 'Marker', 'o');
             end
-            bar(vec2, 'grouped', 'FaceColor', colorList(i,:),'HandleVisibility', 'off');
+            plot(vind, vec2, 'Color', colorList(i,:), 'Marker', 'o' ,'HandleVisibility', 'off');
+
+        else
+            if mod(M,2)
+                bar(vind, vec2(:,ceil(M/2)), inter, 'FaceColor', colorList(i,:), 'EdgeColor', 'none');
+            else
+                bar(vind+2.5*inter, vec2(:,M/2+1), inter, 'FaceColor', colorList(i,:), 'EdgeColor', 'none');
+            end
+            bar(vind, vec2, 'grouped', 'FaceColor', colorList(i,:),'HandleVisibility', 'off');
         end
     end
     legendTxt = uniqueClasses; 
 else
-    for i=1:size(vec,2)
-        if opt(1) == '0'
+    if opt(1) == '0'
+        for i=1:size(vec,2)
             if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                plot(elabel, vec(:,i), 'MarkerFaceColor', colorList(i,:));
+                plot(elabel, vec(:,i), 'Color', colorList(i,:));
             else
-                plot(vec(:,i), 'MarkerFaceColor', colorList(i,:));
+                plot(vec(:,i), 'Color', colorList(i,:));
             end
+        end
+    else
+        if isnumeric(elabel) && length(elabel)==length(unique(elabel))
+            bar(elabel, vec, 'grouped');
         else
-            if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                bar(elabel, vec(:,i), 'grouped', 'FaceColor', colorList(i,:));
-            else
-                bar(vec(:,i), 'grouped', 'FaceColor', colorList(i,:));
-            end
+            bar(vec, 'grouped');
         end
     end
     legendTxt = vlabel; 
