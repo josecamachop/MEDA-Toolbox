@@ -32,23 +32,13 @@ function [T,TT] = scoresPls(x,y,varargin)
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'abcd' for:
-%       a:
-%           0: no plots
-%           1: plot scores
-%       b:
-%           0: scatter plot of pairs of LVs 
-%           1: bar plot of each single LV
-%       c:
-%           0: plot calibration and test data
-%           1: plot only test data 
-%       d:
-%           0: plot for categorical classes (consistent with a legend)
-%           1: plot for numerical classes (consistent with a colorbar)
+% 'PlotType': str
+%      'Scatter': scatterplot (by default for pairs of PCs)
+%      'Bars': bar plot (by default for a single PC)
 %
-%   By deafult, opt = '1000'. If less than 4 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0 and 
-%   d=0. If a=0, then b, c  and d are ignored.
+% 'PlotCal': bool
+%      false: plot only test data
+%      true: plot both calibration and test (by default)
 %
 % 'ObsLabel': [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
 %   are used by default)
@@ -91,7 +81,7 @@ function [T,TT] = scoresPls(x,y,varargin)
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 12/Jan/2025
+% last modification: 15/Jan/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -120,7 +110,8 @@ M = size(x, 2);
 p = inputParser;
 addParameter(p,'LVs',1:rank(x));   
 addParameter(p,'ObsTest',[]);   
-addParameter(p,'Option','100');
+addParameter(p,'PlotType','Scatter');
+addParameter(p,'PlotCal',true); 
 addParameter(p,'PreprocessingX',2);
 addParameter(p,'PreprocessingY',2);
 addParameter(p,'ObsLabel',[]);
@@ -134,41 +125,34 @@ test = p.Results.ObsTest;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 lvs = p.Results.LVs;
-opt = p.Results.Option;
+plottype = p.Results.PlotType;
+plotcal = p.Results.PlotCal;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
 blur = p.Results.BlurIndex;
 
 L = size(test, 1);
-K = N+L;
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
 
-% Complete opt
-while length(opt)<4, opt = strcat(opt,'0'); end
-
-if opt(4) == '0', opt(4) = '1'; else,  opt(4) = '0'; end
-if opt(3) == 1 || opt(3) == '1'
-    K = L;
-else
+if plotcal
     K = N+L;
+else
+    K = L;
 end
 
-if  isempty(label) 
-    if opt(3) == 1 || opt(3) == '1'
-        label = 1:L;
-    else
+if isempty(label) 
+    if plotcal
         label = [1:N 1:L]; 
+    else
+        label = 1:L;
     end
 end
 if isempty(classes)
-    if opt(3) == 1 || opt(3) == '1' 
-        classes = ones(L,1); 
-    else
+    if plotcal
         classes = [ones(N,1);2*ones(L,1)];  
+    else 
+        classes = ones(L,1); 
     end
 end
-
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -188,14 +172,12 @@ assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==4, 'Dimension Error: parameter ''Option''  must be a string or num of 4 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: parameter ''ObsLabel'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: parameter ''ObsClass'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -217,23 +199,20 @@ end
 
 %% Show results
 
-if opt(1) == '1'
-    
-     if opt(3) == '0'
-        Tt = [T;TT];
-    else
-        Tt = TT;
-     end
-    
-    if length(lvs) == 1 || opt(2) == '1'
-        for i=1:length(lvs)
-            plotVec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))}, 'Option', opt([1 4]));
-        end
-    else
-        for i=1:length(lvs)-1
-            for j=i+1:length(lvs)
-                plotScatter([Tt(:,i),Tt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores LV %d (%.0f%%)',lvs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','Option',opt(4),'BlurIndex',blur);
-            end      
+if plotcal
+    Tt = [T;TT];
+else
+    Tt = TT;
+end
+
+if strcmp(plottype,'Bars') || A == 1
+    for i=1:length(lvs)
+        plotVec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+    end
+elseif strcmp(plottype,'Scatter')
+    for i=1:length(lvs)-1
+        for j=i+1:length(lvs)
+            plotScatter([Tt(:,i),Tt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Scores LV %d (%.0f%%)',lvs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Scores LV %d (%.0f%%)',lvs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','BlurIndex',blur);
         end
     end
 end

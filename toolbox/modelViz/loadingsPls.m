@@ -29,23 +29,13 @@ function [P,W,Q] =loadingsPls(x,y,varargin)
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
-%       a:
-%           0: no plots
-%           1: plot loadings
-%       b:
-%           0: scatter plot of pairs of LVs
-%           1: bar plot of each single LV
-%       c:
-%           0: plot weights
-%           1: plot X-block loadings
-%       d:
-%           0: plot for categorical classes (consistent with a legend)
-%           1: plot for numerical classes (consistent with a colorbar)
+% 'PlotType': str
+%      'Scatter': scatterplot (by default)
+%      'Bars': bar plot (by default)
 %
-%   By deafult, opt = '1000'. If less than 4 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0 and 
-%   d=0. If a=0, then b, c  and d are ignored.
+% 'LoadingsType': str
+%      'Weights': PLS weights
+%      'Loadings': PLS loadings (by default)
 %
 % 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
@@ -75,13 +65,12 @@ function [P,W,Q] =loadingsPls(x,y,varargin)
 %     A{i} = ['A_{', num2str(i), '}'];
 % end
 % 
-%loadingsPls(X,Y,'LVs',1);
+% loadingsPls(X,Y,'LVs',1);
 % [P,W,Q] =loadingsPls(X,Y,'LVs',1:3,'VarsLabel',A);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-%           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 12/Jan/2025
+% last modification: 15/Jan/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -113,7 +102,8 @@ LVS = 1:rank(x);
 addParameter(p,'LVs',LVS);  
 addParameter(p,'PreprocessingX',2);
 addParameter(p,'PreprocessingY',2);
-addParameter(p,'Option','100');  
+addParameter(p,'PlotType','Scatter');
+addParameter(p,'LoadingsType','Loadings'); 
 addParameter(p,'VarsLabel',1:M);
 addParameter(p,'VarsClass',ones(M,1));   
 addParameter(p,'BlurIndex',1);     
@@ -123,18 +113,11 @@ parse(p,varargin{:});
 lvs = p.Results.LVs;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
-opt = p.Results.Option;
+loadingstype = p.Results.LoadingsType;
+plottype = p.Results.PlotType;
 label = p.Results.VarsLabel;
 classes = p.Results.VarsClass;
 blur = p.Results.BlurIndex;
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
-
-% Convert int arrays to str
-while length(opt)<4, opt = strcat(opt,'0'); end
-
-if opt(4) == '0', opt(4) = '1'; else,  opt(4) = '0'; end
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -153,14 +136,12 @@ assert (A>0, 'Dimension Error: parameter ''LVs'' with non valid content. Type ''
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==4, 'Dimension Error: parameter ''Option'' must be a string or num of 4 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''VarsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -175,25 +156,23 @@ Q = model.yloads;
 
 %% Show results
 
-if opt(1) == '1'
-    
-    if opt(3) == '0'
-        Pt = W;
-        text = 'Weights';
-    else
-        Pt = P;
-        text = 'X-block loadings';
+
+if strcmp(loadingstype,'Weights')
+    Pt = W;
+    text = 'Weights';
+elseif strcmp(loadingstype,'Loadings')
+    Pt = P;
+    text = 'X-block loadings';
+end
+
+if length(lvs) == 1 || strcmp(plottype,'Bars')
+    for i=1:length(lvs)
+        plotVec(Pt(:,i),  'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('%s LV %d',text,lvs(i))});
     end
-    
-    if length(lvs) == 1 || opt(2) == '1'
-        for i=1:length(lvs)
-            plotVec(Pt(:,i),  'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('%s LV %d',text,lvs(i))}, 'Option', ['1' opt(4)]);
-        end
-    else
-        for i=1:length(lvs)-1
-            for j=i+1:length(lvs)
-                plotScatter([Pt(:,i),Pt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}', 'Option', opt(4), 'BlurIndex',blur);
-            end      
+elseif strcmp(plottype,'Scatter')
+    for i=1:length(lvs)-1
+        for j=i+1:length(lvs)
+            plotScatter([Pt(:,i),Pt(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('%s LV %d',text,lvs(i)),sprintf('%s LV %d',text,lvs(j))}', 'BlurIndex',blur);
         end
     end
 end

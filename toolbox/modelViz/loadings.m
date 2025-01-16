@@ -17,16 +17,9 @@ function figH = loadings(model,varargin)
 %
 % Optional Inputs (parameter):
 %
-% 'Option': (str) options for data plotting: binary code of the form 'ab' for:
-%       a:
-%           0: scatter plot of pairs of LVs 
-%           1: bar plot of each single LV
-%       b:
-%           0: plot for categorical classes (consistent with a legend)
-%           1: plot for numerical classes (consistent with a colorbar) 
-%
-%   By deafult, opt = '00'. If less than 2 digits are specified, the least 
-%   significant digit is set to 0, i.e. opt = 1 means a=1, b=0.
+% 'PlotType': str
+%      'Scatter': scatterplot (by default)
+%      'Bars': bar plot (by default)
 %
 % 'Title': (str) title for the plots. Empty by default;
 %
@@ -64,10 +57,10 @@ function figH = loadings(model,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 12/Jan/2025
+% last modification: 15/Jan/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
-% 
+%  
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
 % the Free Software Foundation, either version 3 of the License, or
@@ -92,7 +85,7 @@ M = size(model.loads, 1);
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'Option',00);  
+addParameter(p,'PlotType','Scatter');
 addParameter(p,'Title',' ');
 addParameter(p,'VarsLabel',1:M);
 addParameter(p,'VarsClass',ones(M,1));   
@@ -101,34 +94,22 @@ addParameter(p,'Color',[]);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-opt = p.Results.Option;
+plottype = p.Results.PlotType;
 tit = p.Results.Title;
 label = p.Results.VarsLabel;
 classes = p.Results.VarsClass;
 blur = p.Results.BlurIndex;
 color = p.Results.Color;
 
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
-
-% Complete opt
-while length(opt)<2, opt = strcat(opt,'0'); end
-if opt(2) == '0', opt(2) = '1'; else,  opt(2) = '0'; end
-
-
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
 if size(classes,1) == 1, classes = classes'; end;
 
 % Validate dimensions of input data
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: parameter''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''VarsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
-% Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
-
 
 %% Main code
 
@@ -146,15 +127,15 @@ else
 end
 
 figH = [];
-if length(model.lvs) == 1 || opt(1) == '1'
+if length(model.lvs) == 1 || strcmp(plottype,'Bars')
     for i=1:length(model.lvs)
-        figH = [figH plotVec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings %s %d',dim,model.lvs(i))},'Color',color,'Option',['1' opt(2)])];
+        figH = [figH plotVec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings %s %d',dim,model.lvs(i))},'Color',color)];
         title(tit);
     end
-else
+elseif strcmp(plottype,'Scatter')
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            figH = [figH plotScatter([P(:,i),P(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Loadings %s %d',dim,model.lvs(i)),sprintf('Loadings %s %d',dim,model.lvs(j))}','Option',opt(2),'BlurIndex',blur,'Color',color)];
+            figH = [figH plotScatter([P(:,i),P(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('Loadings %s %d',dim,model.lvs(i)),sprintf('Loadings %s %d',dim,model.lvs(j))}','BlurIndex',blur,'Color',color)];
             title(tit);
         end
     end

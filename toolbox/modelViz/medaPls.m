@@ -1,5 +1,5 @@
 
-function [medaMap,ind,ord] = medaPls(x,y,varargin)
+function [map,ind,ord] = medaPls(x,y,varargin)
 
 % Missing data methods for exploratory data analysis in PCA. The original
 % paper is Chemometrics and Intelligent Laboratory Systems 103(1), 2010, pp.
@@ -32,19 +32,13 @@ function [medaMap,ind,ord] = medaPls(x,y,varargin)
 %
 % 'Threshold': [1x1] threshold (0,1] for discretization and discarding (0.1 by default)
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
-%       a:
-%           0: no plots
-%           1: plot MEDA matrix
-%       b:
-%           0: no seriated
-%           1: seriated
-%       c:
-%           0: no discard
-%           1: discard variables with diagonal below threshold 
-%   By deafult, opt = '100'. If less than 3 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
-%   If a=0, then b and c are ignored.
+% 'Seriated': bool
+%      false: no seriated (by default)
+%      true: seriated
+%
+% 'Discard': bool
+%      false: not discard
+%      true: discard variables with diagonal below threshold      
 %
 % 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
@@ -53,7 +47,7 @@ function [medaMap,ind,ord] = medaPls(x,y,varargin)
 %
 % OUTPUTS:
 %
-% medaMap: [MxM] non-seriated MEDA matrix.
+% map: [MxM] non-seriated MEDA matrix.
 %
 % ind: [M2x1] indices of seriated variables over the input threshold (M2 < M).
 %
@@ -65,14 +59,16 @@ function [medaMap,ind,ord] = medaPls(x,y,varargin)
 %
 % X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% lvs = 1:3;
-% map = medaPls(X,Y,'LVs',lvs,'Threshold',0.3,'Option','111');
+% lvs = 1;
+% map = medaPls(X,Y,'LVs',lvs,'Threshold',0.3);
+% map = medaPls(X,Y,'LVs',lvs,'Threshold',0.3,'Seriated',true);
+% map = medaPls(X,Y,'LVs',lvs,'Threshold',0.3,'Seriated',true,'Discard',true);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -103,7 +99,8 @@ addParameter(p,'LVs',LVS);
 addParameter(p,'PreprocessingX',2);
 addParameter(p,'PreprocessingY',2);
 addParameter(p,'Threshold',0.1);
-addParameter(p,'Option',100);  
+addParameter(p,'Seriated',false);
+addParameter(p,'Discard',false);  
 addParameter(p,'VarsLabel',1:M);
 addParameter(p,'Vars',1:M);      
 parse(p,varargin{:});
@@ -113,7 +110,8 @@ lvs = p.Results.LVs;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 thres = p.Results.Threshold;
-opt = p.Results.Option;
+seriated = p.Results.Seriated;
+discard = p.Results.Discard;
 label = p.Results.VarsLabel;
 vars = p.Results.Vars;
 
@@ -128,16 +126,6 @@ if size(lvs,2) == 1, lvs = lvs'; end;
 lvs = unique(lvs);
 lvs(find(lvs==0)) = [];
 A = length(lvs);
-if isstruct(opt) % opt backward compatibility
-    opt = opt.plot + 10*opt.seriated + 100*opt.discard;
-end
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
-
-% Complete opt
-if length(opt)<2, opt = strcat(opt,'00'); end
-if length(opt)<3, opt = strcat(opt,'0'); end
 
 % Validate dimensions of input data
 assert (A>0, 'Dimension Error: parameter ''LVs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
@@ -145,14 +133,12 @@ assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(thres), [1 1]), 'Dimension Error: parameter ''Threshold'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(size(vars) > [M 1])), 'Dimension Error: parameter ''Vars'' must be at most M-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 assert (thres>0 && thres<=1, 'Value Error: parameter ''Threshold'' must be in (0,1]. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 assert (isempty(find(vars<=0)) && isequal(fix(vars), vars) && isempty(find(vars>M)), 'Value Error: parameter ''Vars'' must contain positive integers below or equal to M. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -168,46 +154,26 @@ model = simpls(x2,y2,'LVs',lvs);
 R = model.altweights;
 P = model.loads;
 
-medaMap = meda(x2'*x2,R,'OutSubspace',P);
+map = meda(x2'*x2,R,'OutSubspace',P);
 
-if opt(3) == '1'
-    Dmap = diag(medaMap);
+if discard
+    Dmap = diag(map);
     ind = find(Dmap > thres);
 else
     ind = 1:length(vars);
 end
+label = label(ind);
+map = map(ind,ind);
 
-if opt(2) == '1'
-    [map, ord] = seriation(medaMap(ind,ind));
+if seriated
+    [map, ord] = seriation(map);
 else
-    ord = 1:length(vars);
+    ord = 1:length(ind);
 end
+label = label(ord);
     
 
 %% Show results
 
-if opt(1) == '1'
-    
-    map = medaMap;
-
-    if opt(3) == '1'
-        ind2 = ind;
-    else
-        ind2 = 1:length(vars);
-    end
-    
-    map = map(ind2,ind2);
-    label = label(ind2);
-    
-    if opt(2) == '1'
-        ord2 = ord;
-    else
-        ord2 = 1:length(vars);
-    end
-    
-    map = map(ord2,ord2);
-    label = label(ord2);
-    
-    plotMap(map,'VarsLabel',label);
-    
-end  
+plotMap(map,'VarsLabel',label);
+ 

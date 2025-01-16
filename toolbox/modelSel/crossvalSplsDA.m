@@ -39,9 +39,9 @@ function [AUC,nze] = crossvalSplsDA(x,y,varargin)
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% 'Option': (str or num) options for data plotting.
-%       0: no plots.
-%       1: plot (default)
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
 %
 %
 % OUTPUTS:
@@ -63,9 +63,9 @@ function [AUC,nze] = crossvalSplsDA(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 16/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -108,7 +108,7 @@ addParameter(p,'KeepXBlock',keep);
 addParameter(p,'MaxBlock',2);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
-addParameter(p,'Option',1);   
+addParameter(p,'Plot',true);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -117,7 +117,7 @@ keepXs = p.Results.KeepXBlock;
 blocksR = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
-opt = p.Results.Option;
+opt = p.Results.Plot;
 
 % Extract LVs and KeepXBlock length
 A = length(lvs);
@@ -134,7 +134,6 @@ assert (isequal(size(keepXs), [1 J]), 'Dimension Error: parameter ''KeepXBlock''
 assert (isequal(size(blocksR), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
@@ -250,8 +249,7 @@ AAUC =  mean(AUC,3);
 
 %% Show results
 
-if opt == 1
-    figH = plotVec(AAUC','EleLabel',keepXs,'XYLabel',{'#NZV','AUC'},'Option','01','VecLabel',lvs); 
-    legend('show')
+if opt
+    plotVec(AAUC','EleLabel',keepXs,'XYLabel',{'#NZV','AUC'},'PlotType','Lines','VecLabel',lvs,'Color','jet'); 
 end
 

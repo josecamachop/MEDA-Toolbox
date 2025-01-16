@@ -23,7 +23,7 @@ function [xvar,cumpress] = varPca(x,varargin)
 %       1: mean-centering 
 %       2: auto-scaling (default)  
 %
-% 'Ckf': bool
+% 'PlotCkf': bool
 %       false: Residual Variance in X  
 %       true: Residual Variance in X and ckf
 %
@@ -43,7 +43,7 @@ function [xvar,cumpress] = varPca(x,varargin)
 %
 %
 % codified by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 15/Jan/2025
+% last modification: 16/Jan/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -72,12 +72,12 @@ M = size(x, 2);
 p = inputParser;
 addParameter(p,'PCs',0:rank(x));   
 addParameter(p,'Preprocessing',2);   
-addParameter(p,'Ckf',false);   
+addParameter(p,'PlotCkf',false);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 pcs = p.Results.PCs;
-ckfplot = p.Results.Ckf;
+ckfplot = p.Results.PlotCkf;
 prep = p.Results.Preprocessing;
 
 % Convert column arrays to row arrays
@@ -129,7 +129,6 @@ end
 
 if ckfplot
     plotVec([xvar cumpress/cumpress(1)],'PlotType','Lines','EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'VecLabel',{'X','ckf'});
-    legend('show');
 else
     plotVec(xvar,'PlotType','Lines','EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'});
 end

@@ -35,9 +35,9 @@ function [Qm,Q,lvso,gammaso] = dcrossvalGpls(x,y,varargin)
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% 'Option': [1x1] options for data plotting
-%       0: no plots
-%       1: bar plot (default)
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
 %
 %
 % OUTPUTS:
@@ -67,10 +67,10 @@ function [Qm,Q,lvso,gammaso] = dcrossvalGpls(x,y,varargin)
 % 
 
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 16/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
-% 
+% Copyright (C) 2025  University of Granada, Granada
+%
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
 % the Free Software Foundation, either version 3 of the License, or
@@ -104,7 +104,7 @@ addParameter(p,'Alpha',0);
 addParameter(p,'MaxBlock',N);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
-addParameter(p,'Option',1);   
+addParameter(p,'Plot',true);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -115,7 +115,7 @@ alpha = p.Results.Alpha;
 blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
-opt = p.Results.Option;
+opt = p.Results.Plot;
 
 % Extract LVs and Gamma length
 A = length(lvs);
@@ -133,7 +133,6 @@ assert (isequal(size(alpha), [1 1]), 'Dimension Error: parameter ''Alpha'' must 
 assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
@@ -157,7 +156,7 @@ rows = rand(1,N);
 [a,rind]=sort(rows);
 elemr=N/blocksr;
         
-for i=1:blocksr,
+for i=1:blocksr
     disp(sprintf('Crossvalidation block %i of %i',i,blocksr))
     indi = rind(round((i-1)*elemr+1):round(i*elemr)); % Sample selection
     i2 = ones(N,1);
@@ -167,7 +166,7 @@ for i=1:blocksr,
     valy = y(indi,:);
     resty = y(find(i2),:);
         
-    [cumpress,kk,nze] =  crossvalGpls(rest,resty,'LVs',lvs,'Gamma',gammas,'Maxblock',blocksr-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
+    [cumpress,kk,nze] =  crossvalGpls(rest,resty,'LVs',lvs,'Gamma',gammas,'Maxblock',blocksr-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Plot',false);
        
     cumpressb = (1-abs(alpha))*cumpress/max(max(cumpress)) + alpha*nze/max(max(nze));
     
@@ -192,7 +191,7 @@ Qm = mean(Q);
 
 %% Show results
 
-if opt == 1
-    figh = plotVec(Q,'XYLabel',{'#Split','Goodness of Prediction'},'Option','11'); 
+if opt
+    plotVec(Q,'XYLabel',{'#Split','Goodness of Prediction'},'Plot','Lines'); 
 end
 

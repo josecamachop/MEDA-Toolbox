@@ -46,9 +46,9 @@ function [AUCm,AUC,lvso,keepXso] = dcrossvalSplsDA(x,y,varargin)
 %
 % 'Repetition': [1x1] number of repetitios for stability
 %
-% 'Option': [1x1] options for data plotting
-%       0: no plots
-%       1: bar plot (default)
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
 %
 %
 % OUTPUTS:
@@ -75,10 +75,10 @@ function [AUCm,AUC,lvso,keepXso] = dcrossvalSplsDA(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 16/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
-% 
+% Copyright (C) 2025  University of Granada, Granada
+%
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
 % the Free Software Foundation, either version 3 of the License, or
@@ -117,7 +117,7 @@ addParameter(p,'MaxBlock', max(3,round(N2/2)));
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
 addParameter(p,'Repetition',10);
-addParameter(p,'Option',1);   
+addParameter(p,'Plot',true);    
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -129,7 +129,7 @@ blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 rep = p.Results.Repetition;
-opt = p.Results.Option;
+opt = p.Results.Plot;
 
 % Extract LVs and Gamma length
 A = length(lvs);
@@ -138,7 +138,6 @@ J =  length(keepXs);
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
 if size(keepXs,2) == 1, keepXs = keepXs'; end;
-
 
 % Validate dimensions of input data
 assert (isequal(size(y), [N 1]), 'Dimension Error: parameter ''y'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -149,7 +148,6 @@ assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' 
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(rep), [1 1]), 'Dimension Error: parameter ''Repetition'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
@@ -218,7 +216,7 @@ for j=1:rep
         %vcsy = preprocess2Dapp(valy,avy,'Scale',sty);
         vcsy = valy;
         
-        [AUCt,nze] =  crossvalSplsDA(rest,resty,'LVs',lvs,'KeepXBlock',keepXs,'MaxBlock',blocksr-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
+        [AUCt,nze] =  crossvalSplsDA(rest,resty,'LVs',lvs,'KeepXBlock',keepXs,'MaxBlock',blocksr-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Plot',false);
         
         cumpressb = (abs(alpha)-1)*AUCt/max(max(AUCt)) + alpha*nze/max(max(nze));
         
@@ -250,8 +248,8 @@ AUCm = mean(AUC);
 
 %% Show results
 
-if opt == 1
-    figh = plotVec(AUC,'XYLabel',{'#Repetition','AUC'},'Option',11);
+if opt
+    plotVec(AUC,'XYLabel',{'#Repetition','AUC'},'Plot','Lines');
 end
 
 

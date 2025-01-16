@@ -71,8 +71,6 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPca(x,varargin)
 % UCLq: [Lqx1] Control limits in Q-statistic
 %
 %
-%
-%
 % EXAMPLE OF USE: PCA-based MSPC on NOC test data and anomalies.
 %
 % nobs = 100;
@@ -242,6 +240,7 @@ else
         UCLq(i) = prctile(Qst,100*(1-pvalueQ(i)));
     end
 end
+
 
 %% Show results
     

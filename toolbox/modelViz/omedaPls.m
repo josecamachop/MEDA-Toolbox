@@ -37,19 +37,13 @@ function [omedaVec,lim] = omedaPls(x,y,lvs,test,dummy,varargin)
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
-%       a:
-%           0: no plots
-%           1: plot oMEDA vector
-%       b:
-%           0: no control limits
-%           1: plot control limits 
-%       c:
-%           0: no normalization
-%           1: normalize by control limits
-%   By deafult, opt = '100'. If less than 3 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
-%   If a=0, then b and c are ignored.
+% 'ControlLim': bool
+%       false: no control limits (by default)
+%       true: plot control limits 
+%
+% 'Normalize': bool
+%       false: no normalization (by default)
+%       true: normalize by control limits
 %
 % 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
@@ -83,9 +77,9 @@ function [omedaVec,lim] = omedaPls(x,y,lvs,test,dummy,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -113,12 +107,12 @@ if isempty(test), test = x; end;
 L = size(test, 1);
 if isempty(dummy), dummy = ones(L,1); end;
 
-
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'PreprocessingX',2);     
-addParameter(p,'PreprocessingY',2);   
-addParameter(p,'Option','100');  
+addParameter(p,'PreprocessingY',2);     
+addParameter(p,'ControlLim',false);    
+addParameter(p,'Normalize',false);
 addParameter(p,'VarsLabel',1:M);  
 addParameter(p,'VarsClass',ones(M,1));  
 parse(p,varargin{:});
@@ -126,7 +120,8 @@ parse(p,varargin{:});
 % Extract inputs from inputParser for code legibility
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
-opt = p.Results.Option;
+ctrl = p.Results.ControlLim;
+norm = p.Results.Normalize;
 label = p.Results.VarsLabel;
 classes = p.Results.VarsClass;
 
@@ -142,13 +137,6 @@ lvs = unique(lvs);
 lvs(find(lvs==0)) = [];
 A = length(lvs);
 
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
-
-% Complete opt
-if length(opt)<2, opt = strcat(opt,'00'); end
-if length(opt)<3, opt = strcat(opt,'0'); end
-
 % Validate dimensions of input data
 assert (A>0, 'Dimension Error: parameter ''lvs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''lvs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
@@ -156,13 +144,11 @@ assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''test'' must be
 assert (isequal(size(dummy), [L 1]), 'Dimension Error: parameter ''dummy''t must be L-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''VarsClass'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''lvs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -185,26 +171,23 @@ lim = prctile(omedax,95)';
 
 %% Show results
 
-if opt(1) == '1'
-    
-    vec = omedaVec;
+vec = omedaVec;
  
-    if opt(2) == '1'
-        limp = lim;
-    else
-        limp = [];
-    end
-    
-    if opt(3) == '1'
-        ind = find(lim>1e-10);
-        vec(ind) = vec(ind)./lim(ind);
-    	if ~isempty(limp)
-            limp(ind) = limp(ind)./lim(ind);
-        end
-    end
-    
-    plotVec(vec,'EleLabel',label,'ObsClass',classes,'XYLabel',{[],'d^2_A'},'LimCont',[limp -limp]);
-    
+if ctrl
+    limp = lim;
+else
+    limp = [];
 end
+
+if norm
+    ind = find(lim>1e-10);
+    vec(ind) = vec(ind)./lim(ind);
+    if ~isempty(limp)
+        limp(ind) = limp(ind)./lim(ind);
+    end
+end
+
+plotVec(vec,'EleLabel',label,'ObsClass',classes,'XYLabel',{[],'d^2_A'},'LimCont',[limp -limp]);
+
 
         

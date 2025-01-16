@@ -31,19 +31,13 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPls(x,y,varargin)
 %       1: mean centering
 %       2: autoscaling (default) 
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
-%       a:
-%           0: no plots
-%           1: plot MSPC charts
-%       b:
-%           0: scatter plot
-%           1: bar plot of each single statistic
-%       c:
-%           0: plot calibration and test data
-%           1: plot only test data 
-%   By deafult, opt = '100'. If less than 3 digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0 and c=0. 
-%   If a=0, then b and c are ignored.
+% 'PlotType': str
+%      'Scatter': scatterplot (by default)
+%      'Bars': bar plot (by default)
+%
+% 'PlotCal': bool
+%      false: plot only test data
+%      true: plot both calibration and test (by default)
 %
 % 'ObsLabel': [Kx1] K=N+L (c=1) or K=L (c=0), name of the observations (numbers 
 %   are used by default)
@@ -62,6 +56,10 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPls(x,y,varargin)
 % 'LimType': [1x1] type of control limit
 %       0: theoretical (statistical distribution based, by default)
 %       otherwise: percentiles
+%
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
 %
 %
 % OUTPUTS:
@@ -104,9 +102,9 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -129,19 +127,20 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(x, 1);
 M = size(x, 2);
 
-
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'LVs',1:rank(x)); 
 addParameter(p,'ObsTest',[]);
 addParameter(p,'PreprocessingX',2);
 addParameter(p,'PreprocessingY',2);
-addParameter(p,'Option','100');  
+addParameter(p,'PlotType','Scatter');
+addParameter(p,'PlotCal',true); 
 addParameter(p,'ObsLabel',[]);  
 addParameter(p,'ObsClass',[]);  
 addParameter(p,'PValueD',0.01);  
 addParameter(p,'PValueQ',0.01);  
-addParameter(p,'LimType',0);  
+addParameter(p,'LimType',0);     
+addParameter(p,'Plot',true); 
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -149,38 +148,35 @@ lvs = p.Results.LVs;
 test = p.Results.ObsTest;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
-opt = p.Results.Option;
+plottype = p.Results.PlotType;
+plotcal = p.Results.PlotCal;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
 pvalueD = p.Results.PValueD;
 pvalueQ = p.Results.PValueQ;
 limtype = p.Results.LimType;
+plot = p.Results.Plot;
 
 L = size(test, 1);
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
 
-% Complete opt
-if length(opt)<2, opt = strcat(opt,'00'); end
-if length(opt)<3, opt = strcat(opt,'0'); end
-if opt(3) == 1 || opt(3) == '1'
-    K = L;
-else
+if plotcal
     K = N+L;
+else
+    K = L;
 end
 
-if  isempty(label) 
-    if opt(3) == 1 || opt(3) == '1'
-        label = 1:L;
-    else
+if isempty(label) 
+    if plotcal
         label = [1:N 1:L]; 
+    else
+        label = 1:L;
     end
 end
 if isempty(classes)
-    if opt(3) == 1 || opt(3) == '1' 
-        classes = ones(L,1); 
-    else
+    if plotcal
         classes = [ones(N,1);2*ones(L,1)];  
+    else 
+        classes = ones(L,1); 
     end
 end
 
@@ -206,7 +202,6 @@ assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of 3 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: parameter ''ObsLabel'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: parameter ''ObsClass'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(pvalueD), assert (isequal(size(pvalueD), [Ld 1]), 'Dimension Error: parameter ''PValueD'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
@@ -217,7 +212,7 @@ assert (isequal(size(limtype), [1 1]), 'Dimension Error: parameter ''LimType'' m
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(pvalueD), assert (isempty(find(pvalueD<0 | pvalueD>1)), 'Value Error: parameter ''PValueD'' must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(pvalueQ), assert (isempty(find(pvalueQ<0 | pvalueQ>1)), 'Value Error: parameter ''PValueQ'' must contain values  in (0,1]. Type ''help %s'' for more info.', routine(1).name); end;
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
+
 
 %% Main code
 
@@ -266,11 +261,11 @@ else
     end
 end
 
+
 %% Show results
 
-if opt(1) == '1'
-    
-    if opt(3) == '0'
+if plot 
+    if plotcal
         Dsttt = [Dst;Dstt];
         Qsttt = [Qst;Qstt];
     else
@@ -278,11 +273,11 @@ if opt(1) == '1'
         Qsttt = Qstt;
     end
     
-    if opt(2) == '0'
-        plotScatter([Dsttt,Qsttt], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'D-st','Q-st'}, 'LimCont',{UCLd,UCLq});
-    else
+    if strcmp(plottype,'Bars')
         plotVec(Dsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'D-st'}, 'LimCont', UCLd);
         plotVec(Qsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'Q-st'}, 'LimCont', UCLq);
+    elseif strcmp(plottype,'Scatter')
+        plotScatter([Dsttt,Qsttt], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'D-st','Q-st'}, 'LimCont',{UCLd,UCLq});
     end
 end
         

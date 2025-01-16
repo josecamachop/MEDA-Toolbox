@@ -29,9 +29,9 @@ function [cumpress,press] = crossvalPls(x,y,varargin)
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% 'Option': (str or num) options for data plotting.
-%       0: no plots.
-%       1: plot (default)
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
 %
 %
 % OUTPUTS:
@@ -53,9 +53,9 @@ function [cumpress,press] = crossvalPls(x,y,varargin)
 % cumpress = crossvalPls(X,Y,'LVs',lvs,'PreprocessingX',1,'PreprocessingY',1);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 16/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -87,7 +87,7 @@ addParameter(p,'LVs',lat');
 addParameter(p,'MaxBlock',N);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
-addParameter(p,'Option',1);   
+addParameter(p,'Plot',true);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -96,13 +96,10 @@ lvs = p.Results.LVs;
 blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
-opt = p.Results.Option;
+opt = p.Results.Plot;
 
 % Extract LVs length
 A = length(lvs);
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -113,7 +110,6 @@ assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1
 assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
@@ -124,7 +120,6 @@ assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain int
 assert (isequal(fix(blocksr), blocksr), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocksr>2, 'Value Error: parameter ''MaxBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
 assert (blocksr<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -180,7 +175,7 @@ cumpress = sum(press,2);
 
 %% Show results
 
-if opt == '1' 
-    figh = plotVec(cumpress,'EleLabel',lvs,'XYLabel',{'#LVs','PRESS'},'Option','01'); 
+if opt
+    figh = plotVec(cumpress,'EleLabel',lvs,'XYLabel',{'#LVs','PRESS'},'PlotType','Lines'); 
 end
 

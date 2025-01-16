@@ -80,7 +80,7 @@ function figH = plotVec(vec,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 15/Jan/2025
+% last modification: 16/Jan/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -277,11 +277,11 @@ if ~isempty(classes)
         vec2(find(ind),:) = vec(find(ind),:);
         if opt(1) == '0'
             if mod(M,2)
-                plot(vind, vec2(:,ceil(M/2)), 'Color', colorList(i,:), 'Marker', 'o');
+                plot(vind, vec2(:,ceil(M/2)), 'Color', colorList(i,:), 'LineWidth', .75 + 1/M, 'Marker', 'o');
             else
-                plot(vind+2.5*inter, vec2(:,M/2+1), 'Color', colorList(i,:), 'Marker', 'o');
+                plot(vind+2.5*inter, vec2(:,M/2+1), 'Color', colorList(i,:), 'LineWidth', .75 + 1/M, 'Marker', 'o');
             end
-            plot(vind, vec2, 'Color', colorList(i,:), 'Marker', 'o' ,'HandleVisibility', 'off');
+            plot(vind, vec2, 'Color', colorList(i,:), 'LineWidth', 1.5, 'Marker', 'o' ,'HandleVisibility', 'off');
 
         else
             if mod(M,2)
@@ -297,9 +297,9 @@ else
     if opt(1) == '0'
         for i=1:size(vec,2)
             if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                plot(elabel, vec(:,i), 'Color', colorList(i,:));
+                plot(elabel, vec(:,i), 'LineWidth', .75 + 1/M, 'Color', colorList(i,:));
             else
-                plot(vec(:,i), 'Color', colorList(i,:));
+                plot(vec(:,i), 'LineWidth', .75 + 1/M, 'Color', colorList(i,:));
             end
         end
     else

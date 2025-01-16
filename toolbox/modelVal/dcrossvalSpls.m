@@ -42,9 +42,9 @@ function [Qm,Q,lvso,keepXso] = dcrossvalSpls(x,y,varargin)
 %
 % 'Repetition': [1x1] number of repetitios for stability
 %
-% 'Option': [1x1] options for data plotting
-%       0: no plots
-%       1: bar plot (default)
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
 %
 %
 % OUTPUTS:
@@ -71,10 +71,10 @@ function [Qm,Q,lvso,keepXso] = dcrossvalSpls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 16/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
-% 
+% Copyright (C) 2025  University of Granada, Granada
+%
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
 % the Free Software Foundation, either version 3 of the License, or
@@ -109,7 +109,7 @@ addParameter(p,'MaxBlock',N);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
 addParameter(p,'Repetition',10);
-addParameter(p,'Option',1);   
+addParameter(p,'Plot',true);    
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -121,7 +121,7 @@ blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 rep = p.Results.Repetition;
-opt = p.Results.Option;
+opt = p.Results.Plot;
 
 % Extract LVs and Gamma length
 A = length(lvs);
@@ -140,7 +140,6 @@ assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' 
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(rep), [1 1]), 'Dimension Error: parameter ''Repetition'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
@@ -181,7 +180,7 @@ for j=1:rep
         vcs = preprocess2Dapp(val,av,'Scale',st);
         vcsy = preprocess2Dapp(valy,avy,'Scale',sty);
         
-        [cumpress,kk,nze] =  crossvalSpls(rest,resty,'LVs',lvs,'KeepXBlock',keepXs,'MaxBlock',blocksr-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Option',0);
+        [cumpress,kk,nze] =  crossvalSpls(rest,resty,'LVs',lvs,'KeepXBlock',keepXs,'MaxBlock',blocksr-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Plot',false);
         
         cumpressb = (1-abs(alpha))*cumpress/max(max(cumpress)) + alpha*nze/max(max(nze));
         
@@ -213,7 +212,7 @@ Qm = mean(Q);
 
 %% Show results
 
-if opt == 1
-    figh = plotVec(Q,'XYLabel',{'#Repetition','Goodness of Prediction'},'Option','11'); 
+if opt
+    plotVec(Q,'XYLabel',{'#Repetition','Goodness of Prediction'},'Plot','Lines'); 
 end
 

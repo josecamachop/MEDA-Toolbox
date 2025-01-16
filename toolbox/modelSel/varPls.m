@@ -29,16 +29,9 @@ function [yvar,tvar] = varPls(x,y,varargin)
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
-%       a:
-%           0: no plots
-%           1: plot Residual variance
-%       b:
-%           0: Residual Variance in Y and Scores 
-%           1: Residual Variance in Y 
-%   By deafult, opt = '10'. If less than 2 digits are specified, least 
-%   significant digit is set to 0, i.e. opt = 1 means a=1 and b=0. If a=0, 
-%   then b is ignored.
+% 'PlotScores': bool
+%       false: Residual Variance in Y
+%       true: Residual Variance in Y and Scores  
 %
 %
 % OUTPUTS:
@@ -57,9 +50,9 @@ function [yvar,tvar] = varPls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 16/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -88,20 +81,14 @@ p = inputParser;
 addParameter(p,'LVs',0:rank(x));   
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);   
-addParameter(p,'Option',10);   
+addParameter(p,'PlotScores',false);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 lvs = p.Results.LVs;
-opt = p.Results.Option;
+scoresplot = p.Results.PlotScores;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
-
-% Complete opt
-if length(opt)<2, opt = strcat(opt,'0'); end
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
@@ -115,7 +102,6 @@ assert (A>0, 'Dimension Error: parameter ''LVs'' with non valid content. Type ''
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique([0 lvs]);
@@ -123,7 +109,6 @@ lvs = unique([0 lvs]);
 % Validate values of input data
 assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -148,12 +133,10 @@ for i=1:length(lvs)
 end
     
 %% Show results
-           
-if opt(1) == '1'
-    if opt(2) == '1'
-        plotVec(yvar,'EleLabel',lvs,'XYLabel',{'#LVs','% Residual Variance in Y'},'Option','01');
-    else
-        plotVec([yvar tvar],'EleLabel',lvs,'XYLabel',{'#LVs','% Residual Variance'},'Option','01','VecLabel',{'Y','Scores'});
-        legend('show');
-    end
+
+if scoresplot
+    plotVec(yvar,'EleLabel',lvs,'XYLabel',{'#LVs','% Residual Variance in Y'},'PlotType','Lines');
+else
+    plotVec([yvar tvar],'EleLabel',lvs,'XYLabel',{'#LVs','% Residual Variance'},'PlotType','Lines','VecLabel',{'Y','Scores'});
 end
+

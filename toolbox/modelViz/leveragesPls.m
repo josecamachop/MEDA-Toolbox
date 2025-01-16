@@ -28,10 +28,6 @@ function L = leveragesPls(x,y,varargin)
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% 'Option': (str or num) options for data plotting
-%       0: no plots.
-%       1: plot bar plot of leverages (default) 
-%
 % 'VarsLabel': [Mx1] (opt = 1 o 2), [Ox1] (opt = otherwise), name of the 
 %   variables (numbers are used by default)
 %
@@ -58,10 +54,10 @@ function L = leveragesPls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
-% 
+% Copyright (C) 2025  University of Granada, Granada
+%
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
 % the Free Software Foundation, either version 3 of the License, or
@@ -90,7 +86,6 @@ LVS = 1:rank(x);
 addParameter(p,'LVs',LVS);  
 addParameter(p,'PreprocessingX',2);
 addParameter(p,'PreprocessingY',2);
-addParameter(p,'Option',1);
 Label = [1:M];
 addParameter(p,'VarsLabel',Label);
 Classes = ones(M,1);
@@ -101,12 +96,8 @@ parse(p,varargin{:});
 lvs = p.Results.LVs;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
-opt = p.Results.Option;
 label = p.Results.VarsLabel;
 classes = p.Results.VarsClass;
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -125,13 +116,11 @@ assert (A>0, 'Dimension Error: parameter ''LVs'' with non valid content. Type ''
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''VarsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -148,7 +137,5 @@ L = sum((xcs*R*P').^2)./sum(xcs.^2);
 
 %% Show results
 
-if opt == '1'
-    plotVec(L, 'EleLabel',label, 'VarsClass',classes, 'XYLabel',{'Variables','Leverages'});
-end
+plotVec(L, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'Variables','Leverages'});
         

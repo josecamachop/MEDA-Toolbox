@@ -99,7 +99,6 @@ if isempty(test), test = x; end;
 L = size(test, 1);
 if nargin < 4 || isempty(dummy), dummy = ones(L,1); end;
 
-
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'Preprocessing',2);     
