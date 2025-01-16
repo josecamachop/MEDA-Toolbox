@@ -18,10 +18,6 @@ function figH = biplot(model,varargin)
 %
 % Optional INPUTS:
 %
-% 'Option': [1X1]
-%       0: plot for numerical classes (consistent with a colorbar)
-%       1: plot for categorical classes (consistent with a legend, by default)
-%
 % 'Title': (str) title for the plots. Empty by default;
 %
 % 'ObsLabel': [Nx1] name of the observations (numbers are used by default)
@@ -59,10 +55,11 @@ function figH = biplot(model,varargin)
 % T = biplot(model, 'Title', 'Random Biplot 10%', 'ObsLabel', A, 'PercArrows',10);
 % T = biplot(model, 'Title', 'Random Biplot 20%', 'ObsLabel', A, 'PercArrows',25); 
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
 %
-% Copyright (C) 2024  University of Granada, Granada
+% coded by: Jose Camacho (josecamacho@ugr.es)
+% last modification: 15/Jan/2025
+%
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -85,10 +82,8 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 N = size(model.scores, 1);
 M = size(model.loads,1);
 
-
 % Introduce optional inputs as parameters (name-value pair) 
-p = inputParser;
-addParameter(p,'Option',ones(1,1));  
+p = inputParser; 
 addParameter(p,'Title',' ');
 addParameter(p,'ObsLabel',1:N);
 addParameter(p,'ObsClass',ones(N,1));   
@@ -98,7 +93,6 @@ addParameter(p,'PercArrows',10);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-opt = p.Results.Option;
 tit = p.Results.Title;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
@@ -116,16 +110,12 @@ if size(vlabel,1) == 1,     vlabel = vlabel'; end;
 if length(blur)==1, blur = [blur, blur]; end
 
 % Validate dimensions of input data
-assert (length(opt)==1, 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [N 1]), 'Dimension Error: parameter ''ObsLabel'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [N 1]), 'Dimension Error: parameter ''ObsClass'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(vlabel), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(blur), [1 2]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-2. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(arrows), [1 1]), 'Dimension Error: parameter ''PercArrows'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
-% Validate values of input data
-assert (isempty(find(opt~=0 & opt~=1)), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
-
 
 %% Main code
 
@@ -153,16 +143,8 @@ figH = [];
 for i=1:length(model.lvs)-1
     for j=i+1:length(model.lvs)
         
-        figH = [figH plotScatter([T(:,i),T(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}','Option',opt,'BlurIndex',blur(1))];
+        figH = [figH plotScatter([T(:,i),T(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}','BlurIndex',blur(1))];
         title(tit);
-        
-        if opt 
-            if length(unique(classes)) > 1
-                legend('show');
-            end
-        else
-            colorbar;
-        end
         
         hold on
 

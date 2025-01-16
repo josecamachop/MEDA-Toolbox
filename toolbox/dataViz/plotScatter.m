@@ -24,35 +24,34 @@ function figH = plotScatter(bdata,varargin)
 %
 % 'LimCont': {2} control limits on x and y axis (nothing by default)
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'abc' for:
-%       a:
-%           0: plot for numerical classes (consistent with a colorbar)
-%           1: plot for categorical classes (consistent with a legend)
-%       b:
-%           0: do not plot multiplicity
-%           1: plot multiplicity
-%       c: (for b 0)
-%           0: filled marks
-%           1: empty marks
-%       c: (for b 1)
-%           00: plot multiplicity info in the size of the markers.
-%           01: plot multiplicity info in the form of the markers.
-%           10: plot multiplicity information in the Z axis.
-%           11: plot multiplicity info in the size of the markers and
+% 'FilledMarkers': bool, only when 'PlotMult' is 'none'
+%      false: empty marks (by default)
+%      true: filled marks
+%
+% 'PlotMult': str
+%      'none': do not plot multiplicity (by default)
+%      'size': plot multiplicity info in the size of the markers.
+%      'shape': plot multiplicity info in the shape of the markers.
+%      'zaxis': plot multiplicity information in the Z axis.
+%      'zsize': plot multiplicity info in the size of the markers and
 %               classes in Z-axis
 %
-%   By deafult, opt = '100'. If less digits are specified, least significant
-%   digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0
+% 'ClassType': str
+%      'Numerical': plot for numerical classes (consistent with a colorbar)
+%      'Categorical': plot for categorical classes (consistent with a legend)
 %
 % 'Multiplicity': [Nx1] multiplicity of each row (1s by default)
 %
-% 'Markers': [1x3] thresholds for the different markers.
-%       maxv(1): maximum threshold for marker 'd' for opt = 1101 (20 by default)
-%       maxv(2): maximum threshold for marker 'o' for opt = 1101 (50 by default)
-%       maxv(3): maximum threshold for marker 's' for opt = 1101 (100 by default)
+% 'Markers': [1x3] thresholds for the different multiplicity levels
+%       maxv(1): threshold between very low and low multiplicity (20 by default)
+%       maxv(2): threshold between low and medium multiplicity (50 by default)
+%       maxv(3): threshold between very medium and high multiplicity (100 by default)
 %
-% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels
-%   are printer (the higher blur). Inf shows all the labels (1 by default).
+% 'BlurIndex': [1x1] to avoid blur when adding labels. It reflects the
+%   minimum distance (normalized to [0,1]) where a cluttered label is 
+%   allowed to be visualized. For a value of 0, no cluttered labels are 
+%   printed, while for a value of 1 all labels are printed, and thus the 
+%   highest blur. By default 0.3 is chosen.
 %
 % 'Color': Choose a color for your data.  
 %   - 'hsv' for hsv palette 
@@ -75,20 +74,30 @@ function figH = plotScatter(bdata,varargin)
 % figH = plotScatter(randn(5,2),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'Color','hsv');
 %
 %
+% EXAMPLE OF USE: with labels, and nurical and categorical classes:
+%
+% X = randn(5,2);
+% plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Categorical');
+% plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',1:5,'XYLabel',{'Y','X'},'ClassType','Numerical');
+%
+%
 % EXAMPLE OF USE: with labels, multilicity and classes in elements:
 %
 % X = randn(5,2);
-% opts = {'10' '1100' '1101' '1110' '1111'};
-% for o = 1:length(opts),
-%   plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'Option',opts{o},'Multiplicity',[1 20 50 100 1000]);
+% plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Categorical','Multiplicity',[1 20 50 100 1000]);
+% plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Numerical','Multiplicity',[1 20 50 100 1000]);
+%
+% mult = {'size','shape','zaxis','zsize'};
+% for o = 1:length(mult),
+%   plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'PlotMult',mult{o},'Multiplicity',[1 20 50 100 1000]);
 % end
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-%           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 25/Nov/2024
+%           
+% last modification: 13/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -122,8 +131,11 @@ addParameter(p,'LimCont',[]);
 addParameter(p,'Option','100');
 addParameter(p,'Multiplicity',ones(N,1));
 addParameter(p,'Markers',[20 50 100]);
-addParameter(p,'BlurIndex',1);
+addParameter(p,'BlurIndex',0.3);
 addParameter(p,'Color',[]);
+addParameter(p,'FilledMarkers',false);
+addParameter(p,'PlotMult','none');
+addParameter(p,'ClassType','default');
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -131,11 +143,13 @@ elabel = p.Results.EleLabel;
 classes = p.Results.ObsClass;
 xylabel = p.Results.XYLabel;
 lcont = p.Results.LimCont;
-opt = p.Results.Option;
 mult = p.Results.Multiplicity;
 maxv = p.Results.Markers;
 blur = p.Results.BlurIndex;
-color=p.Results.Color;
+color = p.Results.Color;
+filled = p.Results.FilledMarkers;
+plottype = p.Results.PlotMult;
+classtype = p.Results.ClassType;
 
 
 % Convert row arrays to column arrays
@@ -145,13 +159,41 @@ if size(lcont,1) == 1, lcont = lcont'; end;
 if size(mult,1) == 1, mult = mult'; end;
 if size(maxv,2) == 1, maxv = maxv'; end;
 
-% Convert num arrays to str
-if isnumeric(opt), opt=num2str(opt); end
 
-% Correct for opt integrity
-if opt(1) == 0 && ~isnumeric(classes), opt(1) = 1; end
-while length(opt)<4, opt = strcat(opt,'0'); end
-if length(opt)<5 && opt(3)==1, opt = strcat(opt,'0'); end
+% Check type of plot
+if strcmp(plottype,'none')
+    if filled
+        opt='010';
+    else
+        opt='000';
+    end
+elseif strcmp(plottype,'size')
+    opt='100';
+elseif strcmp(plottype,'shape')
+    opt='101';
+elseif strcmp(plottype,'zaxis')
+    opt='110';
+elseif strcmp(plottype,'zsize')
+    opt='111';
+else
+    error('Value Error: invalid value for parameter ''PlotType''. Type ''help %s'' for more info.', routine(1).name);
+end
+
+
+% Check type of plot
+if strcmp(classtype,'Numerical')
+    opt=strcat('0',opt);
+elseif strcmp(classtype,'Categorical')
+    opt=strcat('1',opt);
+elseif strcmp(classtype,'default')
+    if ~isnumeric(classes) || length(unique(classes)) < 10 
+        opt=strcat('1',opt);
+    else
+        opt=strcat('0',opt);
+    end
+else
+    error('Value Error: parameter ''ClassType'' must contain either ''Numerical'' or ''Categorical''. Type ''help %s'' for more info.', routine(1).name);
+end
 
 % Convert num arrays to str
 if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
@@ -168,13 +210,9 @@ if ~isempty(elabel), assert((isequal(size(elabel), [N 1]) || isequal(size(elabel
 if ~isempty(classes), assert ((isequal(size(classes), [N 1]) || isequal(size(classes), [N+1 1])), 'Dimension Error: parameter ''ObsClass'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: parameter ''XYLabel'' must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(lcont), assert (iscell(lcont) && isequal(size(lcont), [2 1]), 'Dimension Error: parameter ''LimCont'' must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end;
-assert (ischar(opt) && length(opt)==4, 'Dimension Error: parameter ''Option'' must be a string or num of maximum 4 bits. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: parameter ''Multiplicity'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: parameter ''Markers'' must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-
-% Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -185,10 +223,17 @@ hold on;
 
 % Sort data for colorbar
 if opt(1)=='0'
+    if iscell(classes)
+        classes = cell2mat(classes);
+    end
+    if isstr(classes)
+        classes = str2num(classes);
+    end
     [classes,ord] = sort(classes,'ascend');
     cax = [min(classes) max(classes)];
     classes = num2str(classes); 
     classes = cellstr(classes);
+        
     bdata = bdata(ord,:);
     elabel = elabel(ord);
     mult = mult(ord);
@@ -207,65 +252,25 @@ uniqueOrdClasses = unique(ordClasses);
 bins = [0 1 maxv Inf];
 markers = ['^','v','d','o','s'];
 
-%Choosing the color
-okabeIto = [0.1,0.1,0.1;
-            0.902,0.624,0;
-            0.337,0.706,0.914;
-            0,0.620,0.451;
-            0.941,0.894,0.259;
-            0,0.447,0.698;
-            0.835,0.369,0;
-            0.8,0.475,0.655;
-            0.1,0.1,0.1;
-            0.902,0.624,0;
-            0.337,0.706,0.914;
-            0,0.620,0.451;
-            0.941,0.894,0.259;
-            0,0.447,0.698;
-            0.835,0.369,0;
-            0.8,0.475,0.655;
-            0.1,0.1,0.1;
-            0.902,0.624,0;
-            0.337,0.706,0.914;
-            0,0.620,0.451;
-            0.941,0.894,0.259;
-            0,0.447,0.698;
-            0.835,0.369,0;
-            0.8,0.475,0.655];
-
 nElems = length(uniqueOrdClasses);
-
-if nElems > size(okabeIto,1) %if there are a lot of input colors, repmat to extend the palette.
-    okabeIto = repmat(okabeIto, ceil(nElems/size(okabeIto, 1)), 1);
-end
-
+            
 if(isempty(color))
-    if opt(1) == '1' 
-        if length(uniqueOrdClasses) <= 24 && length(uniqueOrdClasses) > 1
-            colorList = okabeIto;
-            colormap(okabeIto)
+    if opt(1) == '1'
+        if nElems ==1
+            colormap(winter(1))
+        elseif nElems <= 8
+            colormap(okabeIto(nElems))
         else
-            colorList = hsv(length(uniqueOrdClasses));
-            colormap('hsv')
+            colormap(hsv(nElems))
         end
     else
-        colorList = parula(length(uniqueOrdClasses));
-        colormap('parula')
-    end
-
-elseif strcmp(color, 'okabe')
-    colorList = okabeIto;
-    colormap(okabeIto)
-
-elseif strcmp(color, 'parula')
-    colorList = parula(length(uniqueOrdClasses));
-    colormap('parula')
-
-else%if strcmp(color, 'hsv')
-    colorList = hsv(length(uniqueOrdClasses));
-    colormap('hsv')
+        colormap(parula(nElems))
+    end  
+else
+    eval(sprintf('colormap(%s(nElems))',color));
 end
 
+colorList = colormap();
 colors = colorList(ordClasses, :);
 
 sizes = zeros(size(mult));
@@ -315,9 +320,8 @@ switch opt(2:4)
         end
 end
 
-textScatter(figH,bdata,'EleLabel',elabel,'ObsClass',classes,'Option',opt(2:4),'Multiplicity',mult,'BlurIndex',blur);
+ax = textScatter(figH,bdata,'EleLabel',elabel,'ObsClass',classes,'Multiplicity',mult,'BlurIndex',blur);
 
-ax = axis;
 ax([1 3]) = min(ax([1 3]),zeros(1,2));
 ax([2 4]) = max(ax([2 4]),zeros(1,2));
 
@@ -346,20 +350,25 @@ axis(ax)
 
 % Set axis labels
 if ~isempty(xylabel)
-    xlabel(xylabel{1}, 'FontSize', 20);
-    ylabel(xylabel{2}, 'FontSize', 20);
+    xlabel(xylabel{1}, 'FontSize', 18);
+    ylabel(xylabel{2}, 'FontSize', 18);
 end
 
 axesH = get(figH,'Children');
 for i=1:length(axesH)
     if strcmp(get(axesH(i), 'type'), 'axes')
-        set(axesH(i), 'FontSize', 12);
+        set(axesH(i), 'FontSize', 14);
     end
 end
 
 % Set caxis if colorbar
 if opt(1)=='0'
-    caxis(cax);
+    if length(uniqueOrdClasses) < 2
+        colorbar('off');
+    else
+        caxis(cax);
+        colorbar('Location','EastOutside');
+    end
 else
     if length(uniqueOrdClasses) < 2, legend off; else legend('show','Location','best'); end
 end

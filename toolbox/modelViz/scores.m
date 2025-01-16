@@ -23,32 +23,13 @@ function figH = scores(model,varargin)
 % 'ObsTest': [LxM] data set with the observations to be visualized in the model
 %   space. By default, model.scores are plotted.
 %
-% 'Option': (str) options for data plotting: binary code of the form 'abcde' for:
-%       a:
-%           0: scatter plot of pairs of LVs 
-%           1: bar plot of each single LV
-%       b:
-%           0: plot calibration and test data
-%           1: plot only test data 
-%       c:
-%           0: plot for categorical classes (consistent with a legend)
-%           1: plot for numerical classes (consistent with a colorbar) 
-%       d:
-%           0: do not plot multiplicity
-%           1: plot multiplicity
-%       e: (for d 0)
-%           0: filled marks
-%           1: empty marks
-%       e: (for d 1)
-%           00: plot multiplicity info in the size of the markers.
-%           01: plot multiplicity info in the form of the markers.
-%           10: plot multiplicity information in the Z axis.
-%           11: plot multiplicity info in the size of the markers and
-%               classes in Z-axis
+% 'PlotType': str
+%      'Scatter': scatterplot (by default)
+%      'Bars': bar plot (by default)
 %
-%   By deafult, opt = '00000'. If less digits are specified, least 
-%   significant digits are set to 0, i.e. opt = 1 means a=1, b=0, c=0, d=0
-%   and e=0.
+% 'PlotCal': bool
+%      false: plot only test data
+%      true: plot both calibration and test (by default)
 %
 % 'Title': (str) title for the plots. Empty by default;
 %
@@ -103,9 +84,9 @@ function figH = scores(model,varargin)
 % scores(model,'ObsTest',test);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 25/Nov/2024
+% last modification: 12/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -127,12 +108,14 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(model.scores, 1);
 M = size(model.loads,1);
+A = length(model.lvs);
 
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'ObsTest',[]);
-addParameter(p,'Option','00000');
+addParameter(p,'PlotType','Scatter');
+addParameter(p,'PlotCal',true);
 addParameter(p,'Title',' ');  
 addParameter(p,'BlurIndex',1);
 addParameter(p,'ObsLabel',[]);
@@ -143,7 +126,8 @@ parse(p,varargin{:});
 % Extract inputs from inputParser for code legibility
 
 test = p.Results.ObsTest;
-opt = p.Results.Option;
+plottype = p.Results.PlotType;
+plotcal = p.Results.PlotCal;
 tit = p.Results.Title;
 blur = p.Results.BlurIndex;
 label = p.Results.ObsLabel;
@@ -152,37 +136,26 @@ color = p.Results.Color;
 
 L = size(test, 1);
 
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
-
-% Complete opt
-while length(opt)<5, opt = strcat(opt,'0'); end
-if length(opt)<6 && opt(4)==1, opt = strcat(opt,'0'); end
-
-if opt(3) == '0', opt(3) = '1'; else,  opt(3) = '0'; end
-if opt(2) == 1 || opt(2) == '1'
-    K = L;
-else
+if plotcal
     K = N+L;
+else
+    K = L;
 end
 
-
 if isempty(label) 
-    if opt(2) == 1 || opt(2) == '1'
-        label = 1:L;
-    else
+    if plotcal
         label = [1:N 1:L]; 
+    else
+        label = 1:L;
     end
 end
 if isempty(classes)
-    if opt(2) == 1 || opt(2) == '1' 
-        classes = ones(L,1); 
-    else
+    if plotcal
         classes = [ones(N,1);2*ones(L,1)];  
+    else 
+        classes = ones(L,1); 
     end
 end
-
-
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -190,14 +163,10 @@ if size(classes,1) == 1, classes = classes'; end;
 
 % Validate dimensions of input data
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
-assert (ischar(opt) && length(opt)>=5, 'Dimension Error: parameter ''Option'' must be a string or num of at least 5 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: parameter ''ObsLabel'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: parameter ''ObsClass'' must be K-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
-% Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
-
 
 %% Main code
 
@@ -222,7 +191,7 @@ end
 
 %% Show results
 
-if opt(2) == '0'
+if plotcal
     Tt = [T;TT];
 else
     Tt = TT;
@@ -237,15 +206,15 @@ else
 end
 
 figH = [];
-if length(model.lvs) == 1 || opt(1) == '1'
+if strcmp(plottype,'Bars') || A == 1
     for i=1:length(model.lvs)
-        figH = [figH plotVec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var)},'Color',color)];
+        figH = [figH plotVec(Tt(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var)},'Color',color);];
         title(tit);
     end
-else
+elseif strcmp(plottype,'Scatter')
     for i=1:length(model.lvs)-1
         for j=i+1:length(model.lvs)
-            figH = [figH plotScatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}','Option',opt(3:end),'BlurIndex',blur,'Color',color)];
+            figH = [figH plotScatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(i),100*d(i)/model.var),sprintf('Scores %s %d (%.0f%%)',dim,model.lvs(j),100*d(j)/model.var)}','BlurIndex',blur,'Color',color)];
             title(tit);
         end
     end

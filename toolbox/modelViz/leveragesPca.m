@@ -21,13 +21,9 @@ function [L,E] = leveragesPca(x,varargin)
 %       1: mean centering
 %       2: autoscaling (default) 
 %
-% 'Option': (str or num) options for data plotting
-%       0: no plots.
-%       1: plot bar plot of leverages (default) 
-%
 % 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
-% 'ObsClass: [Mx1] groups for different visualization (a single group 
+% 'VarsClass: [Mx1] groups for different visualization (a single group 
 %   by default)
 %
 %
@@ -38,7 +34,7 @@ function [L,E] = leveragesPca(x,varargin)
 % E: [Mx1] residuals of the variables
 %
 %
-% EXAMPLE OF USE: Random scores
+% EXAMPLE OF USE: Random leverages
 %
 % A = cell(1, 10);
 % 
@@ -51,9 +47,9 @@ function [L,E] = leveragesPca(x,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -81,24 +77,17 @@ p = inputParser;
 PCS = 1:rank(x);
 addParameter(p,'PCs',PCS);  
 addParameter(p,'Preprocessing',2);
-addParameter(p,'Option',1);
 Label = [1:M];
 addParameter(p,'VarsLabel',Label);
 Classes = ones(M,1);
-addParameter(p,'ObsClass',Classes);     
+addParameter(p,'VarsClass',Classes);     
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 pcs = p.Results.PCs;
 prep = p.Results.Preprocessing;
-opt = p.Results.Option;
 label = p.Results.VarsLabel;
-classes = p.Results.ObsClass;
-
-
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
+classes = p.Results.VarsClass;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -116,13 +105,11 @@ A = length(pcs);
 assert (A>0, 'Dimension Error: parameter ''Pcs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''varsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''ObsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''VarsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
 % Validate values of input data
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -138,7 +125,5 @@ L = sum((T*P').^2)./sum(xcs.^2);
 
 %% Show results
 
-if opt == '1' 
-    plotVec(L, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'Variables','Leverages'});
-end
+plotVec(L, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'Variables','Leverages'});
         

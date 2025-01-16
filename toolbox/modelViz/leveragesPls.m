@@ -35,7 +35,7 @@ function L = leveragesPls(x,y,varargin)
 % 'VarsLabel': [Mx1] (opt = 1 o 2), [Ox1] (opt = otherwise), name of the 
 %   variables (numbers are used by default)
 %
-% 'ObsClass': [Mx1] (opt = 1 o 2), [Ox1] (opt = otherwise), groups for 
+% 'VarsClass': [Mx1] (opt = 1 o 2), [Ox1] (opt = otherwise), groups for 
 %   different visualization (a single group by default)
 %
 %
@@ -94,7 +94,7 @@ addParameter(p,'Option',1);
 Label = [1:M];
 addParameter(p,'VarsLabel',Label);
 Classes = ones(M,1);
-addParameter(p,'ObsClass',Classes);     
+addParameter(p,'VarsClass',Classes);     
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -103,7 +103,7 @@ prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 opt = p.Results.Option;
 label = p.Results.VarsLabel;
-classes = p.Results.ObsClass;
+classes = p.Results.VarsClass;
 
 % Convert int arrays to str
 if isnumeric(opt), opt=num2str(opt); end
@@ -127,7 +127,7 @@ assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''Preprocessing
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
-assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''ObsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''VarsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
   
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
@@ -149,6 +149,6 @@ L = sum((xcs*R*P').^2)./sum(xcs.^2);
 %% Show results
 
 if opt == '1'
-    plotVec(L, 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'Variables','Leverages'});
+    plotVec(L, 'EleLabel',label, 'VarsClass',classes, 'XYLabel',{'Variables','Leverages'});
 end
         

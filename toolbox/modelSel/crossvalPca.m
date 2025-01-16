@@ -31,7 +31,7 @@ function [cumpress,press] = crossvalPca(x,pcs,varargin)
 %       1: mean-centering 
 %       2: auto-scaling (default)  
 %
-% 'Option': (bool) plot results.
+% 'Plot': (bool) plot results
 %       false: no plots.
 %       true: plot (default)
 %
@@ -51,9 +51,9 @@ function [cumpress,press] = crossvalPca(x,pcs,varargin)
 %
 %
 % codified by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -94,7 +94,7 @@ leavem = p.Results.ValProcedure;
 blocksr = p.Results.MaxSampleBlock;
 blocksc = p.Results.MaxVarBlock;
 prep = p.Results.Preprocessing;
-opt = p.Results.Plot;
+plot = p.Results.Plot;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -238,7 +238,7 @@ cumpress = sum(press,2);
 
 %% Show results
 
-if opt    
-    figh = plotVec(cumpress,'EleLabel',pcs,'XYLabel',{'#PCs','PRESS'},'Option','01'); 
+if plot    
+    figh = plotVec(cumpress,'EleLabel',pcs,'XYLabel',{'#PCs','PRESS'},'PlotType','Lines'); 
 end
 

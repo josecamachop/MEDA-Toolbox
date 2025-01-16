@@ -1,4 +1,4 @@
-function textScatter(fig_h,bdata,varargin)
+function ax = textScatter(fig_h,bdata,varargin)
 
 % Print text in a Scatter plot.
 %
@@ -19,36 +19,30 @@ function textScatter(fig_h,bdata,varargin)
 % 'ObsClass': [Nx1, str(N), {N}] groups for different visualization (a single
 %   group by default)
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
-%       a:
-%           0: do not plot multiplicity
-%           1: plot multiplicity
-%       b: (for a 0)
-%           0: filled marks
-%           1: empty marks
-%       b: (for a 1)
-%           00: plot multiplicity info in the size of the markers.
-%           01: plot multiplicity info in the form of the markers.
-%           10: plot multiplicity information in the Z axis.
-%           11: plot multiplicity info in the size of the markers and
-%               classes in Z-axis
-%
-%   By deafult, opt = '00'. If less digits are specified, least significant
-%   digits are set to 0, i.e. opt = 1 means a=1, b=00.
-%
 % 'Multiplicity': [Nx1] multiplicity of each row (1s by default)
 %
-% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels
-%   are printer (the higher blur). Inf shows all the labels (1 by default).
+% 'PlotMult': str
+%      'none': do not plot multiplicity (by default)
+%      'zaxis': plot multiplicity information in the Z axis.
+%      'zsize': plot multiplicity info in the size of the markers and
+%               classes in Z-axis
+%
+% 'BlurIndex': [1x1] to avoid blur when adding labels. It reflects the
+%   minimum distance (normalized to [0,1]) where a cluttered label is 
+%   allowed to be visualized. For a value of 0, no cluttered labels are 
+%   printed, while for a value of 1 all labels are printed, and thus the 
+%   highest blur. By default 0.3 is chosen. 
 %
 %
 % OUTPUTS:
 %
+% 'ax': [1x4] axis enclosing the text.
+%
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -76,21 +70,18 @@ N = size(bdata, 1);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'EleLabel',1:N);   
-addParameter(p,'ObsClass',ones(N,1));   
-addParameter(p,'Option','000');   
+addParameter(p,'ObsClass',ones(N,1));  
+addParameter(p,'PlotMult','none'); 
 addParameter(p,'Multiplicity',ones(N,1)); 
-addParameter(p,'BlurIndex',1);
+addParameter(p,'BlurIndex',0.3);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 elabel = p.Results.EleLabel;
-opt = p.Results.Option;
+plottype = p.Results.PlotMult;
 classes = p.Results.ObsClass;
 mult = p.Results.Multiplicity;
 blur = p.Results.BlurIndex;
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
 
 % Convert row arrays to column arrays
 if size(elabel,1)  == 1, elabel  = elabel';  end;
@@ -99,11 +90,7 @@ if size(mult,1) == 1, mult = mult'; end;
 
 % Convert num arrays to str
 if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
-if isnumeric(opt), opt=num2str(opt); end
 if ~isempty(classes) && isnumeric(classes), classes=num2str(classes); end
-
-% Complete opt
-while length(opt)<3, opt = strcat(opt,'0'); end
 
 % Convert char arrays to cell
 if ischar(elabel),  elabel = cellstr(elabel); end;
@@ -113,12 +100,8 @@ if ischar(classes), classes = cellstr(classes); end;
 assert(size(bdata,2) == 2, 'Dimension Error: paramter ''bdata'' must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: paramter ''EleLabel'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: parameter ''ObsClass'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-assert (ischar(opt) && length(opt)==3, 'Dimension Error: parameter ''Option'' must be a string or num of maximum 3 bits. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: parameter ''Multiplicity'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-
-% Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -133,86 +116,38 @@ end
 unique_ord_classes = unique(ord_classes);
 
 ax = axis;
-deltax = (ax(2)-ax(1))/100;
-deltay = (ax(4)-ax(3))/100;
+deltax = (ax(2)-ax(1)); 
+deltay = (ax(4)-ax(3)); 
 
-bdata = bdata + 0.01*randn(size(bdata)).*(ones(size(bdata,1),1)*std(bdata));
-mar = 0.1;
+c = 0.01; % bias with text
 if ~isempty(elabel)
     for i=1:N
-        suffx = length(char(strtrim(elabel(i,1))));
+        suffx = length(char(strtrim(elabel(i,1))))+1;
         ind = [1:(i-1) (i+1):size(bdata,1)];
-
-        dx = (bdata(ind,1)-bdata(i,1))/deltax;
-        dxM = dx;
+        
+        dxM = (bdata(ind,1)-bdata(i,1))/(deltax*suffx/60); % app. 60 characters in the x-axis
         dxM(dxM<0) = Inf;
-        dxm = dx;
-        dxm(dxm>mar) = Inf;
-        dxm(dxm>0 & dxm<=mar) = 0;
-        dy = (bdata(ind,2)-bdata(i,2))/deltay;
-        dyM = dy;
-        dyM(dyM<0) = Inf;
-        dym = dy;
-        dym(dym>mar) = Inf;
-        dym(dym>0 & dym<=mar) = 0;
-
-        % Labels in any direction: not used
-
-%         d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
-%         if length(find(d > 10/blur))>1 || isempty(ind),
-%             quad = find(d==max(d),1);
-%             switch quad,
-%                 case 1,
-%                     posx = bdata(i,1)+deltax;
-%                     posy = bdata(i,2)+deltay;
-%                 case 2,
-%                     posx = bdata(i,1)+deltax;
-%                     posy = bdata(i,2)-6*deltay;
-%                 case 3,
-%                     posx = bdata(i,1)-deltax-suffx/2;
-%                     posy = bdata(i,2)+2*deltay;
-%                 case 4,
-%                     posx = bdata(i,1)-deltax-suffx/2;
-%                     posy = bdata(i,2)-6*deltay;
-%             end
-%
-%
-%         % Labels only to the right: used
-%
-        d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
-        if (length(find(d > 10/blur))>1 && length(find(d(1:2) > 10/blur))>0)|| isempty(ind)
-            quad = find(d(1:2)==max(d(1:2)),1);
-            switch quad
-                case 1
-                    posx = bdata(i,1)+deltax;
-                    posy = bdata(i,2)+deltay;
-                case 2
-                    posx = bdata(i,1)+deltax;
-                    posy = bdata(i,2)-6*deltay;
-                case 3
-                    posx = bdata(i,1)-deltax-suffx/2;
-                    posy = bdata(i,2)+2*deltay;
-                case 4
-                    posx = bdata(i,1)-deltax-suffx/2;
-                    posy = bdata(i,2)-6*deltay;
+        dxM(dxM>1) = Inf;
+        dyM = (bdata(ind,2)-bdata(i,2))/(deltay*2/40); % app. 40 characters in the y-axis
+        dyM(dyM<-1) = Inf;
+        dyM(dyM>1) = Inf;
+        
+        d = dxM.^2+dyM.^2;
+        ind2 = find(min(d)==d,1);
+        if dxM(ind2) > blur || dyM(ind2)==Inf  || isempty(ind)
+            posx = bdata(i,1) + c*deltax;
+            posy = bdata(i,2) + c*deltay;
+            ax(2) = max(ax(2), posx + deltax*suffx/60);
+            ax(4) = max(ax(4), posy + deltay*2/40);
+            if strcmp(plottype,'zaxis')
+                text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
+            elseif strcmp(plottype,'zsize')
+                text(posx, posy, ord_classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
+            else
+                text(posx, posy, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
             end
-
-%         % Labels only to upper right: not used
-%
-%         d = min([dxM.^2+dyM.^2 dxM.^2+dym.^2 dxm.^2+dyM.^2 dxm.^2+dym.^2]);
-%         if (length(find(d > 10/blur))>1 && d(1) > 10/blur)|| isempty(ind),
-%             posx = bdata(i,1)+deltax;
-%             posy = bdata(i,2)+deltay;
-
-
-            switch opt
-                case '110'
-                    text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
-                case '111'
-                    text(posx, posy, ord_classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
-                otherwise
-                    text(posx, posy, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
-            end
+        else
+            suffx(i) = 0;
         end
     end
 end

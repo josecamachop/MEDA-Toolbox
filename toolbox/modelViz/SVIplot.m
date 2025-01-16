@@ -25,16 +25,9 @@ function [r2,alpha,q2,resCV,alphaCV,betas] = SVIplot(x,varargin)
 %       1: mean centering
 %       2: autoscaling (default)   
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
-%       a:
-%           0: no plots
-%           1: SVIplot
-%       b:
-%           0: SVIplot without beta terms
-%           1: SVIplot plus beta terms
-%   By deafult, opt = '10'. If less than 2 digits are specified, least 
-%   significant digit is set to 0, i.e. opt = 1 means a=1 and b=0. If a=0, 
-%   then b is ignored.
+% 'Beta': bool
+%       false: SVIplot without beta terms (by default)
+%       true: SVIplot plus beta terms
 %
 %
 % OUTPUTS:
@@ -58,9 +51,9 @@ function [r2,alpha,q2,resCV,alphaCV,betas] = SVIplot(x,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -89,22 +82,15 @@ addParameter(p,'PCs',0:min(size(x)));
 addParameter(p,'Vars',1);   
 addParameter(p,'Groups',7);
 addParameter(p,'Preprocessing',2);
-addParameter(p,'Option','10');
+addParameter(p,'Beta',false);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 pcs = p.Results.PCs;
 var = p.Results.Vars;
 groups = p.Results.Groups;
-opt = p.Results.Option;
+beta = p.Results.Beta;
 prep = p.Results.Preprocessing;
-
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
-
-% Complete opt
-if length(opt)<2, opt = strcat(opt,'0'); end
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -120,11 +106,9 @@ assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''PCs'' must be 1
 assert (isequal(size(var), [1 1]), 'Dimension Error: parameter ''Vars'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(groups), [1 1]), 'Dimension Error: parameter ''Groups'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==2, 'Dimension Error:parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
   
 % Validate values of input data
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''PCs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -136,7 +120,7 @@ p = model.loads;
 alpha=0;
 betas=zeros(M-1,1);
 r2 = 0;
-for i=1:length(pcs),
+for i=1:length(pcs)
     q = p(:,1:pcs(i))*p(:,1:pcs(i))';
     alpha = [alpha q(var,var)];
     betas = [betas q([1:var-1 var+1:end],var)];
@@ -150,7 +134,7 @@ pcsvect=[];
 rows = rand(1,N);
 [a,rind]=sort(rows);
 elemr=N/groups;
-for j=1:groups,
+for j=1:groups
     indi = rind(round((j-1)*elemr+1):round(j*elemr)); % Sample selection
     i2 = ones(N,1);
     i2(indi)=0;
@@ -165,7 +149,7 @@ for j=1:groups,
     p = model.loads;
     alpha2=0;
     res2 = testc(:,var);
-    for i=1:length(pcs),
+    for i=1:length(pcs)
         kk = p(:,1:min(pcs(i),size(p,2)));
         q = kk*kk';
         alpha2 = [alpha2 q(var,var)];
@@ -184,30 +168,28 @@ q2 = 1-sum(resCV.^2)/sum(resCV(:,1).^2);
 
 %% Show results
 
-if opt(1) == '1'
-    figh=figure;
-    hold on
-    plot([0 pcs],r2,'.-');
-    plot([0 pcs],alpha,'g-x','LineWidth',2);
-    plot([0 pcs],q2,'m.-');
-    plot(pcsvect(1:end),alphaCV(1:end),'ro');
-    chh=get(figh,'Children');
-    set(chh,'FontSize',14)
-    legend('R^2_{A,m}','\alpha^A_{m}','Q^2_{A,m}','\alpha^A_{m}(i)','Location','NorthOutside','Orientation','Horizontal')
-    if  opt(2) == '1'
-        plot([0 pcs],betas','c')
-    end
-    
-    % Set axis
-    axis tight
-    ax = axis;
-    axis auto
-    ax2 = axis;
-    axis([ax(1:2) ax2(3:4)])
-    
-    %legend off
-    box on
-    hold off
-
+figh=figure;
+hold on
+plot([0 pcs],r2,'.-');
+plot([0 pcs],alpha,'g-x','LineWidth',2);
+plot([0 pcs],q2,'m.-');
+plot(pcsvect(1:end),alphaCV(1:end),'ro');
+chh=get(figh,'Children');
+set(chh,'FontSize',14)
+legend('R^2_{A,m}','\alpha^A_{m}','Q^2_{A,m}','\alpha^A_{m}(i)','Location','NorthOutside','Orientation','Horizontal')
+if beta
+    plot([0 pcs],betas','c')
 end
+
+% Set axis
+axis tight
+ax = axis;
+axis auto
+ax2 = axis;
+axis([ax(1:2) ax2(3:4)])
+
+%legend off
+box on
+hold off
+
 

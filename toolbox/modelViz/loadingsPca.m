@@ -23,24 +23,20 @@ function P = loadingsPca(x,varargin)
 %       1: mean centering
 %       2: autoscaling (default) 
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
-%       a:
-%           0: no plots
-%           1: plot loadings
-%       b:
-%           0: scatter plot of pairs of PCs
-%           1: bar plot of each single PC
-%   By deafult, opt = '10'. If less than 2 digits are specified, least 
-%   significant digit is set to 0, i.e. opt = 1 means a=1 and b=0. If a=0, 
-%   then b is ignored.
+% 'PlotType': str
+%      'Scatter': scatterplot (by default)
+%      'Bars': bar plot (by default)
 %
 % 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
 % 'VarsClass': [Mx1] groups for different visualization (a single group 
 %   by default)
 %
-% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
-%   are printer (the higher blur). Inf shows all the labels (1 by default).
+% 'BlurIndex': [1x1] to avoid blur when adding labels. It reflects the
+%   minimum distance (normalized to [0,1]) where a cluttered label is 
+%   allowed to be visualized. For a value of 0, no cluttered labels are 
+%   printed, while for a value of 1 all labels are printed, and thus the 
+%   highest blur. By default 0.5 is chosen.
 %
 %
 % OUTPUTS:
@@ -63,14 +59,13 @@ function P = loadingsPca(x,varargin)
 % EXAMPLE OF USE: Line plot of random scores
 %
 % X = real(adicov(randn(10,10).^19,randn(100,10),10));
-% P = loadingsPca(X,'PCs',1:3,'Option',11);
+% P = loadingsPca(X,'PCs',1:3,'PlotType','Bars');
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-%           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 18/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -98,25 +93,19 @@ p = inputParser;
 PCS = 1:rank(x);
 addParameter(p,'PCs',PCS);  
 addParameter(p,'Preprocessing',2);
-addParameter(p,'Option',10);  
+addParameter(p,'PlotType','Scatter');
 addParameter(p,'VarsLabel',1:M);
 addParameter(p,'VarsClass',ones(M,1));   
-addParameter(p,'BlurIndex',1);     
+addParameter(p,'BlurIndex',0.5);     
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 pcs = p.Results.PCs;
 prep = p.Results.Preprocessing;
-opt = p.Results.Option;
+plottype = p.Results.PlotType;
 label = p.Results.VarsLabel;
 classes = p.Results.VarsClass;
 blur = p.Results.BlurIndex;
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
-
-% Complete opt
-if length(opt)<2, opt = strcat(opt,'0'); end
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -134,14 +123,12 @@ A = length(pcs);
 assert (A>0, 'Dimension Error: parameter ''PCs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''PCs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''VarsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
 % Validate values of input data
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''PCs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -153,17 +140,14 @@ T = model.scores;
 
 %% Show results
 
-if opt(1) == '1'
-    
-    if length(pcs) == 1 || opt(2) == '1'
-        for i=1:length(pcs)
-                plotVec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
-        end
-    else
-        for i=1:length(pcs)-1
-            for j=i+1:length(pcs)
-                plotScatter([P(:,i),P(:,j)], 'EleLabel',label,'ObsClass' ,classes, 'XYLabel',{sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Loadings PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}','BlurIndex',blur);
-            end      
+if length(pcs) == 1 || strcmp(plottype,'Bars')
+    for i=1:length(pcs)
+        plotVec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+    end
+elseif strcmp(plottype,'Scatter')
+    for i=1:length(pcs)-1
+        for j=i+1:length(pcs)
+            plotScatter([P(:,i),P(:,j)], 'EleLabel',label,'ObsClass' ,classes, 'XYLabel',{sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Loadings PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}', 'BlurIndex',blur);
         end
     end
 end

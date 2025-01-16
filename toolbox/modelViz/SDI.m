@@ -22,10 +22,6 @@ function [SDImap,best] = SDI(T,classes,varargin)
 % 'Regular': [1x1] regularization parameter, to favour optimums in 1 LV space
 % (0.1 by default)
 %
-% 'Option': [1x1] options for data plotting:
-%       0: no plots
-%       1: plot SDI matrix per class (by default)
-%
 %
 % OUTPUTS:
 %
@@ -47,9 +43,9 @@ function [SDImap,best] = SDI(T,classes,varargin)
 % SDImap = SDI(T,class);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -73,23 +69,17 @@ assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for mor
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'Regular',.1);   
-addParameter(p,'Option',1);   
+addParameter(p,'Regular',.1);    
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 reg = p.Results.Regular;
-opt = p.Results.Option;
-
 
 if size(classes,1) == 1, classes = classes'; end;
 
 % Validate dimensions of input data
 assert (isequal(size(classes), [N 1]), 'Dimension Error: parameter ''Classes'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); 
-  
-% Validate values of input data
-assert (isempty(find(opt<0 | opt>2)), 'Value Error: parameter ''Option'' must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
-
+ 
 
 %% Main code
 
@@ -142,13 +132,11 @@ end
     
 %% Show results
 
-if opt==1
-    for k=1:length(ucl)
-        Mv = max(max(squeeze(SDImap(:,:,k))));
-       % plotMap(SDImap(:,:,k),[],[0,Mv]);
-       plotMap(SDImap(:,:,k),'ColorInt',[0,Mv]);
-        ylabel('#LV','FontSize',18)
-        xlabel('#LV','FontSize',18)
-    end  
+for k=1:length(ucl)
+    Mv = max(max(squeeze(SDImap(:,:,k))));
+    % plotMap(SDImap(:,:,k),[],[0,Mv]);
+    plotMap(SDImap(:,:,k),'ColorInt',[0,Mv]);
+    ylabel('#LV','FontSize',18)
+    xlabel('#LV','FontSize',18)
 end
     

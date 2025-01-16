@@ -23,16 +23,9 @@ function [xvar,cumpress] = varPca(x,varargin)
 %       1: mean-centering 
 %       2: auto-scaling (default)  
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
-%       a:
-%           0: no plots
-%           1: plot residual variance
-%       b:
-%           0: Residual Variance in X and ckf 
-%           1: Residual Variance in X 
-%   By deafult, opt = '10'. If less than 2 digits are specified, least 
-%   significant digit is set to 0, i.e. opt = 1 means a=1 and b=0. If a=0, 
-%   then b is ignored.
+% 'Ckf': bool
+%       false: Residual Variance in X  
+%       true: Residual Variance in X and ckf
 %
 %
 % OUTPUTS:
@@ -50,9 +43,9 @@ function [xvar,cumpress] = varPca(x,varargin)
 %
 %
 % codified by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -79,19 +72,13 @@ M = size(x, 2);
 p = inputParser;
 addParameter(p,'PCs',0:rank(x));   
 addParameter(p,'Preprocessing',2);   
-addParameter(p,'Option',10);   
+addParameter(p,'Ckf',false);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 pcs = p.Results.PCs;
-opt = p.Results.Option;
+ckfplot = p.Results.Ckf;
 prep = p.Results.Preprocessing;
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
-
-% Complete opt
-if length(opt)<2, opt = strcat(opt,'0'); end
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -104,7 +91,6 @@ A = length(pcs);
 assert (A>0, 'Dimension Error: parameter ''Pcs'' with non valid content. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of 2 bits. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 pcs = unique([0 pcs]);
@@ -112,7 +98,6 @@ pcs = unique([0 pcs]);
 % Validate values of input data
 assert (isempty(find(pcs<0)), 'Value Error: parameter ''Pcs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' contain integers. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -132,7 +117,7 @@ for i = 1:length(pcs)
 end
 
 cumpress = zeros(length(pcs),1);
-if nargout>1 || opt(2) == '0'
+if nargout>1 || ckfplot
     for i = 1:length(pcs)
          c = ckf(xcs,T(:,1:pcs(i)),P(:,1:pcs(i)),'Option',0);
          cumpress(i) = c(end);
@@ -142,13 +127,11 @@ end
     
 %% Show results
 
-if opt(1) == '1'
-    if opt(2) == '1'
-        plotVec(xvar,'EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01');
-    else
-        plotVec([xvar cumpress/cumpress(1)],'EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'Option','01','VecLabel',{'X','ckf'});
-        legend('show');
-    end
+if ckfplot
+    plotVec([xvar cumpress/cumpress(1)],'PlotType','Lines','EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'VecLabel',{'X','ckf'});
+    legend('show');
+else
+    plotVec(xvar,'PlotType','Lines','EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'});
 end
 
         

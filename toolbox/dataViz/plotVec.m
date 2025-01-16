@@ -24,16 +24,13 @@ function figH = plotVec(vec,varargin)
 %
 % 'LimCont': [NxL or Lx1] L control limits (nothing by default)
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'ab' for:
-%       a:
-%           0: line plot
-%           1: bar plot
-%       b: 
-%           0: plot for numerical classes (consistent with a colorbar)
-%           1: plot for categorical classes (consistent with a legend)
+% 'PlotType': str
+%      'Lines': line plot
+%      'Bars': bar plot (by default)
 %
-%   By deafult, opt = '11'. If less digits are specified, least significant
-%   digits are set to 0, i.e. opt = 1 means a=1, b=0
+% 'ClassType': str
+%      'Numerical': plot for numerical classes (consistent with a colorbar)
+%      'Categorical': plot for categorical classes (consistent with a legend)
 %
 % 'VecLabel': [Mx1] name of the vectors (numbers are used by default)
 %
@@ -57,21 +54,25 @@ function figH = plotVec(vec,varargin)
 % figH = plotVec(randn(100,3),'XYLabel',{'Functions','Time'},'LimCont',[1, -1, 3],'Color','parula');
 %
 %
-% EXAMPLE OF USE: with labels and classes in observations and variable limit:
+% EXAMPLE OF USE: with labels and categorical classes in observations and variable limit:
 %
-% figH = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Option','11');
+% figH = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1));
+%
+%
+% EXAMPLE OF USE: with numerical classes in observations and variable limit:
+%
+% figH = plotVec(randn(10,3),'ObsClass',1:10,'ClassType','Numerical','XYLabel',{[],'Functions'},'LimCont',randn(10,1));
 %
 %
 % EXAMPLE OF USE: with labels, multiplicity and classes in observations and variable limit:
 %
-% figH = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Option',11,'Multiplicity',100*rand(5,1),'Markers',[20 50 100]);
+% figH = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Multiplicity',100*rand(5,1),'Markers',[20 50 100]);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-%           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 25/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -101,11 +102,12 @@ addParameter(p,'EleLabel',1:N);
 addParameter(p,'ObsClass',[]);
 addParameter(p,'XYLabel',{'',''});
 addParameter(p,'LimCont',[]);
-addParameter(p,'Option','11');
 addParameter(p,'Multiplicity',ones(N,1));
 addParameter(p,'Markers',[20 50 100]);
 addParameter(p,'VecLabel',1:M);
 addParameter(p,'Color',[]);
+addParameter(p,'PlotType','Bars');
+addParameter(p,'ClassType','default');
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -113,18 +115,12 @@ elabel = p.Results.EleLabel;
 classes = p.Results.ObsClass;
 xylabel = p.Results.XYLabel;
 lcont = p.Results.LimCont;
-opt = p.Results.Option;
 mult = p.Results.Multiplicity;
 maxv = p.Results.Markers;
 vlabel = p.Results.VecLabel;
-color=p.Results.Color;
-
-% Convert num arrays to str
-if isnumeric(opt), opt=num2str(opt); end
-
-% Correct for opt integrity
-while length(opt)<2, opt = strcat(opt,'0'); end
-if opt(2) == 0 && ~isnumeric(classes), opt(2) = 1; end
+color = p.Results.Color;
+plottype = p.Results.PlotType;
+classtype = p.Results.ClassType;
 
 % Convert row arrays to column arrays
 if size(elabel,1)  == 1, elabel = elabel'; end;
@@ -133,6 +129,30 @@ if size(lcont,1) == 1, lcont = lcont'; end;
 if size(vlabel,1)  == 1, vlabel = vlabel'; end;
 if size(mult,1) == 1, mult = mult'; end;
 if size(maxv,2) == 1, maxv = maxv'; end;
+
+% Check type of plot
+if strcmp(plottype,'Lines')
+    opt(1)='0';
+elseif strcmp(plottype,'Bars')
+    opt(1)='1';
+else
+    error('Value Error: parameter ''PlotType'' must contain either ''Lines'' or ''Bars''. Type ''help %s'' for more info.', routine(1).name);
+end
+
+% Check type of plot
+if strcmp(classtype,'Numerical')
+    opt(2)='0';
+elseif strcmp(classtype,'Categorical')
+    opt(2)='1';
+elseif strcmp(classtype,'default')
+    if ~isnumeric(classes) || length(unique(classes)) < 10 && ~(length(unique(classes))<2 && M > 10) 
+        opt(2)='1';
+    else
+        opt(2)='0';
+    end
+else
+    error('Value Error: parameter ''ClassType'' must contain either ''Numerical'' or ''Categorical''. Type ''help %s'' for more info.', routine(1).name);
+end
 
 % Convert num arrays to str
 if ~isempty(vlabel) && isnumeric(vlabel), vlabel=num2str(vlabel); end
@@ -150,17 +170,13 @@ if ~isempty(elabel), assert (isequal(size(elabel), [N 1]), 'Dimension Error: par
 if ~isempty(classes), assert (isequal(size(classes), [N 1]), 'Dimension Error: parameter ''ObsClass'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: parameter ''XYLabel'' must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(lcont), assert (isequal(size(lcont,1), N) || isequal(size(lcont,2), 1), 'Dimension Error: parameter ''LimCont'' must be N-by-L or L-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-assert (ischar(opt) && length(opt)==2, 'Dimension Error: parameter ''Option'' must be a string or num of maximum 2 bits. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(vlabel), assert (isequal(size(vlabel), [M 1]), 'Dimension Error: parameter ''VecLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: parameter ''Multiplicity'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
 if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: parameter ''Markers'' must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
- 
-% Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
-   
+    
 % Convert constant limits in vectors
 if ~isempty(lcont) && ~isequal(size(lcont,1), N), lcont = (lcont*ones(1,N))'; end;
-    
+
 % Exception: bar plot with multivariate vec and one-observation class  
 if ~opt(1) && ~isempty(classes) && size(vec, 2)>1
     uniqueClasses = unique(classes);
@@ -175,14 +191,18 @@ figH = figure;
 hold on;
 
 % Sort data for colorbar
-if opt(2)=='0'
-    [classes,ord] = sort(classes,'ascend');
-    cax = [min(classes) max(classes)];
-    classes = num2str(classes); 
-    classes = cellstr(classes);
-    vec = vec(ord,:);
-    elabel = elabel(ord);
-    mult = mult(ord);
+if opt(2)=='0' 
+    if ~isempty(classes)
+        [classes,ord] = sort(classes,'ascend');
+        cax = [min(classes) max(classes)];
+        classes = num2str(classes);
+        classes = cellstr(classes);
+        vec = vec(ord,:);
+        elabel = elabel(ord);
+        mult = mult(ord);
+    else
+        cax = [1 M];
+    end
 end
 
 % Get ordering of classes
@@ -213,70 +233,29 @@ for j=1:length(bins)-1
     end
 end
 
-if ~isempty(classes)
-
-%Choosing the color
-okabeIto = [0.1,0.1,0.1;
-            0.902,0.624,0;
-            0.337,0.706,0.914;
-            0,0.620,0.451;
-            0.941,0.894,0.259;
-            0,0.447,0.698;
-            0.835,0.369,0;
-            0.8,0.475,0.655;
-            0.1,0.1,0.1;
-            0.902,0.624,0;
-            0.337,0.706,0.914;
-            0,0.620,0.451;
-            0.941,0.894,0.259;
-            0,0.447,0.698;
-            0.835,0.369,0;
-            0.8,0.475,0.655;
-            0.1,0.1,0.1;
-            0.902,0.624,0;
-            0.337,0.706,0.914;
-            0,0.620,0.451;
-            0.941,0.894,0.259;
-            0,0.447,0.698;
-            0.835,0.369,0;
-            0.8,0.475,0.655];
-
-nElems = length(uniqueOrdClasses);
-
-if nElems > size(okabeIto,1) %if there are a lot of input colors, repmat to extend the palette.
-    okabeIto = repmat(okabeIto, ceil(nElems/size(okabeIto, 1)), 1);
-end
-
+C = length(uniqueOrdClasses);
+if C>1, nElems = C; else nElems = M; end 
+            
 if(isempty(color))
     if opt(2) == '1'
-        if length(uniqueOrdClasses) <= 24 && length(uniqueOrdClasses) > 1
-            colorList = okabeIto;
-            colormap(okabeIto)
+        if nElems ==1
+            colormap(winter(1))
+        elseif nElems <= 8
+            colormap(okabeIto(nElems))
         else
-            colorList = hsv(length(uniqueOrdClasses));
-            colormap('hsv')
+            colormap(hsv(nElems))
         end
     else
-        colorList = parula(length(uniqueOrdClasses));
-        colormap('parula')
-    end
-
-elseif strcmp(color, 'okabe')
-    colorList = okabeIto;
-    colormap(okabeIto)
-
-elseif strcmp(color, 'parula')
-    colorList = parula(length(uniqueOrdClasses));
-    colormap('parula')
-
-else%if strcmp(color, 'hsv')
-    colorList = hsv(length(uniqueOrdClasses));
-    colormap('hsv')
+        colormap(parula(nElems))
+    end  
+else
+    eval(sprintf('colormap(%s(nElems))',color));
 end
-
-% colors = colorList(ordClasses, :);
-
-
+    
+if ~isempty(classes)
+        
+    colorList = colormap();
+    
     for i=1:length(uniqueOrdClasses)
         ind = ordClasses == uniqueOrdClasses(i);
         if isnumeric(elabel) && length(elabel)==length(unique(elabel))
@@ -284,30 +263,38 @@ end
         else
             vind = find(ind);
         end
-            
+        
         if opt(1) == '0'
-           plot(vind, vec(ind,:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', colorList(i,:), 'DisplayName', uniqueClasses{i});
-        else 
-           bar(vind, vec(ind,:), 0.8, 'FaceColor', colorList(i,:), 'EdgeColor', 'none', 'DisplayName', uniqueClasses{i});
-        end
-    end 
-else
-    colorList = hsv(M);
-    for i=1:M
-        if opt(1) == '0'
-            if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                plot(elabel, vec(:,i), 'LineWidth', 2, 'Color', colorList(i,:), 'DisplayName', vlabel{i});
-            else
-                plot(vec(:,i), 'LineWidth', 2, 'Color', colorList(i,:), 'DisplayName', vlabel{i});
-            end
+            plot(vind, vec(find(ind),round(M/2)), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', colorList(i,:));
+            plot(vind, vec(find(ind),:), 'Color', 'none', 'Marker','O', 'MarkerFaceColor', colorList(i,:),'HandleVisibility', 'off');
         else
-            if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                bar(elabel, vec(:,i), 'FaceColor', colorList(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
+            inter = 1/(4*(M+2)+1*(M-1)); 
+            vec2 = zeros(size(vec));
+            vec2(find(ind),:) = vec(find(ind),:);
+            if mod(M,2)
+                bar(vec2(:,ceil(M/2)), inter, 'FaceColor', colorList(i,:), 'EdgeColor', 'none');
             else
-                bar(vec(:,i), 'FaceColor', colorList(i,:), 'EdgeColor', 'none', 'DisplayName', vlabel{i});
+                bar(1:N+2.5*inter, vec2(:,M/2+1), inter, 'FaceColor', colorList(i,:), 'EdgeColor', 'none');
             end
+            bar(vec2, 'grouped', 'FaceColor', colorList(i,:),'HandleVisibility', 'off');
         end
-    end    
+    end
+    legendTxt = uniqueClasses; 
+else
+    if opt(1) == '0'
+        if isnumeric(elabel) && length(elabel)==length(unique(elabel))
+            plot(elabel, vec, 'LineWidth', 2);
+        else
+            plot(vec, 'LineWidth', 2);
+        end
+    else
+        if isnumeric(elabel) && length(elabel)==length(unique(elabel))
+            bar(elabel, vec, 'grouped');
+        else
+            bar(vec, 'grouped');
+        end
+    end
+    legendTxt = vlabel; 
 end
 
 % Plot control limits
@@ -331,12 +318,12 @@ end
 axesH = axesH(i); 
 
 % Set ticks and labels
-if ~isempty(elabel) & ~isnumeric(elabel)
+if ~isempty(elabel) && ~isnumeric(elabel)
     labelLength = max(cellfun('length', elabel));
     labelSize = 300/(length(find(~cellfun('isempty', elabel)))*labelLength);
     set(axesH, 'FontSize', max(min(14,round(labelSize)), 10));
     stepN = ceil(0.2*N/labelSize);
-    if stepN==1,
+    if stepN==1
         vals = 1:N;
         set(axesH,'XTick',vals);
         set(axesH,'XTickLabel',elabel(vals));
@@ -347,8 +334,8 @@ if ~isempty(elabel) & ~isnumeric(elabel)
 end
 
 if ~isempty(xylabel)
-    xlabel(xylabel{1}, 'FontSize', 16);
-    ylabel(xylabel{2}, 'FontSize', 16);
+    xlabel(xylabel{1}, 'FontSize', 18);
+    ylabel(xylabel{2}, 'FontSize', 18);
 end
 
 % Set axis
@@ -360,10 +347,22 @@ axis([ax(1:2) ax2(3:4)]);
 
 % Set caxis if colorbar
 if opt(2)=='0'
-    caxis(cax);
+    if nElems < 2
+        colorbar('off');
+    else
+        caxis(cax);
+        colorbar('Location','EastOutside');
+    end
+else
+    if nElems < 2, legend off; else legend(legendTxt,'Location','northeast'); end
+end
+box on
+hold off
+
 end
 
-if length(uniqueOrdClasses) < 2, legend off; else legend('show','Location','best'); end
-box on;
-hold off;
+
+
+
+
         

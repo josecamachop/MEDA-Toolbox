@@ -36,9 +36,9 @@ function fig_h = plotMap(map,varargin)
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 %           Alejandro Perez Villegas (alextoni@gmail.com)
-% last modification: 20/Nov/2024
+% last modification: 15/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -130,35 +130,33 @@ set(axes_h,'YDir','reverse');
 if ~isempty(label) 
     
     MaxRot = 60;
-    if 0.05*M<label_sizeH % labels do not need to be rotated
-        vals = 1:M;
-        set(axes_h,'XTick',vals + 0.5);
+    vals = 1:M;
+    set(axes_h,'XTick',vals + 0.5);
+    if 0.1*M<label_sizeH % labels do not need to be rotated
         set(axes_h,'XTickLabel',label(vals));
-    elseif 0.05*M<label_sizeV % labels are rotated
-        vals = 1:M;
-        set(axes_h,'XTick',vals + 0.5);
+    elseif 0.25*M<label_sizeV % labels are rotated
         set(axes_h,'XTickLabel',label(vals));
-        set(axes_h,'XTickLabelRotation',ceil(MaxRot*0.05*M/label_sizeV));
-    else % labels are reduced
+        set(axes_h,'XTickLabelRotation',MaxRot*min(1,0.25*M/label_sizeV));
+    else % forget labels
         set(axes_h,'XTickMode','auto');
-        ind1 = get(axes_h,'XTick');
-        ind2 = find(ind1>0&ind1<=length(label));
-        set(axes_h,'XTick',ind1(ind2) + 0.5);
-        set(axes_h,'XTickLabel',label(ind1(ind2)));
-        set(axes_h,'XTickLabelRotation',MaxRot);
+%         ind1 = get(axes_h,'XTick');
+%         ind2 = find(ind1>0&ind1<=length(label));
+%         set(axes_h,'XTick',ind1(ind2) + 0.5);
+%         set(axes_h,'XTickLabel',label(ind1(ind2)));
+%         set(axes_h,'XTickLabelRotation',MaxRot);
         set(axes_h, 'FontSize', 14);
     end
     
-    if 0.05*M<label_sizeV % labels do not need to be rotated
-        vals = 1:M;
-        set(axes_h,'YTick',vals + 0.5);
+    vals = 1:M;
+    set(axes_h,'YTick',vals + 0.5);   
+    if 0.15*M<label_sizeV 
         set(axes_h,'YTickLabel',label(vals));
-    else % labels are reduced
+    else  % forget labels
         set(axes_h,'YTickMode','auto');
-        ind1 = get(axes_h,'YTick');
-        ind2 = find(ind1>0&ind1<=length(label));
-        set(axes_h,'YTick',ind1(ind2) + 0.5);
-        set(axes_h,'YTickLabel',label(ind1(ind2)));
+%         ind1 = get(axes_h,'YTick');
+%         ind2 = find(ind1>0&ind1<=length(label));
+%         set(axes_h,'YTick',ind1(ind2) + 0.5);
+%         set(axes_h,'YTickLabel',label(ind1(ind2)));
         set(axes_h,'FontSize', 14);
     end
 
