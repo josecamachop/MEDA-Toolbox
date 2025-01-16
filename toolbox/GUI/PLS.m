@@ -33,9 +33,9 @@ function varargout = PLS(varargin)
 % coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
 %           Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 16/Jan/2025
 %
-% Copyright (C) 2024 University of Granada, Granada
+% Copyright (C) 2025 University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -720,15 +720,15 @@ end
 generalPlot = getCurrentPopupString(handles.generalPopup);
 switch generalPlot
     case 'Var Y'
-        varPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',1:lvs,'PreprocessingX',handles.data.prepX,'Preprocessingy',handles.data.prepY,'Option','11');
+        varPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',1:lvs,'PreprocessingX',handles.data.prepX,'Preprocessingy',handles.data.prepY);
     case 'Var Y + scores'
-        varPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',1:lvs,'PreprocessingX',handles.data.prepX,'Preprocessingy',handles.data.prepY,'Option','10');
+        varPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',1:lvs,'PreprocessingX',handles.data.prepX,'Preprocessingy',handles.data.prepY,'PlotScores',true);
     case 'Y-SVI plot'
         chosenVar = str2num(getCurrentPopupString(handles.selectPopup));
         SVIplot([handles.data.data_matrixY handles.data.data_matrixX],'Pcs',1:lvs,'Vars',1,'Groups',7,'Preprocessing',handles.data.prepX);
     case 'Y-crossval'
         [blocks_r blocks_c] = size(handles.data.data_matrixX);
-        crossvalPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',0:lvs,'MaxBlock',blocks_r,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1);
+        crossvalPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',0:lvs,'MaxBlock',blocks_r,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY);
     otherwise
         disp('No case detected')
 end
@@ -1130,19 +1130,7 @@ end
 handles.data.sp_ID_figures=new_sp_ID_figures;%Identificadores de los Score Plots abiertos actualizado
 handles.data.sp_matrix=new_sp_matrix;
 
-if isempty(handles.data.label) && isempty(handles.data.classes)
-    [T,TT]=scoresPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',[LV1 LV2],'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1);
-else
-    if ~isempty(handles.data.label) && isempty(handles.data.classes)
-        [T,TT]=scoresPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',[LV1 LV2],'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'ObsLabel',handles.data.label);
-    else
-        if isempty(handles.data.label) && ~isempty(handles.data.classes)
-            [T,TT]=scoresPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',[LV1 LV2],'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'ObsClass',handles.data.classes);
-        else
-            [T,TT]=scoresPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',[LV1 LV2],'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
-        end
-    end
-end
+T = scoresPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',[LV1 LV2],'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
 fig=gcf;
 
 
@@ -1160,7 +1148,7 @@ handles.data.sp_ID_figures=[handles.data.sp_ID_figures fig];%Identificadores de 
 handles.data.sp_matrix={handles.data.sp_matrix{:} matrixLVs_oMEDA};
 
 %oMEDA (Select)
-if ~(LV1 == 1 && LV2 == 1)  && license('test', 'image_toolbox')
+if ~(LV1 == LV2)  && license('test', 'image_toolbox')
     set(handles.selomedaButton,'Enable','on');
     %Set new close funtion to new figure
     set(gcf,'CloseRequestFcn',@score_closereq)
@@ -1561,9 +1549,9 @@ end
 
 if ~isempty(handles.data.weightDummy{1,ID})
     handles.data.weightDummy{1,ID}=handles.data.weightDummy{1,ID}./abs(max(handles.data.weightDummy{1,ID}));
-    omedaPls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.weightDummy{1,ID}','PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
+    omedaPls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.weightDummy{1,ID}','PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
 else
-    omedaPls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.dummy{1,ID}','PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
+    omedaPls(handles.data.data_matrixX,handles.data.data_matrixY,[min(LV1,LV2) max(LV1,LV2)],handles.data.data_matrixX,handles.data.dummy{1,ID}','PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
 end
 
 guidata(hObject,handles);
@@ -1573,7 +1561,7 @@ function resomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to resomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',min(handles.data.LVs):max(handles.data.LVs),'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',min(handles.data.LVs):max(handles.data.LVs),'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Plot',false,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
 plotVec(Qst,'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'Q-st'},'LimCont',UCLq);
 
 % --- Executes on selection change in xlvloadingPopup.
@@ -1771,24 +1759,14 @@ end
 
 handles.data.lp_ID_figures=new_lp_ID_figures;%Identificadores de los Loadings Plots abiertos actualizado
 handles.data.lp_matrix=new_lp_matrix;
-if isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
-    P = loadingsPls (handles.data.data_matrixX, handles.data.data_matrixY, 'LVs',[LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1);
-else
-    if ~isempty(handles.data.label_LP) && isempty(handles.data.classes_LP)
-        P = loadingsPls (handles.data.data_matrixX, handles.data.data_matrixY,'LVs', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1, 'VarsLabel',handles.data.label_LP);
-    else
-        if isempty(handles.data.label_LP) && ~isempty(handles.data.classes_LP)
-            P = loadingsPls (handles.data.data_matrixX, handles.data.data_matrixY,'LVs', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1, 'VarsClass',handles.data.classes_LP);
-        else
-            P = loadingsPls (handles.data.data_matrixX, handles.data.data_matrixY,'LVs', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'Option',1, 'VarsLabel',handles.data.label_LP, 'VarsClass',handles.data.classes_LP);
-        end
-    end
-end
+
+
+P = loadingsPls (handles.data.data_matrixX, handles.data.data_matrixY,'LVs', [LV1_LP LV2_LP], 'PreprocessingX',handles.data.prepX, 'PreprocessingY',handles.data.prepY, 'VarsLabel',handles.data.label_LP, 'VarsClass',handles.data.classes_LP);
 fig=gcf;
 
 %matrixLVs_MEDA_LP=[P(:,LV1_LP),P(:,LV2_LP)];
 T_size = size(P);
-if T_size(2) > 1,
+if T_size(2) > 1
     matrixLVs_MEDA_LP=[P(:,1),P(:,2)];
     set(fig,'Tag','LoadingPlot');%A cada LoadingPlot que abro le pongo en su propiedad 'Tag' que es un LoadingPlot
 else
@@ -1798,7 +1776,7 @@ end
 handles.data.lp_ID_figures=[handles.data.lp_ID_figures fig];%Identificadores de los Score Plots abiertos
 handles.data.lp_matrix={handles.data.lp_matrix{:} matrixLVs_MEDA_LP};
 
-if ~(LV1_LP == 1 && LV2_LP == 1)  && license('test', 'image_toolbox')
+if ~(LV1_LP == LV2_LP)  && license('test', 'image_toolbox')
     set(handles.selmedaButton,'Enable','on');
     %Set new close funtion to new figure
     set(fig,'CloseRequestFcn',@loading_closereq)
@@ -1882,18 +1860,10 @@ lvs = [str2num(LVs_MEDA_cell{1}):str2num(LVs_MEDA_cell{2})];
 %    return;
 %end
 
-if get(handles.serRadio,'Value')==0 && get(handles.discardRadio,'Value')==1
-    handles.data.opt='101';
-else if get(handles.serRadio,'Value')==1 && get(handles.discardRadio,'Value')==0
-        handles.data.opt='110';
-    else if get(handles.serRadio,'Value')==0 && get(handles.discardRadio,'Value')==0
-            handles.data.opt='100';
-        else handles.data.opt='111';
-        end
-    end
-end
+handles.data.seriated = handles.serRadio.Value == 1; 
+handles.data.discard = handles.discardRadio.Value == 1;  
 
-[meda_map,meda_dis]=medaPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',lvs,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Threshold',handles.data.thres,'Option',handles.data.opt,'VarsLabel',handles.data.label_LP);
+[meda_map,meda_dis]=medaPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',lvs,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Threshold',handles.data.thres,'Seriated',handles.data.seriated,'Discard',handles.data.discard,'VarsLabel',handles.data.label_LP);
 guidata(hObject,handles);
 
 % --- Executes on button press in selmedaButton.
@@ -1912,7 +1882,7 @@ if strcmp(check_tag,'LoadingPlot')
     figure(ID);%Ya tengo el score plot pinchado(al que le quiero hacer oMEDA) en primera plana.   
     hold on;
 else
-    errordlg('To perform MEDA over a Loading Plot you must select one loading plot.');
+    errordlg('To perform MEDA over a Loading Plot you must select one 2D loading plot.');
 end
 
 %Ahora vamos a recuperar su matriz:
@@ -1982,13 +1952,13 @@ for j=1:M %All the observations from the Score Matrix: t
         X=(-(B(k)*Y)-C(k))/A(k);
         
         if k+1>N
-            if (Y>min(vertex(k,2),vertex(1,2)))&&(Y<max(vertex(k,2),vertex(1,2))),
+            if (Y>min(vertex(k,2),vertex(1,2)))&&(Y<max(vertex(k,2),vertex(1,2)))
                 if X>matrix_2LVs(j,1)
                     corte=corte+1;
                 end
             end
         else
-            if (Y>min(vertex(k,2),vertex(k+1,2)))&&(Y<max(vertex(k,2),vertex(k+1,2))),
+            if (Y>min(vertex(k,2),vertex(k+1,2)))&&(Y<max(vertex(k,2),vertex(k+1,2)))
                 if X>matrix_2LVs(j,1)
                     corte=corte+1;
                 end
@@ -2016,18 +1986,9 @@ for l=1:M
     end
 end
 
-if get(handles.discardRadio,'Value')==1 && get(handles.serRadio,'Value')==0
-    handles.data.opt='101';
-else if get(handles.discardRadio,'Value')==0 && get(handles.serRadio,'Value')==1
-        handles.data.opt='110';
-    else if get(handles.serRadio,'Value')==0 && get(handles.serRadio,'Value')==0
-            handles.data.opt='100';
-        else handles.data.opt='111';
-        end
-    end
-end
-
-[meda_map,meda_dis]=medaPls(handles.data.data_matrixX,handles.data.data_matrixY,[min(handles.data.LV1_LP,handles.data.LV2_LP) max(handles.data.LV1_LP,handles.data.LV2_LP)],handles.data.prepX,handles.data.prepY,handles.data.thres,handles.data.opt,handles.data.label_LP,vector_vars);
+handles.data.seriated = handles.serRadio.Value == 1; 
+handles.data.discard = handles.discardRadio.Value == 1;   
+[meda_map,meda_dis]=medaPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',[min(handles.data.LV1_LP,handles.data.LV2_LP) max(handles.data.LV1_LP,handles.data.LV2_LP)],'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Threshold',handles.data.thres,'Seriated',handles.data.seriated,'Discard',handles.data.discard,'VarsLabel',handles.data.label_LP,'Vars',vector_vars);
 guidata(hObject,handles);
 
 % --- Executes on button press in resmedaButton.
@@ -2038,7 +1999,7 @@ function resmedaButton_Callback(hObject, eventdata, handles)
 size_x = size(handles.data.data_matrixX);
 PCs = 1:size_x(2);
 PCs(handles.data.LVs) = [];
-E=leveragesPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',PCs,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'VarsLabel',handles.data.label_LP,'ObsClass',handles.data.classes_LP);
+E=leveragesPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',PCs,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
 ylabel('Residuals')
 
 % --- Executes on button press in modelmedaButton.
@@ -2046,14 +2007,14 @@ function modelmedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelmedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-E=leveragesPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',handles.data.LVs,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',1,'VarsLabel',handles.data.label_LP,'ObsClass',handles.data.classes_LP);
+E=leveragesPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',handles.data.LVs,'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'VarsLabel',handles.data.label_LP,'VarsClass',handles.data.classes_LP);
 
 % --- Executes on button press in modelomedaButton.
 function modelomedaButton_Callback(hObject, eventdata, handles)
 % hObject    handle to modelomedaButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',min(handles.data.LVs):max(handles.data.LVs),'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Option',0,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
+[Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcPls(handles.data.data_matrixX,handles.data.data_matrixY,'LVs',min(handles.data.LVs):max(handles.data.LVs),'PreprocessingX',handles.data.prepX,'PreprocessingY',handles.data.prepY,'Plot',false,'ObsLabel',handles.data.label,'ObsClass',handles.data.classes);
 plotVec(Dst, 'EleLabel',handles.data.label,'ObsClass',handles.data.classes, 'XYLabel',{[],'D-st'},'LimCont',UCLd);
 
 % --- Executes on selection change in generalPopup.
@@ -2117,16 +2078,19 @@ switch state
     case 0
         state_gen = 'off';
         state_bas = 'off';
+        state_meda = 'off';
         state_omeda = 'off';
         
     case 1
         state_gen = 'on';
         state_bas = 'off';
+        state_meda = 'off';
         state_omeda = 'off';
         
     case 2
         state_gen = 'on';
         state_bas = 'on';
+        state_meda = 'off';
         state_omeda = 'off';
         
 end
@@ -2149,7 +2113,7 @@ set(handles.thresEdit,'Enable',state_bas);
 set(handles.discardRadio,'Enable',state_bas);
 set(handles.serRadio,'Enable',state_bas);
 set(handles.medaButton,'Enable',state_bas);
-set(handles.selmedaButton,'Enable',state_bas);
+set(handles.selmedaButton,'Enable',state_meda);
 
 %Loading plot
 set(handles.text9,'Enable',state_bas);

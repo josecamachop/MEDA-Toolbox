@@ -614,7 +614,7 @@ switch generalPlot
     case 'Var X'
         x_var = varPca(handles.data.data_matrix,'PCs',1:pcs,'Preprocessing',handles.data.prep);
     case 'Var X + ckf'
-        x_var = varPca(handles.data.data_matrix,'PCs',1:pcs,'Preprocessing',handles.data.prep,'Ckf',true);
+        x_var = varPca(handles.data.data_matrix,'PCs',1:pcs,'Preprocessing',handles.data.prep,'PlotCkf',true);
     case 'ekf crossval '
         [blocks_r blocks_c] = size(handles.data.data_matrix);
         x_var = crossvalPca(handles.data.data_matrix,0:pcs,'ValProcedure','ekf','MaxSampleBlock',blocks_r,'MaxVarBlock',blocks_c,'Preprocessing',handles.data.prep);
@@ -1829,15 +1829,12 @@ for l=1:M
     end
 end
 
-handles.data.PCs_MEDA=getCurrentPopupString(handles.medaPopup);
-PCs_MEDA_cell = strread(handles.data.PCs_MEDA,'%s','delimiter',':');
-pcs = [str2num(PCs_MEDA_cell{1}):str2num(PCs_MEDA_cell{2})];
 
 handles.data.seriated = handles.serRadio.Value == 1; 
 handles.data.discard = handles.discardRadio.Value == 1;   
 
-[meda_map,meda_dis]=medaPca(handles.data.data_matrix,'PCs',pcs,'Preprocessing',handles.data.prep,'Threshold',handles.data.thres,'Seriated',handles.data.seriated,'Discard',handles.data.discard,'VarsLabel',handles.data.label_LP,'Vars',vector_vars);
-
+[meda_map,meda_dis]=medaPca(handles.data.data_matrix,'PCs',[min(handles.data.PC1_LP,handles.data.PC2_LP) max(handles.data.PC1_LP,handles.data.PC2_LP)],'Preprocessing',handles.data.prep,'Threshold',handles.data.thres,'Seriated',handles.data.seriated,'Discard',handles.data.discard,'VarsLabel',handles.data.label_LP,'Vars',vector_vars);
+    
 guidata(hObject,handles);
 
 % --- Executes on button press in resmedaButton.
