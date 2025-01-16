@@ -48,11 +48,11 @@ function [xp,average,scale,N] = preprocess2Di(x,prep,ndim,lambda,average,scale,N
 %
 % X = simuleMV(10,10,'LevelCorr',8);
 % [Xcs,av,sc] = preprocess2Di(X,2,0);
-% plotVec([av' sc'],'XYLabel',{'Avergae','Std Dev'},'Option','11')
+% plotVec([av' sc'],'VecLabel',{'Average','Std Dev'},'PlotType','Lines')
 %
 % X = simuleMV(10,10,'LevelCorr',8);
 % [Xcs,av,sc] = preprocess2Di(X,2,0,0.9,av,sc);
-% plotVec([av' sc'],'XYLabel',{'Avergae','Std Dev'},'Option','11')
+% plotVec([av' sc'],'VecLabel',{'Average','Std Dev'},'PlotType','Lines')
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)

@@ -18,9 +18,9 @@ function [yvar,tvar] = varLpls(Lmodel,varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'Option': (str or num) options for data plotting.
-%       0: no plots.
-%       1: bar plot (default)
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
 %
 %
 % OUTPUTS:
@@ -40,9 +40,9 @@ function [yvar,tvar] = varLpls(Lmodel,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/Nov/2024
+% last modification: 16/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -77,15 +77,6 @@ checkLmodel(Lmodel);
 % Preprocessing
 Lmodel.lvs = unique([0 Lmodel.lvs]);
 
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
-
-% Validate dimensions of input data
-assert (ischar(opt) && length(opt)==1, 'Dimension Error: 2nd argument must be a string or num of 1 bit. Type ''help %s'' for more info.', routine(1).name);
-
-% Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 2nd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
-
 
 %% Main code
 
@@ -105,6 +96,6 @@ end
     
 %% Show results
 
-if opt == '1'
-    plotVec([yvar tvar],'EleLabel',[0 Lmodel.lvs],'XYLabel',{'#LVs','% Residual Variance'},'Option','01','VecLabel',{'Y','Scores'});
+if opt
+    plotVec([yvar tvar],'EleLabel',[0 Lmodel.lvs],'XYLabel',{'#LVs','% Residual Variance'},'PlotType','Lines','VecLabel',{'Y','Scores'});
 end

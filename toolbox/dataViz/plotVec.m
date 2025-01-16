@@ -239,22 +239,20 @@ if C>1, nElems = C; else nElems = M; end
 if(isempty(color))
     if opt(2) == '1'
         if nElems ==1
-            colormap(winter(1))
+            colorList = colormap(winter(1));
         elseif nElems <= 8
-            colormap(okabeIto(nElems))
+            colorList = colormap(okabeIto(nElems));
         else
-            colormap(hsv(nElems))
+            colorList = colormap(hsv(nElems));
         end
     else
-        colormap(parula(nElems))
+        colorList = colormap(parula(nElems));
     end  
 else
-    eval(sprintf('colormap(%s(nElems))',color));
+    colorList = eval(sprintf('colormap(%s(nElems))',color));
 end
     
 if ~isempty(classes)
-        
-    colorList = colormap();
     
     for i=1:length(uniqueOrdClasses)
         ind = ordClasses == uniqueOrdClasses(i);
@@ -281,17 +279,19 @@ if ~isempty(classes)
     end
     legendTxt = uniqueClasses; 
 else
-    if opt(1) == '0'
-        if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-            plot(elabel, vec, 'LineWidth', 2);
+    for i=1:size(vec,2)
+        if opt(1) == '0'
+            if isnumeric(elabel) && length(elabel)==length(unique(elabel))
+                plot(elabel, vec(:,i), 'MarkerFaceColor', colorList(i,:));
+            else
+                plot(vec(:,i), 'MarkerFaceColor', colorList(i,:));
+            end
         else
-            plot(vec, 'LineWidth', 2);
-        end
-    else
-        if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-            bar(elabel, vec, 'grouped');
-        else
-            bar(vec, 'grouped');
+            if isnumeric(elabel) && length(elabel)==length(unique(elabel))
+                bar(elabel, vec(:,i), 'grouped', 'FaceColor', colorList(i,:));
+            else
+                bar(vec(:,i), 'grouped', 'FaceColor', colorList(i,:));
+            end
         end
     end
     legendTxt = vlabel; 

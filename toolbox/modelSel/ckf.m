@@ -16,9 +16,9 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 %
 % Optional INPUTS (Parameter):
 %
-% 'Option': (str or num) options for data plotting.
-%       0: no plots.
-%       1: plot (default)
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
 %
 %
 % OUTPUTS:
@@ -41,16 +41,16 @@ function [cumpress,press,term1,term2,term3] = ckf(xcs,T,P,varargin)
 % P = model.loads;
 % T = model.scores;
 % 
-% % Plot ('Option' default 1)
+% % To Plot ('Option' default 1)
 % cumpress = ckf(X,T,P);
 % 
-% % Not plot
-% cumpress = ckf(X,T,P,'Option',0);
+% % Not to plot
+% cumpress = ckf(X,T,P,'Plot',0);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 19/Nov/2024
+% last modification: 16/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -77,22 +77,15 @@ A = size(T, 2);
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'Option',1);             
+addParameter(p,'Plot',true);             
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-opt = p.Results.Option;
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
+opt = p.Results.Plot;
 
 % Validate dimensions of input data
 assert (isequal(size(T), [N A]), 'Dimension Error: parameter ''T'' must be N-by-A. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(P), [M A]), 'Dimension Error: parameter ''P'' must be M-by-A. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: paramter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-
-% Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain a binary value. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -102,9 +95,9 @@ press = zeros(A+1,size(P,1));
 
 s = size(xcs);
 
-for i=0:A,
+for i=0:A
     
-    if i > 0, % PCA Modelling
+    if i > 0 % PCA Modelling
         p2 = P(:,1:i);
         srec = T(:,1:i)*p2';
         erec = xcs - srec;
@@ -127,10 +120,10 @@ end
     
 %% Show results
 
-if opt == '1'
+if opt
     A = size(T, 2);
     Z = 0:A;
-    figh = plotVec(cumpress/cumpress(1),'EleLabel',Z,'XYLabel',{'#PCs','ckf'},'Option','01'); 
+    figh = plotVec(cumpress/cumpress(1),'EleLabel',Z,'XYLabel',{'#PCs','ckf'},'PlotType','Lines'); 
 end
 
         

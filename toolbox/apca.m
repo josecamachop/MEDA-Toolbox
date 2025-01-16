@@ -107,7 +107,7 @@ function apcao = apca(parglmo)
 % M = apcao.factors{1}.matrix + apcao.factors{2}.matrix + apcao.interactions{1}.matrix;
 % codeLevels = {};
 % for i=1:size(F,1), codeLevels{i} = sprintf('F1:%d,F2:%d',F(i,1),F(i,2));end;
-% scoresPca(M,'PCs',1:2,'ObsTest',X,'Preprocessing',0,'Option',101,'ObsClass',codeLevels);
+% scoresPca(M,'PCs',1:2,'ObsTest',X,'Preprocessing',0,'PlotCal',false,'ObsClass',codeLevels);
 % legend(unique(codeLevels))
 % 
 % loadingsPca(M,'PCs',1:2,'Preprocessing',0);

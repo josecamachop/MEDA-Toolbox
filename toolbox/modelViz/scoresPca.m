@@ -27,8 +27,8 @@ function [T,TT] = scoresPca(x,varargin)
 %       2: autoscaling (default) 
 %
 % 'PlotType': str
-%      'Scatter': scatterplot (by default)
-%      'Bars': bar plot (by default)
+%      'Scatter': scatterplot (by default for pairs of PCs)
+%      'Bars': bar plot (by default for a single PC)
 %
 % 'PlotCal': bool
 %      false: plot only test data

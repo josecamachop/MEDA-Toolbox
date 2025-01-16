@@ -95,7 +95,7 @@ function figH = plotScatter(bdata,varargin)
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
 %           
-% last modification: 13/Jan/2025
+% last modification: 16/Jan/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 %
@@ -128,7 +128,6 @@ addParameter(p,'EleLabel',1:N);
 addParameter(p,'ObsClass',ones(N,1));
 addParameter(p,'XYLabel',{'',''});
 addParameter(p,'LimCont',[]);
-addParameter(p,'Option','100');
 addParameter(p,'Multiplicity',ones(N,1));
 addParameter(p,'Markers',[20 50 100]);
 addParameter(p,'BlurIndex',0.3);

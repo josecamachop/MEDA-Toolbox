@@ -31,9 +31,9 @@ function [cumpress,press,nze] = crossvalGpls(x,y,varargin)
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% 'Option': [1x1] options for data plotting
-%       0: no plots
-%       1: bar plot (default)
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
 %
 %
 % OUTPUTS:
@@ -58,16 +58,14 @@ function [cumpress,press,nze] = crossvalGpls(x,y,varargin)
 % 
 % % Mean Centering example with default gammas
 % [cumpress,press,nze] = crossvalGpls(X,Y,'LVs',lvs,'PreprocessingX',1,'PreprocessingY',1);
-% legend('show')
 % 
 % % Auto scaling example with gammas
 % [cumpress,press,nze] = crossvalGpls(X,Y,'LVs',lvs,'Gamma',gammas);
-% legend('show')
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 16/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -101,7 +99,7 @@ addParameter(p,'Gamma',gam);
 addParameter(p,'MaxBlock',N);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
-addParameter(p,'Option',1);   
+addParameter(p,'Plot',true);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -111,7 +109,7 @@ gammas = p.Results.Gamma;
 blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
-opt = p.Results.Option;
+opt = p.Results.Plot;
 
 % Extract LVs and Gamma length
 A = length(lvs);
@@ -128,7 +126,6 @@ assert (isequal(size(gammas), [1 J]), 'Dimension Error: parameter ''Gamma'' must
 assert (isequal(size(blocksr), [1 1]), 'Dimension Error: paramter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Option'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
@@ -156,7 +153,7 @@ elemr=N/blocksr;
 
 % Cross-validation
         
-for i=1:blocksr,
+for i=1:blocksr
     
     indi = rind(round((i-1)*elemr+1):round(i*elemr)); % Sample selection
     i2 = ones(N,1);
@@ -186,7 +183,7 @@ for i=1:blocksr,
             
         for lv=1:length(lvs)
                 
-            if lvs(lv) > 0,
+            if lvs(lv) > 0
                 Q2 = Q(:,1:min(lvs(lv),size(Q,2)));
                 R2 = R(:,1:min(lvs(lv),size(Q,2)));
                 beta=R2*Q2';
@@ -210,7 +207,7 @@ cumpress = sum(press,3);
 
 %% Show results
 
-if opt == 1
-    figh = plotVec(cumpress','EleLabel',gammas,'XYLabel',{'\gamma','PRESS'},'Option','01','VecLabel',lvs); 
+if opt
+    plotVec(cumpress','EleLabel',gammas,'XYLabel',{'\gamma','PRESS'},'PlotType','Lines','VecLabel',lvs); 
 end
 

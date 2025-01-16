@@ -25,9 +25,9 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 %
 % 'NRuns': [1x1] number of runs (1000 by default)
 %
-% 'Option': (str or num) options for data plotting.
-%       0: no plots.
-%       1: plot (default)
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
 %
 % 'PlotVal': [1x1] singificance for the intervals to plot (0.01 by default)
 %
@@ -73,9 +73,9 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 %
 % coded by: Rafa Vitale (raffaele.vitale@univ-lille.fr)
 %           Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 16/Jan/20245
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -103,23 +103,18 @@ M = size(X, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'NRuns',1000); 
-addParameter(p,'Option',1);
+addParameter(p,'Plot',true);
 addParameter(p,'PlotVal',0.1);  
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 nboot = p.Results.NRuns;
-opt = p.Results.Option;
+opt = p.Results.Plot;
 pvalue = p.Results.PlotVal;
-
-
-% Convert int arrays to str
-if isnumeric(opt), opt=num2str(opt); end
 
 % Validate dimensions of input data
 assert (isequal(size(nfact), [1 1]), 'Dimension Error: parameter ''nfact'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(nboot), [1 1]), 'Dimension Error: parameter ''NRuns'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: parameter ''Option'' must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(pvalue), [1 1]), 'Dimension Error: parameter ''PlotVal'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 
@@ -161,7 +156,7 @@ bpvals = min(bpvals,[],2)';
 
 %% Plot
 
-if opt ~= '0', evalboot(p,pboot,pvalue); end
+if opt, evalboot(p,pboot,pvalue); end
 
 
 % Orthogonal procrustes
