@@ -119,7 +119,7 @@ end
 cumpress = zeros(length(pcs),1);
 if nargout>1 || ckfplot
     for i = 1:length(pcs)
-         c = ckf(xcs,T(:,1:pcs(i)),P(:,1:pcs(i)),'Option',0);
+         c = ckf(xcs,T(:,1:pcs(i)),P(:,1:pcs(i)),'Plot',false);
          cumpress(i) = c(end);
     end
 end
