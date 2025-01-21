@@ -90,9 +90,9 @@ function Lmodel = updateIterative(list,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/Nov/2024
+% last modification: 21/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -121,7 +121,7 @@ addParameter(p,'path','');
     defmodel.prep = 2;
 addParameter(p,'Lmodel',defmodel);   
 addParameter(p,'step',1);   
-addParameter(p,'files',1);   
+addParameter(p,'files',0);   
 addParameter(p,'debug',1);     
 parse(p,varargin{:});
 
@@ -612,6 +612,8 @@ elseif strcmp(Lmodel.type,'PLS')
         
         Lmodel = Lpca(Lmodel);
         Lmodel.mat = Lmodel.loads;
+            
+        Lmodel.type = 'PLS';
         
     end
     

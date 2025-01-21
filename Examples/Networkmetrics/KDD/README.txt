@@ -1,7 +1,7 @@
-﻿EDA example for Big Data using the MEDA Toolbox.
+﻿MEDA example for Big Data using the MEDA Toolbox.
 
 Coded by: Jose Camacho
-Last modification of this document: 05/Apr/16
+Last modification of this document: 21/Jan/25
 
 References:
 

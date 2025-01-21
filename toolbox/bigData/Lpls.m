@@ -74,3 +74,5 @@ fnames = fieldnames(model);
 for n = 1:length(fnames)
     Lmodel = setfield(Lmodel,fnames{n},getfield(model,fnames{n}));
 end
+
+Lmodel.type = 'PLS';
