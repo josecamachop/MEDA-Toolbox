@@ -55,7 +55,7 @@ function [AAUC, AUC] = crossvalPlsDA(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 16/Jan/2025
+% last modification: 21/Jan/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -190,19 +190,19 @@ for i=1:blocksr
     scs = preprocess2Dapp(sample,av,'Scale',st);
     scs = preprocess2Dapp(scs,mean(m));
     
+    model = simpls(ccs,ccsy,'LVs',0:max(lvs));
+    Q = model.yloads;
+    P = model.loads;
+    W = model.weights;
+    
     if  ~isempty(find(lvs))
         
         for lv=1:length(lvs)
 
-            if lvs(lv)
-                
-                X = ccs;
-                Y = ccsy;
-              
-                model = simpls(X,Y,'LVs',1:lvs(lv));
-                
-                srec1(test,lv,:) = scs*model.beta;
-                
+            if lvs(lv) > 0
+                beta = W(:,1:min(lvs(lv),end))*inv(P(:,1:min(lvs(lv),end))'*W(:,1:min(lvs(lv),end)))*Q(:,1:min(lvs(lv),end))';
+                srec(test,lv,:) = scs*beta;
+            
             else
                 srec1(test,lv,:) = 0;
             end

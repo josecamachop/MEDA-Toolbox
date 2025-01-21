@@ -53,7 +53,7 @@ function [cumpress,press] = crossvalPls(x,y,varargin)
 % cumpress = crossvalPls(X,Y,'LVs',lvs,'PreprocessingX',1,'PreprocessingY',1);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 16/Jan/2025
+% last modification: 21/Jan/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -152,12 +152,13 @@ for i=1:blocksr
     
     model = simpls(ccs,ccsy,'LVs',0:max(lvs));
     Q = model.yloads;
-    R = model.altweights;
+    P = model.loads;
+    W = model.weights;
     
     for lv=1:length(lvs)
     
         if lvs(lv) > 0
-            beta = R(:,1:min(lvs(lv),end))*Q(:,1:min(lvs(lv),end))';
+            beta = W(:,1:min(lvs(lv),end))*inv(P(:,1:min(lvs(lv),end))'*W(:,1:min(lvs(lv),end)))*Q(:,1:min(lvs(lv),end))';
             srec = scs*beta;
             
             pem = scsy-srec;
