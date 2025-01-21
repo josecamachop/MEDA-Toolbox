@@ -25,7 +25,7 @@
 % 51:53 	M_PNT SUM_F SUM_R
 
 %
-% codified by: José Camacho Páez.
+% codified by: Josï¿½ Camacho Pï¿½ez.
 % last modification: 02/Feb/15.
 
 %% Inicialization, remember to set the path of the toolbox
@@ -42,21 +42,21 @@ xn = x(:,1:end-1);
 
 %% Step 1: Selection of the LVs
 
-var_pls(xn,y,0:max_LVs,prep_x,prep_y); % 3 or 6 LVs
+varPls(xn,y,'LVs',0:max_LVs,'PreprocessingX',prep_x,'PreprocessingY',prep_y); % 3 or 6 LVs
 
-cumpress=crossval_pls(xn,y,0:10); % LVs 2 and 3 are not predictive 
+cumpress=crossvalPls(xn,y,'LVs',0:10); % LVs 2 and 3 are not predictive 
 
 
 %% Step 2: observations distribution and relationships 
 %   scores and residuals, outliers detection
 %   5 LVs are used for visualization
 
-T = scores_pls(xn,y,1:5,[],prep_x,prep_y,1,Obs); 
+T = scoresPls(xn,y,'LVs',1:5,'ObsTest',[],'PreprocessingX',prep_x,'PreprocessingY',prep_y,'PlotType','Scatter','ObsLabel',Obs); 
 % four abnormal observations are found in LV1 (J1(5), J19(3), K18(6), K17(1)) 
 % which should be studied with more detail. Also, N31(16) is an outlier in
 % LV2 vs LV3, and M6(18) in LV4.
 
-mspc_pls(xn,y,1:5,[],prep_x,prep_y,1,Obs,[],[],[]); 
+mspcPls(xn,y,'LVs',1:5,'ObsTest',[],'PreprocessingX',prep_x,'PreprocessingY',prep_y,'PlotType','Scatter','ObsLabel',Obs); 
 % M6(18) is the clearest outlier in the D-st 
 % No high residual (Q-st) are found. 
 
@@ -65,19 +65,19 @@ mspc_pls(xn,y,1:5,[],prep_x,prep_y,1,Obs,[],[],[]);
 
 dummy=-ones(31,1);
 dummy([1,3,5,6])=1;
-omeda_pls(xn,y,1,xn,dummy,prep_x,prep_y,111);
+omedaPls(xn,y,1,xn,dummy,'PreprocessingX',prep_x,'PreprocessingY',prep_y);
 % the abnormal observations present a generalized higher magnitude value
 % than common observations (in both positive and negative directions)
 
 dummy=-ones(31,1);
 dummy(16)=1;
-omeda_pls(xn,y,2:3,xn,dummy,prep_x,prep_y,111);
+omedaPls(xn,y,2:3,xn,dummy,'PreprocessingX',prep_x,'PreprocessingY',prep_y);
 % The deviation of N31(16) is mainly related to an anomalous value of 
 % ATCH8-ATCH10  
 
 dummy=-ones(31,1);
 dummy(18)=1;
-omeda_pls(xn,y,4,xn,dummy,prep_x,prep_y,111);
+omedaPls(xn,y,4,xn,dummy,'PreprocessingX',prep_x,'PreprocessingY',prep_y);
 % the anomalour residual in M6(18) is related to a generalized high value in
 % most of NSDL variables
 
@@ -85,19 +85,20 @@ omeda_pls(xn,y,4,xn,dummy,prep_x,prep_y,111);
 %% Step 4: variables distribution and relationships  
 %   loadings, MEDA and residuals
 
-P = loadings_pls(xn,y,1:5,prep_x,prep_y,1,Vars);
+P = loadingsPls(xn,y,'LVs',1:5,'PreprocessingX',prep_x,'PreprocessingY',prep_y,'VarsLabel',Vars);
 % a main limitation of loading plots is that only two LVs are
 % assessed at a time. Also, although some correlations are found (e.g ATCH9
 % and ATCH10), it is hard to interpret
 
-meda_res = meda_pls(xn,y,1:5,prep_x,prep_y,0.5,111);
+meda_res = medaPls(xn,y,'LVs',1:5,'PreprocessingX',prep_x,'PreprocessingY',prep_y,...
+'Threshold',0.5,'Seriated', true, 'Discard', true);
 % with MEDA, the contribution of the selected LVs can be observed at once. 
 % Also, the groups of variables are easily found. There are several groups 
 % of related variables, which cannot be observed in the loading plots, but 
 % it is not clear which are the most predictive. Here we can use a simple 
 % trick (Step 3b): join xn and y in a single block and perform PCA and MEDA. 
 
-leverages_pls(xn,y,1:5,prep_x,prep_y,1,Vars); 
+leveragesPls(xn,y,'LVs',1:5,'PreprocessingX',prep_x,'PreprocessingY',prep_y,'VarsLabel',Vars); 
 % ATCH4, DIPV_X and LOGP variables with the higest leverage on the model 
 
 
@@ -106,16 +107,16 @@ leverages_pls(xn,y,1:5,prep_x,prep_y,1,Vars);
 Vars2 = {Vars{:} '-LOGEC50'};
 xaug = [xn y];
 
-SVIplot(xaug,[],size(xaug,2),size(xaug,1),prep_x); 
+SVIplot(xaug,'PCs',1:10,'Vars',size(xaug,2),'Groups',size(xaug,1),'Preprocessing',prep_x); 
 % the SVI plot is useful to determine the number of PCs when a single
 % variable is of interest. 2 PCs may be a good choice (low uncertainty of
 % alpha parameters while Q2 remains high)
 
-[meda_res,map,ord] = meda_pca(xaug,1:2,prep_x,0.5,1);
+[meda_res,map,ord] = medaPca(xaug,'PCs',1:2,'Preprocessing',prep_x,'Threshold',0.5,'Seriated',1);
 % it may be useful to combine this plot with the one focused on the column 
 % representing -LOGEC50 (variable 54)
 
-plot_vec(meda_res(:,54),1:54,[],{[],'-LOGEC50'},[0.25, -0.25]);
+plotVec(meda_res(:,54),'EleLabel',1:54,'XYLabel',{[],'-LOGEC50'},'LimCont',[0.25, -0.25]);
 % variables highlighted are 'ATCH1', 'ATCH3', 'ATCH5', 'ATCH7', 'ESDL3', 
 % 'SUM_F', 'ATCH6', 'NSDL1'
 
