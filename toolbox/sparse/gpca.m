@@ -20,7 +20,7 @@ function [p,t,bel,e] = gpca(xcs,states,varargin)
 % 'PCs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
 %   first two PCs). By default, pcs = 0:rank(xcs)
 %
-% 'Tolerance': [1x1] tolerance value
+% 'Tolerance': [1x1] tolerance value. By default, 1e-15.
 %
 %
 % OUTPUTS:

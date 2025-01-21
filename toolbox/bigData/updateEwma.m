@@ -59,9 +59,9 @@ function Lmodel = updateEwma(list,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/Nov/2024
+% last modification: 21/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -235,6 +235,8 @@ for t=1:length(list)
             sdT = Lmodel.sdT;
             Lmodel.mat = P*diag(1./sdT);
             
+            Lmodel.type = 'PLS';
+            
         end
         
     end
@@ -251,7 +253,7 @@ for t=1:length(list)
 
     s = size(x);
     step2 = max(10,round(s(1)*step));
-    for i = 1:step2:s(1),
+    for i = 1:step2:s(1)
         endv = min(s(1),i+step2);
         ss = endv-i+1;
         xstep = xcs(i:endv,:);

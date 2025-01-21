@@ -1,4 +1,4 @@
-%% EDA example for Big Data using the MEDA Toolbox. 
+%% MEDA example for Big Data using the MEDA Toolbox. 
 % See README.txt for more details.
 % 
 %  Data set and Analisys: 
@@ -39,7 +39,7 @@ load kdd
 
 Lmodel = Lmodel_ini; % Initialization
 Lmodel.update = 2; % Change this to 1 for EWMA and 2 for Iterative
-Lmodel.type = 2; % Change this to 1 for PCA and 2 for PLS
+Lmodel.type = 'PLS'; % Change this to 1 for PCA and 2 for PLS
 Lmodel.lvs = 1:2; % Number of LVs
 Lmodel.prep = 2; % X-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling 
 Lmodel.prepy = 2; % Y-block prepr. 0: None, 1: Mean-center, 2: Auto-scaling
@@ -53,20 +53,20 @@ step = 0.01;
 %% Model building (EWMA or Iterative)
 
 if Lmodel.update == 1
-    Lmodel = update_ewma(short_list,'',Lmodel,lambda,step,1); % EWMA
+    Lmodel = updateEwma(short_list,'Lmodel',Lmodel,'lambda',lambda,'step',step,'debug',1); % EWMA
 else
-    Lmodel = update_iterative(short_list,'',Lmodel,step,0,1); % Iterative
+    Lmodel = updateIterative(short_list,'Lmodel',Lmodel,'step',step,'debug',1); % Iterative
 end
 
 %% Data Analysis
 
-if Lmodel.type==2 % for PLS
+if isequal(Lmodel.type,'PLS') % for PLS
     
     % Score plot
-    scores_Lpls(Lmodel);   
+    scoresLpls(Lmodel);   
         
     % MEDA
-    map = meda_Lpls(Lmodel,0.1,111); 
+    map = medaLpls(Lmodel,'Threshold',0.1,'Option',111); 
     
     % reorder variables
     [map,ind] = seriation(map);
@@ -79,20 +79,20 @@ if Lmodel.type==2 % for PLS
     dummy = zeros(100,1); % Comparison between classes 1 and 19
     dummy(find(Lmodel.class==1))=1;
     dummy(find(Lmodel.class==19))=-1;
-    omeda_Lpls(Lmodel,Lmodel.centr,dummy,1);
+    omedaLpls(Lmodel,Lmodel.centr,dummy,'Option',1);
 
     dummy = zeros(100,1); % Comparison between classes 1 and 11
     dummy(find(Lmodel.class==1))=1;
     dummy(find(Lmodel.class==11))=-1;
-    omeda_Lpls(Lmodel,Lmodel.centr,dummy,1);
+    omedaLpls(Lmodel,Lmodel.centr,dummy,'Option',1);
     
 else %for PCA
     
     % Score plot
-    scores_Lpca(Lmodel);
+    scoresLpca(Lmodel);
     
     % MEDA
-    map = meda_Lpca(Lmodel,0.1,111);
+    map = medaLpca(Lmodel,'Threshold',0.1,'Option',111); 
     
     % reorder variables
     [map,ind] = seriation(map);
@@ -105,10 +105,10 @@ else %for PCA
     dummy = zeros(100,1); % Comparison between classes 1 and 19
     dummy(find(Lmodel.class==1))=1;
     dummy(find(Lmodel.class==19))=-1;
-    omeda_Lpca(Lmodel,Lmodel.centr,dummy,1);
+    omedaLpca(Lmodel,Lmodel.centr,dummy,'Option',1);
 
     dummy = zeros(100,1); % Comparison between classes 1 and 11
     dummy(find(Lmodel.class==1))=1;
     dummy(find(Lmodel.class==11))=-1;
-    omeda_Lpca(Lmodel,Lmodel.centr,dummy,1);
+    omedaLpca(Lmodel,Lmodel.centr,dummy,'Option',1);
 end

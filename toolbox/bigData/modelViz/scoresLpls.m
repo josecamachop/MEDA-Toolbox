@@ -27,21 +27,20 @@ function [T,TT,figH] = scoresLpls(Lmodel,varargin)
 % 'Test': [LxM] data set with the observations to be compared. These data 
 %   are preprocessed in the same way than calibration data
 %
-% 'Option': (str or num) options for data plotting: binary code of the form 'abcd' for:
-%       a:
-%           0: scatter plot of pairs of PCs 
-%           1: bar plot of each single PC
-%       b:
-%           0: plot calibration and test data
-%           1: plot only test data 
-%       c:
-%           0: plot for categorical classes (consistent with a legend)
-%           1: plot for numerical classes (consistent with a colorbar) 
-%       d:
-%           00: plot multiplicity info in the size of the markers.
-%           01: plot multiplicity info in the form of the markers.
-%           10: plot multiplicity information in the Z axis.
-%           11: plot multiplicity info in the size of the markers and 
+% 'PlotType': str
+%      'Scatter': scatterplot (by default for pairs of PCs)
+%      'Bars': bar plot (by default for a single PC)
+%
+% 'PlotCal': bool
+%      false: plot only test data
+%      true: plot both calibration and test (by default)
+%
+% 'PlotMult': str
+%      'none': do not plot multiplicity 
+%      'size': plot multiplicity info in the size of the markers (by default)
+%      'shape': plot multiplicity info in the shape of the markers
+%      'zaxis': plot multiplicity information in the Z axis
+%      'zsize': plot multiplicity info in the size of the markers and
 %               classes in Z-axis
 %           
 %   By deafult, opt = '00000'. If less than 5 digits are specified, least 
@@ -51,6 +50,10 @@ function [T,TT,figH] = scoresLpls(Lmodel,varargin)
 %
 % 'ObsClass': [Lx1] groups in test for different visualization (a single group 
 %   by default)
+%
+% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
+%   are printer (the higher blur). Inf shows all the labels (1 by default).
+%
 %
 %
 % OUTPUTS:
@@ -82,7 +85,7 @@ function [T,TT,figH] = scoresLpls(Lmodel,varargin)
 % nobst = 10;
 % test = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(X)*(nobst-1)/(nobs-1));
 %
-% Lmodel.multr = ceil(10*rand(nobs,1));
+% Lmodel.multr = ceil(exp(10*randn(nobs,1)));
 %
 % Lmodel.lvs = 1;
 % scoresLpls(Lmodel,'Test',test);
@@ -92,9 +95,9 @@ function [T,TT,figH] = scoresLpls(Lmodel,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 22/Nov/2024
+% last modification: 21/Jan/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -124,49 +127,49 @@ M = size(Lmodel.XX, 2);
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'Test',[]);
-addParameter(p,'Option','00000');
 addParameter(p,'ObsLabel',[]);
 addParameter(p,'ObsClass',[]);
+addParameter(p,'PlotMult','size'); 
+addParameter(p,'PlotType','Scatter');
+addParameter(p,'PlotCal',true);
+addParameter(p,'BlurIndex',1);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 test = p.Results.Test;
-opt = p.Results.Option;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
+plottype = p.Results.PlotType;
+plotcal = p.Results.PlotCal;
+plotmult = p.Results.PlotMult;
+blur = p.Results.BlurIndex;
 
 L = size(test, 1);
-
-if nargin < 3 || isempty(opt), opt = '00000'; end; 
-
 A = length(Lmodel.lvs);
 
-% Complete opt
-while length(opt)<5, opt = strcat(opt,'0'); end
-
-if opt(3) == '0', opt(3) = '1'; else,  opt(3) = '0'; end
-
-if opt(2) == '1'
-    K = L;
-else
+if plotcal
     K = N+L;
+else
+    K = L;
 end
 
 if isempty(label) 
-    if  opt(2) == '1'
-        label = cellstr(num2str((1:L)'));
-    elseif isempty(Lmodel.obsl)
-        label = cellstr(num2str([1:N 1:L]'));
-    else
-        if L
-            lb1 = cellstr(num2str((1:L)'));
-            label = {Lmodel.obsl{:} lb1{:}};
+    if plotcal
+        if isempty(Lmodel.obsl)
+            label = cellstr(num2str([1:N 1:L]'));
         else
-            label = Lmodel.obsl;
+            if L
+                lb1 = cellstr(num2str((1:L)'));
+                label = {Lmodel.obsl{:} lb1{:}};
+            else
+                label = Lmodel.obsl;
+            end
         end
+    else
+        label = cellstr(num2str((1:L)'));
     end
 else
-    if  opt(2) == '0'
+    if plotcal
         if isempty(Lmodel.obsl)
             lb1 = cellstr(num2str((1:N)'));
             label = {lb1{:} label{:}};
@@ -176,13 +179,15 @@ else
     end
 end
 
+label(find(ismember(label, 'mixed'))) = {''};
+
 if isempty(classes)
-    if opt(2) == '1' 
+    if plotcal
+        classes = [Lmodel.class;2*ones(L,1)];
+    else 
         classes = ones(L,1); 
-    else
-        classes = [Lmodel.class;2*ones(L,1)];  
     end
-elseif opt(2) == '0' && length(classes)==L
+elseif plotcal && length(classes)==L
         classes = [Lmodel.class;2*classes];
 end
 
@@ -193,12 +198,8 @@ if size(classes,1) == 1, classes = classes'; end;
 % Validate dimensions of input data
 assert (A>0, 'Dimension Error: 1sr argument with non valid content. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: 2nd argument must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
-assert (ischar(opt) && length(opt)==5, 'Dimension Error: 3rd argument must be a string or num of maximum 5 bits. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(label), [K 1]), 'Dimension Error: 4th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [K 1]), 'Dimension Error: 5th argument must be L-by-1. Type ''help %s'' for more info.', routine(1).name); 
-
-% Validate values of input data
-assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 3rd argument must contain binary values. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
@@ -218,7 +219,7 @@ end
 
 figH = [];
      
-if opt(2) == '0'
+if plotcal
     ttt = [T;TT];
     mult = [Lmodel.multr;ones(size(TT,1),1)];
 else
@@ -232,15 +233,16 @@ indM = floor(log10((max(Lmodel.multr)+1)));
 indm = floor(log10((min(Lmodel.multr)+1)));
 markers = 10.^[indm indm+(indM-indm)/2 indM];
 if sum(markers)<100, markers = []; end
-if length(Lmodel.lvs) == 1 || opt(1) == '1'
+
+if length(Lmodel.lvs) == 1 || strcmp(plottype,'Bars')
     for i=1:length(Lmodel.lvs)
         figH(i) = plotVec(ttt(:,i),'EleLabel',label,'ObsClass',classes,'XYLabel',{'',sprintf('Compressed Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(Lmodel.lvs(i)) - tvar(Lmodel.lvs(i)+1)))},'Multiplicity',mult,'Markers',markers);
     end
-else
+elseif strcmp(plottype,'Scatter')
     h = 1;
     for i=1:length(Lmodel.lvs)-1
         for j=i+1:length(Lmodel.lvs)
-            figH(h) = plotScatter([ttt(:,i),ttt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(Lmodel.lvs(i)) - tvar(Lmodel.lvs(i)+1))),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))},'Option',strcat(opt(3),'1',opt(4:5)),'Multiplicity',mult,'Markers',markers,'BlurIndex',0.1);
+            figH(h) = plotScatter([ttt(:,i),ttt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(i),100*(tvar(Lmodel.lvs(i)) - tvar(Lmodel.lvs(i)+1))),sprintf('Scores LV %d (%.0f%%)',Lmodel.lvs(j),100*(tvar(j) - tvar(j+1)))},'PlotMult',plotmult,'Multiplicity',mult,'Markers',markers,'BlurIndex',blur);
             h = h+1;
         end
     end

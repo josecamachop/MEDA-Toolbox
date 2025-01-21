@@ -63,7 +63,7 @@ addParameter(p,'Plot',true);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-opt = p.Results.Option;
+opt = p.Results.Plot;
 
 checkLmodel(Lmodel);
 
