@@ -25,8 +25,8 @@
 % 51:53 	M_PNT SUM_F SUM_R
 
 %
-% codified by: Jos� Camacho P�ez.
-% last modification: 02/Feb/15.
+% codified by: José Camacho Páez and Jesús García Sánchez.
+% last modification: 21/01/2025.
 
 %% Inicialization, remember to set the path of the toolbox
 
