@@ -29,8 +29,8 @@
 % where the name of each variable follows the format <switch>.if[In|Out]<N>. 
 % The remaining ports of the switches did not present any traffic load.
 
-% coded by: Jose Camacho.
-% last modification: 19/Apr/16.
+% coded by: Jose Camacho and Jesús García
+% last modification: 22/01/2025.
 
 %% Inicialization, remember to set the path of the toolbox
 
@@ -41,30 +41,30 @@ load data_proc
 
 %% Step 1: Selection of the LVs
 
-var_pca(cal,1:max_PCs,prep_x); % 2 PCs seem to be adequate
+varPca(cal,'Pcs',1:max_PCs,'Preprocessing',prep_x); % 2 PCs seem to be adequate
 
 
 %% Step 2: observations distribution and relationships 
 %   scores and residuals, outliers detection
 
-scores_pca(cal,1:2,[],prep_x,1); 
+scoresPca(cal,'Pcs',1:2,'Preprocessing',prep_x); 
 % there are two directions of variability, and observations 2, 9, 10 and 35
 % should be studied with more detail
 
-mspc_pca(cal,1:2,[],prep_x,1); 
+mspcPca(cal,'Pcs',1:2,'Preprocessing',prep_x); 
 % check also 5 (residuals)
 
 
 %% Step 3: variables distribution and relationships  
 %   loadings, MEDA and residuals, selection of variables
 
-loadings_pca(cal,1:2,prep_x,1,lab);
+loadingsPca(cal,'Pcs',1:2,'Preprocessing',prep_x,'VarsLabel',lab);
 % two groups of variables are detected 
 % GR1: C.ifIn10, C.ifOut10, C.ifIn3, C.ifOut3: traffic between Px/2 <=> Rx-A
 % GR2: C.ifOut9, A.ifOut8, C.ifIn1, C.ifIn9, A.ifIn8, C.ifOut1, A.ifIn14, 
 %    A.ifOut14:  traffic between Px/1 <=> SWx-A
 
-meda_pca(cal,1:2,prep_x,0.5,'111',lab);
+medaPca(cal,'Pcs',1:2,'Preprocessing',prep_x,'Threshold',0.5,'Seriated',true,'Discard',true,'VarsLabel',lab);
 % the same two groups are found
 
 
@@ -76,7 +76,7 @@ meda_pca(cal,1:2,prep_x,0.5,'111',lab);
 load data_proc
 sel = [3 4 9 14 31 33 35 36 39 41 45 46];
 
-map = meda_pca(cal(:,sel),1:2,prep_x,0.5,0);
+map = medaPca(cal,'Pcs',1:2,'Preprocessing',prep_x,'Threshold',0.5,'Seriated',false, 'Discard', true);
 [map,ord] = seriation(map); % variables reordering
 cal = cal(:,sel(ord));
 test = test(:,sel(ord));
@@ -87,14 +87,14 @@ lab = lab(sel(ord));
 %   Apply oMEDA of the two trends found in the score plot 
 %   line plots are used to confirm the result
 
-scores_pca(cal,1:2,[],prep_x,1);
+scoresPca(cal,'Pcs',1:2,'Preprocessing',prep_x);
 
 % the first trend is related to the group of variables GR1
 dummy=-ones(48,1);
 dummy(35)=2;
 dummy([37,29,33,45])=1;
 dummy([10,2,6,8,1,25,14,24,13,9])=0;
-omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+omedaPca(cal,1:2,cal,dummy,'Preprocessing',prep_x,'ControlLim',1,'Normalize',1,'VarsLabel',lab);
 
 figure, plot(1:size(cal,2),cal([12 16 19 18],:)','c'), hold on, plot(1:size(cal,2),cal([37,29,33,45],:)','r'), axis tight
 
@@ -103,7 +103,7 @@ dummy=-ones(48,1);
 dummy(9)=2;
 dummy([13,24,14,25])=1;
 dummy([10,2,9,6,8,1,26,28,36,22,23,29,35,37,45])=0;
-omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
+omedaPca(cal,1:2,cal,dummy,'Preprocessing',prep_x,'ControlLim',1,'Normalize',1,'VarsLabel',lab);
 
 figure, plot(1:size(cal,2),cal([12 16 19 18],:)','c'), hold on, plot(1:size(cal,2),cal([13,24,14,25],:)','r'), axis tight
 
@@ -116,20 +116,17 @@ figure, plot(1:size(cal,2),cal([12 16 19 18],:)','c'), hold on, plot(1:size(cal,
 dummy=-ones(48,1);
 dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
 dummy(2)=1;
-omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
-
+omedaPca(cal,1:2,cal,dummy,'Preprocessing',prep_x,'ControlLim',1,'Normalize',1,'VarsLabel',lab);
 % outlier 9
 dummy=-ones(48,1);
 dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
 dummy(9)=1;
-omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
-
+omedaPca(cal,1:2,cal,dummy,'Preprocessing',prep_x,'ControlLim',1,'Normalize',1,'VarsLabel',lab);
 % outlier 10
 dummy=-ones(48,1);
 dummy([10,2,6,8,1,25,14,24,13,9,26,28,36,29,35,37,33,45])=0;
 dummy(10)=1;
-omeda_pca(cal,1:2,cal,dummy,prep_x,111,lab);
-
+omedaPca(cal,1:2,cal,dummy,'Preprocessing',prep_x,'ControlLim',1,'Normalize',1,'VarsLabel',lab);
 % line plot to confirm results
 figure, plot(1:size(cal,2),cal([12 16 19 18],:)','c'), hold on, plot(1:size(cal,2),cal([2,9,10],:)','r'), axis tight
 
@@ -139,14 +136,14 @@ figure, plot(1:size(cal,2),cal([12 16 19 18],:)','c'), hold on, plot(1:size(cal,
 
 load data_proc
 
-scores_pca(cal,1:2,test,prep_x,1);
+scoresPca(cal,'Pcs',1:2,'Preprocessing',prep_x);
 
 dummy=-ones(101,1);
 dummy([61,100,73,74,60,59])=1;
 dummy([63,75,101])=0;
-omeda_pca(cal,1:2,[cal;test],dummy,prep_x,111,lab);
+omedaPca(cal,1:2,[cal;test],dummy,'Preprocessing',prep_x,'ControlLim',1,'Normalize',1,'VarsLabel',lab);
 
 dummy=-ones(101,1);
 dummy([61,100,73,74,60,59])=0;
 dummy([63,75,101])=1;
-omeda_pca(cal,1:2,[cal;test],dummy,prep_x,111,lab);
+omedaPca(cal,1:2,[cal;test],dummy,'Preprocessing',prep_x,'ControlLim',1,'Normalize',1,'VarsLabel',lab);
