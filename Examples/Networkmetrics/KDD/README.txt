@@ -1,7 +1,7 @@
 ﻿MEDA example for Big Data using the MEDA Toolbox.
 
-Coded by: Jose Camacho
-Last modification of this document: 21/Jan/25
+Coded by: Jose Camacho and Jesús García
+Last modification of this document: 25/Jan/2025
 
 References:
 
@@ -93,7 +93,6 @@ Items in the folder:
 	- short_list: 10 data files, suitable for the example
 	- label: labels of the variables
 
-- run.m: Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
+- Script.mlx: Live Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
 	current directory should be the one where the script is stored.
  
-- html: web version of the example

@@ -87,7 +87,7 @@ Items in the folder:
 	- lab: labels of the variables.
 
 
-- Script.m: Live Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
+- Script.mlx: Live Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
 	current directory should be the one where the script is stored.
 
 - MapasRedLab3.4(A4).pdf: Diagram with the network topology (in Spanish).
