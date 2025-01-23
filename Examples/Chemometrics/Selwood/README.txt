@@ -1,8 +1,8 @@
 ﻿MEDA Toolbox for its use in MATLAB.
 
-Coded by: Jose Camacho, Alejandro Pérez-Villegas
+Coded by: Jose Camacho, Alejandro Pérez-Villegas, Jesús García Sánchez
 GUI by: Elena Jiménez Mañas, Rafael Rodríguez Gómez
-Last modification of this document: 05/Apr/16
+Last modification of this document: 23/Jan/2025
 
 References:
 
@@ -52,8 +52,7 @@ Items in the folder:
 
 	- Vars: labels of the variables.
 
-- run.m: Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
+- Script.mlx: Live script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
 	current directory should be the one where the script is stored.
 
-- html: web version of the example
  
