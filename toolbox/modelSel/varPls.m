@@ -30,7 +30,7 @@ function [yvar,tvar] = varPls(x,y,varargin)
 %       2: autoscaling (default)   
 %
 % 'PlotScores': bool
-%       false: Residual Variance in Y
+%       false: Residual Variance in Y (by default)
 %       true: Residual Variance in Y and Scores  
 %
 %
@@ -50,7 +50,7 @@ function [yvar,tvar] = varPls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 16/Jan/2025
+% last modification: 25/Jan/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -135,8 +135,8 @@ end
 %% Show results
 
 if scoresplot
-    plotVec(yvar,'EleLabel',lvs,'XYLabel',{'#LVs','% Residual Variance in Y'},'PlotType','Lines');
-else
     plotVec([yvar tvar],'EleLabel',lvs,'XYLabel',{'#LVs','% Residual Variance'},'PlotType','Lines','VecLabel',{'Y','Scores'});
+else
+    plotVec(yvar,'EleLabel',lvs,'XYLabel',{'#LVs','% Residual Variance in Y'},'PlotType','Lines');
 end
 

@@ -121,7 +121,7 @@ P = model.loads;
 if ~isfield(model,'type') || strcmp(model.type,'PCA')
     dim = 'PC';
 elseif strcmp(model.type,'PLS')
-    dim = 'LV'
+    dim = 'LV';
 else
     dim = 'PC';
 end
