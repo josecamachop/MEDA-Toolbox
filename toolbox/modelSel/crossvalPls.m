@@ -1,8 +1,11 @@
-function [cumpress,press] = crossvalPls(x,y,varargin)
+function [cumpress,press,nze] = crossvalPls(x,y,varargin)
 
 % Row-wise k-fold (rkf) cross-validation for square-prediction-errors computing in PLS.
 %
-% [cumpress,press] = crossvalPls(x,y) % minimum call
+% cumpress = crossvalpls(x,y) % minimum call
+%
+%
+% See also: crossvalPlsDA, crossvalPca
 %
 %
 % INPUTS:
@@ -11,11 +14,12 @@ function [cumpress,press] = crossvalPls(x,y,varargin)
 %
 % y: [NxO] billinear data set of predicted variables
 %
-%
-% Optional INPUTS (parameter):
+% Optional INPUTS:
 %
 % 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
 %   first two LVs). By default, lvs = 0:rank(x)
+%
+% 'VarNumber': [1xK] Numbers of x-block variables selected. By default, VarNumber = M
 %
 % 'MaxBlock': [1x1] maximum number of blocks of samples (N by default)
 %
@@ -33,27 +37,35 @@ function [cumpress,press] = crossvalPls(x,y,varargin)
 %       false: no plots.
 %       true: plot (default)
 %
+% 'Selection': str
+%   'Weights': filter method based on the PLS weights (W)
+%   'AltWeights': filter method based on the PLS alternative weights (R)
+%   'Regressors': filter method based on the PLS regression coefficients (beta)
+%   'SR': filter method based on the selectivity ratio (by default)
+%   'VIP': filter method based on Variance Importance in PLS Projection
+%   'T2': wrapper method based on the Hotelling T2 statistic
+%   'sPLS': embedded method based on sparse PLS
+%
 %
 % OUTPUTS:
 %
-% cumpress: [Ax1] Cumulative PRESS
+% cumpress: [AxK] Cumulative PRESS
 %
-% press: [AxO] PRESS per variable.
+% press: [AxKxO] PRESS per variable
+%
+% nze: [AxK] Non-zero elements in the regression coefficient matrix.
 %
 %
-% EXAMPLE OF USE: Random data with structural relationship, two examples
-% of plot.
-%
+% EXAMPLE OF USE: Random data with structural relationship
+% 
 % X = simuleMV(20,10,'LevelCorr',8);
 % Y = 0.1*randn(20,2) + X(:,1:2);
-% lvs = 0:10;
-% cumpress = crossvalPls(X,Y,'LVs',lvs);
-% 
-% % Mean centering example
-% cumpress = crossvalPls(X,Y,'LVs',lvs,'PreprocessingX',1,'PreprocessingY',1);
+% keepXs = 1:10;
+% [cumpress,press,nze] = crossvalPls(X,Y,'VarNumber',keepXs);
+%
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/Jan/2025
+% last modification: 31/Jan/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -84,39 +96,47 @@ O = size(y, 2);
 p = inputParser;
 lat=0:rank(x);
 addParameter(p,'LVs',lat'); 
+addParameter(p,'VarNumber',M);
 addParameter(p,'MaxBlock',N);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
+addParameter(p,'Selection','SR'); 
 addParameter(p,'Plot',true);   
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-
 lvs = p.Results.LVs;
+keepXs = p.Results.VarNumber;
 blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
+selection = p.Results.Selection;
 opt = p.Results.Plot;
 
-% Extract LVs length
+% Extract LVs and VarNumber length
 A = length(lvs);
+J =  length(keepXs);
 
 % Convert column arrays to row arrays
 if size(lvs,2) == 1, lvs = lvs'; end;
+if size(keepXs,2) == 1, keepXs = keepXs'; end;
 
 % Validate dimensions of input data
 assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(keepXs), [1 J]), 'Dimension Error: parameter ''VarNumber'' must be 1-by-J. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepx), [1 1]), 'Dimension Error: parameter ''PreprocessingX'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prepy), [1 1]), 'Dimension Error: parameter ''PreprocessingY'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 lvs = unique(lvs);
+keepXs = unique(keepXs);
 
 % Validate values of input data
 assert (isempty(find(lvs<0)), 'Value Error: parameter ''LVs'' must not contain negative values. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(fix(keepXs), keepXs), 'Value Error: parameter ''VarNumber'' must contain integers. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(fix(blocksr), blocksr), 'Value Error: parameter ''MaxBlock'' must be an integer. Type ''help %s'' for more info.', routine(1).name);
 assert (blocksr>2, 'Value Error: parameter ''MaxBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
 assert (blocksr<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
@@ -125,8 +145,9 @@ assert (blocksr<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type
 %% Main code
 
 % Initialization
-cumpress = zeros(length(lvs),1);
-press = zeros(length(lvs),O);
+press = zeros(length(lvs),length(keepXs),O);
+nze = zeros(length(lvs),length(keepXs));
+
 
 rows = rand(1,N);
 [a,rind]=sort(rows);
@@ -150,33 +171,42 @@ for i=1:blocksr
     scs = preprocess2Dapp(sample,av,'Scale',st);
     scsy = preprocess2Dapp(sampley,avy,'Scale',sty);
     
-    model = simpls(ccs,ccsy,'LVs',0:max(lvs));
-    Q = model.yloads;
-    P = model.loads;
-    W = model.weights;
-    
-    for lv=1:length(lvs)
-    
-        if lvs(lv) > 0
-            beta = W(:,1:min(lvs(lv),end))*inv(P(:,1:min(lvs(lv),end))'*W(:,1:min(lvs(lv),end)))*Q(:,1:min(lvs(lv),end))';
-            srec = scs*beta;
+    if  ~isempty(find(lvs))
+        
+        for lv=1:length(lvs)
+
+            for keepX=1:length(keepXs)
+                
+                if lvs(lv)
+                    model = vpls(ccs,ccsy,'LVs',1:lvs(lv),'VarNumber',keepXs(keepX),'Selection',selection);
+
+                    srec = scs*model.beta;
+                    pem = scsy-srec;
+
+                    press(lv,keepX,:) = squeeze(press(lv,keepX,:))' + sum(pem.^2,1);
+					nze(lv,keepX) = nze(lv,keepX) + length(find(model.beta)); 
+                else
+                    press(lv,keepX,:) = squeeze(press(lv,keepX,:))' + sum(scsy.^2,1);
+					nze(lv,keepX) = nze(lv,keepX) + M*O; 
+                end
+                
+            end
             
-            pem = scsy-srec;
-            
-        else % Modelling with the average
-            pem = scsy;
         end
         
-        press(lv,:) = press(lv,:) + sum(pem.^2,1);
-        
+    else
+        pem = scsy;
+        press = press + ones(length(keepXs),1)*sum(pem.^2,1);
+		nze = nze + ones(length(keepXs),1)*M*O;
     end
+    
 end
 
-cumpress = sum(press,2);
+cumpress = sum(press,3);
 
 %% Show results
 
 if opt
-    figh = plotVec(cumpress,'EleLabel',lvs,'XYLabel',{'#LVs','PRESS'},'PlotType','Lines'); 
+    figh = plotVec(cumpress','EleLabel',keepXs,'XYLabel',{'#NZV','PRESS'},'PlotType','Lines','VecLabel',lvs,'Color','jet'); 
 end
 

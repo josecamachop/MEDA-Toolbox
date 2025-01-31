@@ -6,7 +6,7 @@ function model = simpls(xcs,ycs,varargin)
 %
 % model = simpls(xcs,ycs)     % minimum call
 %
-% See also: kernelpls, pcaEig, asca
+% See also: kernelpls, vpls, pcaEig, asca
 %
 %
 % INPUTS:
