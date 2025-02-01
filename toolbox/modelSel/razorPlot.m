@@ -1,8 +1,8 @@
 function PEVpq = razorPlot(X,Gram,K,varargin)
 
-% Razor plot to select the number and sparsity of sparse Principal
-% Component Analysis (sPCA) following Camacho et al. "All sparse PCA models 
-% are wrong, but some are useful. Part III: model interpretation", 
+% Razor plot to select the number of components and sparsity in sparse 
+% Principal Component Analysis (sPCA) following Camacho et al. "All sparse 
+% PCA models are wrong, but some are useful. Part III: model interpretation", 
 % Chemometrics and Intelligent Laboratory Systems.
 %
 % PEVpq = razorPlot(X,Gram,K)     % minimum call
@@ -24,6 +24,8 @@ function PEVpq = razorPlot(X,Gram,K,varargin)
 % 'MaxIters': [1x1] maximum iterations. By default, 1e3.
 %
 % 'Threshold': [1x1] threshold to use a truncated plot. By default, 0.05.
+%
+% 'Reference': [1x1] reference variance. By default, 1.
 %
 %
 % OUTPUTS:
@@ -50,11 +52,13 @@ function PEVpq = razorPlot(X,Gram,K,varargin)
 %     -0.019 -0.036  0.220  0.169 -0.145   0.024  -0.232 -0.357  -0.127 -0.368  0.029  1.000   0.184
 %      0.134  0.144  0.126  0.015 -0.208  -0.329  -0.424 -0.202  -0.076 -0.291  0.007  0.184   1.000];
 %
-% razorPlot([], XX, 6);
+% ev = eig(XX);
+% reference = sum(ev(end:-1:end-5)); % Use 6PCs PCA as a reference 
+% razorPlot([], XX, 6, 'Reference', reference);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 8/Jan/2025
+% last modification: 1/Feb/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -89,14 +93,15 @@ end
 p = inputParser;
 addParameter(p,'Tolerance',1e-15);
 addParameter(p,'MaxIters',1e3);
-addParameter(p,'Threshold',0.05);          
+addParameter(p,'Threshold',0.05);
+addParameter(p,'Reference',1);          
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 tol = p.Results.Tolerance;
 max_iter = p.Results.MaxIters;
 thres = p.Results.Threshold;
-
+reference = p.Results.Reference/sum(sum(X.^2)); 
 
 %% PEV vs sparsity: SPCA-Z multi-component, truncated search
 
@@ -104,43 +109,13 @@ clc
 PEVpq = [];
 fp = [];
 pcs = 1:K;
-flag = 0;
 tic
-compute_models(X,K,tol,max_iter)
+[fp, PEVpq] =  computeModels(X,pcs,tol,max_iter,thres,reference);
+fp = shiftdim(fp,length(pcs));
+PEVpq = shiftdim(PEVpq,length(pcs));
 
-for j1=1:13
-    for j2= 1:j1
-        for j3= 1:j2
-            for j4= 1:j3
-                for j5= 1:j4
-                    for j6= 1:j5
-                        vec = [j1 j2 j3 j4 j5 j6];
-                        for i=1:length(pcs)
-                            [p,q] = spcaZou(X,Gram,pcs(i),-vec(1:pcs(i)),'Tolerance',tol,'MaxIters',max_iter);
-        
-                            fp(i,j1,j2,j3,j4,j5,j6) = length(find(p.^2)) - length(find(sum(p.^2,1)));
-                            PEVpq(i,j1,j2,j3,j4,j5,j6) = 1 - sum(sum((X - X*p*inv(q'*p)*q').^2))/sum(sum(X.^2));
-                            
-                            if (100*PEVpq(i,j1,j2,j3,j4,j5,j6)/totVPCA) > (1 - thres)                            
-                                 flag = 1; 
-                                 break
-                            end
-                        end
-                        disp('Model with %s non-zero elements, time elapsed %d',num2str(vec),toc)
-                        if flag, break; end
-                    end
-                    if flag, break; end
-                end
-                if flag, break; end
-            end
-            if flag, break; end
-        end
-        if flag, break; end
-    end  
-    if flag, break; end
-end
 total_time=toc;
-disp('Finished, time elapsed %d',total_time)
+disp(sprintf('Finished, time elapsed %d',total_time))
 
 
 %% Plot the truncated razor plot
@@ -155,7 +130,7 @@ end
 
 val = num2cell(ufp(2:end));
 val{end+1} = 'Ref';
-f = plotVec([PEVfp totVPCA6/100],'ObsClass',[2*ones(1,length(PEVfp)) 1]);
+f = plotVec([PEVfp reference],'ObsClass',[2*ones(1,length(PEVfp)) 1]);
 legend('off')
 ylabel('PEV')
 xlabel('f')
@@ -163,9 +138,6 @@ a=get(f,'Children');
 set(a,'XTickLabel',val);
 set(a,'XTick',1:length(val));
 set(a,'XTickLabelRotation',45);
-
-saveas(gcf,'Figures/razor2');
-saveas(gcf,'Figures/razor2.eps','epsc');
 
     
 %% Plot the truncated razor plot per component
@@ -191,43 +163,54 @@ colorbar
 ylabel('# Components')
 xlabel('f')
 zlabel('PEV')
-saveas(gcf,'Figures/surface2');
-saveas(gcf,'Figures/surface2.eps','epsc');
 
 
 %% Recursive function 
 
-function compute_models(X,K,pcs,tol,max_iter)
+function [fp, PEVpq, flag] =  computeModels(X,pcs,tol,max_iter,thres,reference,K,vec)
 
+% Set default values
+routine=dbstack;
+assert (nargin >= 6, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+ 
 M = size(X,2);
+flag = false;
 
-for j=1:M
-    if K > 1
-        compute_models(X,K-1,pcs,tol,max_iter);
-    else
-        vec = [j1 j2 j3 j4 j5 j6];
-        
-                        for i=1:length(pcs)
-                            [p,q] = spcaZou(X,Gram,pcs(i),-vec(1:pcs(i)),'Tolerance',tol,'MaxIters',max_iter);
-        
-                            fp(i,j1,j2,j3,j4,j5,j6) = length(find(p.^2)) - length(find(sum(p.^2,1)));
-                            PEVpq(i,j1,j2,j3,j4,j5,j6) = 1 - sum(sum((X - X*p*inv(q'*p)*q').^2))/sum(sum(X.^2));
-                            
-                            if (100*PEVpq(i,j1,j2,j3,j4,j5,j6)/totVPCA) > (1 - thres)                            
-                                 flag = 1; 
-                                 break
-                            end
-                        end
-                        disp('Model with %s non-zero elements, time elapsed %d',num2str(vec),toc)
-                        if flag, break; end
-                    end
-                    if flag, break; end
-                end
-                if flag, break; end
-            end
-            if flag, break; end
-        end
-        if flag, break; end
-    end  
-    if flag, break; end
+if nargin < 7
+    K = 1;
+    prev = M;
+else
+    prev = vec(K-1);
 end
+
+if K <= length(pcs)
+    fp = zeros([M*ones(1,length(pcs)-K+1),length(pcs)]);
+    PEVpq = zeros([M*ones(1,length(pcs)-K+1),length(pcs)]);
+end
+
+for j=1:prev
+    vec(K) = j;
+    if K <= length(pcs)
+        [f, p, flag] = computeModels(X,pcs,tol,max_iter,thres,reference,K+1,vec);
+        fp(j,:) = f(:);
+        PEVpq(j,:) = p(:);
+        if flag
+            return
+        end
+    else
+        for i=1:length(pcs)
+            [p,q] = spcaZou(X,[],pcs(i),-vec(1:pcs(i)),'Tolerance',tol,'MaxIters',max_iter);
+            
+            fp(i) = length(find(p.^2)) - length(find(sum(p.^2,1)));
+            PEVpq(i) = 1 - sum(sum((X - X*p*inv(q'*p)*q').^2))/sum(sum(X.^2));
+            
+            if (PEVpq(i)/reference) > (1 - thres)
+                flag = true;
+                return
+            end
+        end
+        
+        % disp(sprintf('Model with %s non-zero elements, time elapsed %d',num2str(vec),toc))
+    end
+end
+        
