@@ -1,4 +1,4 @@
-function [P,Q,R,A2,Var] = spcaZou(X,Gram,K,stop,varargin)
+function model = spcaZou(X,Gram,K,stop,varargin)
 
 % SPCA Zou, Hastie, Tibshirani 2006 with enhancement to select the number
 % of non-zero elements. Modified version of the code of the SpaSM Toolbox 
@@ -39,15 +39,15 @@ function [P,Q,R,A2,Var] = spcaZou(X,Gram,K,stop,varargin)
 %
 % OUTPUTS:
 %
-% P: [MxA] sparse weights
-%
-% Q: [MxA] orthogonal loadings
-%
-% R: [MxA] alternative loadings R = Q*pinv(P'*Q)
-%
-% A2: [NxA] suggested scores for interpretation, with A2 = X*P*pinv(Q'*P); 
-%
-% Var: [1x1] variance of the model following tr(Q*A2'*A2*Q');
+% model: structure that contains model information
+%   var: [1x1] xcs sum of squares
+%   expvar: [1x1] explained sum of squares per component: tr(Q*A2'*A2*Q')
+%   lvs: [1xA] latent variable numbers
+%   loads: [MxA] matrix of x-loadings Q
+%   weights: [MxA] matrix of weights P
+%   altweights: [MxA] matrix of alternative weights R
+%   scores: [NxA] matrix of x-scores T
+%   type: 'sPCA'
 %
 %
 % EXAMPLE OF USE: Pitprops
@@ -69,7 +69,7 @@ function [P,Q,R,A2,Var] = spcaZou(X,Gram,K,stop,varargin)
 %      0.134  0.144  0.126  0.015 -0.208  -0.329  -0.424 -0.202  -0.076 -0.291  0.007  0.184   1.000];
 %
 % [P,Q,R] = spcaZou([], XX, 6, -2);
-% f = plotMap([R*P'*XX*P*R'],'VarsLabel',var_l);
+% f = plotMap([Q*R'*XX*R*Q'],'VarsLabel',var_l);
 % a = get(f,'Children');
 % set(a(2),'XTickLabelRotation',45);
 %
@@ -196,9 +196,21 @@ while ~stopit
     end
 end
 
-   
+
 P = B;
 Q = A;
-R = Q*pinv(P'*Q);
-A2 = X*P*pinv(Q'*P); 
-Var = trace(Q*A2'*A2*Q');
+R =  P*pinv(Q'*P);
+A2 = X*R; 
+
+for i=1:K 
+    v(i) = trace(Q(:,i)*A2(:,i)'*A2(:,i)*Q(:,i)');
+end
+
+model.expvar = v;
+model.var = sum(sum(X.^2));
+model.lvs = 1:K;
+model.loads = Q;
+model.weights = P;
+model.altweights = R;
+model.scores = A2;
+model.type = 'sPCA';

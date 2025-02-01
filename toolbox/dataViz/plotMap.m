@@ -6,7 +6,7 @@ function fig_h = plotMap(map,varargin)
 % plotMap(map) % minimum call
 %
 %
-% See also: plotScatter, plotVec
+% See also: plotScatter, plotVec, seriation
 %
 %
 % INPUTS:
