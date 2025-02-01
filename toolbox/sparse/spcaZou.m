@@ -69,13 +69,13 @@ function [P,Q,R,A2,Var] = spcaZou(X,Gram,K,stop,varargin)
 %      0.134  0.144  0.126  0.015 -0.208  -0.329  -0.424 -0.202  -0.076 -0.291  0.007  0.184   1.000];
 %
 % [P,Q,R] = spcaZou([], XX, 6, -2);
-% f = plotMap([R*P'*XX*P*Q'],'VarsLabel',var_l);
+% f = plotMap([R*P'*XX*P*R'],'VarsLabel',var_l);
 % a = get(f,'Children');
 % set(a(2),'XTickLabelRotation',45);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 8/Jan/2025
+% last modification: 1/Feb/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -189,13 +189,8 @@ while ~stopit
         B(:,k) = B(:,k)/B_norm;
     end
 
-
     iter = iter+1;
 
-    if ~mod(iter,100)
-        model_app = norm(X - X*B*A'); 
-        disp(sprintf('Iteration %d: Model Approximation %f',iter,model_app));
-    end
     if norm(B-Bk_old) < tol || iter > max_iter
         stopit = true;
     end
