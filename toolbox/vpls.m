@@ -155,7 +155,7 @@ if V < M
         end
         w = 0;
         for a = lvs
-            w = w + SSY(a)*(model.weights(:,a).^2)
+            w = w + SSY(a)*(model.weights(:,a).^2);
         end
         r = sqrt(M * w / sum(SSY));
         [rord,ind] = sort(r,'descend');
