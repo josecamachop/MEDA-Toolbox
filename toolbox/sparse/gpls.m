@@ -50,7 +50,7 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 % Y = sum((X(:,1:5)),2);
 % Y = 0.1*randn(obs,1)*std(Y) + Y;
 % lvs = 1;
-% map = medaPls(X,Y,'LVs',lvs,'option',0);
+% map = medaPls(X,Y,'LVs',lvs);
 % 
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % Ycs = preprocess2D(Y,'preprocessing',2);
