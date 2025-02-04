@@ -38,9 +38,7 @@ function [p,t,bel,e] = gpca(xcs,states,varargin)
 %
 % x = simuleMV(20,10,'LevelCorr',8);
 % pcs = 1:2;
-% map = medaPca(x,'PCs',pcs,'Option',0);
-% [map,ord] = seriation(map);
-% plotMap(map);
+% [map,~,ord] = medaPca(x,'PCs',pcs,'Seriated',true);
 % x = x(:,ord);
 % [bel,states] = gia(map,'Gamma',0.3);
 % Xcs = preprocess2D(x,'Preprocessing',2);
@@ -51,9 +49,9 @@ function [p,t,bel,e] = gpca(xcs,states,varargin)
 % end
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 03/Feb/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
