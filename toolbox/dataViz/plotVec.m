@@ -79,8 +79,8 @@ function figH = plotVec(vec,varargin)
 % figH = plotVec(randn(5,3),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{[],'Functions'},'LimCont',randn(5,1),'Multiplicity',100*rand(5,1),'Markers',[20 50 100],'PlotType','Lines');
 %
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 16/Jan/2025
+% coded by: Jose Camacho (josecamacho@ugr.es) and Jesús García
+% last modification: 04/Feb/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -140,25 +140,18 @@ if size(vlabel,1)  == 1, vlabel = vlabel'; end;
 if size(mult,1) == 1, mult = mult'; end;
 if size(maxv,2) == 1, maxv = maxv'; end;
 
-% Check type of plot
-if strcmp(plottype,'Lines')
-    opt(1)='0';
-elseif strcmp(plottype,'Bars')
-    opt(1)='1';
-else
+% Check type of plot is valid
+plottypeValues = {'Lines','Bars'};
+if ~any(strcmp(plottypeValues, plottype))
     error('Value Error: parameter ''PlotType'' must contain either ''Lines'' or ''Bars''. Type ''help %s'' for more info.', routine(1).name);
 end
 
-% Check type of plot
-if strcmp(classtype,'Numerical')
-    opt(2)='0';
-elseif strcmp(classtype,'Categorical')
-    opt(2)='1';
-elseif strcmp(classtype,'default')
+% Check class type
+if strcmp(classtype,'default')
     if ~isnumeric(classes) || length(unique(classes)) < 10 && ~(length(unique(classes))<2 && M > 10) 
-        opt(2)='1';
+        classtype = 'Categorical';
     else
-        opt(2)='0';
+        classtype = 'Numerical';
     end
 else
     error('Value Error: parameter ''ClassType'' must contain either ''Numerical'' or ''Categorical''. Type ''help %s'' for more info.', routine(1).name);
@@ -166,7 +159,7 @@ end
 
 % Convert num arrays to str
 if ~isempty(vlabel) && isnumeric(vlabel), vlabel=num2str(vlabel); end
-if ~isempty(classes) && isnumeric(classes) && opt(2)=='1', classes=num2str(classes); end
+if ~isempty(classes) && isnumeric(classes) && classtype=="Categorical", classes=num2str(classes); end
 
 % Convert char arrays to cell
 if ischar(elabel),  elabel = cellstr(elabel); end;
@@ -187,11 +180,14 @@ if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: paramet
 % Convert constant limits in vectors
 if ~isempty(lcont) && ~isequal(size(lcont,1), N), lcont = (lcont*ones(1,N))'; end;
 
-% Exception: bar plot with multivariate vec and one-observation class  
-if ~opt(1) && ~isempty(classes) && size(vec, 2)>1
-    uniqueClasses = unique(classes);
-    assert (min(hist(classes,unique(classes)))>1, 'Exception: Cannot visualize a multivariate bar plot with one-observation classes. Try setting the 6th argument to 1.'); 
-end
+% I'm not sure what this is supposed to do:
+% I've commented it for the time being
+%
+% % Exception: bar plot with multivariate vec and one-observation class  
+% if ~opt(1) && ~isempty(classes) && size(vec, 2)>1
+%     uniqueClasses = unique(classes);
+%     assert (min(hist(classes,unique(classes)))>1, 'Exception: Cannot visualize a multivariate bar plot with one-observation classes. Try setting the 6th argument to 1.'); 
+% end
 
 
 %% Main code
@@ -201,7 +197,7 @@ figH = figure;
 hold on;
 
 % Sort data for colorbar
-if opt(2)=='0' 
+if classtype == "Numerical"
     if ~isempty(classes)
         [classes,ord] = sort(classes,'ascend');
         cax = [min(classes) max(classes)];
@@ -228,10 +224,11 @@ uniqueOrdClasses = unique(ordClasses);
 
 bins = [0 1 maxv Inf];
 
-sizes = [];
+sizes = ones(N,1);
 for i=1:length(bins)-1
-    sizes (i) = round(.5 * i^2 * pi);
+    sizes(i) = round(.5 * i^2 * pi);
 end
+
 
 % Plot multiplicity
 for j=1:length(bins)-1
@@ -243,11 +240,13 @@ for j=1:length(bins)-1
     end
 end
 
+
+% Define colors
 C = length(uniqueOrdClasses);
 if C>1, nElems = C; else nElems = M; end 
-            
+    
 if(isempty(color))
-    if opt(2) == '1'
+    if classtype == "Categorical"
         if nElems ==1
             colorList = colormap(winter(1));
         elseif nElems <= 8
@@ -259,9 +258,24 @@ if(isempty(color))
         colorList = colormap(parula(nElems));
     end  
 else
-    colorList = eval(sprintf('colormap(%s(nElems))',color));
+    if classtype == "Categorical"
+        eval(sprintf('colormap(%s(nElems))',color)); end
+    if classtype == "Numerical"
+        eval(sprintf('colormap(%s())',color)); end
 end
-    
+if classtype == "Categorical"
+    colorList = colormap();
+    colors = colorList(ordClasses, :);
+end
+if classtype == "Numerical"
+    classes_num  = cellfun(@str2double, classes);
+    classes_norm = classes_num / max(classes_num);
+    colorList = colormap();
+    color_id = round(classes_norm* (size(colorList, 1) - 1)) + 1;
+    colors = colorList(color_id, :);
+end
+
+
 if ~isempty(classes)
     
     for i=1:length(uniqueOrdClasses)
@@ -275,34 +289,36 @@ if ~isempty(classes)
         inter = 1/(4*(M+2)+1*(M-1)); 
         vec2 = zeros(size(vec));
         vec2(find(ind),:) = vec(find(ind),:);
-        if opt(1) == '0'
-            if mod(M,2)
-                plot(vind, vec2(:,ceil(M/2)), 'Color', colorList(i,:), 'LineWidth', .75 + 1/M, 'Marker', 'o');
-            else
-                plot(vind+2.5*inter, vec2(:,M/2+1), 'Color', colorList(i,:), 'LineWidth', .75 + 1/M, 'Marker', 'o');
-            end
-            plot(vind, vec2, 'Color', colorList(i,:), 'LineWidth', 1.5, 'Marker', 'o' ,'HandleVisibility', 'off');
 
-        else
+        if plottype == "Lines"
             if mod(M,2)
-                bar(vind, vec2(:,ceil(M/2)), inter, 'FaceColor', colorList(i,:), 'EdgeColor', 'none');
+                plot(vind, vec2(:,ceil(M/2)), 'Color', colors(i,:), 'LineWidth', .75 + 1/M, 'Marker', 'o');
             else
-                bar(vind+2.5*inter, vec2(:,M/2+1), inter, 'FaceColor', colorList(i,:), 'EdgeColor', 'none');
+                plot(vind+2.5*inter, vec2(:,M/2+1), 'Color', colors(i,:), 'LineWidth', .75 + 1/M, 'Marker', 'o');
             end
-            bar(vind, vec2, 'grouped', 'FaceColor', colorList(i,:),'HandleVisibility', 'off');
+            plot(vind, vec2, 'Color', colors(i,:), 'LineWidth', 1.5, 'Marker', 'o' ,'HandleVisibility', 'off');
+        end
+        if plottype == "Bars"
+            if mod(M,2)
+                bar(vind, vec2(:,ceil(M/2)), inter, 'FaceColor', colors(i,:), 'EdgeColor', 'none');
+            else
+                bar(vind+2.5*inter, vec2(:,M/2+1), inter, 'FaceColor', colors(i,:), 'EdgeColor', 'none');
+            end
+            bar(vind, vec2, 'grouped', 'FaceColor', colors(i,:),'HandleVisibility', 'off');
         end
     end
     legendTxt = uniqueClasses; 
 else
-    if opt(1) == '0'
+    if plottype == "Lines"
         for i=1:size(vec,2)
             if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                plot(elabel, vec(:,i), 'LineWidth', .75 + 1/M, 'Color', colorList(i,:));
+                plot(elabel, vec(:,i), 'LineWidth', .75 + 1/M, 'Color', color(i,:));
             else
-                plot(vec(:,i), 'LineWidth', .75 + 1/M, 'Color', colorList(i,:));
+                plot(vec(:,i), 'LineWidth', .75 + 1/M, 'Color', color(i,:));
             end
         end
-    else
+    end
+    if plottype == "Bars"
         if isnumeric(elabel) && length(elabel)==length(unique(elabel))
             bar(elabel, vec, 'grouped');
         else
@@ -311,6 +327,13 @@ else
     end
     legendTxt = vlabel; 
 end
+
+
+% Add data tips
+dcm = datacursormode(gcf);
+set(dcm, 'UpdateFcn', @(obj, event_obj) dataTips(obj, event_obj, vec,...
+'Elelabel', elabel,'Classes', classes, 'ClassType', classtype));
+    
 
 % Plot control limits
 if ~isempty(lcont)
@@ -361,7 +384,7 @@ ax2 = axis;
 axis([ax(1:2) ax2(3:4)]);
 
 % Set caxis if colorbar
-if opt(2)=='0'
+if classtype == "Numerical"
     if nElems < 2
         colorbar('off');
     else
