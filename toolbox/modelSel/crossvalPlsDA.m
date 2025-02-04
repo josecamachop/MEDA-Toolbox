@@ -71,7 +71,7 @@ function [AUC,nze] = crossvalPlsDA(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 31/Jan/2025
+% last modification: 03/Feb/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -258,6 +258,6 @@ AAUC =  mean(AUC,3);
 %% Show results
 
 if opt
-    plotVec(AAUC','EleLabel',keepXs,'XYLabel',{'#NZV','AUC'},'PlotType','Lines','VecLabel',lvs,'Color','jet'); 
+    plotVec(AAUC,'EleLabel',lvs,'XYLabel',{'#NZV','AUC'},'PlotType','Lines','VecLabel',keepXs,'Color','jet'); 
 end
 

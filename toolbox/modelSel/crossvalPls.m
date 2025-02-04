@@ -65,7 +65,7 @@ function [cumpress,press,nze] = crossvalPls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 31/Jan/2025
+% last modification: 03/Feb/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -207,6 +207,6 @@ cumpress = sum(press,3);
 %% Show results
 
 if opt
-    figh = plotVec(cumpress','EleLabel',keepXs,'XYLabel',{'#NZV','PRESS'},'PlotType','Lines','VecLabel',lvs,'Color','jet'); 
+    figh = plotVec(cumpress,'EleLabel',lvs,'XYLabel',{'#NZV','PRESS'},'PlotType','Lines','VecLabel',keepXs,'Color','jet'); 
 end
 
