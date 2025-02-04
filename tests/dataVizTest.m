@@ -57,21 +57,17 @@ classdef dataVizTest < matlab.unittest.TestCase
                 'PlotMult', 'zaxis', 'Multiplicity', mult(1:26));
                 title("Numerical continuous classes - Multiplicity in Z axis", "FontSize", 10)
             
-            
             % Plot type: "zsize"
                 plotScatter(X, 'XYLabel', {"X", "Y"}, ... 
                 'EleLabel', label, 'ObsClass', class_num,...
                 'PlotMult', 'zsize', 'Multiplicity', mult(1:26));
                 title("Numerical continuous classes - Multiplicity in Z axis and shape.", "FontSize", 10)
             
-            
             % Plot type: "zshape"
                 plotScatter(X, 'XYLabel', {"X", "Y"}, ... 
                 'EleLabel', label, 'ObsClass', class_num,...
                 'PlotMult', 'zshape', 'Multiplicity', mult(1:26));
                 title("Numerical continuous classes - Multiplicity in Z axis and shape.", "FontSize", 10)
-            
-
         end
 
         function testplotVec(testCase)
@@ -98,9 +94,13 @@ classdef dataVizTest < matlab.unittest.TestCase
                     200 ];
 
             % Categorical classes
-                % Okabe default color (classes <=8)  
                 plotVec(X, 'XYLabel', {"X", "Y"}, ... 
                 'EleLabel', label, 'ObsClass', class_cat);
+                title("Categorial classes - Okabe as default color if the number of classes is <=8", "FontSize", 10)
+ 
+            % Line plot - Categorical
+                plotVec(X, 'XYLabel', {"X", "Y"}, ... 
+                'EleLabel', label, 'ObsClass', class_cat, 'PlotType', 'Lines');
                 title("Categorial classes - Okabe as default color if the number of classes is <=8", "FontSize", 10)
 
             % Numerical (continuous) classes
@@ -108,8 +108,8 @@ classdef dataVizTest < matlab.unittest.TestCase
                 'EleLabel', label, 'ObsClass', class_num);
                 title("Numerical continuous classes - Non equdistant colors. A = 20", "FontSize", 10)
 
-            % Line plot
-                plotVec(X, 'XYLabel', {"X", "Y"}, ... 
+            % Line plot - Numerical
+            plotVec(X, 'XYLabel', {"X", "Y"}, ... 
                 'EleLabel', label, 'ObsClass', class_num, 'PlotType', 'Lines');
                 title("Numerical continuous classes - Non equdistant colors. A = 20", "FontSize", 10)
 

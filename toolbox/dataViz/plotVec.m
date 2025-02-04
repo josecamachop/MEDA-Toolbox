@@ -180,14 +180,12 @@ if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: paramet
 % Convert constant limits in vectors
 if ~isempty(lcont) && ~isequal(size(lcont,1), N), lcont = (lcont*ones(1,N))'; end;
 
-% I'm not sure what this is supposed to do:
-% I've commented it for the time being
-%
-% % Exception: bar plot with multivariate vec and one-observation class  
-% if ~opt(1) && ~isempty(classes) && size(vec, 2)>1
-%     uniqueClasses = unique(classes);
-%     assert (min(hist(classes,unique(classes)))>1, 'Exception: Cannot visualize a multivariate bar plot with one-observation classes. Try setting the 6th argument to 1.'); 
-% end
+
+% Exception: bar plot with multivariate vec and one-observation class  
+if plottype=="Lines" && ~isempty(classes) && size(vec, 2)>1
+    uniqueClasses = unique(classes);
+    assert (min(hist(classes,unique(classes)))>1, 'Exception: Cannot visualize a multivariate bar plot with one-observation classes. Try setting the 6th argument to 1.'); 
+end
 
 
 %% Main code
@@ -263,16 +261,13 @@ else
     if classtype == "Numerical"
         eval(sprintf('colormap(%s())',color)); end
 end
-if classtype == "Categorical"
-    colorList = colormap();
-    colors = colorList(ordClasses, :);
-end
+
+colors = colormap();
 if classtype == "Numerical"
     classes_num  = cellfun(@str2double, classes);
     classes_norm = classes_num / max(classes_num);
-    colorList = colormap();
-    color_id = round(classes_norm* (size(colorList, 1) - 1)) + 1;
-    colors = colorList(color_id, :);
+    color_id = round(classes_norm* (size(colors, 1) - 1)) + 1;
+    colors = colors(color_id, :);
 end
 
 
