@@ -105,7 +105,7 @@ assert (ischar(leavem), 'Dimension Error: parameter ''ValProcedure'' must be a s
 assert (isequal(size(blocksr), [1 1]), 'Dimension Error: parameter ''MaxSampleBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(blocksc), [1 1]), 'Dimension Error: parameter ''MaxVarBlock'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(opt), [1 1]), 'Dimension Error: parameter ''Plot'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(plot), [1 1]), 'Dimension Error: parameter ''Plot'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 % Preprocessing
 pcs = unique(pcs);
@@ -120,7 +120,7 @@ assert (blocksr>2, 'Value Error: parameter ''MaxSampleBlock'' must be above 2. T
 assert (blocksc>2, 'Value Error: parameter ''MaxVarBlock'' must be above 2. Type ''help %s'' for more info.', routine(1).name);
 assert (blocksr<=N, 'Value Error: parameter ''MaxSampleBlock'' must be at most N. Type ''help %s'' for more info.', routine(1).name);
 assert (blocksc<=M, 'Value Error: parameter ''MaxVarBlock'' must be at most M. Type ''help %s'' for more info.', routine(1).name);
-assert (islogical(opt), 'Value Error: parameter ''Plot'' must contain a boolean. Type ''help %s'' for more info.', routine(1).name);
+assert (islogical(plot), 'Value Error: parameter ''Plot'' must contain a boolean. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

@@ -68,14 +68,16 @@ function model = spcaZou(X,Gram,K,stop,varargin)
 %     -0.019 -0.036  0.220  0.169 -0.145   0.024  -0.232 -0.357  -0.127 -0.368  0.029  1.000   0.184
 %      0.134  0.144  0.126  0.015 -0.208  -0.329  -0.424 -0.202  -0.076 -0.291  0.007  0.184   1.000];
 %
-% [P,Q,R] = spcaZou([], XX, 6, -2);
+% model = spcaZou([], XX, 6, -2);
+% Q = model.loads;
+% R = model.altweights;
 % f = plotMap([Q*R'*XX*R*Q'],'VarsLabel',var_l);
 % a = get(f,'Children');
 % set(a(2),'XTickLabelRotation',45);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 1/Feb/2025
+% last modification: 4/Feb/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
