@@ -18,11 +18,11 @@ function Xtrans = rank_transform(X)
 % EXAMPLE OF USE: Random
 %
 % x = randn(5)
-% rank_transform(x)
+% rankTransform(x)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 31/Jan/2025
+% last modification: 25/Feb/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
