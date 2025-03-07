@@ -98,6 +98,33 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 % xlabel('Responses in selected order','FontSize',18)
 %
 %
+% EXAMPLE OF USE (copy and paste the code in the command line)
+%   Random data, two factors with 4 and 3 levels, and 4 replicates, with 
+%   significant interaction but only in the first 3 variables
+%
+% reps = 4;
+% vars = 3;
+% levels = {[1,2,3,4],[1,2,3]};
+% 
+% F = createDesign(levels,'Replicates',reps);
+% 
+% X = zeros(size(F,1),vars);
+% for i = 1:length(levels{1})
+%     for j = 1:length(levels{2})
+%         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,'LevelCorr',8) + repmat(randn(1,vars),reps,1);
+%     end
+% end
+% 
+% X = [X simuleMV(length(F),397,'LevelCorr',8)];
+% 
+% table = parglm(X, F, 'Model',{[1 2]})
+% 
+% [tableVs, parglmoVs] = parglmVS(X, F, 'Model',{[1 2]});
+% tableVs
+% 
+% parglmoVs.p(1:10,:) % significance is only at the first variables
+%
+%
 % coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 20/Nov/2024
 %
