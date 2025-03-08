@@ -95,7 +95,8 @@ for factor = 1 : vascao.nFactors
     if pvals(M) <= thres
         vascao.factors{factor}.stasig = true;
         ind = parglmoVS.ordFactors(factor,1:M);
-        xf = vascao.factors{factor}.matrix;
+        [inds,ord] = sort(ind);
+        xf = vascao.factors{factor}.matrix(:,inds);
         model = pcaEig(xf,'PCs',1:rank(xf));
     
         fnames = fieldnames(model);
@@ -104,7 +105,8 @@ for factor = 1 : vascao.nFactors
         end
         vascao.factors{factor}.ind = ind;
         vascao.factors{factor}.scoresV = (xf+vascao.residuals)*model.loads;
-        vascao.factors{factor}.loadsSorted = model.loads(ind,:);
+        [~,ord2]=sort(ord);
+        vascao.factors{factor}.loadsSorted = model.loads(ord2,:);
     else
         vascao.factors{factor}.stasig = false;
     end
@@ -118,9 +120,10 @@ for interaction = 1 : vascao.nInteractions
     if pvals(M) <= siglev
         vascao.interactions{interaction}.stasig = true;
         ind = parglmoVS.ordInteractions(interaction,1:M);
-        xf = vascao.interactions{interaction}.matrix;
+        [inds,ord] = sort(ind);
+        xf = vascao.interactions{interaction}.matrix(:,inds);
         for factor = 1 : vascao.interactions{1}.factors
-            xf = xf + vascao.factors{factor}.matrix;
+            xf = xf + vascao.factors{factor}.matrix(:,inds);
         end
         model = pcaEig(xf,1:rank(xf));
     
@@ -130,7 +133,8 @@ for interaction = 1 : vascao.nInteractions
         end
         vascao.interactions{interaction}.ind = ind;
         vascao.interactions{interaction}.scoresV = (xf+vascao.residuals)*model.loads;
-        vascao.interactions{interaction}.loadsSorted = model.loads(ind,:);
+        [~,ord2]=sort(ord);
+        vascao.interactions{interaction}.loadsSorted = model.loads(ord2,:);
     else
         vascao.interactions{interaction}.stasig = false;
     end
