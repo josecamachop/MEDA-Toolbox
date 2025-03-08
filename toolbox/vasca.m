@@ -104,7 +104,7 @@ for factor = 1 : vascao.nFactors
             vascao.factors{factor} = setfield(vascao.factors{factor},fnames{n},getfield(model,fnames{n}));
         end
         vascao.factors{factor}.ind = ind;
-        vascao.factors{factor}.scoresV = (xf+vascao.residuals)*model.loads;
+        vascao.factors{factor}.scoresV = (xf+vascao.residuals(:,inds))*model.loads;
         [~,ord2]=sort(ord);
         vascao.factors{factor}.loadsSorted = model.loads(ord2,:);
     else
@@ -132,7 +132,7 @@ for interaction = 1 : vascao.nInteractions
             vascao.interactions{interaction} = setfield(vascao.interactions{interaction},fnames{n},getfield(model,fnames{n}));
         end
         vascao.interactions{interaction}.ind = ind;
-        vascao.interactions{interaction}.scoresV = (xf+vascao.residuals)*model.loads;
+        vascao.interactions{interaction}.scoresV = (xf+vascao.residuals(:,inds))*model.loads;
         [~,ord2]=sort(ord);
         vascao.interactions{interaction}.loadsSorted = model.loads(ord2,:);
     else
