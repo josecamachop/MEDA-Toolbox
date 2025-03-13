@@ -33,8 +33,8 @@
 % introduced in Tackling the Big Data 4 Vs for Anomaly Detection. INFOCOM'2014 Workshop on 
 % Security and Privacy in Big Data, Toronto (Canada), 2014.
 
-% coded by: Jose Camacho.
-% last modification: 6/Feb/17.
+% coded by: Jose Camacho and Jesús García
+% last modification: 13/Mar/2025.
 
 %% Inicialization, remember to set the path of the toolbox
 
@@ -49,33 +49,32 @@ load gpca
 published = false;
 
 % preprocess
-if published,
-    xcs = preprocess2D(x,2);
+if published
+    xcs = preprocess2D(x,'Preprocessing',2);
 else
-    xcs = preprocess2D(x,2,weight_alt);
+    xcs = preprocess2D(x,'Preprocessing',2,'Weights',weight_alt);
 end
-
 %% Selection of the PCs
 
-var_pca(xcs,0:30,0); % 12 PCS (published false) or 15 PCs (true) could be a choice
+varPca(xcs,'Pcs',0:30,'Preprocessing',0, 'PlotCkf', true); % 12 PCS (published false) or 15 PCs (true) could be a choice
 
 %% Visualize MEDA
 
-[meda_map,meda_dis,ord] = meda_pca(xcs,1:15,0,0.1,11); % several groups of variables are found
-
+[meda_map,meda_dis,ord] = medaPca(xcs,'Pcs',1:15,'Preprocessing',0,'Threshold',0.1, ...
+    'Discard', true, 'Seriated', true);
 
 %% Compute states with GIA
 
 c = 0.7;
 
-[b ,stg]=  gia(meda_map,c);
+[b ,stg]=  gia(meda_map,'Gamma',c);
 
 
 %% Prepare data for treemap visualization: load fortreemap to http://nesg.ugr.es/meda-visualization/
 
 names = var_l;
 
-if published,
+if published
     weights = (weight-1)/9;
 else 
     weights = (weight_alt-1)/9;
@@ -88,7 +87,7 @@ save fortreemap names weights states
 
 %% G-PCA
 
-[P,T] =  gpca(xcs,stg,1:12);
+[P,T] =  gpca(xcs,stg,'PCs',1:12);
 
 %% Visualizing scores and loads
 
@@ -110,7 +109,7 @@ for i=1:2,
     title(tit,'Interpreter','none')
     
     subplot(2,1,2), bar(P(ord,i)) % loading
-    ylabel('Lodings')
+    ylabel('Loadings')
     xlabel('Features')
 end
 
