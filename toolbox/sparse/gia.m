@@ -65,8 +65,9 @@ function [bel,states,stree] = gia(map,varargin)
 %   disp(['There are ',num2str(length(statesv{i})),' groups with mean size ' ,num2str(S/length(statesv{i})), ' for C = ', num2str(C(i))])
 % end
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% Coded by: Jose Camacho (josecamacho@ugr.es)
+% Last modification: 20/Nov/2024
+% Dependencies: Matlab R2016b, MEDA v1.5
 %
 % Copyright (C) 2024  University of Granada, Granada
 % 

@@ -69,7 +69,7 @@ function [cumpress,press,nze] = crossvalGpls(x,y,varargin)
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
 % Last modification: 26/Mar/2025
-% Dependencies: Matlab R2017a, MEDA v1.8
+% Dependencies: Matlab R2017b, MEDA v1.8
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
