@@ -35,6 +35,10 @@ function [cumpress,press,nze] = crossvalGpls(x,y,varargin)
 %       false: no plots.
 %       true: plot (default)
 %
+% 'Type': 'Pearson' (by default) | 'Kendall' | 'Spearman' | 'MEDA'
+%
+% 'Map': 'XX' (by default) | 'XY' (only for MEDA)
+%
 %
 % OUTPUTS:
 %
@@ -62,8 +66,10 @@ function [cumpress,press,nze] = crossvalGpls(x,y,varargin)
 % % Auto scaling example with gammas
 % [cumpress,press,nze] = crossvalGpls(X,Y,'LVs',lvs,'Gamma',gammas);
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 16/Jan/2025
+%
+% Coded by: Jose Camacho (josecamacho@ugr.es)
+% Last modification: 26/Mar/2025
+% Dependencies: Matlab R2017a, MEDA v1.8
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -99,7 +105,9 @@ addParameter(p,'Gamma',gam);
 addParameter(p,'MaxBlock',N);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
-addParameter(p,'Plot',true);   
+addParameter(p,'Plot',true);  
+addParameter(p,'Type','Pearson');
+addParameter(p,'Map','XX'); 
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -110,14 +118,16 @@ blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 opt = p.Results.Plot;
+type = p.Results.Type;
+mapdata = p.Results.Map;
 
 % Extract LVs and Gamma length
 A = length(lvs);
 J =  length(gammas);
 
 % Convert column arrays to row arrays
-if size(lvs,2) == 1, lvs = lvs'; end;
-if size(gammas,2) == 1, gammas = gammas'; end;
+if size(lvs,2) == 1, lvs = lvs'; end
+if size(gammas,2) == 1, gammas = gammas'; end
 
 % Validate dimensions of input data
 assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
@@ -172,14 +182,14 @@ for i=1:blocksr
     gammas2 = gammas;
     gammas2(find(gammas==0)) = [];  
     if ~isempty(gammas2)
-        [kk,kk,kk,kk,kk,kk,stree] = gplsMeda(ccs,ccsy,'LVs',1:max(lvs),'Gamma',min(gammas2));
+        [~,~,~,~,~,~,stree] = gplsMap(ccs,ccsy,'LVs',1:max(lvs),'Gamma',min(gammas2),'Type',type,'Map',mapdata);
     else
         stree = [];
     end
 
     for gamma=1:length(gammas)
         
-        [beta,W,P,Q,R] = gplsMeda(ccs,ccsy,'LVs',1:max(lvs),'Gamma',gammas(gamma),'Stree',stree);
+        [~,~,~,Q,R] = gplsMap(ccs,ccsy,'LVs',1:max(lvs),'Gamma',gammas(gamma),'Stree',stree,'Type',type,'Map',mapdata);
             
         for lv=1:length(lvs)
                 

@@ -20,12 +20,12 @@ function [map,ind,ord] = medaPls(x,y,varargin)
 % LVs: [1xA] Latent Variables considered (e.g. pcs = 1:2 selects the
 %   first two LVs). By default, lvs = 1:rank(x)
 %
-% 'PreprocesingX': [1x1] preprocesing of the x-block
+% 'PreprocessingX': [1x1] preprocesing of the x-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  
 %
-% 'PreprocesingY': [1x1] preprocesing of the y-block
+% 'PreprocessingY': [1x1] preprocesing of the y-block
 %       0: no preprocessing
 %       1: mean centering
 %       2: autoscaling (default)  

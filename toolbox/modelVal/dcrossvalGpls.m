@@ -39,6 +39,10 @@ function [Qm,Q,lvso,gammaso] = dcrossvalGpls(x,y,varargin)
 %       false: no plots.
 %       true: plot (default)
 %
+% 'Type': 'Pearson' (by default) | 'Kendall' | 'Spearman' | 'MEDA'
+%
+% 'Map': 'XX' (by default) | 'XY' (only for MEDA)
+%
 %
 % OUTPUTS:
 %
@@ -65,9 +69,10 @@ function [Qm,Q,lvso,gammaso] = dcrossvalGpls(x,y,varargin)
 % [Qm,Q,lvso,gammaso] = dcrossvalGpls(X,Y,'LVs',lvs,'Gamma',gammas,'MaxBlock',5)
 % [Qmsimple,Qsimple,lvsosimple,gammasosimple] = dcrossvalGpls(X,Y,'LVs',lvs,'Gamma',gammas,'Alpha',0.5,'MaxBlock',5)
 % 
-
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 16/Jan/2025
+%
+% Coded by: Jose Camacho (josecamacho@ugr.es)
+% Last modification: 26/Mar/2025
+% Dependencies: Matlab R2017a, MEDA v1.8
 %
 % Copyright (C) 2025  University of Granada, Granada
 %
@@ -105,6 +110,8 @@ addParameter(p,'MaxBlock',N);
 addParameter(p,'PreprocessingX',2);   
 addParameter(p,'PreprocessingY',2);
 addParameter(p,'Plot',true);   
+addParameter(p,'Type','Pearson');
+addParameter(p,'Map','XX'); 
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -116,14 +123,16 @@ blocksr = p.Results.MaxBlock;
 prepx = p.Results.PreprocessingX;
 prepy = p.Results.PreprocessingY;
 opt = p.Results.Plot;
+type = p.Results.Type;
+mapdata = p.Results.Map;
 
 % Extract LVs and Gamma length
 A = length(lvs);
 J =  length(gammas);
 
 % Convert column arrays to row arrays
-if size(lvs,2) == 1, lvs = lvs'; end;
-if size(gammas,2) == 1, gammas = gammas'; end;
+if size(lvs,2) == 1, lvs = lvs'; end
+if size(gammas,2) == 1, gammas = gammas'; end
 
 % Validate dimensions of input data
 assert (isequal(size(y), [N O]), 'Dimension Error: parameter ''y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
@@ -166,7 +175,7 @@ for i=1:blocksr
     valy = y(indi,:);
     resty = y(find(i2),:);
         
-    [cumpress,kk,nze] =  crossvalGpls(rest,resty,'LVs',lvs,'Gamma',gammas,'Maxblock',blocksr-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Plot',false);
+    [cumpress,kk,nze] =  crossvalGpls(rest,resty,'LVs',lvs,'Gamma',gammas,'Maxblock',blocksr-1,'PreprocessingX',prepx,'PreprocessingY',prepy,'Plot',false,'Type',type,'Map',mapdata);
        
     cumpressb = (1-abs(alpha))*cumpress/max(max(cumpress)) + alpha*nze/max(max(nze));
     
@@ -180,7 +189,7 @@ for i=1:blocksr
     vcs = preprocess2Dapp(val,av,'Scale',st);
     vcsy = preprocess2Dapp(valy,avy,'Scale',sty);
     
-    beta = gplsMeda(ccs,ccsy,'LVs',1:lvso(i),'Gamma',gammaso(i));
+    beta = gplsMap(ccs,ccsy,'LVs',1:lvso(i),'Gamma',gammaso(i),'Type',type,'Map',mapdata);
     srec = vcs*beta;
     
     Q(i) = 1 - sum(sum((vcsy-srec).^2))/sum(sum(vcsy.^2));

@@ -1,6 +1,6 @@
-function  [beta,W,P,Q,R,bel,stree] = gplsMeda(xcs,ycs,varargin)
+function  [beta,W,P,Q,R,bel,stree] = gplsMap(xcs,ycs,varargin)
 
-% Group-wise Partial Least Squares based on MEDA. This routine includes the 
+% Group-wise Partial Least Squares based on correlation. This routine includes the 
 % map estimation with MEDA, groups identification with GIA and model
 % calibration with GPLS. The original paper is Camacho, J., 
 % Saccenti, E. Group-wise Partial Least Squares Regression. Journal of 
@@ -28,6 +28,10 @@ function  [beta,W,P,Q,R,bel,stree] = gplsMeda(xcs,ycs,varargin)
 %   - tree: cell with division tree 
 %   - indm: number of variables above a given threshold
 %   - index: value for each tree division
+%
+% 'Type': 'Pearson' (by default) | 'Kendall' | 'Spearman' | 'MEDA'
+%
+% 'Map': 'XX' (by default) | 'XY' (only for MEDA)
 %
 %
 % OUTPUTS:
@@ -60,15 +64,16 @@ function  [beta,W,P,Q,R,bel,stree] = gplsMeda(xcs,ycs,varargin)
 % Y = sum((X(:,1:5)),2);
 % Y = 0.1*randn(obs,1)*std(Y) + Y;
 % lvs = 1;
-% [beta,W,P,Q,R,bel] = gplsMeda(X,Y,'LVs',lvs);
+% [beta,W,P,Q,R,bel] = gplsMap(X,Y,'LVs',lvs);
 % 
 % plotVec(beta,'XYLabel',{'','Regression coefficients'});
 %
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% Coded by: Jose Camacho (josecamacho@ugr.es)
+% Last modification: 26/Mar/2025
+% Dependencies: Matlab R2017a, MEDA v1.8
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -98,17 +103,21 @@ p = inputParser;
 LVS = 0:rank(xcs);
 addParameter(p,'LVs',LVS);  
 addParameter(p,'Gamma',0.7);     
-addParameter(p,'Stree',{});
+addParameter(p,'Stree',{});  
+addParameter(p,'Type','Pearson');
+addParameter(p,'Map','XX');
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 lvs = p.Results.LVs;
 gamma = p.Results.Gamma;
 stree = p.Results.Stree;
+type = p.Results.Type;
+mapdata = p.Results.Map;
 
 
 % Convert column arrays to row arrays
-if size(lvs,2) == 1, lvs = lvs'; end;
+if size(lvs,2) == 1, lvs = lvs'; end
 
 % Preprocessing
 lvs = unique(lvs);
@@ -132,11 +141,22 @@ M=size(xcs,2);
 O=size(ycs,2);
 
 if isempty(stree) 
-    xcs2 = xcs./(ones(N,1)*sqrt(sum(xcs.^2)));
-    map = xcs2'*xcs2; 
+
+    if type=="MEDA"
+        if mapdata=="XX"
+            model = pcaEig(xcs,'PCs',lvs);
+            map = meda(xcs'*xcs,model.loads);
+        elseif mapdata=="XY"    
+            model = simpls(xcs,ycs,'LVs',lvs);
+            map = meda(xcs'*xcs,model.altweights,'OutSubspace',model.loads);
+        end
+    else
+        map = corr(xcs,xcs,"Type",type);
+    end
+
 else
     map = zeros(M);
-end;
+end
 
 [bel,states,stree] = gia(map,'Gamma',gamma,'MinSize',1,'Stree',stree);
 
