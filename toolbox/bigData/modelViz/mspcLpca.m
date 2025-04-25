@@ -283,10 +283,10 @@ if opt(1) == '1'
     end
     
     if opt(2) == '0'
-        plotScatter([Dsttt,Qsttt], 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {'D-st','Q-st'}, 'LimCont', {UCLd,UCLq}, 'Option', 11, 'Multiplicity', mult);
+        plotScatter([Dsttt,Qsttt], 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {'D-st','Q-st'}, 'LimCont', {UCLd,UCLq}, 'Multiplicity', mult);
     else
-        plotVec(Dsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'D-st'}, 'LimCont', UCLd, 'Option', 0, 'Multiplicity', mult);
-        plotVec(Qsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'Q-st'}, 'LimCont', UCLq, 'Option', 0, 'Multiplicity', mult);
+        plotVec(Dsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'D-st'}, 'LimCont', UCLd, 'Multiplicity', mult);
+        plotVec(Qsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'Q-st'}, 'LimCont', UCLq, 'Multiplicity', mult);
     end
 end
         
