@@ -105,7 +105,7 @@ P = Lmodel.loads;
 figH = [];
 if opt(1) == '1'
     
-    tvar = varLpca(Lmodel,'Plot',falsegit );
+    tvar = varLpca(Lmodel,'Plot',false);
     
     if length(Lmodel.lvs) == 1 || opt(2) == '1'
         for i=1:length(Lmodel.lvs)
