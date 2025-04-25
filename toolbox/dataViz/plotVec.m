@@ -307,9 +307,9 @@ else
     if plottype == "Lines"
         for i=1:size(vec,2)
             if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                plot(elabel, vec(:,i), 'LineWidth', .75 + 1/M, 'Color', color(i,:));
+                plot(elabel, vec(:,i), 'LineWidth', .75 + 1/M, 'Color', colors(i,:));
             else
-                plot(vec(:,i), 'LineWidth', .75 + 1/M, 'Color', color(i,:));
+                plot(vec(:,i), 'LineWidth', .75 + 1/M, 'Color', colors(i,:));
             end
         end
     end

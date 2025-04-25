@@ -14,8 +14,8 @@ classdef bigDataTest < matlab.unittest.TestCase
         function testvarLpca(testCase)
             model = iniLmodel(simuleMV(20,10,'LevelCorr',8));
             model.lvs = 0:10;
-            varLpca(model, 'Option', '0');
-            varLpca(model, 'Option', '1');
+            varLpca(model, 'Plot', '0');
+            varLpca(model, 'Plot', '1');
             close all
         end
 
@@ -57,7 +57,7 @@ classdef bigDataTest < matlab.unittest.TestCase
         Lmodel.prep = 2;  
         Lmodel.lvs = 1;
         Lmodel.nc = 100; % Number of clusters
-        Lmodel.path = '.\deleteMe\'; % MODIFY PATH TO YOUR CONVENIENCE
+        Lmodel.path = '.\deleteMe\'; 
 
         for i=1:10,
           list(i).x = simuleMV(nobs,nvars,'LevelCorr',6);
