@@ -241,11 +241,26 @@ if length(Lmodel.lvs) == 1 || opt(1) == '1'
         title(tit);
     end
 else
+    
+
+    if strcmp(opt(3), '0') classtype = "Categorical"; end
+    if strcmp(opt(3), '1') classtype = "Numerical"; end
+
+    plotmult = 'none';
+    if strcmp(opt(4:5), '00') plotmult = 'size'; end
+    if strcmp(opt(4:5), '01') plotmult = 'shape'; end
+    if strcmp(opt(4:5), '10') plotmult = 'zaxis'; end
+    if strcmp(opt(4:5), '11') plotmult = 'zsize'; end
+
+    plotmult
+    classtype
+
     for i=1:length(Lmodel.lvs)-1
         for j=i+1:length(Lmodel.lvs)
-            figH = [figH plotScatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*Lmodel.sdT(Lmodel.lvs(i))/Lmodel.var),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*Lmodel.sdT(Lmodel.lvs(j))/Lmodel.var)},'Option',strcat(opt(3),'1',opt(4:5)),'Multiplicity',mult,'Markers',markers,'BlurIndex',blur)];
-            title(tit);
+            figH = [figH plotScatter([Tt(:,i),Tt(:,j)],'EleLabel',label,'ObsClass',classes,'XYLabel',{sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(i),100*Lmodel.sdT(Lmodel.lvs(i))/Lmodel.var),sprintf('Scores PC %d (%.0f%%)',Lmodel.lvs(j),100*Lmodel.sdT(Lmodel.lvs(j))/Lmodel.var)},...
+                'ClassType', classtype, 'PlotMult', plotmult,...
+                'Multiplicity',mult,'Markers',markers,'BlurIndex',blur)];
+                title(tit);
         end
     end
 end
-        

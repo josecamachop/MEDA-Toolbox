@@ -174,7 +174,7 @@ function figH = plotScatter(bdata,varargin)
         else
             classtype = 'Numerical';
         end
-    else
+    elseif ~strcmp(classtype,'Numerical') && ~strcmp(classtype,'Categorical')
         error('Value Error: parameter ''ClassType'' must contain either ''Numerical'' or ''Categorical''. Type ''help %s'' for more info.', routine(1).name);
     end
     
