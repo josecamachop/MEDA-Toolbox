@@ -203,13 +203,13 @@ hold on;
 % Sort data for colorbar
 if opt(2)=='0' 
     if ~isempty(classes)
-        [classes,ord] = sort(classes,'ascend');
+        %[classes,ord] = sort(classes,'ascend');
         cax = [min(classes) max(classes)];
-        classes = num2str(classes);
-        classes = cellstr(classes);
-        vec = vec(ord,:);
-        elabel = elabel(ord);
-        mult = mult(ord);
+        %classes = num2str(classes);
+        %classes = cellstr(classes);
+        % vec = vec(ord,:);
+        % elabel = elabel(ord);
+        % mult = mult(ord);
     else
         cax = [1 M];
     end

@@ -22,9 +22,9 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % measurement, each column a variable, to generate Sample PCs
 % 
 %   - (struct) to generate Population PCs
-%       X.N: number of rows
-%       X.M: number of columns
-%       X.k: standard deviation coefficients
+%       X.N: [1x1] number of rows
+%       X.M: [1x1] number of columns
+%       X.k: [1x(F+I)] standard deviation coefficients
 %
 % F: [NxF] design matrix, cell or array, where columns correspond to 
 % factors and rows to levels
@@ -46,10 +46,12 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %
 % 'Repetitions': [1x1] number of repetitions to compute the power curves (1000 by default)
 %
-% 'RandomGen': (func) random generator (@randn by default) suggested alternatives
+% 'RandomGen': (func or cell with F+I+1 functions) random generator (@randn by default) suggested alternatives
 %   - @(N,M)simuleMV(N,M,'LevelCorr',8): multivariate correlated with level 8 (other values may be used)
 %   - @rand: uniform (moderately non-normal)
-%   - @(N,M)exprnd(1,N,M).^3: very non-normal 
+%   - @(N,M)exprnd(1,N,M).^3: very non-normal
+%   - {@randn,@rand}: normal for the single factor, uniform for the
+%   residuals
 %
 % 'RandomGenC': (func) random generator in effect size coefficients (@()1 by default)
 %    - To generate randomness use, e.g., @()0.1*randn+1 
@@ -71,12 +73,18 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %       0: Sum-of-squares of the factor/interaction
 %       1: F-ratio of the SS of the factor/interaction divided by the SS of 
 %       the residuals 
-%       2: F-ratio following the factors/interactions hierarchy (by default)
+%       2: F-ratio following the factors/interactions hierarchy (see
+%       Montogomery, by default)
 %
 % 'Ordinal': [1xF] whether factors are nominal or ordinal
 %       0: nominal (default)
 %       1: ordinal
 % 
+%
+% 'Random': [1xF] whether factors are fixed or random
+%       0: fixed (default)
+%       1: random
+%
 % 'Fmtc': [1x1] correct for multiple-tesis when multifactorial (multi-way)
 % analysis
 %       0: do not correct (default)
@@ -125,10 +133,11 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % legend('Factor A','Factor B','Interaction')
 %
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 18/Nov/2024
+% Coded by: Jose Camacho (josecamacho@ugr.es)
+% Last modification: 6/Apr/2025
+% Dependencies: Matlab R2017b, MEDA v1.8
 %
-% Copyright (C) 2024  Universidad de Granada
+% Copyright (C) 2025  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -154,7 +163,6 @@ nFactors = size(F,2);                 % number of factors
 if isstruct(X)
     N = X.N;
     M = X.M;
-    coeff = X.k;
 else
     N = size(X, 1);
     M = size(X, 2);
@@ -176,6 +184,7 @@ addParameter(p,'Preprocessing',2);
 addParameter(p,'Permutations',1000);
 addParameter(p,'Ts',2);
 addParameter(p,'Ordinal',zeros(1,size(F,2)));
+addParameter(p,'Random',zeros(1,size(F,2))); 
 addParameter(p,'Fmtc',0);
 addParameter(p,'Coding',zeros(1,size(F,2)));
 addParameter(p,'Nested',[]);
@@ -194,6 +203,7 @@ prep = p.Results.Preprocessing;
 nPerm = p.Results.Permutations;
 ts = p.Results.Ts;
 ordinal = p.Results.Ordinal;
+random = p.Results.Random;
 fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
@@ -212,6 +222,7 @@ if isempty(theta)
 end
 theta = sort(theta,'ascend');
 
+if isempty(model), model = 'linear'; end
 
 if isequal(model,'linear')
     interactions = [];
@@ -247,6 +258,7 @@ assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'
 assert (isequal(size(nPerm), [1 1]), 'Dimension Error: parameter ''Permutations'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ts), [1 1]), 'Dimension Error: parameter ''Ts'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ordinal), [1 size(F,2)]), 'Dimension Error: parameter ''Ordinal'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(random), [1 size(F,2)]), 'Dimension Error: parameter ''Random'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(fmtc), [1 1]), 'Dimension Error: parameter ''Fmtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Coding'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(replicates), [1 1]), 'Dimension Error: parameter ''Replicates'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -256,6 +268,13 @@ assert (isequal(size(replicates), [1 1]), 'Dimension Error: parameter ''Replicat
                   
 nInteractions      = length(interactions);      % number of interactions
 nFactors           = size(F,2);                 % number of factors
+
+if isscalar(randg)
+    randv = repmat({randg},1,nFactors+nInteractions+1);
+else
+    randv = randg;
+end
+
 if fmtc
     mtcc                = nFactors + nInteractions;        % correction for the number of tests
 else
@@ -282,7 +301,19 @@ powercurveo.randgC         = randgC;
 powercurveo.type           = type;
 powercurveo.replicates     = replicates;
 
-% Create Design Matrix
+
+% Tranform Design Matrix
+
+Fold = F;
+F = zeros(size(F));
+for f = 1:size(F,2)
+    uF = unique(Fold(:,f),'stable');
+    for i = 1:length(uF)
+        F(find(ismember(Fold(:,f),uF(i))),f) = i;
+    end
+end
+
+% Create Coding Matrix
 
 n = 1; % This is necessary for indirect orthogonalization, to avoid leakage of variance to the residuals
 D = ones(size(X,1),1);
@@ -419,7 +450,7 @@ if ~isstruct(X) % Sample PCs
     end   
     SSQresiduals = sum(sum(Xresiduals.^2));
     
-    for f = 1 : nFactors % SEE solution at /old/older, I correct by other variances
+    for f = 1 : nFactors 
         powercurveo.factors{f}.matrix = D(:,powercurveo.factors{f}.Dvars)*B(powercurveo.factors{f}.Dvars,:);
         SSFactors(1,f) = sum(sum(powercurveo.factors{f}.matrix.^2)); % Note: we are not using Type III sum of squares, and probably we should, although we did not find any difference in our experiments
         powercurveo.factors{f}.matrix = sqrt(N)*powercurveo.factors{f}.matrix/norm(powercurveo.factors{f}.matrix,'fro');
@@ -483,6 +514,7 @@ for i2=1:nRep
         
         if isstruct(X) 
             for f = 1 : nFactors
+                randg = randv{f};
                 if ordinal(f)
                     powercurveo.factors{f}.matrix = randg(N,M); 
                     powercurveo.factors{f}.matrix = sqrt(N)*powercurveo.factors{f}.matrix/norm(powercurveo.factors{f}.matrix,'fro');   
@@ -506,6 +538,7 @@ for i2=1:nRep
             end
 
             for i = 1 : nInteractions
+                randg = randv{nFactors+i};
                 mati = randg(prod(powercurveo.nLevels(powercurveo.interactions{i}.factors)),M);
                 mati = sqrt(size(mati,1))*mati/norm(mati,'fro'); 
                 Fi = F(:,powercurveo.interactions{i}.factors);
@@ -529,6 +562,7 @@ for i2=1:nRep
             Xstruct = Xstruct + randgC() * powercurveo.coeffs(nFactors+i) * powercurveo.interactions{i}.matrix;
         end
 
+        randg = randv{end};
         Xnoise = randg(N,M); 
         Xnoise = randgC() * powercurveo.rescoef * sqrt(N)*Xnoise/norm(Xnoise,'fro'); 
         
@@ -544,7 +578,7 @@ for i2=1:nRep
             end
             
             % Parallel GLM
-            [T, parglmo] = parglm(Xm, F, 'Model',model, 'Preprocessing',prep, 'Permutations',nPerm, 'Ts',ts, 'Ordinal',ordinal, 'Fmtc',fmtc, 'Coding',coding, 'Nested',nested);
+            [T, parglmo] = parglm(Xm, F, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc',fmtc, 'Coding',coding, 'Nested',nested);
             
             powercurveo.T{i2,a} = T;
             
@@ -604,6 +638,7 @@ for i2=1:nRep
             repa = 1;
             if isstruct(X)
                 for f = 1 : nFactors
+                    randg = randv{f};
                     if ordinal(f)
                         powercurveo.factors{f}.matrix = randg(N,M);
                         powercurveo.factors{f}.matrix = sqrt(N)*powercurveo.factors{f}.matrix/norm(powercurveo.factors{f}.matrix,'fro');
@@ -627,6 +662,7 @@ for i2=1:nRep
                 end
                 
                 for i = 1 : nInteractions
+                    randg = randv{nFactors+i};
                     mati = randg(prod(powercurveo.nLevels(powercurveo.interactions{i}.factors)),M);
                     mati = sqrt(size(mati,1))*mati/norm(mati,'fro');
                     Fi = F(:,powercurveo.interactions{i}.factors);
@@ -640,6 +676,7 @@ for i2=1:nRep
             else
                 if replicates>0
                     f = replicates;
+                    randg = randv{f};
                     uF = unique(F2(:,f));
 
                     if theta(a) <= length(uF)
@@ -705,7 +742,8 @@ for i2=1:nRep
             for i = 1 : nInteractions
                 Xstruct = Xstruct + randgC() * powercurveo.coeffs(nFactors+i) * repmat(powercurveo.interactions{i}.matrix,repa,1);
             end
-            
+
+            randg = randv{end};
             Xnoise = randg(N,M);
             Xnoise = randgC() * powercurveo.rescoef * sqrt(N)*Xnoise/norm(Xnoise,'fro');
 

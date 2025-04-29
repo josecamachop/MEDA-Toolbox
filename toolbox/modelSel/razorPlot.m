@@ -29,6 +29,8 @@ function [PEVpq, fp] = razorPlot(X,Gram,K,varargin)
 %   latter reflecting the complete variance in the data). By default, the
 %   reference is set to the variance explained by PCA with K PCs.
 %
+% 'NZE': [1xn] number of non-zero elements attempted for each component. Bydefault, 1:M.
+%
 %
 % OUTPUTS:
 %
@@ -59,8 +61,9 @@ function [PEVpq, fp] = razorPlot(X,Gram,K,varargin)
 % razorPlot([], XX, 6);
 %
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 1/Feb/2025
+% Coded by: Jose Camacho (josecamacho@ugr.es)
+% Last modification: 1/Apr/2025
+% Dependencies: Matlab R2017b, MEDA v1.8
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -101,7 +104,8 @@ p = inputParser;
 addParameter(p,'Tolerance',1e-15);
 addParameter(p,'MaxIters',1e3);
 addParameter(p,'Threshold',0.05);
-addParameter(p,'Reference',reference);          
+addParameter(p,'Reference',reference); 
+addParameter(p,'NZE',1:M);          
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -109,12 +113,14 @@ tol = p.Results.Tolerance;
 max_iter = p.Results.MaxIters;
 thres = p.Results.Threshold;
 reference = p.Results.Reference; 
+nze = p.Results.NZE; 
+
 
 %% PEV vs sparsity: SPCA-Z multi-component, truncated search
 
 pcs = 1:K;
 tic
-[fp, PEVpq] =  computeModels(X,pcs,tol,max_iter,thres,reference);
+[fp, PEVpq] =  computeModels(X,pcs,tol,max_iter,thres,reference,nze);
 fp = shiftdim(fp,length(pcs));
 PEVpq = shiftdim(PEVpq,length(pcs));
 
@@ -163,7 +169,7 @@ if length(ufp)>1
     surf((((ones(length(pcs),1)*ufp')))',(pcs'*ones(1,length(ufp)))',(PEVfp2D)')
     hold on
     pcolor((((ones(length(pcs),1)*ufp')))',(pcs'*ones(1,length(ufp)))',(PEVfp2D)')
-    axis([ufp(2) ufp(end) pcs(1) pcs(end)])
+    axis([ufp(1) ufp(end) pcs(1) pcs(end)])
     colorbar
     ylabel('# Components')
     xlabel('f')
@@ -173,16 +179,16 @@ end
 
 %% Recursive function 
 
-function [fp, PEVpq, flag] =  computeModels(X,pcs,tol,max_iter,thres,reference,K,vec)
+function [fp, PEVpq, flag] =  computeModels(X,pcs,tol,max_iter,thres,reference,nze,K,vec)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 6, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (nargin >= 7, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
  
-M = size(X,2);
+M = length(nze);
 flag = false;
 
-if nargin < 7
+if nargin < 8
     K = 1;
     prev = M;
 else
@@ -196,8 +202,8 @@ end
 
 if K <= length(pcs)
     for j=1:prev
-        vec(K) = j;
-        [f, p, flag] = computeModels(X,pcs,tol,max_iter,thres,reference,K+1,vec);
+        vec(K) = nze(j);
+        [f, p, flag] = computeModels(X,pcs,tol,max_iter,thres,reference,nze,K+1,vec);
         fp(j,:) = f(:);
         PEVpq(j,:) = p(:);
         if flag

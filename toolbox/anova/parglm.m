@@ -1,8 +1,9 @@
 function [T, parglmo] = parglm(X, F, varargin)
 
-% Parallel General Linear Model to obtain multivariate factor and interaction 
-% matrices in a crossed experimental design and permutation test for multivariate 
-% statistical significance. Missing data is considered.
+% Parallel General Linear Model to factorize in multivariate factor and 
+% interaction matrices in an experimental design and permutation test for 
+% multivariate statistical significance. These represent the two first 
+% steps in an ANOVA Simultaneous Component Analsysis (ASCA) 
 %
 % T = parglm(X, F)   % minimum call
 %
@@ -38,13 +39,17 @@ function [T, parglmo] = parglm(X, F, varargin)
 % 'Ts': [1x1] Use SSQ (0) or the F-value (otherwise, by default) as test statistic  
 %       0: Sum-of-squares of the factor/interaction
 %       1: F-ratio of the SS of the factor/interaction divided by the SS of 
-%       the residuals (by default)
-%       2: F-ratio following the factors/interactions hierarchy (only for
-%       random models or unconstrained mixed model, see Montogomery)
+%       the residuals
+%       2: F-ratio following the factors/interactions hierarchy (see
+%       Montogomery, by default)
 %
 % 'Ordinal': [1xF] whether factors are nominal or ordinal
 %       0: nominal (default)
 %       1: ordinal
+%
+% 'Random': [1xF] whether factors are fixed or random
+%       0: fixed (default)
+%       1: random
 % 
 % 'Fmtc': [1x1] correct for multiple-tesis when multifactorial (multi-way)
 % analysis
@@ -134,10 +139,11 @@ function [T, parglmo] = parglm(X, F, varargin)
 % table = parglm(X, F, 'Model',{[1 2]})
 %
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% Coded by: Jose Camacho (josecamacho@ugr.es)
+% Last modification: 5/Apr/2025
+% Dependencies: Matlab R2017b, MEDA v1.8
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -168,8 +174,9 @@ p = inputParser;
 addParameter(p,'Model','linear'); 
 addParameter(p,'Preprocessing',2);
 addParameter(p,'Permutations',1000);  
-addParameter(p,'Ts',1); 
+addParameter(p,'Ts',2); 
 addParameter(p,'Ordinal',zeros(1,size(F,2))); 
+addParameter(p,'Random',zeros(1,size(F,2))); 
 addParameter(p,'Fmtc',0); 
 addParameter(p,'Coding',zeros(1,size(F,2))); 
 addParameter(p,'Nested',[]); 
@@ -181,11 +188,12 @@ prep = p.Results.Preprocessing;
 nPerm = p.Results.Permutations;
 ts = p.Results.Ts;
 ordinal = p.Results.Ordinal;
+random = p.Results.Random;
 fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
 
-if isempty(model), model = 'linear'; end;
+if isempty(model), model = 'linear'; end
 
 if isequal(model,'linear')
     interactions = [];
@@ -211,42 +219,43 @@ if isnumeric(model) && ~isscalar(model)
     end
 end    
 
-if iscell(model), interactions = model; end 
+if iscell(model), interactions = model; end
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(nPerm), [1 1]), 'Dimension Error: parameter ''Permutations'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ts), [1 1]), 'Dimension Error: parameter ''Ts'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(ordinal), [1 size(F,2)]), 'Dimension Error: parameter ''Ordinal'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(fmtc), [1 1]), 'Dimension Error:parameter ''Fmtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(random), [1 size(F,2)]), 'Dimension Error: parameter ''Random'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(fmtc), [1 1]), 'Dimension Error: parameter ''Fmtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Coding'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code
                   
-nInteractions      = length(interactions);      % number of interactions
+nInteractions      = size(interactions,1);              % number of interactions
 nFactors           = size(F,2);                 % number of factors
 if fmtc
     mtcc                = nFactors + nInteractions;        % correction for the number of tests
 else
     mtcc = 1;
 end
-SSQfactors         = zeros(nPerm*mtcc,nFactors,1);      % sum of squares for factors
-SSQinteractions    = zeros(nPerm*mtcc,nInteractions);   % sum of squares for interactions
-Ffactors         = zeros(nPerm*mtcc + 1,nFactors,1);      % F for factors
-Finteractions    = zeros(nPerm*mtcc + 1,nInteractions);   % F for interactions
-pFactor            = zeros(1, nFactors);       % p-values factors
-pInteraction       = zeros(1, nInteractions);  % p-values interactions
+SSQfactors         = zeros(nPerm*mtcc+1,nFactors,1);      % sum of squares for factors
+SSQinteractions    = zeros(nPerm*mtcc+1,nInteractions);   % sum of squares for interactions
+Ffactors           = zeros(nPerm*mtcc+1,nFactors,1);      % F for factors
+Finteractions      = zeros(nPerm*mtcc+1,nInteractions);   % F for interactions
+pFactor            = zeros(1,nFactors);       % p-values factors
+pInteraction       = zeros(1,nInteractions);  % p-values interactions
 
 % In column space
 parglmo.factors                = cell(nFactors,1);
 parglmo.interactions           = cell(nInteractions,1);
 
-% preprocess the data
+% preprocess the data: data is only scaled at this point
 [Xs,m,dt] = preprocess2D(X,'Preprocessing',prep);
 X = X./(ones(size(X,1),1)*dt);
 
-% Make structure with general 'variables'
+% Make structure with parameters
 parglmo.data           = X;
 parglmo.prep           = prep;
 parglmo.scale           = dt;
@@ -256,11 +265,12 @@ parglmo.nInteractions = nInteractions;
 parglmo.nPerm          = nPerm;
 parglmo.ts              = ts;
 parglmo.ordinal         = ordinal;
+parglmo.random         = random;
 parglmo.fmtc            = fmtc;
 parglmo.coding          = coding;
 parglmo.nested          = nested; 
 
-% Create Design Matrix
+% Create Design Matrix: mean centering added in the desing or not
 if prep
     n = 1;
     D = ones(size(X,1),1);
@@ -270,15 +280,14 @@ else
 end
 
 for f = 1 : nFactors
+    parglmo.factors{f}.factors = [];
     if ordinal(f)
-        D(:,n+1) = preprocess2D(F(:,f),'Preprocessing',1);
+        D(:,n+1) = preprocess2D(F(:,f),'Preprocessing',1); % Should we normalize a covariate? Not relevant while using GLM
         parglmo.factors{f}.Dvars = n+1;
         n = n + 1;
         parglmo.factors{f}.order = 1;
-        parglmo.factors{f}.factors = [];
     else
         if isempty(nested) || isempty(find(nested(:,2)==f)) % if not nested
-            parglmo.factors{f}.factors = [];
             uF = unique(F(:,f));
             parglmo.nLevels(f) = length(uF);
             for i = 2:length(uF)
@@ -295,7 +304,7 @@ for f = 1 : nFactors
         else % if nested
             ind = find(nested(:,2)==f);
             ref = nested(ind,1);
-            parglmo.factors{f}.factors = [ref parglmo.factors{ref}.factors];
+            parglmo.factors{f}.factors = [ref parglmo.factors{ref}.factors]; % Careful! nested should be in order in index f
             urF = unique(F(:,ref));
             parglmo.nLevels(f) = 0;
             parglmo.factors{f}.Dvars = [];
@@ -324,8 +333,15 @@ for i = 1 : nInteractions
     D = [D Dout];
     parglmo.interactions{i}.Dvars = n+1:size(D,2);
     parglmo.interactions{i}.factors = interactions{i};
+    parglmo.interactions{i}.type = sum(random(interactions{i}) == 1) > 0;
     n = size(D,2);
-    parglmo.interactions{i}.order = max(parglmo.factors{interactions{i}(1)}.order,parglmo.factors{interactions{i}(2)}.order) + 1;
+   
+    Mm=0;
+    for j=1:length(interactions{i})
+        Mm = max(Mm,parglmo.factors{j}.order);
+    end
+    parglmo.interactions{i}.order = Mm + 1;
+    parglmo.interactions{i}.refI = [];
 end
 
 % Degrees of freedom
@@ -381,7 +397,6 @@ B = pD*X;
 Xresiduals  = X - D*B;
 parglmo.D = D;
 parglmo.B = B;
-parglmo.mean = parglmo.D*parglmo.B(:,1);
 
 % Create Effect Matrices
 if prep
@@ -403,43 +418,72 @@ for i = 1 : nInteractions
     SSQinteractions(1,i) = sum(sum(parglmo.interactions{i}.matrix.^2));
 end
 
+MSq = SSQresiduals/Rdf;
 for f = 1 : nFactors
-    if ts==2 % pooled reference MSE
+    parglmo.factors{f}.refF = [];
+    parglmo.factors{f}.refI = [];
+    if ts==2 % reference MSE
         SSref = 0;
         Dfref = 0;
-        for f2 = 1 : nFactors
-            if ~isempty(find(f==parglmo.factors{f2}.factors))
+        for f2 = 1 : nFactors % Nested
+            if ~isempty(find(f==parglmo.factors{f2}.factors & random(f2) == 1)) && (MSq < SSQfactors(1,f2)/df(f2)) % when a nested factor is random and significantly larger than the background noise
                 SSref = SSref + SSQfactors(1,f2);
                 Dfref = Dfref + df(f2);
+                parglmo.factors{f}.refF = [parglmo.factors{f}.refF f2]; 
             end
         end
         for i = 1 : nInteractions
             if ~isempty(find(f==parglmo.interactions{i}.factors))
-                SSref = SSref + SSQinteractions(1,i);
-                Dfref = Dfref + dfint(i);
+                rest = setdiff(parglmo.interactions{i}.factors,f);
+                if (sum(random(rest) == 1) > 0) && (MSq < SSQinteractions(1,i)/dfint(i)) % when an interaction is random and larger than the background noise
+                    SSref = SSref + SSQinteractions(1,i);
+                    Dfref = Dfref + dfint(i);
+                    parglmo.factors{f}.refI = [parglmo.factors{f}.refI i];
+                end
             end
         end
         if SSref == 0
-            Ffactors(1,f) = (SSQfactors(1,f)/df(f))/(SSQresiduals/Rdf);
+            Ffactors(1,f) = (SSQfactors(1,f)/df(f))/MSq;
         else
             Ffactors(1,f) = (SSQfactors(1,f)/df(f))/(SSref/Dfref);
         end
     else
-        Ffactors(1,f) = (SSQfactors(1,f)/df(f))/(SSQresiduals/Rdf);
+        Ffactors(1,f) = (SSQfactors(1,f)/df(f))/MSq;
     end
 end
 
 for i = 1 : nInteractions
-    Finteractions(1,i) = (SSQinteractions(1,i)/dfint(i))/(SSQresiduals/Rdf);
+    if ts==2 % reference MSE
+        SSref = 0;
+        Dfref = 0;
+        for i2 = 1 : nInteractions
+            [~,ia,ib] = intersect(parglmo.interactions{i}.factors,parglmo.interactions{i2}.factors);
+            if (length(ia) == length(parglmo.interactions{i}.factors) & length(ib) > length(parglmo.interactions{i}.factors))
+                rest = setdiff(ib,ia);
+                if (sum(random(ib(rest)) == 1) > 0) && (MSq < SSQinteractions(1,i2)/dfint(i2)) % when the higher order interaction is random and larger than the background noise
+                    SSref = SSref + SSQinteractions(1,i2);
+                    Dfref = Dfref + dfint(i2);
+                    parglmo.interactions{i}.refI = [parglmo.interactions{i}.refI i2];
+                end
+            end
+        end
+        if SSref == 0
+            Finteractions(1,i) = (SSQinteractions(1,i)/dfint(i))/MSq;
+        else
+            Finteractions(1,i) = (SSQinteractions(1,i)/dfint(i))/(SSref/Dfref);
+        end
+    else
+        Finteractions(1,i) = (SSQinteractions(1,i)/dfint(i))/MSq;
+    end
 end
 
 parglmo.effects = 100*([SSQinter SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals]./SSQX);
-parglmo.residuals = Xresiduals ;
+parglmo.residuals = Xresiduals;
 
 % Permutations
 parfor j = 1 : nPerm*mtcc
    
-    perms = randperm(size(Xnan,1)); % permuted data (permute whole data matrix)
+    perms = randperm(size(Xnan,1)); % permuted data (complete rows)
     
     X = Xnan(perms, :);
     [r,c]=find(isnan(X));
@@ -483,35 +527,52 @@ parfor j = 1 : nPerm*mtcc
     Ff = zeros(1,nFactors);
     for f = 1 : nFactors
         if ts==2% pooled reference MSE
-            MSSref = 0;
+            SSref = 0;
             Dfref = 0;
             for f2 = 1 : nFactors
-                if ~isempty(find(f==parglmo.factors{f2}.factors))
-                    MSSref = MSSref + SSQf(f2);
+                if ~isempty(find(f2==parglmo.factors{f}.refF))
+                    SSref = SSref + SSQf(f2);
                     Dfref = Dfref + df(f2);
                 end
             end
+            
             for i = 1 : nInteractions
-                if ~isempty(find(f==parglmo.interactions{i}.factors))
-                    MSSref = MSSref + SSQi(i);
+                if ~isempty(find(i==parglmo.factors{f}.refI))
+                    SSref = SSref + SSQi(i);
                     Dfref = Dfref + dfint(i);
                 end
             end
-            if MSSref == 0
+            if SSref == 0
                 Ff(f) = (SSQf(f)/df(f))/(SSQresidualsp/Rdf);
             else
-                Ff(f) = (SSQf(f)/df(f))/(MSSref/Dfref);
+                Ff(f) = (SSQf(f)/df(f))/(SSref/Dfref);
             end
         else
             Ff(f) = (SSQf(f)/df(f))/(SSQresidualsp/Rdf);
         end
     end
     Ffactors(1 + j,:) = Ff; 
-    
+
     % F Interactions
     Fi = zeros(1,nInteractions);
     for i = 1 : nInteractions
-        Fi(i) = (SSQi(i)/dfint(i))/(SSQresidualsp/Rdf);
+        if ts==2 % reference MSE
+            SSref = 0;
+            Dfref = 0;
+            for i2 = 1 : nInteractions
+                if ~isempty(find(i2==parglmo.interactions{i}.refI))
+                    SSref = SSref + SSQi(1,i2);
+                    Dfref = Dfref + dfint(i2);
+                end
+            end
+            if SSref == 0
+                Fi(i) = (SSQi(i)/dfint(i))/(SSQresidualsp/Rdf);
+            else
+                Fi(i)= (SSQi(i)/dfint(i))/(SSref/Dfref);
+            end
+        else
+            Fi(i) = (SSQi(i)/dfint(i))/(SSQresidualsp/Rdf);
+        end
     end
     Finteractions(1 + j,:) = Fi; 
 
@@ -585,7 +646,6 @@ MSQ = SSQ./DoF;
 F = [nan Ffactors(1,:) Finteractions(1,:) nan nan];
 pValue = [nan parglmo.p nan nan];
 
-%T = table(name', SSQ', par', DoF', MSQ', F', pValue','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F','Pvalue'});
 isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
 if isOctave
   T.mat = [SSQ', par', DoF', MSQ', F', pValue'];

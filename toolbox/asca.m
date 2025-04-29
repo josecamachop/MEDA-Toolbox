@@ -104,19 +104,18 @@ function ascao = asca(parglmo)
 % 
 % ascao = asca(parglmo);
 % 
-% M = ascao.factors{1}.matrix + ascao.factors{2}.matrix + ascao.interactions{1}.matrix;
 % codeLevels = {};
 % for i=1:size(F,1), codeLevels{i} = sprintf('F1:%d,F2:%d',F(i,1),F(i,2));end;
-% scoresPca(M,'PCs',1:2,'ObsTest',X,'Preprocessing',0,'PlotCal',false,'ObsClass',codeLevels);
-% legend(unique(codeLevels))
-% 
-% loadingsPca(M,'PCs',1:2,'Preprocessing',0);
+% ascao.interactions{1}.lvs = 1:2;
+% scores(ascao.interactions{1},'Title','Interaction','ObsClass',codeLevels);
+% loadings(ascao.interactions{1},'Title','Interaction');
 %
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 18/Nov/2024
+% Coded by: Jose Camacho (josecamacho@ugr.es)
+% Last modification: 4/Apr/2025
+% Dependencies: Matlab R2017b, MEDA v1.8
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -152,14 +151,26 @@ for factor = 1 : ascao.nFactors
     for n = 1:length(fnames)
         ascao.factors{factor} = setfield(ascao.factors{factor},fnames{n},getfield(model,fnames{n}));
     end
-    ascao.factors{factor}.scoresV = (xf+ascao.residuals)*model.loads;
+    
+    if isempty([ascao.factors{factor}.refF ascao.factors{factor}.refI])
+        ascao.factors{factor}.scoresV = (xf+ascao.residuals)*model.loads;
+    else
+        ascao.factors{factor}.scoresV = xf;
+        for n = 1:length(ascao.factors{factor}.refF) 
+            ascao.factors{factor}.scoresV = ascao.factors{factor}.scoresV + ascao.factors{ascao.factors{factor}.refF(n)}.matrix;
+        end
+        for n = 1:length(ascao.factors{factor}.refI) 
+            ascao.factors{factor}.scoresV = ascao.factors{factor}.scoresV + ascao.interactions{ascao.factors{factor}.refI(n)}.matrix;
+        end
+        ascao.factors{factor}.scoresV = ascao.factors{factor}.scoresV*model.loads;
+    end
 end
 
 %Do PCA on interactions
 for interaction = 1 : ascao.nInteractions
     
     xf = ascao.interactions{interaction}.matrix;
-    for factor = 1 : ascao.interactions{1}.factors
+    for factor = ascao.interactions{interaction}.factors
         xf = xf + ascao.factors{factor}.matrix;
     end
     model = pcaEig(xf,'PCs',1:rank(xf));
@@ -168,7 +179,16 @@ for interaction = 1 : ascao.nInteractions
     for n = 1:length(fnames)
         ascao.interactions{interaction} = setfield(ascao.interactions{interaction},fnames{n},getfield(model,fnames{n}));
     end
-    ascao.interactions{interaction}.scoresV = (xf+ascao.residuals)*model.loads;
+
+    if isempty(ascao.interactions{interaction}.refI)
+        ascao.interactions{interaction}.scoresV = (xf+ascao.residuals)*model.loads;
+    else
+        ascao.interactions{interaction}.scoresV = xf;
+        for n = 1:length(ascao.interactions{interaction}.refI) 
+            ascao.interactions{interaction}.scoresV = ascao.interactions{interaction}.scoresV + ascao.interactions{ascao.interactions{interaction}.refI(n)}.matrix;
+        end
+        ascao.interactions{interaction}.scoresV = ascao.interactions{interaction}.scoresV*model.loads;
+    end
 end
 
 ascao.type = 'ASCA';
