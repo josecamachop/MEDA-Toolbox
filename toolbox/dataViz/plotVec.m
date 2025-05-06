@@ -264,7 +264,11 @@ end
 
 colors = colormap();
 if classtype == "Numerical"
-    classes_num  = cellfun(@str2double, classes);
+    if isstring(classes)
+        classes_num  = cellfun(@str2double, classes);
+    else
+        classes_num = classes;
+    end
     classes_norm = classes_num / max(classes_num);
     color_id = round(classes_norm* (size(colors, 1) - 1)) + 1;
     colors = colors(color_id, :);
