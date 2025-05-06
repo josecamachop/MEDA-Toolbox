@@ -120,6 +120,14 @@ classdef dataVizTest < matlab.unittest.TestCase
 
         end
 
+
+        function testvarPca(testCase)
+            X = simuleMV(26,30,'LevelCorr',8);
+            label = 'A':'Z';
+            label = label(1:26); 
+            varPca(X)
+        end
+
     end
 
 end
