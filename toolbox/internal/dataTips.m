@@ -64,11 +64,22 @@ classes = p.Results.Classes;
 classType = p.Results.ClassType;
 mult = p.Results.Multiplicity;
 
+
 if iscell(classes)
-    classes = string(cell2mat(classes)); end
+    classes = string(classes);
+elseif isnumeric(classes)
+    classes = string(classes);
+elseif iscategorical(classes)
+    classes = string(classes);
+end
 
 if iscell(elabel)
-    elabel = string(cell2mat(elabel)); end
+    elabel = string(elabel);
+elseif isnumeric(elabel)
+    elabel = string(elabel);
+elseif iscategorical(elabel)
+    elabel = string(elabel);
+end
 
 %% Main code
 
