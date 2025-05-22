@@ -85,11 +85,7 @@ vascao = parglmoVS;
 for factor = 1 : vascao.nFactors
     
     pvals = parglmoVS.p(parglmoVS.ordFactors(factor,:),factor); 
-    if siglev > 0
-        M = find(pvals<=siglev); 
-    else
-        M = find(pvals==min(pvals)); 
-    end
+    M = find(pvals<=siglev & pvals==min(pvals)); 
     
     if ~isempty(M)
         vascao.factors{factor}.stasig = true;
