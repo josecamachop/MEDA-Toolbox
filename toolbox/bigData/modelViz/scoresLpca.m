@@ -225,7 +225,7 @@ else
     mult = ones(size(TT,1));
 end
 
-tvar = varLpca(Lmodel,'Plot',0);
+tvar = varLpca(Lmodel,'Plot',false);
 
 indM = floor(log10((max(Lmodel.multr)+1)));
 indm = floor(log10((min(Lmodel.multr)+1)));
