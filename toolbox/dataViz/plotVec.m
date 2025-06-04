@@ -270,7 +270,10 @@ if(isempty(color))
             colorList = colormap(parula(nElems));
         catch
             disp("Parula palette not available. Using default palette.")
-            colormap("default")
+            defaultMap = colormap("default");
+            color_idx = round(linspace(1, size(defaultMap,1), nElems));
+            reducedMap = defaultMap(color_idx, :);
+            colorList = colormap(reducedMap);
         end
     end  
 else
