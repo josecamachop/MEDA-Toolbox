@@ -66,11 +66,11 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'Option','1');
+addParameter(p,'Plot',true);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-opt = p.Results.Option;
+opt = p.Results.Plot;
 
 checkLmodel(Lmodel);
 

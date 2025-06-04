@@ -139,7 +139,7 @@ if ~isempty(elabel)
             posy = bdata(i,2) + c*deltay;
             ax(2) = max(ax(2), posx + deltax*suffx/60);
             ax(4) = max(ax(4), posy + deltay*2/40);
-            if strcmp(plottype,'zaxis')
+            if any(strcmp(plottype,{'zaxis','zshape'}))
                 text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
             elseif strcmp(plottype,'zsize')
                 text(posx, posy, ord_classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);

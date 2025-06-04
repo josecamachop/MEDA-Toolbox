@@ -17,13 +17,17 @@ function output_txt = dataTips(~, event_obj, bdata, varargin)
 %
 % 'ClassType': str. Class type of the data (Categorial or numerical). Default = "Categorical".
 %
+% 'Multiplicity': [NxM] multiplicity of each row (1s by default)
+%
+% 'ObsAlpha': [Nx1] opacity values for every element (1s by default)
+%
 % OUTPUTS:
 %
 % output_txt: dataTip for point/bar.
 %
 % coded by: Jesús García Sánchez (gsus@ugr.es)
 %           
-% last modification: 03/Feb/2025
+% last modification: 01/Jun/2025
 %
 % Copyright (C) 2025  University of Granada, Granada
 %
@@ -56,6 +60,7 @@ addParameter(p,'EleLabel',[]);
 addParameter(p,'Classes',[]);
 addParameter(p,'ClassType',"Categorical");
 addParameter(p,'Multiplicity',ones(N,1));
+addParameter(p,'ObsAlpha',ones(N,1))
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -63,6 +68,7 @@ elabel = p.Results.EleLabel;
 classes = p.Results.Classes;
 classType = p.Results.ClassType;
 mult = p.Results.Multiplicity;
+alphas = p.Results.ObsAlpha;
 
 
 if iscell(classes)
@@ -109,7 +115,12 @@ end
         output_txt{end+1} = ['Value: ', num2str(classes(idx))]; end
     end
 
-    if mult ~= ones(N,1)
+    if any(mult ~= 1)
         output_txt{end+1} = ['Multiplicity: ', num2str(mult(idx))];
     end
+
+    if any(alphas ~= 1)
+        output_txt{end+1} = ['Opacity: ', num2str(alphas(idx))];
+    end
+
 end
