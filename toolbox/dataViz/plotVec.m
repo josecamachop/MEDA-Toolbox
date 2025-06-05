@@ -270,7 +270,7 @@ if classtype == "Numerical"
         classes_num = classes;
     end
     classes_norm = (classes_num - min(classes_num)) / (max(classes_num) - min(classes_num));
-    color_id = round(classes_norm* (size(colors, 1) - 1)) + 1;
+    color_id = round(unique(classes_norm)* (size(colors, 1) - 1)) + 1;
     colors = colors(color_id, :);
 end
 
