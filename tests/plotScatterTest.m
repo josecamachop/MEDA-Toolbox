@@ -1,5 +1,5 @@
-classdef dataVizTest < matlab.unittest.TestCase
-    % Unit tests for the bigData functions
+classdef plotScatterTest < matlab.unittest.TestCase
+    % Unit tests for the plotScatter function
 
     methods(Test)
         function testplotScatter(testCase)
@@ -78,83 +78,30 @@ classdef dataVizTest < matlab.unittest.TestCase
                 title("Numerical continuous classes - Multiplicity in Z axis and shape.", "FontSize", 10)
         end
 
-        function testplotVec(testCase)
-            X = simuleMV(26,1,'LevelCorr',8);
-            label = 'A':'Z';
-            label = label(1:26); 
+        function testplotScatter2(testCase)
+            % random data with filled marks and control limits
+            plotScatter(rand(100,2),'XYLabel',{'Y','X'},'LimCont',{0.8,0.8});
             
-            % Categorical Classes
-            class_cat = repmat({'consonant'}, 26, 1);
-            vocal_id = [1, 5, 9, 15, 21];
-            class_cat(vocal_id) = {'vocal'};
-            class_cat{25} = '?'; 
+            % labels and classes in elements
+            plotScatter(randn(5,2),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'Color','hsv');
             
-            % Numerical (continuous) Classes
-            class_num = ((1:26)/2)';
-            class_num(1) = 20; % Letter 'A' should dominate the colors
-
-            % Multiplicity
-            mult = [repmat(.5,1,4), ...
-                    repmat(15,1,4), ...
-                    repmat(30,1,4), ...
-                    repmat(75,1,4), ...
-                    repmat(125,1,4), ...
-                    repmat(200,1,10), ...
-                    200 ];
-
-            % Alpha
-            alphas = [repmat(.3,1,4), ...
-                      repmat(.5,1,4), ...
-                      repmat(.7,1,4), ...
-                      repmat(.9,1,4), ...
-                      repmat(1,1,4), ...
-                      repmat(.1,1,10)];
-
-            % Categorical classes
-                plotVec(X, 'XYLabel', {"X", "Y"}, ... 
-                'EleLabel', label, 'ObsClass', class_cat);
-                title("Categorical classes - Okabe as default color if the number of classes is <=8", "FontSize", 10)
- 
-            % Line plot - Categorical
-                plotVec(X, 'XYLabel', {"X", "Y"}, ... 
-                'EleLabel', label, 'ObsClass', class_cat, 'PlotType', 'Lines');
-                title("Categorical classes - Okabe as default color if the number of classes is <=8", "FontSize", 10)
+            % labels, and numerical and categorical classes
+            X = randn(5,2);
+            plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Categorical');
+            plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',1:5,'XYLabel',{'Y','X'},'ClassType','Numerical');
             
-            % Categorical classes - Alpha
-                plotVec(X, 'XYLabel', {"X", "Y"}, ...
-                'EleLabel', label, 'ObsClass', class_cat, 'ObsAlpha', alphas(1:26));
-                title("Categorical classes - Opacity", "FontSize", 10)
-
-            % Numerical (continuous) classes
-                plotVec(X, 'XYLabel', {"X", "Y"}, ... 
-                'EleLabel', label, 'ObsClass', class_num);
-                title("Numerical continuous classes - Non equidistant colors. A = 20", "FontSize", 10)
-
-            % Line plot - Numerical
-            plotVec(X, 'XYLabel', {"X", "Y"}, ... 
-                'EleLabel', label, 'ObsClass', class_num, 'PlotType', 'Lines');
-                title("Numerical continuous classes - Non equidistant colors. A = 20", "FontSize", 10)
-
-            % Multiplicity  
-                plotVec(X, 'XYLabel', {"X", "Y"}, ... 
-                'EleLabel', label, 'ObsClass', class_num, 'Multiplicity', mult(1:26));
-                title("Numerical continuous classes - Multiplicity", "FontSize", 10)
-
-            % Numerical classes - Alpha
-                plotVec(X, 'XYLabel', {"X", "Y"}, 'EleLabel', label, ...
-                'ObsClass', class_num, 'Multiplicity', mult(1:26), 'ObsAlpha', alphas(1:26));
-                title("Numerical continuous classes - Opacity", "FontSize", 10)
-        end
-
-
-        function testvarPca(testCase)
-            X = simuleMV(26,30,'LevelCorr',8);
-            label = 'A':'Z';
-            label = label(1:26); 
-            varPca(X)
+            % labels, multiplicity and classes in elements
+            X = randn(5,2);
+            plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Categorical','Multiplicity',[1 20 50 100 1000]);
+            plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Numerical','Multiplicity',[1 20 50 100 1000]);
+            
+            % different plot types for multiplicity
+            mult = {'size','shape','zaxis','zsize'};
+            for o = 1:length(mult)
+                plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'PlotMult',mult{o},'Multiplicity',[1 20 50 100 1000]);
+            end
         end
 
     end
-
 end
 

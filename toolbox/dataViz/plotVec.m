@@ -194,13 +194,6 @@ if ~isempty(alphas), assert (isequal(size(alphas), [N 1]), 'Dimension Error: par
 if ~isempty(lcont) && ~isequal(size(lcont,1), N), lcont = (lcont*ones(1,N))'; end
 
 
-% Exception: bar plot with multivariate vec and one-observation class  
-if strcmp(plottype, "Lines") && ~isempty(classes) && size(vec, 2)>1
-    uniqueClasses = unique(classes);
-    assert (min(hist(classes,unique(classes)))>1, 'Exception: Cannot visualize a multivariate bar plot with one-observation classes. Try setting the 6th argument to 1.'); 
-end
-
-
 %% Main code
 
 % Create figure window
@@ -231,8 +224,7 @@ else
 end
 uniqueOrdClasses = unique(ordClasses);
 
-% Plot vectors
-
+% Define marker sizes
 bins = [0 1 maxv Inf];
 
 sizes = ones(N,1);
@@ -254,7 +246,7 @@ end
 
 % Define colors
 C = length(uniqueOrdClasses);
-if C>1, nElems = C; else nElems = M; end 
+if C>0, nElems = C; else nElems = M; end 
     
 if(isempty(color))
     if strcmp(classtype, "Categorical")
@@ -277,75 +269,59 @@ if(isempty(color))
         end
     end  
 else
-    if strcmp(classtype, "Categorical")
-        eval(sprintf('colormap(%s(nElems))',color)); end
-    if strcmp(classtype, "Numerical")
-        eval(sprintf('colormap(%s())',color)); end
+    eval(sprintf('colorList = colormap(%s(nElems));',color));
 end
 
 colors = colormap();
 if strcmp(classtype, "Numerical")
     if isstring(classes)
         classes_num  = cellfun(@str2double, classes);
+    elseif isempty(classes)
+        classes_num = 1:M;
     else
         classes_num = classes;
     end
     classes_norm = (classes_num - min(classes_num)) / (max(classes_num) - min(classes_num));
-    color_id = round(classes_norm* (size(colors, 1) - 1)) + 1;
+    color_id = round(unique(classes_norm, 'stable')* (size(colors, 1) - 1)) + 1;
     colors = colors(color_id, :);
 end
 
-
+% Plot vectors
+if isnumeric(elabel) && length(elabel)==length(unique(elabel))
+    vind = elabel;
+else
+    vind = 1:N;
+end
 if ~isempty(classes)
-    inter = 1/(4*(M+2)+1*(M-1));
     for i=1:length(uniqueOrdClasses)
         ind1 = ordClasses == uniqueOrdClasses(i);
         ind2 = alphas == 1;
-        if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-            vind = elabel;
-        else
-            vind = 1:N;
-        end
 
         if strcmp(plottype, "Lines")
             vec1 = zeros(size(vec));
             vec1(ind1,:) = vec(ind1,:);
 
-            if mod(M,2)
-                plot(vind, vec1(:,ceil(M/2)), 'Color', colors(i,:), 'LineWidth', .75 + 1/M, 'Marker', 'o');
-            else
-                plot(vind+2.5*inter, vec1(:,M/2+1), 'Color', colors(i,:), 'LineWidth', .75 + 1/M, 'Marker', 'o');
-            end
-            plot(vind, vec1, 'Color', colors(i,:), 'LineWidth', 1.5, 'Marker', 'o','HandleVisibility', 'off');
+            plot(nan, nan, 'Color', colors(i,:), 'Marker', 'o');
+            plot(vind, vec1, 'Color', colors(i,:), 'LineWidth', 1.5, 'Marker', 'o', 'HandleVisibility', 'off');
         end
+
         if strcmp(plottype, "Bars")
             vec1 = zeros(size(vec));
             vec1(ind1 & ind2,:) = vec(ind1 & ind2,:);
             vec2 = zeros(size(vec));
             vec2(ind1 & ~ind2,:) = vec(ind1 & ~ind2,:);
-
+            
+            bar(nan, nan, 'FaceColor', colors(i,:), 'EdgeColor', 'none');
+            % alpha = 1 and alpha ~=1 cases are separated to ensure compatibility with Octave when no alpha values are given
+            if any(ind1)
+                bar(vind, vec1, 'grouped', 'FaceColor', colors(i,:), 'HandleVisibility', 'off');
+            end
             if any(~ind2)
-                for j=1:nElems
-                     bar(nan, nan, 'FaceColor', colors(j,:), 'EdgeColor', 'none');
-                end
                 ind2 = find(~ind2);
                 for j=1:length(ind2)
                     k = ind2(j);
-                    if mod(M,2)
-                        bar(vind(k), vec2(k,ceil(M/2)), inter, 'FaceColor', colors(i,:), 'EdgeColor', 'none', 'FaceAlpha', alphas(k));
-                    else
-                        bar(vind(k)+2.5*inter, vec2(k,M/2+1), inter, 'FaceColor', colors(i,:), 'EdgeColor', 'none', 'FaceAlpha', alphas(k));
-                    end
-                    bar(vind(k), vec2(k), 'grouped', 'FaceColor', colors(i,:),'HandleVisibility', 'off', 'FaceAlpha', alphas(k));
+                    bar(vind(k), vec2(k,:), 'grouped', 'FaceColor', colors(i,:), 'HandleVisibility', 'off', 'FaceAlpha', alphas(k));
                 end
-            end
-            if any(ind1)
-                if mod(M,2)
-                    bar(vind, vec1(:,ceil(M/2)), inter, 'FaceColor', colors(i,:), 'EdgeColor', 'none');
-                else
-                    bar(vind+2.5*inter, vec1(:,M/2+1), inter, 'FaceColor', colors(i,:), 'EdgeColor', 'none');
-                end
-                bar(vind, vec1, 'grouped', 'FaceColor', colors(i,:),'HandleVisibility', 'off');
             end
         end
     end
@@ -353,31 +329,26 @@ if ~isempty(classes)
 else
     if strcmp(plottype, "Lines")
         for i=1:M
-            if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                plot(elabel, vec(:,i), 'LineWidth', .75 + 1/M, 'Color', colorList(i,:));
-            else
-                plot(vec(:,i), 'LineWidth', .75 + 1/M, 'Color', colorList(i,:));
-            end
+            plot(vind, vec(:,i), 'LineWidth', .75 + 1/M, 'Color', colorList(i,:));
         end
     end
     if strcmp(plottype, "Bars")
-        ind = alphas == alpha(1);
+        ax = gca;
+        set(ax, 'ColorOrder', colors)
+        ind = alphas == 1;
         if any(ind)
-            if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                bar(elabel, vec(ind), 'grouped', 'FaceAlpha', alphas(1));
-            else
-                bar(vec, 'grouped', 'FaceAlpha', alphas(1));
-            end
+            bar(vind(ind), vec(ind, :), 'grouped', 'EdgeColor', 'none');
         end
         if any(~ind)
+            % Invisible bar for legend
+            for j=1:nElems
+                bar(nan, nan, 'FaceColor', colors(j,:), 'EdgeColor', 'none');
+            end
             ind = find(~ind);
+            % Plot vectors
             for i=1:length(ind)
                 k = ind(i);
-                if isnumeric(elabel) && length(elabel)==length(unique(elabel))
-                    bar(elabel(k), vec(k,:), 'grouped', 'FaceAlpha', alphas(k));
-                else
-                    bar(vec(k,:), 'grouped', 'FaceAlpha', alphas(k));
-                end
+                bar(vind(k), vec(k,:), 'grouped', 'FaceAlpha', alphas(k), 'EdgeColor', 'none'); 
             end
         end
     end
@@ -403,7 +374,7 @@ if ~isempty(lcont)
         a = [lcont(:,i)';lcont(:,i)'];
         plot(b(2:(end-1))',a(:),'r--','LineWidth',2,'HandleVisibility', 'off');
     end
-end    
+end
 
 % Get axes handler
 axesH = get(figH,'Children');
@@ -442,6 +413,8 @@ ax = axis;
 axis auto;
 ax2 = axis;
 axis([ax(1:2) ax2(3:4)]);
+% Plot origin line
+plot([ax(1:2)], [0 0], 'k', 'HandleVisibility', 'off');
 
 % Set caxis if colorbar
 if strcmp(classtype, "Numerical")
@@ -452,15 +425,10 @@ if strcmp(classtype, "Numerical")
         colorbar('Location','EastOutside');
     end
 else
-    if nElems < 2, legend off; else legend(legendTxt,'Location','northeast'); end
+    if nElems < 2, legend off; else legend(legendTxt,'Location','best'); end
 end
 box on
 hold off
 
 end
 
-
-
-
-
-        

@@ -78,21 +78,21 @@ function figH = plotScatter(bdata,varargin)
     % figH = plotScatter(randn(5,2),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'Color','hsv');
     %
     %
-    % EXAMPLE OF USE: with labels, and nurical and categorical classes:
+    % EXAMPLE OF USE: with labels, and numerical and categorical classes:
     %
     % X = randn(5,2);
     % plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Categorical');
     % plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',1:5,'XYLabel',{'Y','X'},'ClassType','Numerical');
     %
     %
-    % EXAMPLE OF USE: with labels, multilicity and classes in elements:
+    % EXAMPLE OF USE: with labels, multiplicity and classes in elements:
     %
     % X = randn(5,2);
     % plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Categorical','Multiplicity',[1 20 50 100 1000]);
     % plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Numerical','Multiplicity',[1 20 50 100 1000]);
     %
     % mult = {'size','shape','zaxis','zsize'};
-    % for o = 1:length(mult),
+    % for o = 1:length(mult)
     %   plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'PlotMult',mult{o},'Multiplicity',[1 20 50 100 1000]);
     % end
     %
@@ -446,6 +446,4 @@ function figH = plotScatter(bdata,varargin)
 
     box on
     hold off
-    
-    
     
