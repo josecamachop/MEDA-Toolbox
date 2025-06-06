@@ -90,11 +90,15 @@ end
 %% Main code
 
     pos = get(event_obj, 'Position');
-    if size(bdata,2) == 1 % Vector
-        idx = pos(1);
-    end
-    if size(bdata,2) == 2 % Scatter
+    target = get(event_obj, 'Target');
+    obj_type = class(target);
+
+    if obj_type == "matlab.graphics.chart.primitive.Bar"  % Bar plot
+        idx = round(pos(1));
+    elseif size(bdata,2) == 2 % Scatter
         idx = find(bdata(:,1) == pos(1) & bdata(:,2) == pos(2));
+    else
+        idx = pos(1);
     end
     output_txt = {
         ['x: ', num2str(pos(1))], ...
