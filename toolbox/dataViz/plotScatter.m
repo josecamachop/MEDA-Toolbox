@@ -49,6 +49,8 @@ function figH = plotScatter(bdata,varargin)
     %       maxv(2): threshold between low and medium multiplicity (50 by default)
     %       maxv(3): threshold between very medium and high multiplicity (100 by default)
     %
+    % 'ObsAlpha': [Nx1] opacity values between 0 and 1 for each row (1s by default)
+    %
     % 'BlurIndex': [1x1] to avoid blur when adding labels. It reflects the
     %   minimum distance (normalized to [0,1]) where a cluttered label is 
     %   allowed to be visualized. For a value of 0, no cluttered labels are 
@@ -76,28 +78,28 @@ function figH = plotScatter(bdata,varargin)
     % figH = plotScatter(randn(5,2),'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'Color','hsv');
     %
     %
-    % EXAMPLE OF USE: with labels, and nurical and categorical classes:
+    % EXAMPLE OF USE: with labels, and numerical and categorical classes:
     %
     % X = randn(5,2);
     % plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Categorical');
     % plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',1:5,'XYLabel',{'Y','X'},'ClassType','Numerical');
     %
     %
-    % EXAMPLE OF USE: with labels, multilicity and classes in elements:
+    % EXAMPLE OF USE: with labels, multiplicity and classes in elements:
     %
     % X = randn(5,2);
     % plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Categorical','Multiplicity',[1 20 50 100 1000]);
     % plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'ClassType','Numerical','Multiplicity',[1 20 50 100 1000]);
     %
     % mult = {'size','shape','zaxis','zsize'};
-    % for o = 1:length(mult),
+    % for o = 1:length(mult)
     %   plotScatter(X,'EleLabel',{'one','two','three','four','five'},'ObsClass',[1 1 1 2 2],'XYLabel',{'Y','X'},'PlotMult',mult{o},'Multiplicity',[1 20 50 100 1000]);
     % end
     %
     %
-    % coded by: Jose Camacho (josecamacho@ugr.es) and Jesús García
+    % coded by: Jose Camacho (josecamacho@ugr.es), Jesús García and Daniel Vallejo
     %           
-    % last modification: 04/Feb/2025
+    % last modification: 03/Jun/2025
     %
     % Copyright (C) 2025  University of Granada, Granada
     %
@@ -130,6 +132,7 @@ function figH = plotScatter(bdata,varargin)
     addParameter(p,'ObsClass',ones(N,1));
     addParameter(p,'XYLabel',{'',''});
     addParameter(p,'LimCont',[]);
+    addParameter(p,'ObsAlpha',ones(N,1))
     addParameter(p,'Multiplicity',ones(N,1));
     addParameter(p,'Markers',[20 50 100]);
     addParameter(p,'BlurIndex',0.3);
@@ -144,6 +147,7 @@ function figH = plotScatter(bdata,varargin)
     classes = p.Results.ObsClass;
     xylabel = p.Results.XYLabel;
     lcont = p.Results.LimCont;
+    alphas = p.Results.ObsAlpha;
     mult = p.Results.Multiplicity;
     maxv = p.Results.Markers;
     blur = p.Results.BlurIndex;
@@ -154,12 +158,17 @@ function figH = plotScatter(bdata,varargin)
     
     
     % Convert row arrays to column arrays
-    if size(elabel,1)  == 1, elabel  = elabel';  end;
-    if size(classes,1) == 1, classes = classes'; end;
-    if size(lcont,1) == 1, lcont = lcont'; end;
-    if size(mult,1) == 1, mult = mult'; end;
-    if size(maxv,2) == 1, maxv = maxv'; end;
+    if size(elabel,1)  == 1, elabel  = elabel';  end
+    if size(classes,1) == 1, classes = classes'; end
+    if size(lcont,1) == 1, lcont = lcont'; end
+    if size(mult,1) == 1, mult = mult'; end
+    if size(maxv,2) == 1, maxv = maxv'; end
+    if size(alphas,1) == 1, alphas = alphas'; end
     
+    % Convert alphas to array if it is a scalar
+    if isscalar(alphas), alphas = repmat(alphas, N, 1); end
+    % Check alpha values
+    assert(all(alphas >= 0 & alphas <= 1), 'Value Error: parameter ''ObsAlpha'' must contain values in [0, 1]. Type ''help %s'' for more info.', routine(1).name); 
     
     % Check type of plot is valid
     plottypeValues = {'none','size','shape','zaxis','zsize','zshape'};
@@ -168,34 +177,37 @@ function figH = plotScatter(bdata,varargin)
     end
     
     % Check class type
+    classtypeValues = {'default', 'Numerical', 'Categorical'};
+    if ~any(strcmp(classtypeValues, classtype))
+        error('Value Error: parameter ''ClassType'' must contain either ''Numerical'' or ''Categorical''. Type ''help %s'' for more info.', routine(1).name);
+    end
     if strcmp(classtype,'default')
         if ~isnumeric(classes) || length(unique(classes)) < 10 
             classtype = 'Categorical';
         else
             classtype = 'Numerical';
         end
-    else
-        error('Value Error: parameter ''ClassType'' must contain either ''Numerical'' or ''Categorical''. Type ''help %s'' for more info.', routine(1).name);
     end
     
     % Convert num arrays to str
     if ~isempty(elabel) && isnumeric(elabel), elabel=num2str(elabel); end
-    if ~isempty(classes) && isnumeric(classes) && classtype=="Categorical", classes=num2str(classes); end
+    if ~isempty(classes) && isnumeric(classes) && strcmp(classtype, "Categorical"), classes=num2str(classes); end
     
     % Convert char arrays to cell
-    if ischar(elabel),  elabel = cellstr(elabel); end;
-    if ischar(classes), classes = cellstr(classes); end;
-    if ischar(xylabel),  xylabel = cellstr(xylabel); end;
+    if ischar(elabel),  elabel = cellstr(elabel); end
+    if ischar(classes), classes = cellstr(classes); end
+    if ischar(xylabel),  xylabel = cellstr(xylabel); end
     
     % Validate dimensions of input data
     assert(size(bdata,2) == 2, 'Dimension Error: parameter ''bdata'' must be N-by-2. Type ''help %s'' for more info.', routine(1).name);
-    if ~isempty(elabel), assert((isequal(size(elabel), [N 1]) || isequal(size(elabel), [N+1 1])), 'Dimension Error: parameter ''EleLabel''  must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-    if ~isempty(classes), assert ((isequal(size(classes), [N 1]) || isequal(size(classes), [N+1 1])), 'Dimension Error: parameter ''ObsClass'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-    if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: parameter ''XYLabel'' must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end;
-    if ~isempty(lcont), assert (iscell(lcont) && isequal(size(lcont), [2 1]), 'Dimension Error: parameter ''LimCont'' must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end;
-    if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: parameter ''Multiplicity'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end;
-    if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: parameter ''Markers'' must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end;
-    if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
+    if ~isempty(elabel), assert((isequal(size(elabel), [N 1]) || isequal(size(elabel), [N+1 1])), 'Dimension Error: parameter ''EleLabel''  must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end
+    if ~isempty(classes), assert ((isequal(size(classes), [N 1]) || isequal(size(classes), [N+1 1])), 'Dimension Error: parameter ''ObsClass'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end
+    if ~isempty(xylabel), assert (length(xylabel) == 2, 'Dimension Error: parameter ''XYLabel'' must contain 2 cell elements. Type ''help %s'' for more info.', routine(1).name); end
+    if ~isempty(alphas), assert (isequal(size(alphas), [N 1]), 'Dimension Error: parameter ''ObsAlpha'' must be scalar or N-by-1. Type ''help %s'' for more info.', routine(1).name); end
+    if ~isempty(lcont), assert (iscell(lcont) && isequal(size(lcont), [2 1]), 'Dimension Error: parameter ''LimCont'' must be a cell of 2 elements. Type ''help %s'' for more info.', routine(1).name); end
+    if ~isempty(mult), assert (isequal(size(mult), [N 1]), 'Dimension Error: parameter ''Multiplicity'' must be N-by-1. Type ''help %s'' for more info.', routine(1).name); end
+    if ~isempty(maxv), assert (isequal(size(maxv), [1 3]), 'Dimension Error: parameter ''Markers'' must be 1-by-3. Type ''help %s'' for more info.', routine(1).name); end
+    if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end
     
     
     %% Main code
@@ -205,7 +217,7 @@ function figH = plotScatter(bdata,varargin)
     hold on;
     
     % Sort data for colorbar
-    if classtype == "Numerical"
+    if strcmp(classtype, "Numerical")
         if iscell(classes)
             classes = cell2mat(classes);
         end
@@ -231,10 +243,11 @@ function figH = plotScatter(bdata,varargin)
     end
     uniqueOrdClasses = unique(ordClasses);
     nElems = length(uniqueOrdClasses);
+    uniqueAlphas = unique(alphas);
                 
     % Define colors
     if(isempty(color))
-        if classtype == "Categorical"
+        if strcmp(classtype, "Categorical")
             if nElems ==1
                 colormap(winter(1))
             elseif nElems <= 8
@@ -243,26 +256,32 @@ function figH = plotScatter(bdata,varargin)
                 colormap(hsv(nElems))
             end
         end
-        if classtype == "Numerical"
-            colormap(parula); end  
+        if strcmp(classtype, "Numerical")
+            try
+                colormap(parula)
+            catch
+                disp("Parula palette not available. Using default palette.")
+                colormap("default")
+            end
+        end
     else
-        if classtype == "Categorical"
+        if strcmp(classtype, "Categorical")
             eval(sprintf('colormap(%s(nElems))',color)); end
-        if classtype == "Numerical"
+        if strcmp(classtype, "Numerical")
             eval(sprintf('colormap(%s())',color)); end
     end
 
-    if classtype == "Categorical" 
+    if strcmp(classtype, "Categorical")
         colorList = colormap();
         colors = colorList(ordClasses, :);end
-    if classtype == "Numerical"
-        colors = double(string(classes)); end
+    if strcmp(classtype, "Numerical")
+        colors = str2double(classes); end
         
     % Define mult bins
     if any(strcmp(plottypeValues(2:end), plottype)) % Show multiplicity information
         bins = [0 1 maxv Inf];
     else 
-        bins = [0 1];
+        bins = [0 Inf];
     end
     % Define markers
     if any(strcmp({'shape','zshape'}, plottype))
@@ -273,7 +292,7 @@ function figH = plotScatter(bdata,varargin)
 
     % Set size configuration
     sizes = 36*ones(size(mult)); % 36 is the default size
-    if plottype == "size" || plottype == "zsize"
+    if strcmp(plottype, "size") || strcmp(plottype, "zsize")
         for i=1:length(bins)-1
             sizes (mult>bins(i) & mult<=bins(i+1)) = round(2.5 * i^2 * pi);
         end
@@ -299,25 +318,61 @@ function figH = plotScatter(bdata,varargin)
 
     % 3D plot
     if any(strcmp({'zaxis','zsize','zshape'}, plottype))
-        if plottype == "zaxis" || plottype == "zshape"
-            Z = mult;end
-        if plottype == "zsize"
-            Z = ordClasses; end
-        for i=1:length(uniqueOrdClasses)
-            for j=1:length(bins)-1
-                ind = find(ordClasses == uniqueOrdClasses(i) & mult<=bins(j+1) & mult>bins(j));
-                if ind
-                scatter3(bdata(ind,1), bdata(ind,2), Z(ind), sizes(ind), colors(ind,:), fill, markers(j),'DisplayName',dispName{i,j});
+        if strcmp(plottype, "zaxis") || strcmp(plottype, "zshape")
+            Z = mult;
+        end
+        if strcmp(plottype, "zsize")
+            Z = ordClasses;
+        end
+        
+        for i = 1:length(uniqueOrdClasses)
+            for j = 1:length(bins)-1
+                ind = (ordClasses == uniqueOrdClasses(i) & mult <= bins(j+1) & mult > bins(j));
+                ind1 = find(ind);
+                if ~isempty(ind1) && strcmp(classtype, "Categorical")
+                    % Invisible point for legend entry
+                    scatter3(nan, nan, nan, sizes(ind1(1)), fill, markers(j), 'MarkerFaceColor', colors(ind1(1),:), ...
+                            'DisplayName', dispName{i,j});
+                end
+
+                for a = 1:length(uniqueAlphas)
+                    currentAlpha = uniqueAlphas(a);
+                    ind2 = find(ind & alphas == currentAlpha);
+
+                    if ~isempty(ind2)
+                        % Plot points
+                        scatter3(bdata(ind2,1), bdata(ind2,2), Z(ind2), sizes(ind2), ...
+                                colors(ind2,:), fill, markers(j), ...
+                                'MarkerFaceAlpha', currentAlpha, ...
+                                'HandleVisibility', 'off');
+                    end
                 end
             end
         end
+        view(3)
     % 2D plot
     else
-        for i=1:length(uniqueOrdClasses)
-            for j=1:length(bins)-1
-                ind = find(ordClasses == uniqueOrdClasses(i) & mult<=bins(j+1) & mult>bins(j));
-                if ind
-                scatter(bdata(ind,1), bdata(ind,2), sizes(ind), colors(ind,:),fill, markers(j),'DisplayName',dispName{i,j});
+        for i = 1:length(uniqueOrdClasses)
+            for j = 1:length(bins)-1
+                ind = (ordClasses == uniqueOrdClasses(i) & mult <= bins(j+1) & mult > bins(j));
+                ind1 = find(ind);
+                if ~isempty(ind1) && strcmp(classtype, "Categorical")
+                    % Invisible point for legend entry
+                    scatter(nan, nan, sizes(ind1(1)), fill, markers(j), 'MarkerFaceColor', colors(ind1(1),:), ...
+                            'DisplayName', dispName{i,j});
+                end
+
+                for a = 1:length(uniqueAlphas)
+                    currentAlpha = uniqueAlphas(a);
+                    ind2 = find(ind & alphas == currentAlpha);
+                    if ~isempty(ind2)
+                        % Plot points
+                        scatter(bdata(ind2,1), bdata(ind2,2), sizes(ind2), ...
+                                colors(ind2,:), fill, markers(j), ...
+                                'DisplayName', dispName{i,j}, ...
+                                'MarkerFaceAlpha', currentAlpha, ...
+                                'HandleVisibility', 'off');
+                    end
                 end
             end
         end
@@ -326,12 +381,17 @@ function figH = plotScatter(bdata,varargin)
 
 
     % Add data tips
-    dcm = datacursormode(gcf);
-    set(dcm, 'UpdateFcn', @(obj, event_obj) dataTips(obj, event_obj, bdata,...
-    'Elelabel', elabel,'Classes', classes, 'ClassType', classtype, 'Multiplicity', mult));
+    try
+        dcm = datacursormode(gcf);
+        set(dcm, 'UpdateFcn', @(obj, event_obj) dataTips(obj, event_obj, bdata,...
+            'EleLabel', elabel,'Classes', classes, 'ClassType', classtype, 'Multiplicity', mult, ...
+            'ObsAlpha', alphas));
+    catch err
+        disp(err.message)
+    end
     
     % Add labels in canvas
-    ax = textScatter(figH,bdata,'EleLabel',elabel,'ObsClass',classes,'Multiplicity',mult,'BlurIndex',blur);
+    ax = textScatter(figH,bdata,'EleLabel',elabel,'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype,'BlurIndex',blur);
     
     ax([1 3]) = min(ax([1 3]),zeros(1,2));
     ax([2 4]) = max(ax([2 4]),zeros(1,2));
@@ -373,7 +433,7 @@ function figH = plotScatter(bdata,varargin)
     end
     
     % Set caxis if colorbar
-    if classtype == "Numerical"
+    if strcmp(classtype, "Numerical")
         if length(uniqueOrdClasses) < 2
             colorbar('off');
         else
@@ -381,11 +441,9 @@ function figH = plotScatter(bdata,varargin)
             colorbar('Location','EastOutside');
         end
     else
-        if length(uniqueOrdClasses) < 2, legend off; else legend('show','Location','best'); end
+        if length(uniqueOrdClasses) < 2, legend off; else legend('Location','best'); end
     end
 
     box on
     hold off
-    
-    
     
