@@ -380,9 +380,9 @@ for i=1:length(ru)
     for j=1:length(c(ind))
         ind3 = find(isnan(X(ind2,c(ind(j)))));
         if length(ind2)>length(ind3)
-            X(r(ind(j)),c(ind(j))) = nanmean(X(ind2,c(ind(j)))); % use conditional mean replacement
+            X(r(ind(j)),c(ind(j))) = mean(X(ind2,c(ind(j))), 'omitnan'); % use conditional mean replacement
         else
-            X(r(ind(j)),c(ind(j))) = nanmean(X(:,c(ind(j)))); % use unconditional mean replacement if CMR not possible
+            X(r(ind(j)),c(ind(j))) = mean(X(:,c(ind(j))), 'omitnan'); % use unconditional mean replacement if CMR not possible
         end
     end
 end
@@ -494,9 +494,9 @@ parfor j = 1 : nPerm*mtcc
         for f=1:length(c(ind))
             ind3 = find(isnan(X(ind2,c(ind(f)))));
             if length(ind2)>length(ind3)
-                X(r(ind(f)),c(ind(f))) = nanmean(X(ind2,c(ind(f)))); % use conditional mean replacement
+                X(r(ind(f)),c(ind(f))) = mean(X(ind2,c(ind(f))), 'omitnan'); % use conditional mean replacement
             else
-                X(r(ind(f)),c(ind(f))) = nanmean(X(:,c(ind(f)))); % use unconditional mean replacement if CMR not possible
+                X(r(ind(f)),c(ind(f))) = mean(X(:,c(ind(f))), 'omitnan'); % use unconditional mean replacement if CMR not possible
             end
         end
     end
