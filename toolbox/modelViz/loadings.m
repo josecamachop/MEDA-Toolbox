@@ -102,11 +102,11 @@ blur = p.Results.BlurIndex;
 color = p.Results.Color;
 
 % Convert row arrays to column arrays
-if size(label,1) == 1,     label = label'; end;
-if size(classes,1) == 1, classes = classes'; end;
+if size(label,1) == 1,     label = label'; end
+if size(classes,1) == 1, classes = classes'; end
 
 % Validate dimensions of input data
-assert (isequal(size(label), [M 1]), 'Dimension Error: parameter''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(label), [M 1]), 'Dimension Error: parameter ''VarsLabel'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 assert (isequal(size(classes), [M 1]), 'Dimension Error: parameter ''VarsClass'' must be M-by-1. Type ''help %s'' for more info.', routine(1).name); 
 if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: parameter ''BlurIndex'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name); end;
   
