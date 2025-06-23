@@ -220,6 +220,7 @@ else
         PEVpq(i) = 1 - sum(sum((X - X*p*inv(q'*p)*q').^2))/sum(sum(X.^2));
         
         if (PEVpq(i)/reference) > (1 - thres)
+            disp(sprintf('Selected: Model with %s non-zero elements y PEV = %.2g (%d%% of the Reference). Time elapsed %g',num2str(vec),PEVpq(end),round(100*PEVpq(end)/reference),toc))
             flag = true;
             return
         end
