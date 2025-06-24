@@ -1,4 +1,4 @@
-function [PEVpq, fp] = razorPlot(X,Gram,K,varargin)
+function [PEVpq, fp, vec] = razorPlot(X,Gram,K,varargin)
 
 % Razor plot to select the number of components and sparsity in sparse 
 % Principal Component Analysis (sPCA) following Camacho et al. "All sparse 
@@ -39,6 +39,8 @@ function [PEVpq, fp] = razorPlot(X,Gram,K,varargin)
 %
 % fp: [MxM...xMxK] optimization (minimization) criterion.
 %
+% vec: [1xV] number of NZE selected.
+%
 %
 % EXAMPLE OF USE: Pitprops
 %
@@ -62,7 +64,7 @@ function [PEVpq, fp] = razorPlot(X,Gram,K,varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 1/Apr/2025
+% Last modification: 24/Jul/2025
 % Dependencies: Matlab R2017b, MEDA v1.8
 %
 % Copyright (C) 2025  University of Granada, Granada
@@ -93,8 +95,11 @@ if isempty(X)
     Dg = sort(diag(Dg),'descend');
     reference = sum(Dg(1:K))/sum(Dg);
 else
-    ev = sort(eig(X'*X),'descend');
-    reference = sum(ev(1:K))/sum(ev);
+    model = pcaEig(X,'PCs',1:K);
+    % Compute variance estimates in PCA
+    Xest = model.scores*model.loads';
+    E = X - Xest;
+    reference = sum(sum(Xest.^2))/(sum(sum(Xest.^2))+sum(sum(E.^2)));
 end
 
 [N M] = size(X);
@@ -120,7 +125,7 @@ nze = p.Results.NZE;
 
 pcs = 1:K;
 tic
-[fp, PEVpq] =  computeModels(X,pcs,tol,max_iter,thres,reference,nze);
+[fp, PEVpq, vec] =  computeModels(X,pcs,tol,max_iter,thres,reference,nze);
 fp = shiftdim(fp,length(pcs));
 PEVpq = shiftdim(PEVpq,length(pcs));
 
@@ -179,7 +184,7 @@ end
 
 %% Recursive function 
 
-function [fp, PEVpq, flag] =  computeModels(X,pcs,tol,max_iter,thres,reference,nze,K,vec)
+function [fp, PEVpq, vecO, flag] =  computeModels(X,pcs,tol,max_iter,thres,reference,nze,I,K,vec)
 
 % Set default values
 routine=dbstack;
@@ -189,10 +194,11 @@ M = length(nze);
 flag = false;
 
 if nargin < 8
+    I = 1;
     K = 1;
     prev = M;
 else
-    prev = vec(K-1);
+    prev = find(vec(K-1)==nze);
 end
 
 if K <= length(pcs)
@@ -203,28 +209,29 @@ end
 if K <= length(pcs)
     for j=1:prev
         vec(K) = nze(j);
-        [f, p, flag] = computeModels(X,pcs,tol,max_iter,thres,reference,nze,K+1,vec);
+        [f, p, vecO, flag] = computeModels(X,pcs,tol,max_iter,thres,reference,nze,I,K+1,vec);
         fp(j,:) = f(:);
         PEVpq(j,:) = p(:);
         if flag
             return
         end
+        I = K;
     end
 else
-    for i=1:length(pcs)
+    for i=I:length(pcs)
         model = spcaZou(X,[],pcs(i),-vec(1:pcs(i)),'Tolerance',tol,'MaxIters',max_iter);
-        
         p = model.weights;
         q = model.loads;
+
         fp(i) = length(find(p.^2)) - length(find(sum(p.^2,1)));
         PEVpq(i) = 1 - sum(sum((X - X*p*inv(q'*p)*q').^2))/sum(sum(X.^2));
-        
+        vecO = vec;
+
+        disp(sprintf('Model with %s non-zero elements y PEV = %.2g (%d%% of the Reference). Time elapsed %g',num2str(vec(1:pcs(i))),PEVpq(end),round(100*PEVpq(end)/reference),toc))
+
         if (PEVpq(i)/reference) > (1 - thres)
-            disp(sprintf('Selected: Model with %s non-zero elements y PEV = %.2g (%d%% of the Reference). Time elapsed %g',num2str(vec),PEVpq(end),round(100*PEVpq(end)/reference),toc))
             flag = true;
             return
         end
     end
-    
-    disp(sprintf('Model with %s non-zero elements y PEV = %.2g (%d%% of the Reference). Time elapsed %g',num2str(vec),PEVpq(end),round(100*PEVpq(end)/reference),toc))
 end

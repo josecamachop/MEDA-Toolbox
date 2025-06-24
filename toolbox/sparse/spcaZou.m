@@ -127,7 +127,7 @@ if isempty(X)
   X = Vg*sqrt(abs(Dg))*Vg';
 end
 
-[u,s,V] = svd(X);
+[u,s,V] = svd(X, 'econ');
 
 [n p] = size(X);
 
@@ -162,7 +162,7 @@ iter = 0;
 while ~stopit
 
     if isempty(Gram)
-        [u,s,v] = svd(X'*X*B,0);
+        [u,s,v] = svd(X'*(X*B),0);
     else
         [u,s,v] = svd(Gram*B,0);
     end 
