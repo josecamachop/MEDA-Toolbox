@@ -201,7 +201,7 @@ end
 
 P = B;
 Q = A;
-R =  P*pinv(Q'*P);
+R =  Q*pinv(P'*Q);
 A2 = X*R; 
 
 for i=1:K 
