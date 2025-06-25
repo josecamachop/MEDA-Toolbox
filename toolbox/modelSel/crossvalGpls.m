@@ -68,8 +68,8 @@ function [cumpress,press,nze] = crossvalGpls(x,y,varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 26/Mar/2025
-% Dependencies: Matlab R2017b, MEDA v1.8
+% last modification: 25/Jun/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -182,20 +182,20 @@ for i=1:blocksr
     gammas2 = gammas;
     gammas2(find(gammas==0)) = [];  
     if ~isempty(gammas2)
-        [~,~,~,~,~,~,stree] = gplsMap(ccs,ccsy,'LVs',1:max(lvs),'Gamma',min(gammas2),'Type',type,'Map',mapdata);
+        [~,~,stree] = gplsMap(ccs,ccsy,'LVs',1:max(lvs),'Gamma',min(gammas2),'Type',type,'Map',mapdata);
     else
         stree = [];
     end
 
     for gamma=1:length(gammas)
         
-        [~,~,~,Q,R] = gplsMap(ccs,ccsy,'LVs',1:max(lvs),'Gamma',gammas(gamma),'Stree',stree,'Type',type,'Map',mapdata);
+        model = gplsMap(ccs,ccsy,'LVs',1:max(lvs),'Gamma',gammas(gamma),'Stree',stree,'Type',type,'Map',mapdata);
             
         for lv=1:length(lvs)
                 
             if lvs(lv) > 0
-                Q2 = Q(:,1:min(lvs(lv),size(Q,2)));
-                R2 = R(:,1:min(lvs(lv),size(Q,2)));
+                Q2 = model.yloads(:,1:min(lvs(lv),size(model.yloads,2)));
+                R2 = model.altweights(:,1:min(lvs(lv),size(model.yloads,2)));
                 beta=R2*Q2';
                 srec = scs*beta;
                 

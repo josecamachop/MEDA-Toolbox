@@ -1,4 +1,4 @@
-function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
+function model = gpls(xcs,ycs,states,varargin)
 
 % Group-wise Partial Least Squares. The original paper is Camacho, J., 
 % Saccenti, E. Group-wise Partial Least Squares Regression. Submitted to
@@ -24,21 +24,18 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 % 'Tolerance': [1x1] tolerance value
 %
 %
-% OUTPUTS:
+% OUTPUT:
 %
-% beta: [MxO] matrix of regression coefficients: W*inv(P'*W)*Q'
-%
-% W: [MxA] matrix of weights
-%
-% P: [MxA] matrix of x-loadings
-%
-% Q: [OxA] matrix of y-loadings
-%
-% R: [MxA] matrix of modified weights: W*inv(P'*W)
-%
-% bel: [Ax1] correspondence between LVs and States.
-%
-% T: [NxA] matrix of scores.
+% model: structure that contains model information
+%   var: [1x1] xcs sum of squares
+%   lvs: [1xA] latent variable numbers
+%   loads: [MxA] matrix of x-loadings P
+%   yloads: [OxA] matrix of y-loadings Q
+%   weights: [MxA] matrix of weights W
+%   altweights: [MxA] matrix of alternative weights R
+%   scores: [NxA] matrix of x-scores T
+%   beta: [MxO] matrix of regressors
+%   type: 'gPLS'
 %
 %
 % EXAMPLE OF USE: Random data:
@@ -55,15 +52,15 @@ function [beta,W,P,Q,R,bel,T] = gpls(xcs,ycs,states,varargin)
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % Ycs = preprocess2D(Y,'preprocessing',2);
 % [bel,states] = gia(map,'Gamma',0.4,'MinSize',1);
-% [beta,W,P,Q,R,bel] = gpls(Xcs,Ycs,states,'LVs',lvs);
+% model = gpls(Xcs,Ycs,states,'LVs',lvs);
 % 
-% plotVec(beta,'XYLabel',{'','Regression coefficients'});
+% plotVec(model.beta,'XYLabel',{'','Regression coefficients'});
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 20/Nov/2024
-% Dependencies: Matlab R2017b, MEDA v1.7
+% last modification: 25/Jun/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -195,3 +192,20 @@ bel = bel(lvs);
 R = R(:,lvs);
 beta=R*Q';
 
+for i=1:size(R,2)
+    P(:,i) = P(:,i)*norm(R(:,i));
+    Q(:,i) = Q(:,i)*norm(R(:,i));
+    W(:,i) = W(:,i)/norm(R(:,i));
+    R(:,i) = R(:,i)/norm(R(:,i));
+end
+T = xcs*R;
+
+model.var = sum(sum(xcs.^2));
+model.lvs = 1:size(P,2);
+model.loads = P;
+model.yloads = Q;
+model.weights = W;
+model.altweights = R;
+model.scores = T;
+model.beta = beta;
+model.type = 'gPLS';

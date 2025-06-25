@@ -1,4 +1,4 @@
-function  [beta,W,P,Q,R,bel,stree] = gplsMap(xcs,ycs,varargin)
+function  [model,bel,stree] = gplsMap(xcs,ycs,varargin)
 
 % Group-wise Partial Least Squares based on correlation. This routine includes the 
 % map estimation with MEDA, groups identification with GIA and model
@@ -36,15 +36,16 @@ function  [beta,W,P,Q,R,bel,stree] = gplsMap(xcs,ycs,varargin)
 %
 % OUTPUTS:
 %
-% beta: [MxO] matrix of regression coefficients: W*inv(P'*W)*Q'
-%
-% W: [MxA] matrix of weights
-%
-% P: [MxA] matrix of x-loadings
-%
-% Q: [OxA] matrix of y-loadings
-%
-% R: [MxA] matrix of modified weights: W*inv(P'*W)
+% model: structure that contains model information
+%   var: [1x1] xcs sum of squares
+%   lvs: [1xA] latent variable numbers
+%   loads: [MxA] matrix of x-loadings P
+%   yloads: [OxA] matrix of y-loadings Q
+%   weights: [MxA] matrix of weights W
+%   altweights: [MxA] matrix of alternative weights R
+%   scores: [NxA] matrix of x-scores T
+%   beta: [MxO] matrix of regressors
+%   type: 'gPLS'
 %
 % bel: [Ax1] correspondence between LVs and States.
 %
@@ -70,8 +71,8 @@ function  [beta,W,P,Q,R,bel,stree] = gplsMap(xcs,ycs,varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 26/Mar/2025
-% Dependencies: Matlab R2017b, MEDA v1.8
+% Last modification: 25/Jun/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -160,4 +161,4 @@ end
 
 [bel,states,stree] = gia(map,'Gamma',gamma,'MinSize',1,'Stree',stree);
 
-[beta,W,P,Q,R,bel] = gpls(xcs,ycs,states,'LVs',lvs);
+model = gpls(xcs,ycs,states,'LVs',lvs);

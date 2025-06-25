@@ -71,8 +71,8 @@ function [Qm,Q,lvso,gammaso] = dcrossvalGpls(x,y,varargin)
 % 
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 26/Mar/2025
-% Dependencies: Matlab R2017b, MEDA v1.8
+% last modification: 25/Jun/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
 %
@@ -189,8 +189,8 @@ for i=1:blocksr
     vcs = preprocess2Dapp(val,av,'Scale',st);
     vcsy = preprocess2Dapp(valy,avy,'Scale',sty);
     
-    beta = gplsMap(ccs,ccsy,'LVs',1:lvso(i),'Gamma',gammaso(i),'Type',type,'Map',mapdata);
-    srec = vcs*beta;
+    model = gplsMap(ccs,ccsy,'LVs',1:lvso(i),'Gamma',gammaso(i),'Type',type,'Map',mapdata);
+    srec = vcs*model.beta;
     
     Q(i) = 1 - sum(sum((vcsy-srec).^2))/sum(sum(vcsy.^2));
     

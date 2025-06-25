@@ -45,7 +45,7 @@ function model = vpls(xcs,ycs,varargin)
 %   altweights: [MxA] matrix of alternative weights R
 %   scores: [NxA] matrix of x-scores T
 %   beta: [MxO] matrix of regressors
-%   type: 'PLS'
+%   type: 'PLS' or 'sPLS'
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
@@ -64,7 +64,8 @@ function model = vpls(xcs,ycs,varargin)
 % modelsPLS.beta % sPLS can have 2 different vars per LV 
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 31/Jan/2025
+% last modification: 25/Jun/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -194,8 +195,22 @@ if V < M
         model = simpls(xsel,ycs,'LVs',lvs);
         
     elseif strcmp(selection,'sPLS') % More flexible, more than V variables can be selected if several responses
-        model = sparsepls2(xcs, ycs, max(lvs), V*ones(size(1:max(lvs))), O*ones(size(1:max(lvs))), 500, 1e-10, 1, 0);
-        model.beta = model.R*model.Q';
+        model2 = sparsepls2(xcs, ycs, max(lvs), V*ones(size(1:max(lvs))), O*ones(size(1:max(lvs))), 500, 1e-10, 1, 0);
+        for i=1:size(model2.R,2)
+            model2.P(:,i) = model2.P(:,i)*norm(model2.R(:,i));
+            model2.Q(:,i) = model2.Q(:,i)*norm(model2.R(:,i));
+            model2.R(:,i) = model2.R(:,i)/norm(model2.R(:,i));
+        end
+        model2.T = xcs*model2.R;
+
+        model.beta = model2.R*model2.Q';
+        model.var = sum(sum(xcs.^2));
+        model.lvs = 1:size(model2.P,2);
+        model.loads = model2.P;
+        model.yloads = model2.Q;
+        model.weights = model2.R;
+        model.scores = model2.T;
+        model.type = 'sPLS';
     end
 end
     
