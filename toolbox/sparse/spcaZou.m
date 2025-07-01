@@ -69,15 +69,16 @@ function model = spcaZou(X,Gram,K,stop,varargin)
 %      0.134  0.144  0.126  0.015 -0.208  -0.329  -0.424 -0.202  -0.076 -0.291  0.007  0.184   1.000];
 %
 % model = spcaZou([], XX, 6, -2);
-% Q = model.loads;
-% R = model.altweights;
-% f = plotMap([Q*R'*XX*R*Q'],'VarsLabel',var_l);
+% Q = model.altloads;
+% W = model.altweights;
+% f = plotMap([Q*W'*XX*W*Q'],'VarsLabel',var_l);
 % a = get(f,'Children');
 % set(a(2),'XTickLabelRotation',45);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 4/Feb/2025
+% last modification: 25/Jun/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -201,8 +202,10 @@ end
 
 P = B;
 Q = A;
+W =  P*pinv(Q'*P);
 R =  Q*pinv(P'*Q);
-A2 = X*R; 
+A = X*P;
+A2 = X*W; 
 
 for i=1:K 
     v(i) = trace(Q(:,i)*A2(:,i)'*A2(:,i)*Q(:,i)');
@@ -211,8 +214,13 @@ end
 model.expvar = v;
 model.var = sum(sum(X.^2));
 model.lvs = 1:K;
-model.loads = Q;
+
+model.scores = A;
 model.weights = P;
-model.altweights = R;
-model.scores = A2;
+model.loads = R;
+
+model.altscores = A2;
+model.altweights = W;
+model.altloads = Q;
+
 model.type = 'sPCA';
