@@ -57,7 +57,7 @@ function model = gpls(xcs,ycs,states,varargin)
 % plotVec(model.beta,'XYLabel',{'','Regression coefficients'});
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 25/Jun/2025
+% last modification: 1/Jul/2025
 % Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
@@ -192,16 +192,8 @@ bel = bel(lvs);
 R = R(:,lvs);
 beta=R*Q';
 
-for i=1:size(R,2)
-    P(:,i) = P(:,i)*norm(R(:,i));
-    Q(:,i) = Q(:,i)*norm(R(:,i));
-    W(:,i) = W(:,i)/norm(R(:,i));
-    R(:,i) = R(:,i)/norm(R(:,i));
-end
-T = xcs*R;
-
 model.var = sum(sum(xcs.^2));
-model.lvs = 1:size(P,2);
+model.lvs = lvs;
 model.loads = P;
 model.yloads = Q;
 model.weights = W;

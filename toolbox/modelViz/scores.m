@@ -84,7 +84,9 @@ function figH = scores(model,varargin)
 % scores(model,'ObsTest',test);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 12/Jan/2025
+% last modification: 1/Jul/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
+% 
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -158,8 +160,8 @@ if isempty(classes)
 end
 
 % Convert row arrays to column arrays
-if size(label,1) == 1,     label = label'; end;
-if size(classes,1) == 1, classes = classes'; end;
+if size(label,1) == 1,     label = label'; end
+if size(classes,1) == 1, classes = classes'; end
 
 % Validate dimensions of input data
 if ~isempty(test), assert (isequal(size(test), [L M]), 'Dimension Error: parameter ''ObsTest'' must be L-by-M. Type ''help %s'' for more info.', routine(1).name); end
@@ -171,7 +173,9 @@ if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: paramet
 %% Main code
 
 T = model.scores;
-d = diag(T'*T);
+P = model.loads; % If T is not orthogonal, P should have been obtained as X'/T'
+%d = diag(T'*T);
+d = sort(eig((T*P')'*(T*P')),'descend');
 
 if isfield(model,'scoresV')
     T = model.scoresV;

@@ -97,7 +97,8 @@ function gascao = gasca(paranovaost,c)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 20/Nov/2024
+% last modification: 1/Jul/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2024  University of Granada, Granada
 %
@@ -128,12 +129,12 @@ gascao = paranovaost;
 %Do GPCA on level averages for each factor
 for factor = 1 : gascao.nFactors
     
-    xf = gascao.factors{factor}.matrix;
-    map = medaPca(xf,'Preprocessing',0,'Threshold',0.3,'Option','000');
+    xf = gascao.factors{factor}.matrix+gascao.residuals;
+    map = medaPca(xf,'Preprocessing',0,'Seriated',true);
     
     gascao.factors{factor}.states = transformCrit(map,c(factor));
     
-    p = gpca(xf,gascao.factors{factor}.states,1:rank(xf));
+    p = gpca(xf,gascao.factors{factor}.states,'PCs',1:rank(xf));
     
     gascao.factors{factor}.var = trace(xf'*xf);
     gascao.factors{factor}.lvs = 1:size(p,2);
@@ -145,11 +146,11 @@ end
 %Do GPCA on interactions
 for interaction = 1 : gascao.nInteractions
     
-    xf = gascao.interactions{interaction}.matrix;
-    map = medaPca(xf,'Preprocessing',0,'Threshold',0.3,'Option','000');
+    xf = gascao.interactions{interaction}.matrix+gascao.residuals;
+    map = medaPca(xf,'Preprocessing',0,'Seriated',true);
     gascao.interactions{interaction}.states = transformCrit(map,c(length(gascao.factors)+interaction));
     
-    p = gpca(xf,gascao.interactions{interaction}.states,1:rank(xf));
+    p = gpca(xf,gascao.interactions{interaction}.states,'PCs',1:rank(xf));
     
     gascao.factors{factor}.var = trace(xf'*xf);
     gascao.interactions{interaction}.lvs = 1:size(p,2);
