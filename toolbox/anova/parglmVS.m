@@ -305,9 +305,9 @@ for var = 1 : M
             Dfref = 0;
             for i2 = 1 : parglmo.nInteractions
                 [~,ia,ib] = intersect(parglmo.interactions{i}.factors,parglmo.interactions{i2}.factors);
-                if (length(ia) == length(parglmo.interactions{i}.factors) & length(ib) > length(parglmo.interactions{i}.factors))
-                    rest = setdiff(ib,ia);
-                    if (sum(random(ib(rest)) == 1) > 0) && (MSq < sum(SSQInteractions(1,i2,ord(1:var)))/parglmo.dfint(i2)) % when the higher order interaction is random and larger than the background noise
+                if (length(ia) == length(parglmo.interactions{i}.factors) & length(parglmo.interactions{i2}.factors) > length(parglmo.interactions{i}.factors))
+                    rest = setdiff(parglmo.interactions{i2}.factors,parglmo.interactions{i}.factors);
+                    if (sum(random(parglmo.interactions{i2}.factors(rest)) == 1) > 0) && (MSq < sum(SSQInteractions(1,i2,ord(1:var)))/parglmo.dfint(i2)) % when the higher order interaction is random and larger than the background noise
                         SSref = SSref + sum(SSQInteractions(1,i2,ord(1:var)));
                         Dfref = Dfref + parglmo.dfint(i2);
                         parglmo.interactions{i}.refI = [parglmo.interactions{i}.refI i2];
