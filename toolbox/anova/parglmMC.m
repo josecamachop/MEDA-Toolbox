@@ -270,7 +270,7 @@ assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Codi
 
 %% Main code
 
-nInteractions      = size(interactions,1);              % number of interactions
+nInteractions      = prod(size(interactions));              % number of interactions
 if fmtc
     mtcc = M*(nFactors + nInteractions);        % correction for the number of tests
 else
