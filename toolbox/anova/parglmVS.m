@@ -161,8 +161,8 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 5/Apr/2025
-% Dependencies: Matlab R2017b, MEDA v1.8
+% Last modification: 12/Jul/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
 %
