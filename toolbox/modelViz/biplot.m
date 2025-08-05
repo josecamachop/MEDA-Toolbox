@@ -154,11 +154,11 @@ for i=1:length(model.lvs)-1
         rel2 = sum(((P(:,[i j]).^2).*(ones(size(P,1),1)*var([i j]))),2);
         lim2 = prctile(rel2,100-arrows);
         ind = intersect(ind1,find(rel2<=lim2)); % plot least relevant loadings in gray
-        scatter(P2(ind,i),P2(ind,j),[], [.7 .7 .7],'^','filled')
+        scatter(P2(ind,i),P2(ind,j),[], [.7 .7 .7],'^','filled', 'HandleVisibility', 'off')
         ind = find(rel1>lim1 | rel2>lim2); % plot most relevant loadings  with arrows
-        scatter(P2(ind,i),P2(ind,j),[], [0 0 0],'^','filled')
+        scatter(P2(ind,i),P2(ind,j),[], [0 0 0],'^','filled', 'HandleVisibility', 'off')
         for ii=1:length(ind)
-            plot([0 P2(ind(ii),i)],[0 P2(ind(ii),j)],'k-^');
+            plot([0 P2(ind(ii),i)],[0 P2(ind(ii),j)],'k-^', 'HandleVisibility', 'off');
         end
         
         textScatter(figH(end),[P2(ind,i),P2(ind,j)],'EleLabel',vlabel(ind),'BlurIndex',blur(2));
