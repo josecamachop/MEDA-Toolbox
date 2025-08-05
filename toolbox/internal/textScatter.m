@@ -134,7 +134,7 @@ if ~isempty(elabel)
         
         d = dxM.^2+dyM.^2;
         ind2 = find(min(d)==d,1);
-        if dxM(ind2) > blur || dyM(ind2)==Inf  || isempty(ind)
+        if isempty(ind2) || dxM(ind2) > blur || dyM(ind2)==Inf  || isempty(ind)
             posx = bdata(i,1) + c*deltax;
             posy = bdata(i,2) + c*deltay;
             ax(2) = max(ax(2), posx + deltax*suffx/60);
