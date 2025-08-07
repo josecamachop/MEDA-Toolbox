@@ -2,7 +2,7 @@ function vascao = vasca(parglmoVS,siglev)
 
 % Variable-selection ASCA is a data analysis algorithm for the analysis of 
 % multivariate data coming from a designed experiment. Reference: Camacho 
-% J, Vitale R, Morales-Jiménez D, Gómez-Llorente C. Variable-selection 
+% J, Vitale R, Morales-JimÃ©nez D, GÃ³mez-Llorente C. Variable-selection 
 % ANOVA Simultaneous Component Analysis (VASCA). Bioinformatics. 2023 Jan 
 % 1;39(1):btac795. 
 %
@@ -140,7 +140,7 @@ for interaction = 1 : vascao.nInteractions
         ind = parglmoVS.ordInteractions(interaction,1:M(end));
         [inds,ord] = sort(ind);
         xf = vascao.interactions{interaction}.matrix(:,inds);
-        for factor = 1 : vascao.interactions{1}.factors
+        for factor = 1 : length(vascao.interactions{1}.factors)
             xf = xf + vascao.factors{factor}.matrix(:,inds);
         end
         model = pcaEig(xf,'PCs',1:rank(xf));
