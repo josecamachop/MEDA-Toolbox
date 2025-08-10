@@ -49,8 +49,8 @@ function vascao = vasca(parglmoVS,siglev)
 % end
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 7/Apr/2025
-% Dependencies: Matlab R2017b, MEDA v1.8
+% Last modification: 10/Aug/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
 %
@@ -129,11 +129,7 @@ end
 for interaction = 1 : vascao.nInteractions
     
     pvals = parglmoVS.p(parglmoVS.ordInteractions(interaction,:),interaction+vascao.nFactors); 
-    if siglev > 0
-        M = find(pvals<=siglev); 
-    else
-        M = find(pvals==min(pvals)); 
-    end
+    M = find(pvals<=siglev & pvals==min(pvals)); 
 
     if ~isempty(M) 
         vascao.interactions{interaction}.stasig = true;
