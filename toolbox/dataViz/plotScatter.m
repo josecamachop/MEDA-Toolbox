@@ -99,7 +99,7 @@ function figH = plotScatter(bdata,varargin)
     %
     % coded by: Jose Camacho (josecamacho@ugr.es), Jesús García and Daniel Vallejo
     %           
-    % last modification: 03/Jun/2025
+    % last modification: 13/Aug/2025
     %
     % Copyright (C) 2025  University of Granada, Granada
     %
@@ -391,8 +391,12 @@ function figH = plotScatter(bdata,varargin)
     end
     
     % Add labels in canvas
-    ax = textScatter(figH,bdata,'EleLabel',elabel,'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype,'BlurIndex',blur);
-    
+    if blur < Inf
+        ax = textScatter(figH,bdata,'EleLabel',elabel,'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype,'BlurIndex',blur);
+    else
+        ax = textScatter(figH,bdata,'EleLabel',1:length(elabel),'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype,'BlurIndex',blur);
+    end
+
     ax([1 3]) = min(ax([1 3]),zeros(1,2));
     ax([2 4]) = max(ax([2 4]),zeros(1,2));
     
