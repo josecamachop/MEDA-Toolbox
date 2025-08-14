@@ -27,9 +27,11 @@ function figH = biplot(model,varargin)
 %
 % 'VarsLabel': [Mx1] name of the variables (numbers are used by default)
 %
-% 'BlurIndex': [1x1] or [1x2] avoid blur when adding labels. The higher, the more labels 
-%   are printer (the higher blur). Inf shows all the labels. Use two values 
-%   to differentiate blur for scores and loadings (1 by default)
+% 'BlurIndex': [1x1] or [1x2] avoid blur when adding labels. It reflects the
+%   minimum distance with other points where a label is allowed to be 
+%   visualized. For a value of 0, all labels are printed, while for a 
+%   large value only uncluttered labels are printed. By default Inf is 
+%   chosen, where only indices as visualized. 
 %
 % 'PercArrows': [1x1] percentage of loadings drawn with an arrow (10 by default)
 %
@@ -56,8 +58,9 @@ function figH = biplot(model,varargin)
 % T = biplot(model, 'Title', 'Random Biplot 20%', 'ObsLabel', A, 'PercArrows',25); 
 %
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 15/Jan/2025
+% Coded by: Jose Camacho (josecamacho@ugr.es)
+% Last modification: 14/Aug/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -88,7 +91,7 @@ addParameter(p,'Title',' ');
 addParameter(p,'ObsLabel',1:N);
 addParameter(p,'ObsClass',ones(N,1));   
 addParameter(p,'VarsLabel',1:M);
-addParameter(p,'BlurIndex',1);  
+addParameter(p,'BlurIndex',Inf);  
 addParameter(p,'PercArrows',10);   
 parse(p,varargin{:});
 

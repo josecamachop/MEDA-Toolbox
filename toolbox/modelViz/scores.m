@@ -39,8 +39,11 @@ function figH = scores(model,varargin)
 % 'ObsClass': [Kx1] K=N+L (c=1) or K=L (c=0), groups for different 
 %   visualization (a single group by default per calibration and test)
 %
-% 'BlurIndex': [1x1] avoid blur when adding labels. The higher, the more labels 
-%   are printer (the higher blur). Inf shows all the labels (1 by default)
+% 'BlurIndex': [1x1] to avoid blur when adding labels. It reflects the
+%   minimum distance with other points where a label is allowed to be 
+%   visualized. For a value of 0, all labels are printed, while for a 
+%   large value only uncluttered labels are printed. By default Inf is 
+%   chosen, where only indices as visualized. 
 %
 % 'Color': Choose a color for your data.  
 %   - 'hsv' for hsv palette 
@@ -83,10 +86,9 @@ function figH = scores(model,varargin)
 % 
 % scores(model,'ObsTest',test);
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 1/Jul/2025
+% Coded by: Jose Camacho (josecamacho@ugr.es)
+% Last modification: 14/Aug/2025
 % Dependencies: Matlab R2017b, MEDA v1.9
-% 
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -119,7 +121,7 @@ addParameter(p,'ObsTest',[]);
 addParameter(p,'PlotType','Scatter');
 addParameter(p,'PlotCal',true);
 addParameter(p,'Title',' ');  
-addParameter(p,'BlurIndex',1);
+addParameter(p,'BlurIndex',Inf);
 addParameter(p,'ObsLabel',[]);
 addParameter(p,'ObsClass',[]);
 addParameter(p,'Color',[]);

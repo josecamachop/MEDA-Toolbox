@@ -41,10 +41,10 @@ function [T,TT] = scoresPca(x,varargin)
 %   visualization (a single group by default per calibration and test)
 %
 % 'BlurIndex': [1x1] to avoid blur when adding labels. It reflects the
-%   minimum distance (normalized to [0,1]) where a cluttered label is 
-%   allowed to be visualized. For a value of 0, no cluttered labels are 
-%   printed, while for a value of 1 all labels are printed, and thus the 
-%   highest blur. By default 0.5 is chosen.
+%   minimum distance with other points where a label is allowed to be 
+%   visualized. For a value of 0, all labels are printed, while for a 
+%   large value only uncluttered labels are printed. By default Inf is 
+%   chosen, where only indices as visualized. 
 %
 %
 % OUTPUTS:
@@ -73,8 +73,9 @@ function [T,TT] = scoresPca(x,varargin)
 % scoresPca(X,'PCs',1:2,'ObsTest',test);
 %
 %
-% coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 13/Jan/2025
+% Coded by: Jose Camacho (josecamacho@ugr.es)
+% Last modification: 14/Aug/2025
+% Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -108,7 +109,7 @@ addParameter(p,'ObsTest',[]);
 addParameter(p,'Preprocessing',2);
 addParameter(p,'ObsLabel',[]);
 addParameter(p,'ObsClass',[]);
-addParameter(p,'BlurIndex',0.5);
+addParameter(p,'BlurIndex',Inf);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
