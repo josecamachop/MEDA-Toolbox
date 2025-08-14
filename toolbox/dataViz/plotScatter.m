@@ -394,7 +394,7 @@ function figH = plotScatter(bdata,varargin)
     if blur < Inf
         ax = textScatter(figH,bdata,'EleLabel',elabel,'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype,'BlurIndex',blur);
     else
-        ax = textScatter(figH,bdata,'EleLabel',1:length(elabel),'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype,'BlurIndex',blur);
+        ax = textScatter(figH,bdata,'EleLabel',1:length(elabel),'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype);
     end
 
     ax([1 3]) = min(ax([1 3]),zeros(1,2));
