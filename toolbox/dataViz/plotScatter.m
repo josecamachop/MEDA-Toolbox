@@ -52,10 +52,10 @@ function figH = plotScatter(bdata,varargin)
 % 'ObsAlpha': [Nx1] opacity values between 0 and 1 for each row (1s by default)
 %
 % 'BlurIndex': [1x1] to avoid blur when adding labels. It reflects the
-%   minimum distance with other points where a label is allowed to be
-%   visualized. For a value of 0, all labels are printed, while for a
-%   large value only uncluttered labels are printed. By default Inf is
-%   chosen, where only indices as visualized.
+%   minimum distance with other points where a label is allowed to be 
+%   visualized. For a value of 0, all labels are printed, while for a 
+%   large value only uncluttered labels are printed. When Inf is chosen, 
+%   only indices as visualized (by default 1).
 %
 % 'Color': Choose a color for your data.
 %   - 'hsv' for hsv palette
@@ -134,7 +134,7 @@ addParameter(p,'LimCont',[]);
 addParameter(p,'ObsAlpha',ones(N,1))
 addParameter(p,'Multiplicity',ones(N,1));
 addParameter(p,'Markers',[20 50 100]);
-addParameter(p,'BlurIndex',Inf);
+addParameter(p,'BlurIndex',1);
 addParameter(p,'Color',[]);
 addParameter(p,'FilledMarkers',true);
 addParameter(p,'PlotMult','none');
