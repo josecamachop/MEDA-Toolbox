@@ -98,7 +98,7 @@ function figH = plotScatter(bdata,varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es), Jesús García and Daniel Vallejo
-% Last modification: 14/Aug/2025
+% Last modification: 15/Aug/2025
 % Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
@@ -215,6 +215,8 @@ if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: paramet
 figH = figure;
 hold on;
 
+obs_n = 1:length(elabel);
+
 % Sort data for colorbar
 if strcmp(classtype, "Numerical")
     if iscell(classes)
@@ -231,6 +233,7 @@ if strcmp(classtype, "Numerical")
     bdata = bdata(ord,:);
     elabel = elabel(ord);
     mult = mult(ord);
+    obs_n = obs_n(ord);
 end
 
 % Get ordering of classes
@@ -393,7 +396,7 @@ end
 if blur < Inf
     ax = textScatter(figH,bdata,'EleLabel',elabel,'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype,'BlurIndex',blur);
 else
-    ax = textScatter(figH,bdata,'EleLabel',1:length(elabel),'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype);
+    ax = textScatter(figH,bdata,'EleLabel',obs_n,'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype);
 end
 
 ax([1 3]) = min(ax([1 3]),zeros(1,2));
