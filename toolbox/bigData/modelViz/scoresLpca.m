@@ -55,8 +55,8 @@ function [T,TT,figH] = scoresLpca(Lmodel,varargin)
 % 'BlurIndex': [1x1] to avoid blur when adding labels. It reflects the
 %   minimum distance with other points where a label is allowed to be 
 %   visualized. For a value of 0, all labels are printed, while for a 
-%   large value only uncluttered labels are printed. By default Inf is 
-%   chosen, where only indices as visualized. 
+%   large value only uncluttered labels are printed. When Inf is chosen, 
+%   only indices as visualized (by default 1).
 %
 %
 % OUTPUTS:
@@ -133,7 +133,7 @@ addParameter(p,'ObsClass',[]);
 addParameter(p,'PlotMult','size'); 
 addParameter(p,'PlotType','Scatter');
 addParameter(p,'PlotCal',true);
-addParameter(p,'BlurIndex',Inf);
+addParameter(p,'BlurIndex',1);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility

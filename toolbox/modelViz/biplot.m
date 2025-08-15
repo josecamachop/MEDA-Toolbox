@@ -30,8 +30,8 @@ function figH = biplot(model,varargin)
 % 'BlurIndex': [1x1] or [1x2] avoid blur when adding labels. It reflects the
 %   minimum distance with other points where a label is allowed to be 
 %   visualized. For a value of 0, all labels are printed, while for a 
-%   large value only uncluttered labels are printed. By default Inf is 
-%   chosen, where only indices as visualized. 
+%   large value only uncluttered labels are printed. When Inf is chosen, 
+%   only indices as visualized (by default 1).
 %
 % 'PercArrows': [1x1] percentage of loadings drawn with an arrow (10 by default)
 %
@@ -91,7 +91,7 @@ addParameter(p,'Title',' ');
 addParameter(p,'ObsLabel',1:N);
 addParameter(p,'ObsClass',ones(N,1));   
 addParameter(p,'VarsLabel',1:M);
-addParameter(p,'BlurIndex',Inf);  
+addParameter(p,'BlurIndex',1);  
 addParameter(p,'PercArrows',10);   
 parse(p,varargin{:});
 
