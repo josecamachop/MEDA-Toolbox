@@ -22,7 +22,7 @@ function varargout = PCA(varargin)
 %       2: auto-scaling 
 %
 %
-% coded by: Elena Jim�nez Ma�as (elenajm@correo.ugr.es).
+% coded by: Elena Jiménez Mañas (elenajm@correo.ugr.es).
 %           Rafael Rodriguez Gomez (rodgom@ugr.es)
 %           Jose Camacho (josecamacho@ugr.es)
 % last modification: 15/Jan/2025
@@ -65,7 +65,7 @@ function varargout = PCA(varargin)
 
 % Edit the above text to modify the response to help PCA
 
-% Last Modified by GUIDE v2.5 22-Nov-2024 11:15:04
+% Last Modified by GUIDE v2.5 23-Aug-2025 17:56:47
 
 % Begin initialization code - DO NOT EDIT
 
@@ -354,6 +354,7 @@ function refreshbutton_Callback(hObject, eventdata, handles)
 % hObject    handle to refreshbutton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
 handles.data.WorkSpace=evalin('base','who');
 
 if ~isempty(handles.data.WorkSpace)
@@ -527,6 +528,7 @@ handles.data.classcore=aux;
 handles.data.labscore=aux2;
 handles.data.clasvar=aux3;
 handles.data.labvar=aux4;
+
 guidata(hObject,handles);
 
 %edit text==PCs
@@ -707,7 +709,7 @@ elseif pc_num > sizeMat(2) || pc_num < 1
 end
 handles.data.PCs=[1:pc_num];
 
-%Si la variable handles.data.PCs es distinta de vacía, imprimir en xpcscorePopup,
+%Si la variable handles.data.PCs es distinta de vacÃ­a, imprimir en xpcscorePopup,
 %xpcvarPopup, ypcvarPopup y ypcscorePopup los PCs posibles.
 if ~isempty(handles.data.PCs)
     set(handles.xpcscorePopup, 'Value',1);
@@ -972,10 +974,10 @@ fig=gcf;
 T_size = size(T);
 if T_size(2) > 1
     matrixPCs_oMEDA=[T(:,1),T(:,2)];
-    set(fig,'Tag','ScorePlot');%En la opci�n etiqueta se indica que el gr�fico es un Score Plot
+    set(fig,'Tag','ScorePlot');%En la opciï¿½n etiqueta se indica que el grï¿½fico es un Score Plot
 else
     matrixPCs_oMEDA=T(:,1);
-    set(fig,'Tag','BarScorePlot');%En la opci�n etiqueta se indica que el gr�fico es un Score Plot
+    set(fig,'Tag','BarScorePlot');%En la opciï¿½n etiqueta se indica que el grï¿½fico es un Score Plot
 end
 
 handles.data.sp_ID_figures=[handles.data.sp_ID_figures fig];%Vector con los identificadores de los Score Plots abiertos
@@ -998,7 +1000,7 @@ function selomedaButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 ID_list=get(0,'Children');
-ID=ID_list(2);%Identificador de la gr�fica seleccionada (debe ser un Score Plot).
+ID=ID_list(2);%Identificador de la grï¿½fica seleccionada (debe ser un Score Plot).
 if ~isnumeric(ID)
     ID = ID.Number;
 end
@@ -1013,10 +1015,10 @@ end
 
 %Es necesario recuperar los datos del Score Plot seleccionado, es decir las observaciones ploteadas en el eje x e y:
 %Voy a recorrer el vector de gcfs de score plots que se llama
-%handles.data.sp_ID_figures, para buscar en que posici�n est� el gcf ID.
+%handles.data.sp_ID_figures, para buscar en que posiciï¿½n estï¿½ el gcf ID.
 for i=1:length(handles.data.sp_ID_figures)
     if handles.data.sp_ID_figures(i)==ID
-        % codigo de compr de que est� vacio
+        % codigo de compr de que estï¿½ vacio
 %         ID
 %         size(handles.data.sp_matrix)
         matrix_2PCs=handles.data.sp_matrix{:,i};
@@ -1025,26 +1027,26 @@ end
 
 irr_pol=impoly;
 vertex=getPosition(irr_pol);
-N=size(vertex,1);%Tama�o de la matriz:
-%filas: n�mero de v�rtices del polinomio irregular
-%columnas: contiene 2 columnas: coordenada x y coordenada y de cada v�rtice.
+N=size(vertex,1);%Tamaï¿½o de la matriz:
+%filas: nï¿½mero de vï¿½rtices del polinomio irregular
+%columnas: contiene 2 columnas: coordenada x y coordenada y de cada vï¿½rtice.
 
 %PASO 1:
-%Calcular los par�metros A, B y C de la ecuaci�n normal de la recta, para
+%Calcular los parï¿½metros A, B y C de la ecuaciï¿½n normal de la recta, para
 %todas las rectas que formen el polinomio irregular dibujado por el usuario
 A=[];
 B=[];
 C=[];
-for i=1:N %Desde 1 hasta el n�mero de v�rtices que tenga el polinomio
+for i=1:N %Desde 1 hasta el nï¿½mero de vï¿½rtices que tenga el polinomio
     %irregular, voy a hacer lo siguiente:
     
-    %Coordenadas de un v�rtice:
+    %Coordenadas de un vï¿½rtice:
     x1=vertex(i,1);
     y1=vertex(i,2);
     
-    %Cooredenadas del siguiente v�rtice:
-    %El if controla el caso en que ya se hayan cogido todos los v�rtices,
-    %el v�rtce en ese caso ser� el primero de ellos, para cerrar la figura.
+    %Cooredenadas del siguiente vï¿½rtice:
+    %El if controla el caso en que ya se hayan cogido todos los vï¿½rtices,
+    %el vï¿½rtce en ese caso serï¿½ el primero de ellos, para cerrar la figura.
     if i==N
         x2=vertex(1,1);
         y2=vertex(1,2);
@@ -1053,14 +1055,14 @@ for i=1:N %Desde 1 hasta el n�mero de v�rtices que tenga el polinomio
         y2=vertex(i+1,2);
     end
     
-    %Coordenadas del vector director de la recta que une ambos v�rtices:
+    %Coordenadas del vector director de la recta que une ambos vï¿½rtices:
     u1=x2-x1;
     u2=y2-y1;
     
     A=[A,u2];%Lista de u2(segunda coordenada del vector director)
     B=[B,-u1];%Lista de u1 (primera coordenada del vector director)
-    c=(u1*y1)-(u2*x1);%C�lculo del par�metro C de la ec.normal de la recta.
-    C=[C,c];%Lista del par�metro C, uno por recta.
+    c=(u1*y1)-(u2*x1);%Cï¿½lculo del parï¿½metro C de la ec.normal de la recta.
+    C=[C,c];%Lista del parï¿½metro C, uno por recta.
 end
 
 %PASO 2:
@@ -1240,17 +1242,17 @@ y1=vertex_line(1,2);
 x2=vertex_line(2,1);
 y2=vertex_line(2,2);
 
-%Coordenadas del vector director de la recta que une ambos v�rtices:
+%Coordenadas del vector director de la recta que une ambos vï¿½rtices:
 u1=x2-x1;
 u2=y2-y1;
 
-%La ecuaci�n de la recta tendencia es:
+%La ecuaciï¿½n de la recta tendencia es:
 A=u2;
 B=-u1;
 C=(u1*y1)-(u2*x1);
 
-%Quiero el punto de corte de la tendencia con la recta que va de la observaci�n
-%a la l�nea tendencia en perpendicular. Esto para cada una de las
+%Quiero el punto de corte de la tendencia con la recta que va de la observaciï¿½n
+%a la lï¿½nea tendencia en perpendicular. Esto para cada una de las
 %observaciones.
 Cutoff_points=[];
 M=size(handles.data.data_matrix,1);
@@ -1263,7 +1265,7 @@ for m=1:M
     v1=A;
     v2=B;
     
-    %La ecuacuaci�n de la recta es:
+    %La ecuacuaciï¿½n de la recta es:
     A2=v2;
     B2=-v1;
     C2=(v1*p2)-(v2*p1);
@@ -1304,14 +1306,14 @@ for k=1:M
     end
 end
 
-%Construcci�n de la nueva DUMMY con pesos:
-%Calcular el punto medio entre las observaciones m�s cercanas obtenidas
-%enteriormente, este ser� el nuevo cero para asignar pesos.
+%Construcciï¿½n de la nueva DUMMY con pesos:
+%Calcular el punto medio entre las observaciones mï¿½s cercanas obtenidas
+%enteriormente, este serï¿½ el nuevo cero para asignar pesos.
 c1=Cutoff_points(ind1,:);
 c2=Cutoff_points(ind2,:);
 NewCenter=(c1+c2)/2;
 
-%Asignaci�n de pesos
+%Asignaciï¿½n de pesos
 for m=1:M
     weights(m)=sum((Cutoff_points(m,:)-NewCenter).^2);
 end
@@ -1509,7 +1511,7 @@ function clasvarPopup_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from clasvarPopup
 
 incoming_data=get(hObject,'Value');%Incoming data position
-string_evaluation=handles.data.clasvar{incoming_data};%Nombre correspondiente a la posici�n
+string_evaluation=handles.data.clasvar{incoming_data};%Nombre correspondiente a la posiciï¿½n
 handles.data.nameClasvar=string_evaluation;
 if strcmp(string_evaluation,'emptyclasses')
     classes_LP = [];
@@ -1652,7 +1654,7 @@ function discardRadio_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % Hint: get(hObject,'Value') returns toggle state of discardRadio
-%Si radio button se�alado q ecit 6 este ON si no se�alado q este OFF
+%Si radio button seï¿½alado q ecit 6 este ON si no seï¿½alado q este OFF
 if get(handles.discardRadio, 'Value')
     set(handles.thresEdit, 'Enable', 'on');
     set(handles.text5, 'Enable', 'on');
@@ -1675,7 +1677,7 @@ function medaPopup_Callback(hObject, eventdata, handles)
 
 PCs_MEDA_position=get(hObject,'Value');%Incoming data position
 contents=get(hObject,'String');
-PCs_MEDA=contents(PCs_MEDA_position,:);%Nombre correspondiente a la posición
+PCs_MEDA=contents(PCs_MEDA_position,:);%Nombre correspondiente a la posiciÃ³n
 
 handles.data.PCs_MEDA=PCs_MEDA;
 
@@ -1732,7 +1734,7 @@ end
 
 %Ahora vamos a recuperar su matriz:
 %Voy a recorrer el vector de gcfs de score plots
-%handles.data.sp_ID_figures, para buscar en que posici�n esta el gcf ID.
+%handles.data.sp_ID_figures, para buscar en que posiciï¿½n esta el gcf ID.
 for i=1:length(handles.data.lp_ID_figures)
     if handles.data.lp_ID_figures(i)==ID
         matrix_2PCs=handles.data.lp_matrix{:,i};
@@ -1748,21 +1750,21 @@ N=size(vertex,1);%Matrix size:
 %vertex.
 
 %PASO 1:
-%Calcular los par�metros A, B y C de la ecuaci�n normal de la recta, para
+%Calcular los parï¿½metros A, B y C de la ecuaciï¿½n normal de la recta, para
 %todas las rectas que formen el polinomio irregular dibujado por el usuario
 A=[];
 B=[];
 C=[];
-for i=1:N%Desde 1 hasta el n�mero de v�rtices que tenga el polinomio
+for i=1:N%Desde 1 hasta el nï¿½mero de vï¿½rtices que tenga el polinomio
     %irregular, voy a hacer lo siguiente:
     
-    %Coordenadas de un v�rtice
+    %Coordenadas de un vï¿½rtice
     x1=vertex(i,1);
     y1=vertex(i,2);
     
-    %Cooredenadas del siguiente v�rtice:
-    %El if controla el caso en que ya se hayan cogido todos los v�rtices,
-    %el v�rtce en ese caso ser� el primero de ellos, para cerrar la figura.
+    %Cooredenadas del siguiente vï¿½rtice:
+    %El if controla el caso en que ya se hayan cogido todos los vï¿½rtices,
+    %el vï¿½rtce en ese caso serï¿½ el primero de ellos, para cerrar la figura.
     if i==N
         x2=vertex(1,1);
         y2=vertex(1,2);
@@ -1771,14 +1773,14 @@ for i=1:N%Desde 1 hasta el n�mero de v�rtices que tenga el polinomio
         y2=vertex(i+1,2);
     end
     
-    %Coordenadas del vector director de la recta que une ambos v�rtices:
+    %Coordenadas del vector director de la recta que une ambos vï¿½rtices:
     u1=x2-x1;
     u2=y2-y1;
     
     A=[A,u2];%Lista de u2(segunda coordenada del vector director)
     B=[B,-u1];%Lista de u1 (primera coordenada del vector director)
-    c=(u1*y1)-(u2*x1);%C�lculo del par�metro C de la ec.normal de la recta.
-    C=[C,c];%Lista del par�metro C, uno por recta.
+    c=(u1*y1)-(u2*x1);%Cï¿½lculo del parï¿½metro C de la ec.normal de la recta.
+    C=[C,c];%Lista del parï¿½metro C, uno por recta.
 end
 
 %PASO 2:
@@ -2004,3 +2006,83 @@ child=get(handles.uipanelPCA,'Children');
 for i=1:length(child)
     set(child(i),'Enable',state_gen);
 end
+
+
+% --------------------------------------------------------------------
+function filemenu_Callback(hObject, eventdata, handles)
+% hObject    handle to filemenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function loaddata_Callback(hObject, eventdata, handles)
+% hObject    handle to loaddata (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Clear the command window for a cleaner display
+clc;
+
+% Display a message to the user
+text = 'Opening file selection dialog...';
+handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
+
+% Use uigetfile to open a file selection dialog.
+% The filter specifies the file types that will be shown.
+% The filter format is: {'filter_spec', 'description'}
+% The 'MultiSelect' option allows the user to select multiple files if needed.
+[filename, pathname] = uigetfile(...
+    {'*.txt;*.csv;*.xlsx', 'Data Files (*.txt, *.csv, *.xlsx)';
+     '*.txt',  'Text Files (*.txt)'; ...
+     '*.csv',  'CSV Files (*.csv)'; ...
+     '*.xlsx',  'Excel Files (*.xlsx)'; ...
+     '*.*',  'All Files (*.*)'}, ...
+    'Select a Data File', ...
+    'MultiSelect', 'off');
+
+% Check if the user selected a file or cancelled the dialog.
+% If the user cancels, uigetfile returns 0 for the filename.
+if isequal(filename, 0)
+    text = 'User cancelled the file selection.';
+    handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
+else
+    % Construct the full file path.
+    fullFilePath = fullfile(pathname, filename);
+    
+    % Display the selected file path to the command window for confirmation.
+    text = sprintf('File selected: %s\n', fullFilePath);
+    handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
+    
+    try
+        vars = loadCsv(fullFilePath);
+        
+        % Get the names of the struct fields
+        field_names = fieldnames(vars);
+
+        % Loop through each field and create a new variable
+        for i = 1:length(field_names)
+            field_name = field_names{i};
+            % The 'eval' function is used here to assign the value
+            eval([field_name, ' = vars.', field_name, ';']);
+        end
+
+        clear vars;
+        
+        text = 'Data loaded successfully into the workspace.';
+        handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
+
+    catch ME
+        % Handle potential errors during the load process,
+        % such as an invalid file format.
+        errordlg(ME.message, 'File Load Error');
+        text = sprintf('Error loading file: %s\n', ME.message);
+        handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
+    end
+end
+
+
+% It's good practice to update the handles structure if you made any changes.
+guidata(hObject, handles);
+
+
