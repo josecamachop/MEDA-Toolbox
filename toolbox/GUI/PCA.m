@@ -290,7 +290,7 @@ if isequal(get(handles.dataPopup,'Enable'),'on')
 
     incoming_data=get(hObject,'Value');%Incoming data position
     string_evaluation=handles.data.WorkSpace{incoming_data};%Name of the incoming data position
-    data_matrix=evalin('base',string_evaluation);%Data content in that name
+    data_matrix=evalin('base',string_evaluation); 
     handles.data.data_matrix=data_matrix;
 
     [M N]=size(handles.data.data_matrix);
@@ -333,7 +333,7 @@ function dataPopup_CreateFcn(hObject, eventdata, handles)
 % Hint: popupmenu controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 handles.data.nameData='';
-handles.data.WorkSpace=evalin('base','who');%name of the variables in the workspace
+handles.data.WorkSpace=evalin('base','who');
 
 if ~isempty(handles.data.WorkSpace)
     set(hObject,'String',handles.data.WorkSpace);
@@ -355,179 +355,9 @@ function refreshbutton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handles.data.WorkSpace=evalin('base','who');
+handles.data.WorkSpace=evalin('base','who'); 
 
-if ~isempty(handles.data.WorkSpace)
-    
-    dataPopup_Callback(handles.dataPopup, eventdata, handles);
-    handles = guidata(handles.dataPopup);
-    
-    set(handles.dataPopup, 'String', handles.data.WorkSpace);
-    nombres=cellstr(get(handles.dataPopup,'String'));
-    if ~isempty(handles.data.nameData)
-        val = 0;
-        for i=1:length(nombres)
-            if strcmp(nombres(i),handles.data.nameData)
-                val=i;
-            end
-        end
-        if val
-            set(handles.dataPopup,'Value',val);
-            handles.data.data_matrix=evalin('base',handles.data.WorkSpace{val});
-        end
-    end
-    %Para que la primera vez que se pulse Refresh con el workspace distinto
-    %de vacio coja la primera matriz automaticamente
-    if handles.data.control_Refresh==0 && isempty(handles.data.data_matrix)
-        string_evaluation=handles.data.WorkSpace{1};
-        data_matrix=evalin('base',string_evaluation);
-        handles.data.data_matrix=data_matrix;
-        handles.data.nameData=string_evaluation;
-    end
-    
-    %Refresh the Label and Classes popupmenus:
-    contents=get(handles.classcorePopup,'String');
-    aux=[];
-    for i=1:length(handles.data.WorkSpace)
-        aux=[aux handles.data.WorkSpace(i,:)];
-    end
-    a1=contents(1,:);
-    for j=1:length(a1)
-        if ~isspace(a1(j))
-            b1(j)=a1(j);
-        end
-    end
-    aux=[b1,aux];
-    set(handles.classcorePopup,'String',strvcat(aux));
-    nombres=cellstr(get(handles.classcorePopup,'String'));
-    if ~strcmp(handles.data.nameClasscore,'emptyclasses')
-        val = 0;
-        for i=1:length(nombres)
-            if strcmp(nombres(i),handles.data.nameClasscore)
-                val=i;
-            end
-        end
-        if val
-            set(handles.classcorePopup,'Value',val);
-            handles.data.classes=evalin('base',handles.data.WorkSpace{val-1});    
-        end
-    end
-    
-    contents=get(handles.labscorePopup,'String');
-    aux2=[];
-    for i=1:length(handles.data.WorkSpace)
-        aux2=[aux2 handles.data.WorkSpace(i,:)];
-    end
-    a2=contents(1,:);
-    for j=1:length(a2)
-        if ~isspace(a2(j))
-            b2(j)=a2(j);
-        end
-    end
-    aux2=[b2,aux2];
-    set(handles.labscorePopup,'String',strvcat(aux2));
-    nombres=cellstr(get(handles.labscorePopup,'String'));
-    if ~strcmp(handles.data.nameLabscore,'emptylabel')
-        val = 0;
-        for i=1:length(nombres)
-            if strcmp(nombres(i),handles.data.nameLabscore)
-                val=i;
-            end
-        end
-        if val
-            set(handles.labscorePopup,'Value',val);
-            handles.data.label=evalin('base',handles.data.WorkSpace{val-1});  
-        end
-    end
-    
-    
-    contents=get(handles.clasvarPopup,'String');
-    aux3=[];
-    for i=1:length(handles.data.WorkSpace)
-        aux3=[aux3 handles.data.WorkSpace(i,:)];
-    end
-    a3=contents(1,:);
-    for j=1:length(a3)
-        if ~isspace(a3(j))
-            b3(j)=a3(j);
-        end
-    end
-    aux3=[b3,aux3];
-    set(handles.clasvarPopup,'String',strvcat(aux3));
-    nombres=cellstr(get(handles.clasvarPopup,'String'));
-    if ~strcmp(handles.data.nameClasvar,'emptyclasses')
-        val = 0;
-        for i=1:length(nombres)
-            if strcmp(nombres(i),handles.data.nameClasvar)
-                val=i;
-            end
-        end
-        if val
-            set(handles.clasvarPopup,'Value',val);
-            handles.data.classes_LP=evalin('base',handles.data.WorkSpace{val-1});
-        end
-    end
-    
-    contents=get(handles.labvarPopup,'String');
-    aux4=[];
-    for i=1:length(handles.data.WorkSpace)
-        aux4=[aux4 handles.data.WorkSpace(i,:)];
-    end
-    a4=contents(1,:);
-    for j=1:length(a4)
-        if ~isspace(a4(j))
-            b4(j)=a4(j);
-        end
-    end
-    aux4=[b4,aux4];
-    set(handles.labvarPopup,'String',strvcat(aux4));
-    nombres=cellstr(get(handles.labvarPopup,'String'));
-    if ~strcmp(handles.data.nameLabvar,'emptylabel')
-        val = 0;
-        for i=1:length(nombres)
-            if strcmp(nombres(i),handles.data.nameLabvar)
-                val=i;
-            end
-        end
-        if val
-            set(handles.labvarPopup,'Value',val);
-            handles.data.label_LP=evalin('base',handles.data.WorkSpace{val-1});
-        end
-    end
-    
-    handles.data.control_Refresh=1;
-else
-    set(handles.dataPopup, 'String', ' ');
-    handles.data.data_matrix=[];
-    
-    handles = state_change(handles,0);
-    
-    contents=get(handles.classcorePopup,'String');
-    aux=[];
-    aux=[contents(1,:),aux];
-    
-    contents=get(handles.labscorePopup,'String');
-    aux2=[];
-    aux2=[contents(1,:),aux2];
-    
-    contents=get(handles.clasvarPopup,'String');
-    aux3=[];
-    aux3=[contents(1,:),aux3];
-    
-    contents=get(handles.labvarPopup,'String');
-    aux4=[];
-    aux4=[contents(1,:),aux4];
-    
-    %TODO substitute by error dialog
-    %Information panel:
-    text=sprintf('Warning: No data matrices in workspace.');
-    handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
-end
-
-handles.data.classcore=aux;
-handles.data.labscore=aux2;
-handles.data.clasvar=aux3;
-handles.data.labvar=aux4;
+handles = updateGui(eventdata, handles);
 
 guidata(hObject,handles);
 
@@ -833,6 +663,7 @@ labscore={'emptylabel'};
 set(hObject,'String',labscore);
 
 handles.data.WorkSpace=evalin('base','who');
+
 if ~isempty(handles.data.WorkSpace)
     for i=1:length(handles.data.WorkSpace)
         labscore=[labscore handles.data.WorkSpace(i,:)];
@@ -906,6 +737,7 @@ classcore={'emptyclasses'};
 set(hObject,'String',classcore);
 
 handles.data.WorkSpace=evalin('base','who');
+
 if ~isempty(handles.data.WorkSpace)
     for i=1:length(handles.data.WorkSpace)
         classcore=[classcore handles.data.WorkSpace(i,:)];
@@ -1478,7 +1310,8 @@ handles.data.label_LP={};
 labvar={'emptylabel'};
 set(hObject,'String',labvar);
 
-handles.data.WorkSpace=evalin('base','who');%nombres de las variables
+handles.data.WorkSpace=evalin('base','who');
+
 if ~isempty(handles.data.WorkSpace)
     for i=1:length(handles.data.WorkSpace)
         labvar=[labvar handles.data.WorkSpace(i,:)];
@@ -1550,7 +1383,8 @@ handles.data.classes_LP=[];
 clasvar={'emptyclasses'};
 set(hObject,'String',clasvar);
 
-handles.data.WorkSpace=evalin('base','who');%nombres de las variables
+handles.data.WorkSpace=evalin('base','who'); 
+
 if ~isempty(handles.data.WorkSpace)
     for i=1:length(handles.data.WorkSpace)
         clasvar=[clasvar handles.data.WorkSpace(i,:)];
@@ -2058,13 +1892,12 @@ else
         vars = loadCsv(fullFilePath);
         
         % Get the names of the struct fields
-        field_names = fieldnames(vars);
-
-        % Loop through each field and create a new variable
-        for i = 1:length(field_names)
-            field_name = field_names{i};
-            % The 'eval' function is used here to assign the value
-            eval([field_name, ' = vars.', field_name, ';']);
+        handles.data.WorkSpace = fieldnames(vars);
+        
+        % % Loop through each field and create a new variable
+        for i = 1:length(handles.data.WorkSpace)
+            field_name = handles.data.WorkSpace{i};
+            assignin('base',field_name,eval(['vars.' field_name]));
         end
 
         clear vars;
@@ -2081,8 +1914,182 @@ else
     end
 end
 
+handles = updateGui(eventdata, handles);
 
 % It's good practice to update the handles structure if you made any changes.
 guidata(hObject, handles);
 
 
+function handles = updateGui(eventdata, handles)
+
+if ~isempty(handles.data.WorkSpace)
+    
+    dataPopup_Callback(handles.dataPopup, eventdata, handles);
+    handles = guidata(handles.dataPopup);
+    
+    set(handles.dataPopup, 'String', handles.data.WorkSpace);
+    nombres=cellstr(get(handles.dataPopup,'String'));
+    if ~isempty(handles.data.nameData)
+        val = 0;
+        for i=1:length(nombres)
+            if strcmp(nombres(i),handles.data.nameData)
+                val=i;
+            end
+        end
+        if val
+            set(handles.dataPopup,'Value',val);
+            handles.data.data_matrix=evalin('base',handles.data.WorkSpace{val});
+        end
+    end
+    %Para que la primera vez que se pulse Refresh con el workspace distinto
+    %de vacio coja la primera matriz automaticamente
+    if handles.data.control_Refresh==0 && isempty(handles.data.data_matrix)
+        string_evaluation=handles.data.WorkSpace{1};
+        data_matrix=evalin('base',string_evaluation);     
+        handles.data.data_matrix=data_matrix;
+        handles.data.nameData=string_evaluation;
+    end
+    
+    %Refresh the Label and Classes popupmenus:
+    contents=get(handles.classcorePopup,'String');
+    aux=[];
+    for i=1:length(handles.data.WorkSpace)
+        aux=[aux handles.data.WorkSpace(i,:)];
+    end
+    a1=contents(1,:);
+    for j=1:length(a1)
+        if ~isspace(a1(j))
+            b1(j)=a1(j);
+        end
+    end
+    aux=[b1,aux];
+    set(handles.classcorePopup,'String',strvcat(aux));
+    nombres=cellstr(get(handles.classcorePopup,'String'));
+    if ~strcmp(handles.data.nameClasscore,'emptyclasses')
+        val = 0;
+        for i=1:length(nombres)
+            if strcmp(nombres(i),handles.data.nameClasscore)
+                val=i;
+            end
+        end
+        if val
+            set(handles.classcorePopup,'Value',val);
+            handles.data.classes=evalin('base',handles.data.WorkSpace{val-1}); 
+        end
+    end
+    
+    contents=get(handles.labscorePopup,'String');
+    aux2=[];
+    for i=1:length(handles.data.WorkSpace)
+        aux2=[aux2 handles.data.WorkSpace(i,:)];
+    end
+    a2=contents(1,:);
+    for j=1:length(a2)
+        if ~isspace(a2(j))
+            b2(j)=a2(j);
+        end
+    end
+    aux2=[b2,aux2];
+    set(handles.labscorePopup,'String',strvcat(aux2));
+    nombres=cellstr(get(handles.labscorePopup,'String'));
+    if ~strcmp(handles.data.nameLabscore,'emptylabel')
+        val = 0;
+        for i=1:length(nombres)
+            if strcmp(nombres(i),handles.data.nameLabscore)
+                val=i;
+            end
+        end
+        if val
+            set(handles.labscorePopup,'Value',val); 
+            handles.data.label=evalin('base',handles.data.WorkSpace{val-1}); 
+        end
+    end
+    
+    
+    contents=get(handles.clasvarPopup,'String');
+    aux3=[];
+    for i=1:length(handles.data.WorkSpace)
+        aux3=[aux3 handles.data.WorkSpace(i,:)];
+    end
+    a3=contents(1,:);
+    for j=1:length(a3)
+        if ~isspace(a3(j))
+            b3(j)=a3(j);
+        end
+    end
+    aux3=[b3,aux3];
+    set(handles.clasvarPopup,'String',strvcat(aux3));
+    nombres=cellstr(get(handles.clasvarPopup,'String'));
+    if ~strcmp(handles.data.nameClasvar,'emptyclasses')
+        val = 0;
+        for i=1:length(nombres)
+            if strcmp(nombres(i),handles.data.nameClasvar)
+                val=i;
+            end
+        end
+        if val
+            set(handles.clasvarPopup,'Value',val);
+            handles.data.classes_LP=evalin('base',handles.data.WorkSpace{val-1}); 
+        end
+    end
+    
+    contents=get(handles.labvarPopup,'String');
+    aux4=[];
+    for i=1:length(handles.data.WorkSpace)
+        aux4=[aux4 handles.data.WorkSpace(i,:)];
+    end
+    a4=contents(1,:);
+    for j=1:length(a4)
+        if ~isspace(a4(j))
+            b4(j)=a4(j);
+        end
+    end
+    aux4=[b4,aux4];
+    set(handles.labvarPopup,'String',strvcat(aux4));
+    nombres=cellstr(get(handles.labvarPopup,'String'));
+    if ~strcmp(handles.data.nameLabvar,'emptylabel')
+        val = 0;
+        for i=1:length(nombres)
+            if strcmp(nombres(i),handles.data.nameLabvar)
+                val=i;
+            end
+        end
+        if val
+            set(handles.labvarPopup,'Value',val);
+            handles.data.label_LP=evalin('base',handles.data.WorkSpace{val-1}); 
+        end
+    end
+    
+    handles.data.control_Refresh=1;
+else
+    set(handles.dataPopup, 'String', ' ');
+    handles.data.data_matrix=[];
+    
+    handles = state_change(handles,0);
+    
+    contents=get(handles.classcorePopup,'String');
+    aux=[];
+    aux=[contents(1,:),aux];
+    
+    contents=get(handles.labscorePopup,'String');
+    aux2=[];
+    aux2=[contents(1,:),aux2];
+    
+    contents=get(handles.clasvarPopup,'String');
+    aux3=[];
+    aux3=[contents(1,:),aux3];
+    
+    contents=get(handles.labvarPopup,'String');
+    aux4=[];
+    aux4=[contents(1,:),aux4];
+    
+    %TODO substitute by error dialog
+    %Information panel:
+    text=sprintf('Warning: No data matrices in workspace.');
+    handles.data.sumtext=cprint(handles.sumText,text,handles.data.sumtext,0);
+end
+
+handles.data.classcore=aux;
+handles.data.labscore=aux2;
+handles.data.clasvar=aux3;
+handles.data.labvar=aux4;
