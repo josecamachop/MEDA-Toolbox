@@ -1,7 +1,7 @@
 ﻿EDA example with PCA using the MEDA Toolbox. 
 
-Coded by: Jose Camacho and Jesús García
-Last modification of this document: 25/Jan/2025
+Coded by: The CoDaS Lab
+Last modification of this document: 28/Aug/2025
 
 References:
 
@@ -86,6 +86,7 @@ Items in the folder:
 
 	- lab: labels of the variables.
 
+- data_proc.xslx: csv file for the GUI.
 
 - Script.mlx: Live Script to perform the EDA using the MEDA Toolbox commands. To run the script, the 
 	current directory should be the one where the script is stored.

@@ -134,8 +134,8 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 8/Aug/2025
-% Dependencies: Matlab R2017b, MEDA v1.9
+% Last modification: 25/Aug/2025
+% Dependencies: Matlab R2017b, MEDA v1.10
 %
 % Copyright (C) 2025  University of Granada, Granada
 %
@@ -527,11 +527,11 @@ for i2=1:nRep
                     else % nested
                         mati = powercurveo.factors{f}.matrix;
                         Fi = F(:,[powercurveo.factors{f}.factors f]);
-                        Fi(:,2:end) = Fi(:,2:end)-1;
-                        Li = powercurveo.nLevels([powercurveo.factors{f}.factors f]);
                         powercurveo.factors{f}.matrix = [];
-                        for n = 1: N
-                            powercurveo.factors{f}.matrix(n,:) = mati(Fi(n,:)*[1 Li(1:end-1)]',:);
+                        uF = unique(Fi,'rows');
+                        for n = 1: size(uF,1)
+                            ind = find(uF(n,1)==Fi(:,1)&uF(n,2)==Fi(:,2));
+                            powercurveo.factors{f}.matrix(ind,:) = ones(length(ind),1)*mati(n,:);
                         end
                     end
                 end            
@@ -542,11 +542,11 @@ for i2=1:nRep
                 mati = randg(prod(powercurveo.nLevels(powercurveo.interactions{i}.factors)),M);
                 mati = sqrt(size(mati,1))*mati/norm(mati,'fro'); 
                 Fi = F(:,powercurveo.interactions{i}.factors);
-                Fi(:,2:end) = Fi(:,2:end)-1;
-                Li = powercurveo.nLevels(powercurveo.interactions{i}.factors);
                 powercurveo.interactions{i}.matrix = [];
-                for n = 1: N
-                    powercurveo.interactions{i}.matrix(n,:) = mati(Fi(n,:)*[1 Li(1:end-1)]',:);
+                uF = unique(Fi,'rows');
+                for n = 1: size(uF,1)
+                    ind = find(uF(n,1)==Fi(:,1)&uF(n,2)==Fi(:,2));
+                    powercurveo.interactions{i}.matrix(ind,:) = ones(length(ind),1)*mati(n,:);
                 end
             end
         end
@@ -576,10 +576,10 @@ for i2=1:nRep
                     Xm = Xm + randgC() * powercurveo.coeffs(f) * powercurveo.factors{f}.matrix;
                 end
             end
-            
+                        
             % Parallel GLM
-            [T, parglmo] = parglm(Xm, F, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc',fmtc, 'Coding',coding, 'Nested',nested);
-            
+            [T, parglmo] = parglm(Xm, F, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
+
             powercurveo.T{i2,a} = T;
             
             for o = 1:length(powercurveo.coeffs)
@@ -648,14 +648,14 @@ for i2=1:nRep
                         
                         if isempty(nested) || isempty(find(nested(:,2)==f)) % order 1
                             powercurveo.factors{f}.matrix = powercurveo.factors{f}.matrix(F(:,f),:);
-                        else % nested
+                        else % nested                       
                             mati = powercurveo.factors{f}.matrix;
                             Fi = F(:,[powercurveo.factors{f}.factors f]);
-                            Fi(:,2:end) = Fi(:,2:end)-1;
-                            Li = powercurveo.nLevels([powercurveo.factors{f}.factors f]);
                             powercurveo.factors{f}.matrix = [];
-                            for n = 1: N
-                                powercurveo.factors{f}.matrix(n,:) = mati(Fi(n,:)*[1 Li(1:end-1)]',:);
+                            uF = unique(Fi,'rows');
+                            for n = 1: size(uF,1)
+                                ind = find(uF(n,1)==Fi(:,1)&uF(n,2)==Fi(:,2));
+                                powercurveo.factors{f}.matrix(ind,:) = ones(length(ind),1)*mati(n,:);
                             end
                         end
                     end
@@ -664,13 +664,13 @@ for i2=1:nRep
                 for i = 1 : nInteractions
                     randg = randv{nFactors+i};
                     mati = randg(prod(powercurveo.nLevels(powercurveo.interactions{i}.factors)),M);
-                    mati = sqrt(size(mati,1))*mati/norm(mati,'fro');
+                    mati = sqrt(size(mati,1))*mati/norm(mati,'fro'); 
                     Fi = F(:,powercurveo.interactions{i}.factors);
-                    Fi(:,2:end) = Fi(:,2:end)-1;
-                    Li = powercurveo.nLevels(powercurveo.interactions{i}.factors);
                     powercurveo.interactions{i}.matrix = [];
-                    for n = 1: N
-                        powercurveo.interactions{i}.matrix(n,:) = mati(Fi(n,:)*[1 Li(1:end-1)]',:);
+                    uF = unique(Fi,'rows');
+                    for n = 1: size(uF,1)
+                        ind = find(uF(n,1)==Fi(:,1)&uF(n,2)==Fi(:,2));
+                        powercurveo.interactions{i}.matrix(ind,:) = ones(length(ind),1)*mati(n,:);
                     end
                 end
             else
@@ -710,11 +710,11 @@ for i2=1:nRep
                                     else % nested
                                         mati = powercurveo.factors{f}.matrix;
                                         Fi = F(:,[powercurveo.factors{f}.factors f]);
-                                        Fi(:,2:end) = Fi(:,2:end)-1;
-                                        Li = powercurveo.nLevels([powercurveo.factors{f}.factors f]);
                                         powercurveo.factors{f}.matrix = [];
-                                        for n = 1: N
-                                            powercurveo.factors{f}.matrix(n,:) = mati(Fi(n,:)*[1 Li(1:end-1)]',:);
+                                        uF = unique(Fi,'rows');
+                                        for n = 1: size(uF,1)
+                                            ind = find(uF(n,1)==Fi(:,1)&uF(n,2)==Fi(:,2));
+                                            powercurveo.factors{f}.matrix(ind,:) = ones(length(ind),1)*mati(n,:);
                                         end
                                     end
                                 end

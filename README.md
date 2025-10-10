@@ -1,7 +1,7 @@
 <h1>Multivariate Exploratory Data Analysis (MEDA) Toolbox for its use in MATLAB</h1> 
 
 Contact person: Jose Camacho (josecamacho@ugr.es) <br>
-Last modification of this document: 20/Nov/24
+Last modification of this document: 28/Aug/25
 
 The Multivariate Exploratory Data Analysis (MEDA) Toolbox in Matlab is a set of multivariate analysis tools for the exploration of data sets. 
 There are several alternative tools in the market for that purpose, both commercial and free. The PLS_Toolbox from Eigenvector Inc. 
@@ -19,7 +19,7 @@ Please, acknowledge the use of this software by referencing: "Camacho, J., Pére
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
 
-<h2>Installation</h2>
+<h2>Installation for Matlab (recommended)</h2>
 
 1 - Download and extract (or git clone) in a directory of your choice <directory_path>
 
@@ -32,6 +32,12 @@ For step 2, in the MATLAB command line, you may use commands 'addpath' and 'genp
 	>> addpath(genpath('<directory_path>\toolbox')) 
 
 and then 'savepath'. You may alternatively use the 'pathtool' from the command line or the menu.
+
+<h2> Standalone Installation</h2>
+
+1 - Download and extract (or git clone) in a directory of your choice <directory_path>
+
+2 - Run the excutable file MEDAIntaller.exe
 
 <h2>Working with the MEDA Toolbox</h2>
 
