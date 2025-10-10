@@ -130,14 +130,8 @@ if isfield(model,'scoresV')
     T = model.scoresV;
 end
 
-Ppos = P; Ppos(find(Ppos<0)) = 0;
-Tpos = T; Tpos(find(Tpos<0)) = 0;
-Pneg = P; Pneg(find(Pneg>0)) = 0;
-Tneg = T; Tneg(find(Tneg>0)) = 0;
 for i=1:length(model.lvs)
-    rP = max(range(Ppos(:,i)),range(Pneg(:,i)));
-    rT = max(range(Tpos(:,i)),range(Tneg(:,i)));
-    P2(:,i) = P(:,i)*rT/rP;
+    P2(:,i) = P(:,i)*range([0;T(:,i)])/range([0;P(:,i)]);
 end
 
 %% Show results
@@ -161,7 +155,7 @@ for i=1:length(model.lvs)-1
         ind = find(rel1>lim1 | rel2>lim2); % plot most relevant loadings  with arrows
         scatter(P2(ind,i),P2(ind,j),[], [0 0 0],'^','filled', 'HandleVisibility', 'off')
         for ii=1:length(ind)
-            plot([0 P2(ind(ii),i)],[0 P2(ind(ii),j)],'k-^', 'HandleVisibility', 'off');
+            plot([0 P2(ind(ii),i)],[0 P2(ind(ii),j)],'--^', 'Color', [.7 .7 .7], 'HandleVisibility', 'off');
         end
         
         textScatter(figH(end),[P2(ind,i),P2(ind,j)],'EleLabel',vlabel(ind),'BlurIndex',blur(2));
