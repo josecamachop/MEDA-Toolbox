@@ -84,6 +84,9 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 N = size(model.scores, 1);
 M = size(model.loads,1);
+if isfield(model,'scoresV')
+    N = size(model.scoresV, 1);
+end
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser; 
