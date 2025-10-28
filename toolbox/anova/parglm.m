@@ -301,6 +301,7 @@ for f = 1 : nFactors
             end
             n = n + length(uF) - 1;
             parglmo.factors{f}.order = 1;
+            parglmo.factors{f}.factors = f; %MDSA - missing factor for non-nested, non-ordinal factors            
         else % if nested
             ind = find(nested(:,2)==f);
             ref = nested(ind,1);
