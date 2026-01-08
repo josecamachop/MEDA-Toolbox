@@ -35,6 +35,10 @@ function figH = biplot(model,varargin)
 %
 % 'PercArrows': [1x1] percentage of loadings drawn with an arrow (10 by default)
 %
+% 'Color': Choose a color for your data.  
+%   - 'hsv' for hsv palette 
+%   - 'parula' for parula palette
+%   - 'okabeIto' for color blindness (by default for multiple classes) 
 %
 % OUTPUTS:
 %
@@ -59,7 +63,7 @@ function figH = biplot(model,varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 14/Aug/2025
+% Last modification: 08/Jan/2026
 % Dependencies: Matlab R2017b, MEDA v1.9
 %
 % Copyright (C) 2025  University of Granada, Granada
@@ -96,6 +100,7 @@ addParameter(p,'ObsClass',ones(N,1));
 addParameter(p,'VarsLabel',1:M);
 addParameter(p,'BlurIndex',1);  
 addParameter(p,'PercArrows',10);   
+addParameter(p,'Color',[]);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -105,6 +110,7 @@ classes = p.Results.ObsClass;
 vlabel = p.Results.VarsLabel;
 blur = p.Results.BlurIndex;
 arrows = p.Results.PercArrows;
+color = p.Results.Color;
 
 
 % Convert row arrays to column arrays
@@ -143,7 +149,7 @@ figH = [];
 for i=1:length(model.lvs)-1
     for j=i+1:length(model.lvs)
         
-        figH = [figH plotScatter([T(:,i),T(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}','BlurIndex',blur(1))];
+        figH = [figH plotScatter([T(:,i),T(:,j)], 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{sprintf('PC %d (%.0f%%)',model.lvs(i),100*trace(model.scores(:,i)'*model.scores(:,i))/model.var),sprintf('PC %d (%.0f%%)',model.lvs(j),100*trace(model.scores(:,j)'*model.scores(:,j))/model.var)}','BlurIndex',blur(1), 'Color', color)];
         title(tit);
         
         hold on
