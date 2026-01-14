@@ -87,8 +87,8 @@ function figH = scores(model,varargin)
 % scores(model,'ObsTest',test);
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 14/Aug/2025
-% Dependencies: Matlab R2017b, MEDA v1.9
+% Last modification: 10/Dec/2025
+% Dependencies: Matlab R2017b, MEDA v1.10
 %
 % Copyright (C) 2025  University of Granada, Granada
 % 
@@ -176,8 +176,13 @@ if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: paramet
 
 T = model.scores;
 P = model.loads; % If T is not orthogonal, P should have been obtained as X'/T'
-%d = diag(T'*T);
-d = sort(eig((T*P')'*(T*P')),'descend');
+if M>N
+    PD = P'*P;
+    d = sort(eig(T*PD*T'),'descend');
+else
+    PT = T'*T;
+    d = sort(eig(P*PT*P'),'descend');
+end
 
 if isfield(model,'scoresV')
     T = model.scoresV;

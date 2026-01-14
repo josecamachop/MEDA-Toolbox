@@ -82,8 +82,8 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % 
 %
 % 'Random': [1xF] whether factors are fixed or random
-%       0: fixed (default)
-%       1: random
+%       0: fixed 
+%       1: random (default, so far the simulation is always random)
 %
 % 'Fmtc': [1x1] correct for multiple-tesis when multifactorial (multi-way)
 % analysis
@@ -99,6 +99,8 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %
 % 'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
 %   and 3 in 2, then nested = [1 2; 2 3]
+%
+% 'Stable': [bool] maintain a fixed seed for reproducibility (false by default)
 %
 % 'RepFactor': [1x1] index of the factor with replicates (only used for type
 % 3), 0 by default, meaning no factor with replicates
@@ -134,10 +136,10 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 25/Aug/2025
+% Last modification: 14/Jan/2026
 % Dependencies: Matlab R2017b, MEDA v1.10
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -188,6 +190,7 @@ addParameter(p,'Random',zeros(1,size(F,2)));
 addParameter(p,'Fmtc',0);
 addParameter(p,'Coding',zeros(1,size(F,2)));
 addParameter(p,'Nested',[]);
+addParameter(p,'Stable',false);
 addParameter(p,'RepFactor',0);
 parse(p,varargin{:});
 
@@ -207,6 +210,7 @@ random = p.Results.Random;
 fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
+stable = p.Results.Stable;
 replicates = p.Results.RepFactor;
 
 if isempty(theta)
@@ -507,8 +511,7 @@ powercurveo2 = powercurveo;
 for i2=1:nRep
     
     %disp(i2)
-    
-    rng(i2);
+    if stable, rng(i2); end
     
     if type == 1 % Relative PCs
         
@@ -545,7 +548,7 @@ for i2=1:nRep
                 powercurveo.interactions{i}.matrix = [];
                 uF = unique(Fi,'rows');
                 for n = 1: size(uF,1)
-                    ind = find(uF(n,1)==Fi(:,1)&uF(n,2)==Fi(:,2));
+                    ind = find(ismember(Fi, uF(n,:), 'rows'));
                     powercurveo.interactions{i}.matrix(ind,:) = ones(length(ind),1)*mati(n,:);
                 end
             end

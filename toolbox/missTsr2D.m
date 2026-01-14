@@ -1,4 +1,4 @@
-function rec = missTsr2D(x,pc,varargin)
+function rec = missTsr2D(x,pcs,varargin)
 
 % Missing data imputation with Trimmed Scores Regression.
 %
@@ -11,7 +11,8 @@ function rec = missTsr2D(x,pc,varargin)
 %
 % x: (NxM) data matrix, N(observations) x M(variables)
 %
-% pc: (1x1) number of principal components for the D-statistic.
+% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+%   first two PCs).
 %
 %
 % Optional INPUTS (parameters):
@@ -35,22 +36,26 @@ function rec = missTsr2D(x,pc,varargin)
 %
 % rec: (NxM) recovered data matrix, N(observations) x M(variables)
 %
+%
 % EXAMPLE FO USE:
 %
-% X = simuleMV(20,10,'LevelCorr',8);
-% pc = 1;
+% X = simuleMV(20,100,'LevelCorr',8);
+% pcs = 1:2;
 % Xmiss = X;
 % missLoc = round(200*rand(10,1));
 % Xmiss(missLoc) = nan;
 % 
-% rec = missTsr2D(Xmiss,pc,'Iterations',50);
-% plotScatter([X(missLoc),rec(missLoc)],'XYLabel',{'Real' 'Predicted'});
+% rec0 = missTsr2D(Xmiss,0);
+% plotScatter([X(missLoc),rec0(missLoc)],'XYLabel',{'Real' 'Uncond. Mean Replacement'});
+%
+% rec = missTsr2D(Xmiss,pcs);
+% plotScatter([X(missLoc),rec(missLoc)],'XYLabel',{'Real' 'TSR'});
 % 
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 18/Nov/2024
+% last modification: 28/Dec/2025
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -64,14 +69,30 @@ function rec = missTsr2D(x,pc,varargin)
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>
-%% Main Code
-% Parameters checking
+%% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
+if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end
 s = size(x);
-if find(s<1), error('Incorrect content of x.'); end;
-if pc<0, error('Incorrect value of pc.'); end;
+if find(s<1), error('Incorrect content of x.'); end
+
+% Convert column arrays to row arrays
+if size(pcs,2) == 1, pcs = pcs'; end
+
+% Preprocessing
+pcs = unique(pcs);
+pcs(find(pcs==0)) = [];
+pcs(find(pcs>size(x,2))) = [];
+A = length(pcs);
+
+% Validate dimensions of input data
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+
+% Validate values of input data
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 
 
 % Introduce optional inputs as parameters (name-value pair) 
@@ -123,15 +144,8 @@ while e0>conv && num0 > 0
 
     [xce,m,d] = preprocess2D(ax,'Preprocessing',prep);
     
-    med = zeros(s);
-    for j=1:s(1)
-        med(j,:) = m;
-    end
-    
-    dev = zeros(s);
-    for j=1:s(1)
-        dev(j,:) = d;
-    end
+    med = repmat(m,s(1),1);
+    dev = repmat(d,s(1),1);
    
     if loopIni
         loopIni = false;
@@ -142,32 +156,14 @@ while e0>conv && num0 > 0
     ax = xce;
     sa = size(ax);
 
-    T=[];
-    P=[];
-    ax2=ax;
-    for j=1:pc % PCA model
-        e1=Inf;
-        num1=iter;
-        t=ax(:,1);
-        while e1>conv && num1 > 0
-            p=t'*ax2;
-            p=p/sqrt(p*p');
-            t2=ax2*p';
-            e1=sum((t-t2).^2);
-            t=t2;
-            num1 = num1-1;
-        end
-        
-        ax2=ax2-t*p;
-        T=[T t];
-        P=[P,p'];
-    end
+    model = pcaEig(ax,'PCs',pcs);
+    T=model.scores;
+    P=model.loads;
          
-    if pc>0
-        T=ax*P;
+    if max(pcs)>0
         for i=1:sa(2)
             TT=ax(:,[1:i-1 i+1:end])*P([1:i-1 i+1:end],:);
-            r=inv(TT'*TT)*TT'*T;
+            r=(TT'*TT)\TT'*T;
             ax2(:,i)=TT*r*P(i,:)';
         end
 

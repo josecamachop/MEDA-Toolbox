@@ -47,8 +47,8 @@ function Xout = simuleDData(X, F, varargin)
 %       1: ordinal
 %
 % 'Random': [1xF] whether factors are fixed or random
-%       0: fixed (default)
-%       1: random
+%       0: fixed 
+%       1: random (default, so far the simulation is always random)
 %
 % 'Coding': [1xF] type of coding of factors
 %       0: sum/deviation coding (default)
@@ -56,6 +56,8 @@ function Xout = simuleDData(X, F, varargin)
 %
 % 'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
 %   and 3 in 2, then nested = [1 2; 2 3]
+%
+% 'Stable': [bool] maintain a fixed seed for reproducibility (false by default)
 %
 %
 % OUTPUTS:
@@ -87,10 +89,10 @@ function Xout = simuleDData(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 24/Aug/2025
+% Last modification: 14/Jan/2026
 % Dependencies: Matlab R2017b, MEDA v1.10
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -126,9 +128,10 @@ addParameter(p,'RandomGen',@randn);
 addParameter(p,'RamdonGenC',@()1);
 addParameter(p,'Theta',[]);
 addParameter(p,'Ordinal',zeros(1,size(F,2)));
-addParameter(p,'Random',zeros(1,size(F,2))); 
+addParameter(p,'Random',ones(1,size(F,2))); 
 addParameter(p,'Coding',zeros(1,size(F,2)));
 addParameter(p,'Nested',[]);
+addParameter(p,'Stable',false);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -140,6 +143,9 @@ ordinal = p.Results.Ordinal;
 random = p.Results.Random;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
+stable = p.Results.Stable;
+
+if stable, rng(0); end
 
 if isempty(theta)
     theta = 0:0.1:1; 
@@ -336,7 +342,7 @@ for i = 1 : nInteractions
     powercurveo.interactions{i}.matrix = [];
     uF = unique(Fi,'rows');
     for n = 1: size(uF,1)
-        ind = find(uF(n,1)==Fi(:,1)&uF(n,2)==Fi(:,2));
+        ind = find(ismember(Fi, uF(n,:), 'rows'));
         powercurveo.interactions{i}.matrix(ind,:) = ones(length(ind),1)*mati(n,:);
     end
 end

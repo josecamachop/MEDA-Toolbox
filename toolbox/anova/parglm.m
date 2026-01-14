@@ -140,10 +140,10 @@ function [T, parglmo] = parglm(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 12/Jul/2025
-% Dependencies: Matlab R2017b, MEDA v1.9
+% Last modification: 14/Jan/2026
+% Dependencies: Matlab R2017b, MEDA v1.10
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -335,11 +335,19 @@ for i = 1 : nInteractions
     parglmo.interactions{i}.factors = interactions{i};
     parglmo.interactions{i}.type = sum(random(interactions{i}) == 1) > 0;
     n = size(D,2);
-   
+    
     Mm=0;
     for j=1:length(interactions{i})
         Mm = max(Mm,parglmo.factors{j}.order);
     end
+
+    for i2 = 1 : i-1
+        [~,ia,ib] = intersect(parglmo.interactions{i2}.factors,parglmo.interactions{i}.factors);
+        if (length(ia) == length(parglmo.interactions{i2}.factors) & length(parglmo.interactions{i}.factors) > length(parglmo.interactions{i2}.factors))
+             Mm = max(Mm,parglmo.interactions{i2}.order);
+        end
+    end
+
     parglmo.interactions{i}.order = Mm + 1;
     parglmo.interactions{i}.refI = [];
 end
@@ -388,6 +396,10 @@ for i=1:length(ru)
 end
 parglmo.data = X;
 parglmo.Xnan = Xnan;
+parglmo.df = df;
+parglmo.dfint = dfint;
+parglmo.Tdf = Tdf;
+parglmo.Rdf = Rdf;
 
 SSQX = sum(sum(X.^2));
 

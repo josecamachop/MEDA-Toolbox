@@ -207,6 +207,6 @@ cumpress = sum(press,3);
 %% Show results
 
 if opt
-    figh = plotVec(cumpress,'EleLabel',lvs,'XYLabel',{'#NZV','PRESS'},'PlotType','Lines','VecLabel',keepXs,'Color','jet'); 
+    figh = plotVec(cumpress,'EleLabel',lvs,'XYLabel',{'#LVs','PRESS'},'PlotType','Lines','VecLabel',keepXs,'Color','jet'); 
 end
 
