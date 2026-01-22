@@ -63,9 +63,9 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 % 'Alpha': [1x1] significance level (0.05 by defult)
 %
 % 'Preprocessing': [1x1] preprocesing:
-%       0: no preprocessing 
+%       0: no preprocessing (default for input as a struct)
 %       1: mean-centering 
-%       2: auto-scaling (default)
+%       2: auto-scaling (default for input as data)
 %
 % 'Permutations': [1x1] number of permutations (1000 by default)
 %
@@ -136,7 +136,7 @@ function [PCmean, PCrep, powercurveo] = powercurve(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 14/Jan/2026
+% Last modification: 17/Jan/2026
 % Dependencies: Matlab R2017b, MEDA v1.10
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -182,7 +182,7 @@ addParameter(p,'Repetitions',1000);
 addParameter(p,'RamdonGenC',@()1);
 addParameter(p,'Theta',[]);
 addParameter(p,'Alpha',0.05);
-addParameter(p,'Preprocessing',2);
+addParameter(p,'Preprocessing',[]);
 addParameter(p,'Permutations',1000);
 addParameter(p,'Ts',2);
 addParameter(p,'Ordinal',zeros(1,size(F,2)));
@@ -212,6 +212,14 @@ coding = p.Results.Coding;
 nested = p.Results.Nested;
 stable = p.Results.Stable;
 replicates = p.Results.RepFactor;
+
+if isempty(prep)
+    if isstruct(X)
+        prep = 0;
+    else
+        prep = 2;
+    end
+end
 
 if isempty(theta)
     if type == 2
@@ -581,7 +589,7 @@ for i2=1:nRep
             end
                         
             % Parallel GLM
-            [T, parglmo] = parglm(Xm, F, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
+            [T, parglmo] = parglm(Xm, F, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested, 'Stable', stable);
 
             powercurveo.T{i2,a} = T;
             
@@ -753,7 +761,7 @@ for i2=1:nRep
             Xm = Xnoise + Xstruct;
             
             % Parallel GLM
-            [T, parglmo] = parglm(Xm, F, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
+            [T, parglmo] = parglm(Xm, F, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested, 'Stable', stable);
             
             powercurveo.T{i2,a} = T;
             
