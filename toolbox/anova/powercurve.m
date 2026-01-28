@@ -454,10 +454,10 @@ if ~isstruct(X) % Sample PCs
 
     % Create Effect Matrices
     if prep
-        parglmo.inter = D(:,1)*B(1,:);
-        SSQinter = sum(sum(parglmo.inter.^2));
+        powercurveo.inter = D(:,1)*B(1,:);
+        SSQinter = sum(sum(powercurveo.inter.^2));
     else
-        parglmo.inter = 0;
+        powercurveo.inter = 0;
         SSQinter = 0;
     end   
     SSQresiduals = sum(sum(Xresiduals.^2));
