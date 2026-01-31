@@ -112,10 +112,10 @@ function ascao = asca(parglmo)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 23/Oct/2025
+% Last modification: 29/Jan/2026
 % Dependencies: Matlab R2017b, MEDA v1.10
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -146,7 +146,8 @@ for factor = 1 : ascao.nFactors
     
     xf = ascao.factors{factor}.matrix;
     model = pcaEig(xf,'PCs',1:rank(xf));
-    
+    model.var = model.var*sum(ascao.effects)/ascao.effects(factor);
+
     fnames = fieldnames(model);
     for n = 1:length(fnames)
         ascao.factors{factor} = setfield(ascao.factors{factor},fnames{n},getfield(model,fnames{n}));
@@ -176,10 +177,13 @@ end
 for interaction = 1 : ascao.nInteractions
     
     xf = ascao.interactions{interaction}.matrix;
+    modV = ascao.effects(interaction+ascao.nFactors);
     for factor = ascao.interactions{interaction}.factors
         xf = xf + ascao.factors{factor}.matrix;
+        modV = modV + ascao.effects(factor);
     end
     model = pcaEig(xf,'PCs',1:rank(xf));
+    model.var = model.var*sum(ascao.effects)/modV;
     
     fnames = fieldnames(model);
     for n = 1:length(fnames)

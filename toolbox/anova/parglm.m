@@ -66,6 +66,11 @@ function [T, parglmo] = parglm(X, F, varargin)
 % 'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
 %   and 3 in 2, then nested = [1 2; 2 3]
 %
+% 'Type': Type of ANOVA factorization
+%   '': All factors at once (by default, check %SS)
+%   'I': Sequential, in order of variance
+%   'III': Marginal, all terms controlled for the rest
+%
 %
 % OUTPUTS:
 %
@@ -89,6 +94,7 @@ function [T, parglmo] = parglm(X, F, varargin)
 % for i = 1:length(levels{1}),
 %     X(find(F(:,1) == levels{1}(i)),:) = simuleMV(length(find(F(:,1) == levels{1}(i))),vars,'LevelCorr',8) + repmat(randn(1,vars),length(find(F(:,1) == levels{1}(i))),1);
 % end
+% X = X + 100*ones(size(F,1),1)*rand(1,vars);
 % 
 % table = parglm(X, F)
 %
@@ -115,6 +121,7 @@ function [T, parglmo] = parglm(X, F, varargin)
 %         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,'LevelCorr',8) + repmat(fi{i} + fj{j},reps,1);
 %     end
 % end
+% X = X + 100*ones(size(F,1),1)*rand(1,vars); 
 % 
 % table = parglm(X, F, 'Model',{[1 2]})
 %
@@ -135,12 +142,13 @@ function [T, parglmo] = parglm(X, F, varargin)
 %         X(find(F(:,1) == levels{1}(i) & F(:,2) == levels{2}(j)),:) = simuleMV(reps,vars,'LevelCorr',8) + repmat(randn(1,vars),reps,1);
 %     end
 % end
+% X = X + 100*ones(size(F,1),1)*rand(1,vars); 
 %
 % table = parglm(X, F, 'Model',{[1 2]})
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 14/Jan/2026
+% Last modification: 29/Jan/2026
 % Dependencies: Matlab R2017b, MEDA v1.10
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -180,6 +188,7 @@ addParameter(p,'Random',zeros(1,size(F,2)));
 addParameter(p,'Fmtc',0); 
 addParameter(p,'Coding',zeros(1,size(F,2))); 
 addParameter(p,'Nested',[]); 
+addParameter(p,'Type',''); 
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -192,6 +201,7 @@ random = p.Results.Random;
 fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
+type = p.Results.Type;
 
 if isempty(model), model = 'linear'; end
 
@@ -269,6 +279,7 @@ parglmo.random         = random;
 parglmo.fmtc            = fmtc;
 parglmo.coding          = coding;
 parglmo.nested          = nested; 
+parglmo.type          = type; 
 
 % Create Design Matrix: mean centering added in the desing or not
 if prep
@@ -403,31 +414,93 @@ parglmo.Rdf = Rdf;
 
 SSQX = sum(sum(X.^2));
 
-% GLM model calibration with LS, only fixed factors
-pD =  pinv(D'*D)*D';
-B = pD*X;
-Xresiduals  = X - D*B;
-parglmo.D = D;
-parglmo.B = B;
+if type == "III"
+    % if prep % I suggest not to apply III in the mean
+    %     DN = D;
+    %     DN(:,1) = []; 
+    %     D2(:,1) = (eye(size(D,1)) - (DN*pinv(DN'*DN)*DN')) * D(:,1);
+    % end    
 
-% Create Effect Matrices
-if prep
-    parglmo.inter = D(:,1)*B(1,:);
-    SSQinter = sum(sum(parglmo.inter.^2));
-else
-    parglmo.inter = 0;
-    SSQinter = 0;
-end    
-SSQresiduals = sum(sum(Xresiduals .^2));
-
-for f = 1 : nFactors
-    parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
-    SSQfactors(1,f) = sum(sum(parglmo.factors{f}.matrix.^2)); % Note: we are not using Type III sum of squares, and probably we should, although we did not find any difference in our experiments
+    for f = 1 : nFactors    
+        DN = D;
+        DN(:,parglmo.factors{f}.Dvars) = []; 
+        D2(:,parglmo.factors{f}.Dvars) = (eye(size(D,1)) - (DN*pinv(DN'*DN)*DN')) * D(:,parglmo.factors{f}.Dvars);
+    end
+    
+    for i = 1 : nInteractions
+        DN = D;
+        DN(:,parglmo.interactions{i}.Dvars) = []; 
+        D2(:,parglmo.interactions{i}.Dvars) = (eye(size(D,1)) - (DN*pinv(DN'*DN)*DN')) * D(:,parglmo.interactions{i}.Dvars); 
+    end
+   
+    D = D2;
 end
 
-for i = 1 : nInteractions
-    parglmo.interactions{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
-    SSQinteractions(1,i) = sum(sum(parglmo.interactions{i}.matrix.^2));
+if type == "I", rep = 2; else, rep = 1; end
+
+% GLM model calibration with LS
+while rep > 0
+    pD =  pinv(D'*D)*D';
+    B = pD*X;
+    Xresiduals  = X - D*B;
+    parglmo.D = D;
+    parglmo.B = B;
+    
+    % Create Effect Matrices
+    if prep
+        parglmo.inter = D(:,1)*B(1,:);
+        SSQinter = sum(sum(parglmo.inter.^2));
+        if SSQinter < 0.5*SSQX 
+            disp('Warning: average with less than 50% of SS, consider not to mean center.');
+        end
+    else
+        parglmo.inter = 0;
+        SSQinter = 0;
+    end    
+    SSQresiduals = sum(sum(Xresiduals .^2));
+    
+    for f = 1 : nFactors
+        parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
+        SSQfactors(1,f) = sum(sum(parglmo.factors{f}.matrix.^2)); % Note: we are not using Type III sum of squares, and probably we should, although we did not find any difference in our experiments
+    end
+    
+    for i = 1 : nInteractions
+        parglmo.interactions{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);
+        SSQinteractions(1,i) = sum(sum(parglmo.interactions{i}.matrix.^2));
+    end
+    
+    if rep > 1 % Type I
+        if prep, offset = 1; else, offset = 0; end
+        effects = [SSQinter SSQfactors(1,:) SSQinteractions(1,:)];
+        [~,ord] = sort(effects,'descend');
+        DN = [];
+        for t = 1:length(ord)
+            if offset && ord(t) == 1
+                if isempty(DN)
+                    D2(:,1) = D(:,1);
+                else
+                    D2(:,1) = (eye(size(D,1)) - (DN*pinv(DN'*DN)*DN')) * D(:,1);
+                end
+                DN = [DN D2(:,1)];
+            elseif ord(t) < nFactors+1+offset
+                if isempty(DN)
+                    D2(:,parglmo.factors{ord(t)-offset}.Dvars) = D(:,parglmo.factors{ord(t)-offset}.Dvars);
+                else
+                    D2(:,parglmo.factors{ord(t)-offset}.Dvars) = (eye(size(D,1)) - (DN*pinv(DN'*DN)*DN')) * D(:,parglmo.factors{ord(t)-offset}.Dvars);
+                end
+                DN = [DN D2(:,parglmo.factors{ord(t)-offset}.Dvars)];
+            else
+                if isempty(DN)
+                    D2(:,parglmo.interactions{ord(t)-nFactors-offset}.Dvars) = D(:,parglmo.interactions{ord(t)-nFactors-offset}.Dvars);
+                else
+                    D2(:,parglmo.interactions{ord(t)-nFactors-offset}.Dvars) = (eye(size(D,1)) - (DN*pinv(DN'*DN)*DN')) * D(:,parglmo.interactions{ord(t)-nFactors-offset}.Dvars); 
+                end
+                DN = [DN D2(:,parglmo.interactions{ord(t)-nFactors-offset}.Dvars)];
+            end
+        end
+        D = D2;
+    end
+    rep = rep-1;
 end
 
 MSq = SSQresiduals/Rdf;
@@ -489,7 +562,7 @@ for i = 1 : nInteractions
     end
 end
 
-parglmo.effects = 100*([SSQinter SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals]./SSQX);
+parglmo.effects = 100*([SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals]./(SSQX-SSQinter));
 parglmo.residuals = Xresiduals;
 
 % Permutations
@@ -640,7 +713,7 @@ end
 
 %% ANOVA-like output table
 
-name={'Mean'};
+name={};
 for f = 1 : nFactors
     name{end+1} = sprintf('Factor %d',f);
 end
@@ -651,12 +724,12 @@ name{end+1} = 'Residuals';
 name{end+1} = 'Total';
    
 
-SSQ = [SSQinter SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals SSQX];
-par = [parglmo.effects 100];
-DoF = [mdf df dfint Rdf Tdf];
+SSQ = [SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals SSQX-SSQinter];
+par = [parglmo.effects sum(parglmo.effects)];
+DoF = [df dfint Rdf Tdf-mdf];
 MSQ = SSQ./DoF;
-F = [nan Ffactors(1,:) Finteractions(1,:) nan nan];
-pValue = [nan parglmo.p nan nan];
+F = [Ffactors(1,:) Finteractions(1,:) nan nan];
+pValue = [parglmo.p nan nan];
 
 isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
 if isOctave

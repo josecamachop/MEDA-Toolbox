@@ -55,8 +55,8 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 % 'Mtc': [1x1] Multiple test correction
 %       1: Bonferroni 
 %       2: Holm step-up or Hochberg step-down
-%       3: Benjamini-Hochberg step-down (FDR, by default)
-%       -pi0: Q-value assuming 0<pi0<=1 the ratio of null variables   
+%       3: Benjamini-Hochberg step-down (FDR)
+%       -pi0: Q-value assuming 0<pi0<=1 the ratio of null variables (by default -1, assuming all variables are null, and so equivalen to the FDR more conservative)
 % 
 % 'Fmtc': [1x1] correct for multiple-tesis when multifactorial (multi-way)
 % analysis.
@@ -69,6 +69,11 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %
 % 'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
 %   and 3 in 2, then nested = [1 2; 2 3]
+%
+% 'Type': Type of ANOVA factorization
+%   '': All factors at once (by default, check %SS)
+%   'I': Sequential, in order of variance
+%   'III': Marginal, all terms controlled for the rest
 %
 %
 % OUTPUTS:
@@ -90,6 +95,7 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 % class = (randn(nObs,1)>0)+1;
 % X = simuleMV(nObs,nVars,'LevelCorr',8);
 % X(class==2,1:3) = X(class==2,1:3) + 10;
+% X = X + 100*ones(size(class,1),1)*rand(1,nVars);
 % 
 % S = rng; % Use same seed for random generators to improve comparability of results
 % [T, parglmo] = parglm(X,class); % No variables selection 
@@ -116,6 +122,7 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 % 
 % class = (randn(nObs,1)>0)+1;
 % X = simuleMV(nObs,nVars,'LevelCorr',8);
+% X = X + 100*ones(size(class,1),1)*rand(1,nVars);
 % 
 % S = rng; % Use same seed for random generators to improve comparability of results
 % [T, parglmo] = parglm(X,class); % No variables selection 
@@ -151,6 +158,7 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 % end
 % 
 % X = [X simuleMV(length(F),397,'LevelCorr',8)];
+% X = X + 100*ones(size(F,1),1)*rand(1,400);
 % 
 % table = parglm(X, F, 'Model',{[1 2]}, 'Random', [1 1])
 % 
@@ -161,10 +169,10 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 12/Jul/2025
-% Dependencies: Matlab R2017b, MEDA v1.9
+% Last modification: 31/Jan/2026
+% Dependencies: Matlab R2017b, MEDA v1.10
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -197,10 +205,11 @@ addParameter(p,'Permutations',1000);
 addParameter(p,'Ts',2); 
 addParameter(p,'Ordinal',zeros(1,size(F,2))); 
 addParameter(p,'Random',zeros(1,size(F,2))); 
-addParameter(p,'Mtc',3); 
+addParameter(p,'Mtc',-1); 
 addParameter(p,'Fmtc',0); 
 addParameter(p,'Coding',zeros(1,size(F,2))); 
 addParameter(p,'Nested',[]); 
+addParameter(p,'Type','');
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -214,6 +223,7 @@ mtc = p.Results.Mtc;
 fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
+type = p.Results.Type;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -229,9 +239,9 @@ assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Codi
 %% Univariate Inference
 
 if ts
-    [~, parglmo, tsFactors, tsInteractions, SSQX, SSQinter, SSQFactors, SSQInteractions, SSQresiduals] = parglmMC(X, F, 'Permutations', ceil(nPerm/M), 'Model', model, 'Preprocessing', prep, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Mtc', mtc, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
+    [~, parglmo, tsFactors, tsInteractions, SSQX, SSQinter, SSQFactors, SSQInteractions, SSQresiduals] = parglmMC(X, F, 'Permutations', ceil(nPerm/M), 'Model', model, 'Preprocessing', prep, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Mtc', mtc, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested, 'Type', type);
 else
-    [~, parglmo, tsFactors, tsInteractions] = parglmMC(X, F, 'Permutations', ceil(nPerm/M), 'Model', model, 'Preprocessing', prep, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Mtc', mtc, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
+    [~, parglmo, tsFactors, tsInteractions] = parglmMC(X, F, 'Permutations', ceil(nPerm/M), 'Model', model, 'Preprocessing', prep, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Mtc', mtc, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested, 'Type', type);
 end
 
 parglmo.univp = parglmo.p;
@@ -463,7 +473,7 @@ end
 
 %% ANOVA-like output table
 
-name={'Mean'};
+name={};
 for f = 1 : parglmo.nFactors
     name{end+1} = sprintf('Factor %d',f);
 end
@@ -474,15 +484,15 @@ name{end+1} = 'Residuals';
 name{end+1} = 'Total';
       
 if parglmo.nInteractions
-    SSQ = sum([SSQinter' permute(SSQFactors(1,:,:),[3 2 1]) permute(SSQInteractions(1,:,:),[3 2 1]) SSQresiduals(1,:)' SSQX'],1);
+    SSQ = sum([permute(SSQFactors(1,:,:),[3 2 1]) permute(SSQInteractions(1,:,:),[3 2 1]) SSQresiduals(1,:)' (SSQX-SSQinter)'],1);
 else
-    SSQ = sum([SSQinter' permute(SSQFactors(1,:,:),[3 2 1]) SSQresiduals(1,:)' SSQX'],1);
+    SSQ = sum([permute(SSQFactors(1,:,:),[3 2 1]) SSQresiduals(1,:)' (SSQX-SSQinter)'],1);
 end
-par = [mean(parglmo.effects,1) 100];
-DoF = [1 parglmo.df parglmo.dfint parglmo.Rdf parglmo.Tdf];
+par = [mean(parglmo.effects,1) sum(mean(parglmo.effects,1))];
+DoF = [parglmo.df parglmo.dfint parglmo.Rdf parglmo.Tdf];
 MSQ = SSQ./DoF;
-F = [nan max(tsFactors(1,:,:),[],3) max(tsInteractions(1,:,:),[],3) nan nan];
-pValue = [nan min(parglmo.p,[],1) nan nan];
+F = [max(tsFactors(1,:,:),[],3) max(tsInteractions(1,:,:),[],3) nan nan];
+pValue = [min(parglmo.p,[],1) nan nan];
 
 isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
 if isOctave
