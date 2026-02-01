@@ -71,9 +71,8 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %   and 3 in 2, then nested = [1 2; 2 3]
 %
 % 'Type': Type of ANOVA factorization
-%   '': All factors at once (by default, check %SS)
-%   'I': Sequential, in order of variance
-%   'III': Marginal, all terms controlled for the rest
+%   'Simultaneous': All factors at once (by default, check %SS)
+%   'Sequential': Sequential, marginalizing in order of variance
 %
 %
 % OUTPUTS:
@@ -209,7 +208,7 @@ addParameter(p,'Mtc',-1);
 addParameter(p,'Fmtc',0); 
 addParameter(p,'Coding',zeros(1,size(F,2))); 
 addParameter(p,'Nested',[]); 
-addParameter(p,'Type','');
+addParameter(p,'Type','Simultaneous'); 
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility

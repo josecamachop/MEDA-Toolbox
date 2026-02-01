@@ -70,9 +70,8 @@ function [T, parglmo, tsFactors, tsInteractions, SSQX, SSQinter, SSQFactorsT, SS
 %   and 3 in 2, then nested = [1 2; 2 3]
 %
 % 'Type': Type of ANOVA factorization
-%   '': All factors at once (by default, check %SS)
-%   'I': Sequential, in order of variance
-%   'III': Marginal, all terms controlled for the rest
+%   'Simultaneous': All factors at once (by default, check %SS)
+%   'Sequential': Sequential, marginalizing in order of variance
 %
 %
 % OUTPUTS:
@@ -224,7 +223,7 @@ addParameter(p,'Mtc',-1);
 addParameter(p,'Fmtc',0); 
 addParameter(p,'Coding',zeros(1,size(F,2))); 
 addParameter(p,'Nested',[]); 
-addParameter(p,'Type','');
+addParameter(p,'Type','Simultaneous'); 
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -463,29 +462,7 @@ parglmo.Rdf = Rdf;
 
 SSQX = sum(X.^2);
 
-if type == "III"
-    % if prep % I suggest not to apply III in the mean
-    %     DN = D;
-    %     DN(:,1) = []; 
-    %     D2(:,1) = (eye(size(D,1)) - (DN*pinv(DN'*DN)*DN')) * D(:,1);
-    % end       
-
-    for f = 1 : nFactors    
-        DN = D;
-        DN(:,parglmo.factors{f}.Dvars) = []; 
-        D2(:,parglmo.factors{f}.Dvars) = (eye(size(D,1)) - (DN*pinv(DN'*DN)*DN')) * D(:,parglmo.factors{f}.Dvars);
-    end
-    
-    for i = 1 : nInteractions
-        DN = D;
-        DN(:,parglmo.interactions{i}.Dvars) = []; 
-        D2(:,parglmo.interactions{i}.Dvars) = (eye(size(D,1)) - (DN*pinv(DN'*DN)*DN')) * D(:,parglmo.interactions{i}.Dvars); 
-    end
-   
-    D = D2;
-end
-
-if type == "I", rep = 2; else, rep = 1; end
+if type == "Sequential", rep = 2; else, rep = 1; end
 
 % GLM model calibration with LS
 while rep > 0
@@ -499,7 +476,7 @@ while rep > 0
     if prep
         parglmo.inter = D(:,1)*B(1,:);
         SSQinter = sum(parglmo.inter.^2);
-        if sum(SSQinter < 0.5*SSQX) > 0.5*M 
+        if rep == 1 && sum(SSQinter < 0.5*SSQX) > 0.5*M 
             disp('Warning: average with less than 50% of SS in more than half of the responses, consider not to mean center.');
         end
     else
@@ -521,8 +498,12 @@ while rep > 0
         SSQInteractions(i,:) = sum(parglmo.interactions{i}.matrix.^2);
     end
 
-    if rep > 1 % Type I
-        effects = sum([SSQinter' SSQFactors' SSQInteractions']);
+    if rep > 1 % Sequential
+        if prep
+            effects = sum([SSQinter' SSQFactors' SSQInteractions']);
+        else
+            effects = sum([SSQFactors' SSQInteractions']);
+        end
         [~,ord] = sort(effects,'descend');
         DN = [];
         for t = 1:length(ord)
