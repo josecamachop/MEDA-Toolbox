@@ -89,9 +89,9 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspcLpca(Lmodel,varargin)
 % [Dst,Qst,Dstt,Qstt] = mspcLpca(Lmodel,'Test',test,'Option',100,'ObsLabel',[],'ObsClass',[1*ones(5,1);2*ones(5,1)]);
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 22/Nov/2024
+% last modification: 03/Feb/2026
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -283,10 +283,10 @@ if opt(1) == '1'
     end
     
     if opt(2) == '0'
-        plotScatter([Dsttt,Qsttt], 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {'D-st','Q-st'}, 'LimCont', {UCLd,UCLq}, 'Option', 11, 'Multiplicity', mult);
+        plotScatter([Dsttt,Qsttt], 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {'D-st','Q-st'}, 'LimCont', {UCLd,UCLq}, 'Multiplicity', mult);
     else
-        plotVec(Dsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'D-st'}, 'LimCont', UCLd, 'Option', 0, 'Multiplicity', mult);
-        plotVec(Qsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'Q-st'}, 'LimCont', UCLq, 'Option', 0, 'Multiplicity', mult);
+        plotVec(Dsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'D-st'}, 'LimCont', UCLd, 'Multiplicity', mult);
+        plotVec(Qsttt, 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {[],'Q-st'}, 'LimCont', UCLq, 'Multiplicity', mult);
     end
 end
         

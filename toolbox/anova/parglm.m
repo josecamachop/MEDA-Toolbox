@@ -430,6 +430,7 @@ while rep > 0
         if rep == 1 && SSQinter < 0.5*SSQX 
             disp('Warning: average with less than 50% of SS, consider not to mean center.');
         end
+        SSQXc = sum(sum((X-parglmo.inter).^2));
     else
         parglmo.inter = 0;
         SSQinter = 0;
@@ -544,7 +545,7 @@ for i = 1 : nInteractions
     end
 end
 
-parglmo.effects = 100*([SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals]./(SSQX-SSQinter));
+parglmo.effects = 100*([SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals]./(SSQXc));
 parglmo.residuals = Xresiduals;
 
 % Permutations
@@ -706,7 +707,7 @@ name{end+1} = 'Residuals';
 name{end+1} = 'Total';
    
 
-SSQ = [SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals SSQX-SSQinter];
+SSQ = [SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals SSQXc];
 par = [parglmo.effects sum(parglmo.effects)];
 DoF = [df dfint Rdf Tdf-mdf];
 MSQ = SSQ./DoF;
