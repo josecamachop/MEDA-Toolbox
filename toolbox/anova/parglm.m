@@ -434,6 +434,7 @@ while rep > 0
     else
         parglmo.inter = 0;
         SSQinter = 0;
+        SSQXc = SSQX;
     end    
     SSQresiduals = sum(sum(Xresiduals .^2));
     
