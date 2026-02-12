@@ -168,7 +168,7 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 31/Jan/2026
+% Last modification: 12/Feb/2026
 % Dependencies: Matlab R2017b, MEDA v1.10
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -238,7 +238,7 @@ assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Codi
 %% Univariate Inference
 
 if ts
-    [~, parglmo, tsFactors, tsInteractions, SSQX, SSQinter, SSQFactors, SSQInteractions, SSQresiduals] = parglmMC(X, F, 'Permutations', ceil(nPerm/M), 'Model', model, 'Preprocessing', prep, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Mtc', mtc, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested, 'Type', type);
+    [~, parglmo, tsFactors, tsInteractions, SSQXc, SSQFactors, SSQInteractions, SSQresiduals] = parglmMC(X, F, 'Permutations', ceil(nPerm/M), 'Model', model, 'Preprocessing', prep, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Mtc', mtc, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested, 'Type', type);
 else
     [~, parglmo, tsFactors, tsInteractions] = parglmMC(X, F, 'Permutations', ceil(nPerm/M), 'Model', model, 'Preprocessing', prep, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Mtc', mtc, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested, 'Type', type);
 end
@@ -483,9 +483,9 @@ name{end+1} = 'Residuals';
 name{end+1} = 'Total';
       
 if parglmo.nInteractions
-    SSQ = sum([permute(SSQFactors(1,:,:),[3 2 1]) permute(SSQInteractions(1,:,:),[3 2 1]) SSQresiduals(1,:)' (SSQX-SSQinter)'],1);
+    SSQ = sum([permute(SSQFactors(1,:,:),[3 2 1]) permute(SSQInteractions(1,:,:),[3 2 1]) SSQresiduals(1,:)' SSQXc'],1);
 else
-    SSQ = sum([permute(SSQFactors(1,:,:),[3 2 1]) SSQresiduals(1,:)' (SSQX-SSQinter)'],1);
+    SSQ = sum([permute(SSQFactors(1,:,:),[3 2 1]) SSQresiduals(1,:)' SSQXc'],1);
 end
 par = [mean(parglmo.effects,1) sum(mean(parglmo.effects,1))];
 DoF = [parglmo.df parglmo.dfint parglmo.Rdf parglmo.Tdf];

@@ -147,7 +147,7 @@ function [T, parglmo] = parglm(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 29/Jan/2026
+% Last modification: 12/Feb/2026
 % Dependencies: Matlab R2017b, MEDA v1.10
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -546,7 +546,7 @@ for i = 1 : nInteractions
     end
 end
 
-parglmo.effects = 100*([SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals]./(SSQXc));
+parglmo.effects = 100*([SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals]./SSQXc);
 parglmo.residuals = Xresiduals;
 
 % Permutations

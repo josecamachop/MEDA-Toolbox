@@ -1,4 +1,4 @@
-function [T, parglmo, tsFactors, tsInteractions, SSQX, SSQinter, SSQFactorsT, SSQInteractionsT, SSQresidualsT] = parglmMC(X, F, varargin)
+function [T, parglmo, tsFactors, tsInteractions, SSQXc, SSQFactorsT, SSQInteractionsT, SSQresidualsT] = parglmMC(X, F, varargin)
 
 % Parallel General Linear Model to factorize in multivariate factor and 
 % interaction matrices in an experimental design and permutation test for 
@@ -86,7 +86,7 @@ function [T, parglmo, tsFactors, tsInteractions, SSQX, SSQinter, SSQFactorsT, SS
 %
 % tsInteractions: [nPerm*M+1 x nInteractions x M] test statistic for interactions
 %
-% SSQX, SSQInter, SSQFactorsT, SSQInteractionsT, SSQresidualsT: sums of
+% SSQXc, SSQFactorsT, SSQInteractionsT, SSQresidualsT: sums of
 % squares in the data and permutations. These outputs are for internal use
 % of other routines, and we suggest not to include them in the output.
 %
@@ -183,7 +183,7 @@ function [T, parglmo, tsFactors, tsInteractions, SSQX, SSQinter, SSQFactorsT, SS
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 31/Jan/2026
+% Last modification: 12/Feb/2026
 % Dependencies: Matlab R2017b, MEDA v1.10
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -477,11 +477,13 @@ while rep > 0
         parglmo.inter = D(:,1)*B(1,:);
         SSQinter = sum(parglmo.inter.^2);
         if rep == 1 && sum(SSQinter < 0.5*SSQX) > 0.5*M 
-            disp('Warning: average with less than 50% of SS in more than half of the responses, consider not to mean center.');
+            disp('Warning: average with less than 50% of SSQ in more than half of the responses, consider not to mean center.');
         end
+        SSQXc = sum((X-parglmo.inter).^2);
     else
         parglmo.inter = 0;
         SSQinter = zeros(1,M);
+        SSQXc = SSQX;
     end    
     SSQresiduals(1,:) = sum(Xresiduals.^2);
     
@@ -603,11 +605,11 @@ end
 
 
 if nInteractions
-    parglmo.effects = 100*([SSQFactors' SSQInteractions' SSQresiduals']./((SSQX'-SSQinter')*ones(1,offset+nFactors+nInteractions)));
-    par = 100*(sum([SSQFactors' SSQInteractions' SSQresiduals'])./sum(SSQX'-SSQinter'));
+    parglmo.effects = 100*([SSQFactors' SSQInteractions' SSQresiduals']./(SSQXc'*ones(1,offset+nFactors+nInteractions)));
+    par = 100*(sum([SSQFactors' SSQInteractions' SSQresiduals'])./sum(SSQXc'));
 else
-    parglmo.effects = 100*([SSQFactors' SSQresiduals']./((SSQX'-SSQinter')*ones(1,offset+nFactors+nInteractions)));
-    par = 100*(sum([SSQFactors' SSQresiduals'])./sum(SSQX'-SSQinter'));
+    parglmo.effects = 100*([SSQFactors' SSQresiduals']./(SSQXc'*ones(1,offset+nFactors+nInteractions)));
+    par = 100*(sum([SSQFactors' SSQresiduals'])./sum(SSQXc'));
 end
 parglmo.residuals = Xresiduals;
 
@@ -844,9 +846,9 @@ name{end+1} = 'Residuals';
 name{end+1} = 'Total';
       
 if nInteractions
-    SSQ = sum([SSQFactors' SSQInteractions' SSQresiduals' (SSQX-SSQinter)'],1);
+    SSQ = sum([SSQFactors' SSQInteractions' SSQresiduals' SSQXc'],1);
 else
-    SSQ = sum([SSQFactors' SSQresiduals' (SSQX-SSQinter)'],1);
+    SSQ = sum([SSQFactors' SSQresiduals' SSQXc'],1);
 end
 par = [par sum(par)];
 DoF = [df dfint Rdf Tdf];
