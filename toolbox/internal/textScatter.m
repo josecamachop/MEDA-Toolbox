@@ -39,11 +39,11 @@ function ax = textScatter(fig_h,bdata,varargin)
 % 'ax': [1x4] axis enclosing the text.
 %
 %
-% Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 14/Aug/2025
+% Coded by: Jose Camacho (josecamacho@ugr.es) and Jesús García (gsus@ugr.es)
+% Last modification: 17/Feb/2026
 % Dependencies: Matlab R2017b, MEDA v1.9
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -138,14 +138,26 @@ if ~isempty(elabel)
         if isempty(ind2) || dxM(ind2) > blur || dyM(ind2)==Inf  || isempty(ind)
             posx = bdata(i,1) + c*deltax;
             posy = bdata(i,2) + c*deltay;
+            halign = 'left';
+            valign = 'bottom';
+            % Label position based on cuadrant
+            if bdata(i,1) < 0
+                posx = bdata(i,1) - c*deltax;
+                halign = 'right';
+            end
+            if bdata(i,2) < 0
+                posy = bdata(i,2) - c*deltay;
+                valign = 'top';
+            end
             ax(2) = max(ax(2), posx + deltax*suffx/60);
             ax(4) = max(ax(4), posy + deltay*2/40);
+
             if any(strcmp(plottype,{'zaxis','zshape'}))
-                text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
+                text(posx, posy, mult(i), strtrim(elabel(i,1)),'VerticalAlignment',valign, 'HorizontalAlignment',halign,'FontSize', 12);
             elseif strcmp(plottype,'zsize')
-                text(posx, posy, ord_classes(i), strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
+                text(posx, posy, ord_classes(i), strtrim(elabel(i,1)),'VerticalAlignment',valign, 'HorizontalAlignment',halign,'FontSize', 12);
             else
-                text(posx, posy, strtrim(elabel(i,1)),'VerticalAlignment','bottom', 'HorizontalAlignment','left','FontSize', 12);
+                text(posx, posy, strtrim(elabel(i,1)),'VerticalAlignment',valign, 'HorizontalAlignment',halign,'FontSize', 12);
             end
         else
             suffx(i) = 0;
