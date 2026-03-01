@@ -147,8 +147,8 @@ function [T, parglmo] = parglm(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 12/Feb/2026
-% Dependencies: Matlab R2017b, MEDA v1.10
+% Last modification: 28/Feb/2026
+% Dependencies: Matlab R2024b, MEDA v1.12
 %
 % Copyright (C) 2026  University of Granada, Granada
 %
@@ -423,21 +423,21 @@ while rep > 0
     parglmo.D = D;
     parglmo.B = B;
     
-    % Create Effect Matrices
+    SSQresiduals = sum(sum(Xresiduals .^2));
     if prep
         parglmo.inter = D(:,1)*B(1,:);
         SSQinter = sum(sum(parglmo.inter.^2));
-        if rep == 1 && SSQinter < 0.5*SSQX 
-            disp('Warning: average with less than 50% of SS, consider not to mean center.');
+        if rep == 1 && SSQinter < SSQresiduals 
+            disp('Warning: average smaller than the error variance, consider not to mean center.');
         end
         SSQXc = sum(sum((X-parglmo.inter).^2));
     else
         parglmo.inter = 0;
         SSQinter = 0;
         SSQXc = SSQX;
-    end    
-    SSQresiduals = sum(sum(Xresiduals .^2));
-    
+    end   
+
+    % Create Effect Matrices
     for f = 1 : nFactors
         parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
         SSQfactors(1,f) = sum(sum(parglmo.factors{f}.matrix.^2)); % Note: we are not using Type III sum of squares, and probably we should, although we did not find any difference in our experiments

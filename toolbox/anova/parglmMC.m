@@ -183,8 +183,8 @@ function [T, parglmo, tsFactors, tsInteractions, SSQXc, SSQFactorsT, SSQInteract
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 12/Feb/2026
-% Dependencies: Matlab R2017b, MEDA v1.10
+% Last modification: 28/Feb/2026
+% Dependencies: Matlab R2024b, MEDA v1.12
 %
 % Copyright (C) 2026  University of Granada, Granada
 %
@@ -472,21 +472,21 @@ while rep > 0
     parglmo.D = D;
     parglmo.B = B;
     
-    % Create Effect Matrices
+    SSQresiduals(1,:) = sum(Xresiduals.^2);
     if prep
         parglmo.inter = D(:,1)*B(1,:);
         SSQinter = sum(parglmo.inter.^2);
-        if rep == 1 && sum(SSQinter < 0.5*SSQX) > 0.5*M 
-            disp('Warning: average with less than 50% of SSQ in more than half of the responses, consider not to mean center.');
+        if rep == 1 && sum(SSQinter < SSQresiduals) > 0.5*M 
+            disp('Warning: average smaller than the error variance in more than half of the responses, consider not to mean center.');
         end
         SSQXc = sum((X-parglmo.inter).^2);
     else
         parglmo.inter = 0;
         SSQinter = zeros(1,M);
         SSQXc = SSQX;
-    end    
-    SSQresiduals(1,:) = sum(Xresiduals.^2);
-    
+    end   
+
+    % Create Effect Matrices
     SSQFactors = [];
     for f = 1 : nFactors
         parglmo.factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
