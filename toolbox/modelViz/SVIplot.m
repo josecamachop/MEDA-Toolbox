@@ -29,6 +29,10 @@ function [r2,alpha,q2,resCV,alphaCV,betas] = SVIplot(x,varargin)
 %       false: SVIplot without beta terms (by default)
 %       true: SVIplot plus beta terms
 %
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
+%
 %
 % OUTPUTS:
 %
@@ -51,9 +55,9 @@ function [r2,alpha,q2,resCV,alphaCV,betas] = SVIplot(x,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 15/Jan/2025
+% last modification: 14/May/2026
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -83,6 +87,7 @@ addParameter(p,'Vars',1);
 addParameter(p,'Groups',7);
 addParameter(p,'Preprocessing',2);
 addParameter(p,'Beta',false);
+addParameter(p,'Plot',true);  
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -91,6 +96,7 @@ var = p.Results.Vars;
 groups = p.Results.Groups;
 beta = p.Results.Beta;
 prep = p.Results.Preprocessing;
+opt = p.Results.Plot;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -168,28 +174,30 @@ q2 = 1-sum(resCV.^2)/sum(resCV(:,1).^2);
 
 %% Show results
 
-figh=figure;
-hold on
-plot([0 pcs],r2,'.-');
-plot([0 pcs],alpha,'g-x','LineWidth',2);
-plot([0 pcs],q2,'m.-');
-plot(pcsvect(1:end),alphaCV(1:end),'ro');
-chh=get(figh,'Children');
-set(chh,'FontSize',14)
-legend('R^2_{A,m}','\alpha^A_{m}','Q^2_{A,m}','\alpha^A_{m}(i)','Location','NorthOutside','Orientation','Horizontal')
-if beta
-    plot([0 pcs],betas','c')
+if opt
+    figh=figure;
+    hold on
+    plot([0 pcs],r2,'.-');
+    plot([0 pcs],alpha,'g-x','LineWidth',2);
+    plot([0 pcs],q2,'m.-');
+    plot(pcsvect(1:end),alphaCV(1:end),'ro');
+    chh=get(figh,'Children');
+    set(chh,'FontSize',14)
+    legend('R^2_{A,m}','\alpha^A_{m}','Q^2_{A,m}','\alpha^A_{m}(i)','Location','NorthOutside','Orientation','Horizontal')
+    if beta
+        plot([0 pcs],betas','c')
+    end
+    
+    % Set axis
+    axis tight
+    ax = axis;
+    axis auto
+    ax2 = axis;
+    axis([ax(1:2) ax2(3:4)])
+    
+    %legend off
+    box on
+    hold off
 end
-
-% Set axis
-axis tight
-ax = axis;
-axis auto
-ax2 = axis;
-axis([ax(1:2) ax2(3:4)])
-
-%legend off
-box on
-hold off
 
 

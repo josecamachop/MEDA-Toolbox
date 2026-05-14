@@ -27,6 +27,10 @@ function [xvar,cumpress] = varPca(x,varargin)
 %       false: Residual Variance in X  
 %       true: Residual Variance in X and ckf
 %
+% 'Plot': (bool) plot results
+%       false: no plots.
+%       true: plot (default)
+%
 %
 % OUTPUTS:
 %
@@ -43,9 +47,9 @@ function [xvar,cumpress] = varPca(x,varargin)
 %
 %
 % codified by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 16/Jan/2025
+% last modification: 14/May/2026
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -72,13 +76,15 @@ M = size(x, 2);
 p = inputParser;
 addParameter(p,'PCs',0:rank(x));   
 addParameter(p,'Preprocessing',2);   
-addParameter(p,'PlotCkf',false);   
+addParameter(p,'PlotCkf',false); 
+addParameter(p,'Plot',true);    
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
 pcs = p.Results.PCs;
 ckfplot = p.Results.PlotCkf;
 prep = p.Results.Preprocessing;
+opt = p.Results.Plot;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end;
@@ -127,10 +133,12 @@ end
     
 %% Show results
 
-if ckfplot
-    plotVec([xvar cumpress/cumpress(1)],'PlotType','Lines','EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'VecLabel',{'X','ckf'});
-else
-    plotVec(xvar,'PlotType','Lines','EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'});
+if opt
+    if ckfplot
+        plotVec([xvar cumpress/cumpress(1)],'PlotType','Lines','EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'},'VecLabel',{'X','ckf'});
+    else
+        plotVec(xvar,'PlotType','Lines','EleLabel',pcs,'XYLabel',{'#PCs','% Residual Variance'});
+    end
 end
 
         
