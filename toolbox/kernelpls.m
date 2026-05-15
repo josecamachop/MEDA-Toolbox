@@ -137,7 +137,6 @@ P = P(:,lvs);
 Q = Q(:,lvs);
 R = R(:,lvs);
 beta = R*Q';
-T = xcs*R;
 
 model.var = trace(XX);
 model.lvs = 1:size(P,2);
@@ -146,5 +145,4 @@ model.yloads = Q;
 model.weights = W;
 model.altweights = R;
 model.beta = beta;
-model.residuals = xcs - P*T';
 model.type = 'PLS';

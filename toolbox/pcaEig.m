@@ -123,7 +123,7 @@ model.var = trace(XX);
 model.lvs = 1:size(p,2);
 model.loads = p;
 model.scores = t;
-model.residuals = xcs - p*t';
+model.residuals = xcs - t*p';
 model.type = 'PCA';
         
 

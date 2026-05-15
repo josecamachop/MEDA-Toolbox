@@ -175,6 +175,6 @@ model.weights = W;
 model.altweights = R;
 model.scores = T;
 model.beta = beta;
-model.residuals = xcs - P*T';
+model.residuals = xcs - T*P';
 model.type = 'PLS';
         
