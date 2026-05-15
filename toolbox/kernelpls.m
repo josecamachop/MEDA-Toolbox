@@ -48,9 +48,10 @@ function model = kernelpls(XX,XY,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 18/Nov/2024
+% last modification: 15/May/2026
+% Dependencies: Matlab R2024b, MEDA v1.13
 %
-% Copyright (C) 2024  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -136,6 +137,7 @@ P = P(:,lvs);
 Q = Q(:,lvs);
 R = R(:,lvs);
 beta = R*Q';
+T = xcs*R;
 
 model.var = trace(XX);
 model.lvs = 1:size(P,2);
@@ -144,4 +146,5 @@ model.yloads = Q;
 model.weights = W;
 model.altweights = R;
 model.beta = beta;
+model.residuals = xcs - P*T';
 model.type = 'PLS';
