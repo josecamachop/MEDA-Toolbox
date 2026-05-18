@@ -276,6 +276,8 @@ assert (isequal(size(random), [1 size(F,2)]), 'Dimension Error: parameter ''Rand
 assert (isequal(size(mtc), [1 1]), 'Dimension Error: parameter ''Mtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(fmtc), [1 1]), 'Dimension Error: parameter ''Fmtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Coding'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(nested), [1 2]), 'Dimension Error: parameter ''Nested'' must be 1-by-2: Only one nested factor allowed. Type ''help %s'' for more info.', routine(1).name);
+
 
 %% Main code
 
@@ -360,10 +362,10 @@ for f = 1 : nFactors
             end
             n = n + length(uF) - 1;
             parglmo.factors{f}.order = 1;
-        else % if nested
-            ind = find(nested(:,2)==f);
+        else % if nested 
+            ind = find(nested(:,2)==f,1);
             ref = nested(ind,1);
-            parglmo.factors{f}.factors = [ref parglmo.factors{ref}.factors]; % Careful! nested should be in order in index f
+             parglmo.factors{f}.factors = [ref parglmo.factors{ref}.factors]; % Careful! nested should be in order in index f
             urF = unique(F(:,ref));
             parglmo.nLevels(f) = 0;
             parglmo.factors{f}.Dvars = [];
