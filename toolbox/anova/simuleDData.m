@@ -54,8 +54,8 @@ function Xout = simuleDData(X, F, varargin)
 %       0: sum/deviation coding (default)
 %       1: reference coding (reference is the last level)
 %
-% 'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
-%   and 3 in 2, then nested = [1 2; 2 3]
+% 'Nested': [1x2] pair of netsed factors, e.g., if factor 2 is nested in 1, 
+%       then nested = [1 2; 2 3]
 %
 % 'Stable': [bool] maintain a fixed seed for reproducibility (false by default)
 %
@@ -89,8 +89,8 @@ function Xout = simuleDData(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 14/Jan/2026
-% Dependencies: Matlab R2017b, MEDA v1.10
+% Last modification: 19/May/2026
+% Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
 %
@@ -184,6 +184,7 @@ if iscell(model), interactions = model; end
 assert (isequal(size(ordinal), [1 size(F,2)]), 'Dimension Error: parameter ''Ordinal'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(random), [1 size(F,2)]), 'Dimension Error: parameter ''Random'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Coding'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(nested), [1 2]), 'Dimension Error: parameter ''Nested'' must be 1-by-2: Only one nested factor allowed. Type ''help %s'' for more info.', routine(1).name);
 
 
 %% Main code

@@ -63,8 +63,8 @@ function [T, parglmo] = parglm(X, F, varargin)
 %       0: sum/deviation coding (default)
 %       1: reference coding (reference is the last level)
 %
-% 'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
-%   and 3 in 2, then nested = [1 2; 2 3]
+% 'Nested': [1x2] pair of netsed factors, e.g., if factor 2 is nested in 1, 
+%       then nested = [1 2; 2 3]
 %
 % 'Type': Type of ANOVA factorization
 %   'Simultaneous': All factors at once (by default, check %SS)
@@ -147,8 +147,8 @@ function [T, parglmo] = parglm(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 28/Feb/2026
-% Dependencies: Matlab R2024b, MEDA v1.12
+% Last modification: 19/May/2026
+% Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
 %
