@@ -43,7 +43,8 @@ function figH = plotVec(vec,varargin)
 % 'Color': Choose a color for your data.  
 %   - 'hsv' for hsv palette 
 %   - 'parula' for parula palette
-%   - 'okabeIto' for color blindness (by default for multiple classes) 
+%   - 'okabeIto' for color blindness (by default for multiple classes)
+%   - any MATLAB colormap name 
 %
 %
 % OUTPUTS:

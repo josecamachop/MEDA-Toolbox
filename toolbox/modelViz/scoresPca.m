@@ -46,6 +46,12 @@ function [T,TT] = scoresPca(x,varargin)
 %   large value only uncluttered labels are printed. When Inf is chosen, 
 %   only indices as visualized (by default 1).
 %
+% 'Color': Choose a color for your data.  
+%   - 'hsv' for hsv palette 
+%   - 'parula' for parula palette
+%   - 'okabeIto' for color blindness (by default for multiple classes)
+%   - any MATLAB colormap name 
+%
 %
 % OUTPUTS:
 %
@@ -110,6 +116,7 @@ addParameter(p,'Preprocessing',2);
 addParameter(p,'ObsLabel',[]);
 addParameter(p,'ObsClass',[]);
 addParameter(p,'BlurIndex',1);
+addParameter(p,'Color',[]);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -121,6 +128,7 @@ pcs = p.Results.PCs;
 label = p.Results.ObsLabel;
 classes = p.Results.ObsClass;
 blur = p.Results.BlurIndex;
+color = p.Results.Color;
 
 L = size(test, 1);
 
@@ -194,12 +202,12 @@ end
 
 if strcmp(plottype,'Bars') || A == 1
     for i=1:length(pcs)
-        plotVec(Tt(:,i), 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {'',sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+        plotVec(Tt(:,i), 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {'',sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))}, 'Color', color);
     end
 elseif strcmp(plottype,'Scatter')
     for i=1:length(pcs)-1
         for j=i+1:length(pcs)
-            plotScatter([Tt(:,i),Tt(:,j)], 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))), sprintf('Scores PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}', 'BlurIndex', blur);
+            plotScatter([Tt(:,i),Tt(:,j)], 'EleLabel', label, 'ObsClass', classes, 'XYLabel', {sprintf('Scores PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))), sprintf('Scores PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}', 'BlurIndex', blur, 'Color', color);
         end
     end
 end

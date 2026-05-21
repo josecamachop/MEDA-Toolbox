@@ -38,6 +38,12 @@ function P = loadingsPca(x,varargin)
 %   large value only uncluttered labels are printed. When Inf is chosen, 
 %   only indices as visualized (by default 1).
 %
+% 'Color': Choose a color for your data.  
+%   - 'hsv' for hsv palette 
+%   - 'parula' for parula palette
+%   - 'okabeIto' for color blindness (by default for multiple classes)
+%   - any MATLAB colormap name 
+%
 %
 % OUTPUTS:
 %
@@ -97,7 +103,8 @@ addParameter(p,'Preprocessing',2);
 addParameter(p,'PlotType','Scatter');
 addParameter(p,'VarsLabel',1:M);
 addParameter(p,'VarsClass',ones(M,1));   
-addParameter(p,'BlurIndex',1);     
+addParameter(p,'BlurIndex',1);
+addParameter(p,'Color',[]);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -107,6 +114,7 @@ plottype = p.Results.PlotType;
 label = p.Results.VarsLabel;
 classes = p.Results.VarsClass;
 blur = p.Results.BlurIndex;
+color = p.Results.Color;
 
 % Convert row arrays to column arrays
 if size(label,1) == 1,     label = label'; end;
@@ -143,12 +151,12 @@ T = model.scores;
 
 if length(pcs) == 1 || strcmp(plottype,'Bars')
     for i=1:length(pcs)
-        plotVec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))});
+        plotVec(P(:,i), 'EleLabel',label, 'ObsClass',classes, 'XYLabel',{'',sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2)))}, 'Color', color);
     end
 elseif strcmp(plottype,'Scatter')
     for i=1:length(pcs)-1
         for j=i+1:length(pcs)
-            plotScatter([P(:,i),P(:,j)], 'EleLabel',label,'ObsClass' ,classes, 'XYLabel',{sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Loadings PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}', 'BlurIndex',blur);
+            plotScatter([P(:,i),P(:,j)], 'EleLabel',label,'ObsClass' ,classes, 'XYLabel',{sprintf('Loadings PC %d (%.0f%%)',pcs(i),100*sum(T(:,i).^2)/sum(sum(xcs.^2))),sprintf('Loadings PC %d (%.0f%%)',pcs(j),100*sum(T(:,j).^2)/sum(sum(xcs.^2)))}', 'BlurIndex',blur), 'Color', color;
         end
     end
 end
