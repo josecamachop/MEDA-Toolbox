@@ -1,4 +1,4 @@
-function vascao = vasca(parglmoVS,siglev)
+function vascao = vasca(parglmoVS,siglev,strategy)
 
 % Variable-selection ASCA is a data analysis algorithm for the analysis of 
 % multivariate data coming from a designed experiment. Reference: Camacho 
@@ -19,6 +19,13 @@ function vascao = vasca(parglmoVS,siglev)
 %
 % siglev: [1x1] significance level (0.01 by default). If negative, it
 % determines the number of variables selected.
+%
+% strategy: 'string' strategy for variables selection ("MaximumM" by default).
+%   - "MaximumM": select all variables with maximum multivariate Q-value.
+%   - "SignLevM": select all variables with multivariate Q-value above the
+%       significance level.
+%   - "SignLevU": select all variables with univariate Q-value above the
+%       significance level.
 %
 %
 % OUTPUTS:
@@ -49,8 +56,8 @@ function vascao = vasca(parglmoVS,siglev)
 % end
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 22/Mar/2026
-% Dependencies: Matlab R2017b, MEDA v1.12
+% Last modification: 25/May/2026
+% Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
 %
@@ -73,9 +80,11 @@ function vascao = vasca(parglmoVS,siglev)
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 if nargin < 2 || isempty(siglev), siglev = 0.01; end
+if nargin < 3 || isempty(strategy), strategy = "MaximumM"; end
 
 % Validate dimensions of input data
 assert (isequal(size(siglev), [1 1]), 'Dimension Error: parameter ''singlev'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(strategy), [1 1]), 'Dimension Error: parameter ''strategy'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 
 %% Main code
 
@@ -84,7 +93,21 @@ vascao = parglmoVS;
 %Do PCA on level averages for each factor
 for factor = 1 : vascao.nFactors
     
-    pvals = parglmoVS.p(parglmoVS.ordFactors(factor,:),factor); 
+    switch strategy 
+        case "MaximumM"
+            pvals = parglmoVS.p(parglmoVS.ordFactors(factor,:),factor); 
+            M = find(pvals<=siglev & pvals==min(pvals)); 
+        case "SignLevM"
+            pvals = parglmoVS.p(parglmoVS.ordFactors(factor,:),factor); 
+            M = find(pvals<=siglev); 
+        case "SignLevU"
+            pvals = parglmoVS.univp(parglmoVS.ordFactors(factor,:),factor); 
+            M = find(pvals<=siglev);
+        otherwise
+            pvals = parglmoVS.p(parglmoVS.ordFactors(factor,:),factor); 
+            M = find(pvals<=siglev & pvals==min(pvals)); 
+    end
+
     M = find(pvals<=siglev & pvals==min(pvals)); 
     
     if ~isempty(M)
@@ -129,8 +152,20 @@ end
 %Do PCA on interactions
 for interaction = 1 : vascao.nInteractions
     
-    pvals = parglmoVS.p(parglmoVS.ordInteractions(interaction,:),interaction+vascao.nFactors); 
-    M = find(pvals<=siglev & pvals==min(pvals)); 
+    switch strategy 
+        case "MaximumM"
+            pvals = parglmoVS.p(parglmoVS.ordInteractions(interaction,:),interaction+vascao.nFactors);  
+            M = find(pvals<=siglev & pvals==min(pvals)); 
+        case "SignLevM"
+            pvals = parglmoVS.p(parglmoVS.ordInteractions(interaction,:),interaction+vascao.nFactors); 
+            M = find(pvals<=siglev); 
+        case "SignLevU"
+            pvals = parglmoVS.univp(parglmoVS.ordInteractions(interaction,:),interaction+vascao.nFactors); 
+            M = find(pvals<=siglev);
+        otherwise 
+            pvals = parglmoVS.p(parglmoVS.ordInteractions(interaction,:),interaction+vascao.nFactors); 
+            M = find(pvals<=siglev & pvals==min(pvals)); 
+    end
 
     if ~isempty(M) 
         vascao.interactions{interaction}.stasig = true;
