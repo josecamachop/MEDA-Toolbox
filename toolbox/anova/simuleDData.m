@@ -55,7 +55,7 @@ function Xout = simuleDData(X, F, varargin)
 %       1: reference coding (reference is the last level)
 %
 % 'Nested': [1x2] pair of netsed factors, e.g., if factor 2 is nested in 1, 
-%       then nested = [1 2; 2 3]
+%       then nested = [1 2]
 %
 % 'Stable': [bool] maintain a fixed seed for reproducibility (false by default)
 %

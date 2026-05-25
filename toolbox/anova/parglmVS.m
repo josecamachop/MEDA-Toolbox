@@ -68,7 +68,7 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %       1: reference coding (reference is the last level)
 %
 % 'Nested': [nx2] pairs of neted factors, e.g., if factor 2 is nested in 1,
-%   and 3 in 2, then nested = [1 2; 2 3]
+%   then nested = [1 2]
 %
 % 'Type': Type of ANOVA factorization
 %   'Simultaneous': All factors at once (by default, check %SS)
