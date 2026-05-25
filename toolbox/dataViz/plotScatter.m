@@ -61,6 +61,7 @@ function figH = plotScatter(bdata,varargin)
 %   - 'hsv' for hsv palette
 %   - 'parula' for parula palette
 %   - 'okabeIto' for color blindness (by default for multiple classes)
+%   - any MATLAB colormap name 
 %
 %
 % OUTPUTS:
@@ -311,7 +312,8 @@ if any(strcmp({'size', 'zsize','shape','zaxis','zshape'}, plottype))
     for i=1:length(uniqueOrdClasses)
         for j=1:length(bins)-1
             dispName{i,j} = strcat(num2str(uniqueOrdClasses(i)), ' (mult: > ', num2str(bins(j)), ')');
-        end;end
+        end
+    end
 else
     dispName = uniqueClasses;
 end
