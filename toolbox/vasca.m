@@ -1,4 +1,4 @@
-function vascao = vasca(parglmoVS,siglev,strategy)
+function vascao = vasca(parglmoVS, varargin)
 
 % Variable-selection ASCA is a data analysis algorithm for the analysis of 
 % multivariate data coming from a designed experiment. Reference: Camacho 
@@ -17,10 +17,13 @@ function vascao = vasca(parglmoVS,siglev,strategy)
 % p-values and explained variance. Obtained with parallel general linear model
 % with variable selection (parglmVS).
 %
-% siglev: [1x1] significance level (0.01 by default). If negative, it
+%
+% Optional INPUTS (parameters):
+%
+% 'SignLev': [1x1] significance level (0.01 by default). If negative, it
 % determines the number of variables selected.
 %
-% strategy: 'string' strategy for variables selection ("MaximumM" by default).
+% 'Strategy': 'string' strategy for variables selection ("MaximumM" by default).
 %   - "MaximumM": select all variables with maximum multivariate Q-value.
 %   - "SignLevM": select all variables with multivariate Q-value above the
 %       significance level.
@@ -79,12 +82,21 @@ function vascao = vasca(parglmoVS,siglev,strategy)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-if nargin < 2 || isempty(siglev), siglev = 0.01; end
-if nargin < 3 || isempty(strategy), strategy = "MaximumM"; end
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'SignLev',0.01); 
+addParameter(p,'Strategy',"MaximumM");
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+siglev = p.Results.SignLev;
+strategy = p.Results.Strategy;
 
 % Validate dimensions of input data
-assert (isequal(size(siglev), [1 1]), 'Dimension Error: parameter ''singlev'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(strategy), [1 1]), 'Dimension Error: parameter ''strategy'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(siglev), [1 1]), 'Dimension Error: parameter ''SignLev'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert((ischar(strategy) && isrow(strategy)) || (isstring(strategy) && isscalar(strategy)), ...
+    'Dimension Error: parameter ''Strategy'' must be a string or a char vector. Type ''help %s'' for more info.', routine(1).name);
 
 %% Main code
 
@@ -104,6 +116,8 @@ for factor = 1 : vascao.nFactors
             pvals = parglmoVS.univp(parglmoVS.ordFactors(factor,:),factor); 
             M = find(pvals<=siglev);
         otherwise
+            warning('Strategy ''%s'' is not recognized. Reverting to default (''MaximumM''). Type ''help %s'' for more info.', ...
+                strategy, routine(1).name);
             pvals = parglmoVS.p(parglmoVS.ordFactors(factor,:),factor); 
             M = find(pvals<=siglev & pvals==min(pvals)); 
     end
