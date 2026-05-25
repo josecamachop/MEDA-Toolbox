@@ -6,7 +6,7 @@ function vascao = vasca(parglmoVS, varargin)
 % ANOVA Simultaneous Component Analysis (VASCA). Bioinformatics. 2023 Jan 
 % 1;39(1):btac795. 
 %
-% vascao = vasca(parglmVS,singlev)   % complete call
+% vascao = vasca(parglmoVS)   % minimum call
 %
 % See also: asca, parglmVS, parglm, parglmMC
 %
