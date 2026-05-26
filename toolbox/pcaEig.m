@@ -45,7 +45,7 @@ function model = pcaEig(xcs,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 15/May/2026
+% last modification: 26/May/2026
 % Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -80,7 +80,7 @@ parse(p,varargin{:});
 pcs = p.Results.PCs;
 
 % Convert column arrays to row arrays
-if size(pcs,2) == 1, pcs = pcs'; end;
+if size(pcs,2) == 1, pcs = pcs'; end
 
 % Preprocessing
 pcs = unique(pcs);
@@ -101,14 +101,14 @@ assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter 
 if N>M
     XX = xcs'*xcs;
     [p,D] = eig(XX);
-    [kk,ind] = sort(real(diag(D)),'descend');
+    [lambda,ind] = sort(real(diag(D)),'descend');
     p = p(:,ind);
     t = xcs*p;
 else
     XX = xcs*xcs';
     [t,D] = eig(XX);
     s = real(sqrt(real(diag(D))));
-    [kk,ind] = sort(s,'descend');
+    [lambda,ind] = sort(s,'descend');
     t = t(:,ind).*(ones(N,1)*s(ind)');
     p = xcs'*t;
     for i=1:size(p,2)
@@ -119,6 +119,7 @@ end
 p = p(:,pcs);
 t = t(:,pcs);
 
+model.lambda = lambda;
 model.var = trace(XX);
 model.lvs = 1:size(p,2);
 model.loads = p;
