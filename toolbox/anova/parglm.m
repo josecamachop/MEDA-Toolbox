@@ -190,7 +190,7 @@ addParameter(p,'Fmtc',0);
 addParameter(p,'Coding',zeros(1,size(F,2))); 
 addParameter(p,'Nested',[]); 
 addParameter(p,'Type','Simultaneous'); 
-addParameter(p,'Warning',true); 
+addParameter(p,'Warning',false); 
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
