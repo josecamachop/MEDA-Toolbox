@@ -516,6 +516,8 @@ for i2=1:nRep
     
     %disp(i2)
     
+    rng(i2);
+    
     if type == 1 % Relative PCs
         
         if isstruct(X) 
@@ -675,7 +677,7 @@ for i2=1:nRep
                     powercurveo.interactions{i}.matrix = [];
                     uF = unique(Fi,'rows');
                     for n = 1: size(uF,1)
-                        ind = find(uF(n,1)==Fi(:,1)&uF(n,2)==Fi(:,2));
+                        ind = find(ismember(Fi, uF(n,:), 'rows'));
                         powercurveo.interactions{i}.matrix(ind,:) = ones(length(ind),1)*mati(n,:);
                     end
                 end
