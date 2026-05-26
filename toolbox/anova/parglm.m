@@ -554,7 +554,7 @@ parglmo.effects = 100*([SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals]./SSQX
 parglmo.residuals = Xresiduals;
 
 % Permutations
-parfor j = 1 : nPerm*mtcc
+for j = 1 : nPerm*mtcc
    
     perms = randperm(size(Xnan,1)); % permuted data (complete rows)
     
