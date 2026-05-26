@@ -70,6 +70,8 @@ function [T, parglmo] = parglm(X, F, varargin)
 %   'Simultaneous': All factors at once (by default, check %SS)
 %   'Sequential': Sequential, marginalizing in order of variance
 %
+% 'Warning': [bool] show warning for preprocessing
+%
 %
 % OUTPUTS:
 %
@@ -147,7 +149,7 @@ function [T, parglmo] = parglm(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 25/May/2026
+% Last modification: 26/May/2026
 % Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -188,6 +190,7 @@ addParameter(p,'Fmtc',0);
 addParameter(p,'Coding',zeros(1,size(F,2))); 
 addParameter(p,'Nested',[]); 
 addParameter(p,'Type','Simultaneous'); 
+addParameter(p,'Warning',true); 
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -201,6 +204,7 @@ fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
 type = p.Results.Type;
+warning = p.Results.Warning;
 
 if isempty(model), model = 'linear'; end
 
@@ -427,7 +431,7 @@ while rep > 0
     if prep
         parglmo.inter = D(:,1)*B(1,:);
         SSQinter = sum(sum(parglmo.inter.^2));
-        if rep == 1 && SSQinter < SSQresiduals 
+        if rep == 1 && SSQinter < SSQresiduals && warning
             disp('Warning: average smaller than the error variance, consider not to mean center.');
         end
         SSQXc = sum(sum((X-parglmo.inter).^2));
