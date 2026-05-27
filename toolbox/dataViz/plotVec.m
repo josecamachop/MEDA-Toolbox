@@ -83,9 +83,9 @@ function figH = plotVec(vec,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es), Jesús García and Daniel Vallejo
-% last modification: 03/Jun/2025
+% last modification: 27/May/2026
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -105,7 +105,7 @@ function figH = plotVec(vec,varargin)
 % Set default values
 routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-if size(vec,1) == 1,     vec = vec'; end
+if size(vec,1) == 1, vec = vec'; end
 N = size(vec, 1);
 M = size(vec, 2);
 
@@ -296,32 +296,88 @@ end
 if ~isempty(classes)
     for i=1:length(uniqueOrdClasses)
         ind1 = ordClasses == uniqueOrdClasses(i);
-        ind2 = alphas == 1;
 
         if strcmp(plottype, "Lines")
             vec1 = zeros(size(vec));
             vec1(ind1,:) = vec(ind1,:);
-
-            plot(nan, nan, 'Color', colors(i,:), 'Marker', 'o');
-            plot(vind, vec1, 'Color', colors(i,:), 'LineWidth', 1.5, 'Marker', 'o', 'HandleVisibility', 'off');
-        end
-
-        if strcmp(plottype, "Bars")
-            vec1 = zeros(size(vec));
-            vec1(ind1 & ind2,:) = vec(ind1 & ind2,:);
-            vec2 = zeros(size(vec));
-            vec2(ind1 & ~ind2,:) = vec(ind1 & ~ind2,:);
             
-            bar(nan, nan, 'FaceColor', colors(i,:), 'EdgeColor', 'none');
-            % alpha = 1 and alpha ~=1 cases are separated to ensure compatibility with Octave when no alpha values are given
-            if any(ind1)
-                bar(vind, vec1, 'grouped', 'FaceColor', colors(i,:), 'HandleVisibility', 'off');
+            % Vectors for patch lines
+            X_patch = [vind(:); NaN];
+            
+            % Alpha data for the line segments (append a dummy 1 for the NaN point)
+            A_patch = [alphas(:); 1]; 
+            
+            if strcmp(classtype, "Numerical")
+                if isnumeric(uniqueClasses)
+                    cval = uniqueClasses(i);
+                else
+                    cval = i; 
+                end
+                
+                % Dummy for legend
+                patch(nan, nan, cval, 'EdgeColor', 'flat', 'FaceColor', 'none', 'Marker', 'o');
+                
+                C_patch = repmat(cval, length(X_patch), 1);
+                
+                % Plot each line as a patch with mapped alpha
+                for m = 1:size(vec1, 2)
+                    Y_patch = [vec1(:, m); NaN];
+                    patch(X_patch, Y_patch, C_patch, ...
+                          'EdgeColor', 'flat', 'FaceColor', 'none', ...
+                          'EdgeAlpha', 'flat', 'FaceVertexAlphaData', A_patch, 'AlphaDataMapping', 'none', ...
+                          'LineWidth', 1.5, 'Marker', 'o', ...
+                          'MarkerEdgeColor', 'flat', 'HandleVisibility', 'off');
+                end
+            elseif strcmp(classtype, "Categorical")
+                % Dummy for legend
+                plot(nan, nan, 'Color', colors(i,:), 'Marker', 'o');
+                
+                % Plot categorical lines as patches to support alpha
+                for m = 1:size(vec1, 2)
+                    Y_patch = [vec1(:, m); NaN];
+                    patch(X_patch, Y_patch, zeros(size(X_patch)), ...
+                          'EdgeColor', colors(i,:), 'FaceColor', 'none', ...
+                          'EdgeAlpha', 'flat', 'FaceVertexAlphaData', A_patch, 'AlphaDataMapping', 'none', ...
+                          'LineWidth', 1.5, 'Marker', 'o', ...
+                          'MarkerEdgeColor', colors(i,:), 'HandleVisibility', 'off');
+                end
             end
-            if any(~ind2)
-                ind2 = find(~ind2);
-                for j=1:length(ind2)
-                    k = ind2(j);
-                    bar(vind(k), vec2(k,:), 'grouped', 'FaceColor', colors(i,:), 'HandleVisibility', 'off', 'FaceAlpha', alphas(k));
+        end
+        
+        if strcmp(plottype, "Bars")
+            idx = find(ind1); % Get indices for the current class
+            
+            if strcmp(classtype, "Numerical")
+                if isnumeric(uniqueClasses)
+                    cval = uniqueClasses(i);
+                else
+                    cval = i; 
+                end
+                
+                % Dummy bar for legend
+                hDummy = bar(nan, nan, 'FaceColor', 'flat', 'EdgeColor', 'none');
+                set(hDummy, 'CData', cval);
+                
+                % Plot bars
+                for j = 1:length(idx)
+                    k = idx(j);
+                    b = bar(vind(k), vec(k,:), 'grouped', 'FaceColor', 'flat', ...
+                        'EdgeColor', 'none', 'HandleVisibility', 'off', 'FaceAlpha', alphas(k));
+                    
+                    % Map colors to bars
+                    for b_idx = 1:length(b)
+                        b(b_idx).CData = repmat(cval, length(vind(k)), 1);
+                    end
+                end
+            elseif strcmp(classtype, "Categorical")
+                % Dummy bar for legend
+                bar(nan, nan, 'FaceColor', colors(i,:), 'EdgeColor', 'none');
+                
+                % Plot bars with fixed RGB
+                for j = 1:length(idx)
+                    k = idx(j);
+                    bar(vind(k), vec(k,:), 'grouped', 'FaceColor', colors(i,:), ...
+                        'EdgeColor', 'none', 'HandleVisibility', 'off', 'FaceAlpha', alphas(k));
                 end
             end
         end
@@ -329,8 +385,19 @@ if ~isempty(classes)
     legendTxt = uniqueClasses; 
 else
     if strcmp(plottype, "Lines")
+        X_patch = [vind(:); NaN];
+        A_patch = [alphas(:); 1];
+        
         for i=1:M
-            plot(vind, vec(:,i), 'LineWidth', .75 + 1/M, 'Color', colorList(i,:));
+            % Dummy line to preserve standard legend formatting
+            plot(nan, nan, 'Color', colorList(i,:), 'LineWidth', .75 + 1/M);
+            
+            % Line plotted as a patch to support alpha
+            Y_patch = [vec(:,i); NaN];
+            patch(X_patch, Y_patch, zeros(size(X_patch)), ...
+                  'EdgeColor', colorList(i,:), 'FaceColor', 'none', ...
+                  'EdgeAlpha', 'flat', 'FaceVertexAlphaData', A_patch, 'AlphaDataMapping', 'none', ...
+                  'LineWidth', .75 + 1/M, 'HandleVisibility', 'off');
         end
     end
     if strcmp(plottype, "Bars")
@@ -417,12 +484,12 @@ axis([ax(1:2) ax2(3:4)]);
 % Plot origin line
 plot([ax(1:2)], [0 0], 'k', 'HandleVisibility', 'off');
 
-% Set caxis if colorbar
+% Set clim if colorbar
 if strcmp(classtype, "Numerical")
     if nElems < 2
         colorbar('off');
     else
-        caxis(cax);
+        clim(cax);
         colorbar('Location','EastOutside');
     end
 else
@@ -432,4 +499,3 @@ box on
 hold off
 
 end
-
