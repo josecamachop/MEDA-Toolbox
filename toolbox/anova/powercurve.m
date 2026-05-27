@@ -571,10 +571,9 @@ for i2=1:nRep
         end
 
         randg = randv{end};
-        Xnoise = randg(N,M); 
-        Xnoise = randgC() * powercurveo.rescoef * sqrt(N)*Xnoise/norm(Xnoise,'fro'); 
-        
         for a = 1:length(theta)
+            Xnoise = randg(N,M); 
+            Xnoise = randgC() * powercurveo.rescoef * sqrt(N)*Xnoise/norm(Xnoise,'fro'); 
 
             Xm = Xnoise; %Xm = (1-theta(a))*Xnoise;
             Xm = Xm + theta(a)*Xstruct;
