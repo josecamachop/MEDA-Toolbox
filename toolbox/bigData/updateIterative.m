@@ -13,20 +13,23 @@ function Lmodel = updateIterative(list,varargin)
 %
 % Optional INPUTS (parameter):
 %
-% 'path: (str) If list is a string of filenames, path to the directory where 
+% 'Path: (str) If list is a string of filenames, path to the directory where 
 %   the data files are located ('' by default). Not to confuse with where
 %   the output files are stored (which is Lmodel.path)
 %
 % 'Lmodel: (struct Lmodel) model to update (initialized to PCA model with 1
 %   PC and auto-scaling by default)
 %
-% 'step: [1x1] percentage of the data in the file to be used in each
+% 'Dimension': [1x1] matrix axis (1 for rows/tall or 2 for columns/wide) 
+%   where the Big Data scale is concentrated.
+%
+% 'Step: [1x1] percentage of the data in the file to be used in each
 %   iteration. For time-course data 1 is suggested (1 by default)
 %
-% 'files: [1x1] create the file system with the original data (1) or not (0, by
+% 'Files: [1x1] create the file system with the original data (1) or not (0, by
 %   default)
 %
-% 'debug: [1x1] disply debug messages
+% 'Debug: [1x1] disply debug messages
 %       0: no messages are displayed.
 %       1: display only main messages (default)
 %       2: display all messages.
@@ -65,7 +68,7 @@ function Lmodel = updateIterative(list,varargin)
 %   list(i).x = simuleMV(nobs,nvars,'LevelCorr',6);
 % end
 %
-% Lmodel = updateIterative(list,'path',[],'Lmodel',Lmodel);
+% Lmodel = updateIterative(list,'Path',[],'Lmodel',Lmodel);
 % mspcLpca(Lmodel);
 %
 %
@@ -85,7 +88,7 @@ function Lmodel = updateIterative(list,varargin)
 %   list(i).x = simuleMV(nobs,nvars,'LevelCorr',6);
 % end
 %
-% Lmodel = updateIterative(list,'path',[],'Lmodel',Lmodel,'step',0.1,'files',1,'debug',2);
+% Lmodel = updateIterative(list,'Path',[],'Lmodel',Lmodel,'Step',0.1,'Files',1,'Debug',2);
 % mspcLpca(Lmodel);
 %
 %
@@ -114,33 +117,35 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 p = inputParser;
-addParameter(p,'path','');   
+addParameter(p,'Path','');   
     defmodel = iniLmodel; 
     defmodel.type = 'PCA';
     defmodel.lvs = 0;
     defmodel.prep = 2;
 addParameter(p,'Lmodel',defmodel);   
-addParameter(p,'step',1);   
-addParameter(p,'files',0);   
-addParameter(p,'debug',1);     
+addParameter(p,'Dimension',1);
+addParameter(p,'Step',1);   
+addParameter(p,'Files',0);   
+addParameter(p,'Debug',1);  
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-path = p.Results.path;
+path = p.Results.Path;
 Lmodel = p.Results.Lmodel;
-step = p.Results.step;
-files = p.Results.files;
-debug = p.Results.debug;
+bigdim = p.Results.Dimension;
+step = p.Results.Step;
+files = p.Results.Files;
+debug = p.Results.Debug;
 
 % Validate dimensions of input data
-assert (isequal(size(step), [1 1]), 'Dimension Error: 4th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(files), [1 1]), 'Dimension Error: 5th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(debug), [1 1]), 'Dimension Error: 6th argument must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-
+assert (isequal(size(bigdim), [1 1]), 'Dimension Error: Argument ''Dimension'' must be a scalar. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(step), [1 1]), 'Dimension Error: Argument ''Step'' must be a scalar. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(debug), [1 1]), 'Dimension Error: Argument ''Debug'' must be a scalar. Type ''help %s'' for more info.', routine(1).name);
+  
 % Validate values of input data
-assert (isempty(find(step<=0 | step>1)), 'Value Error: 4th argument must contain values in (0,1]. Type ''help %s'' for more info.', routine(1).name); 
-assert (isempty(find(files~=0 & files~=1)), 'Value Error: 5th argument must contain 0 or 1. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(debug~=0 & debug~=1 & debug~=2)), 'Value Error: 6th argument must contain 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+assert (bigdim==1 || bigdim==2, 'Value Error: Argument ''Dimension'' must be 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+assert (step>0 && step<=1, 'Value Error: Argument ''Step'' must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
+assert (debug==0 || debug==1 || debug==2, 'Value Error: Argument ''Debug'' must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
 
 if files == 1
     if isempty(Lmodel.path)
@@ -152,6 +157,7 @@ end
 %% Main code
 
 Lmodel.update = 2; 
+Lmodel.bigdim = bigdim;
 
 if files
   if ~strcmp(Lmodel.type,'ASCA')
@@ -836,7 +842,7 @@ if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
         if files % The updated field is not included in the FS yet
             indorig = length(Lmodel.class);
             red = [Lmodel.centr;xcs];
-            lred = {Lmodel.obsl{:} obsl{:}};
+            lred = [Lmodel.obsl(:)' obsl(:)'];
             multr = [Lmodel.multr;ones(length(class),1)];
             classr = [Lmodel.class;class];
             auxv = (1:length(classr))';
@@ -862,7 +868,7 @@ if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
             Lmodel.centr = [Lmodel.centr;xstep];
             Lmodel.multr = [Lmodel.multr;ones(ss,1)];
             Lmodel.class = [Lmodel.class;clstep];
-            Lmodel.obsl = {Lmodel.obsl{:} obsstep{:}};
+            Lmodel.obsl = [Lmodel.obsl(:)' obsstep(:)'];
             Lmodel.updated = [Lmodel.updated;ones(size(xstep,1),1)];
             
             if files
@@ -931,7 +937,7 @@ elseif strcmp(Lmodel.type,'ASCA')
             if files % The updated field is not included in the FS yet
                 indorig = length(Lmodel.factors{f}.class);
                 red = [Lmodel.factors{f}.centr;xcs];
-                lred = {Lmodel.factors{f}.obsl{:} obsl{:}};
+                lred = [Lmodel.factors{f}.obsl(:)' obsl(:)'];
                 multr = [Lmodel.factors{f}.multr;ones(length(class),1)];
                 classr = [Lmodel.factors{f}.class;class];
                 auxv = (1:length(classr))';
@@ -957,7 +963,7 @@ elseif strcmp(Lmodel.type,'ASCA')
                 Lmodel.factors{f}.centr = [Lmodel.factors{f}.centr;xstep];
                 Lmodel.factors{f}.multr = [Lmodel.factors{f}.multr;ones(ss,1)];
                 Lmodel.factors{f}.class = [Lmodel.factors{f}.class;clstep];
-                Lmodel.factors{f}.obsl = {Lmodel.factors{f}.obsl{:} obsstep{:}};
+                Lmodel.factors{f}.obsl = [Lmodel.factors{f}.obsl(:)' obsstep(:)'];
                 Lmodel.factors{f}.updated = [Lmodel.factors{f}.updated;ones(size(xstep,1),1)];
                 
                 if files
@@ -1028,7 +1034,7 @@ elseif strcmp(Lmodel.type,'ASCA')
             if files % The updated field is not included in the FS yet
                 indorig = length(Lmodel.interactions{i}.class);
                 red = [Lmodel.interactions{i}.centr;xcs];
-                lred = {Lmodel.interactions{i}.obsl{:} obsl{:}};
+                lred = [Lmodel.interactions{i}.obsl(:)' obsl(:)'];
                 multr = [Lmodel.interactions{i}.multr;ones(length(class),1)];
                 classr = [Lmodel.interactions{i}.class;class];
                 auxv = (1:length(classr))';
@@ -1054,7 +1060,7 @@ elseif strcmp(Lmodel.type,'ASCA')
                 Lmodel.interactions{i}.centr = [Lmodel.interactions{i}.centr;xstep];
                 Lmodel.interactions{i}.multr = [Lmodel.interactions{i}.multr;ones(ss,1)];
                 Lmodel.interactions{i}.class = [Lmodel.interactions{i}.class;clstep];
-                Lmodel.interactions{i}.obsl = {Lmodel.interactions{i}.obsl{:} obsstep{:}};
+                Lmodel.interactions{i}.obsl = [Lmodel.interactions{i}.obsl(:)' obsstep(:)'];
                 Lmodel.interactions{i}.updated = [Lmodel.interactions{i}.updated;ones(size(xstep,1),1)];
                 
                 if files

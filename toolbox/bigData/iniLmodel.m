@@ -83,6 +83,9 @@ function Lmodel = iniLmodel(X,Y,varargin)
 %
 % Lmodel.path: (str) path to the file system for ITERATIVE models.
 %
+% Lmodel.bigdim [1x1] matrix axis (1 for rows/tall or 2 for columns/wide) 
+%   where the Big Data scale is concentrated.
+%
 %
 % EXAMPLE OF USE:
 %
@@ -158,6 +161,7 @@ Lmodel.YY = [];
 Lmodel.mat = [];
 Lmodel.indexfich = {};
 Lmodel.path = '';
+Lmodel.bigdim = [];
 
 
 [kk,Lmodel] = checkLmodel(Lmodel);

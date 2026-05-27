@@ -13,24 +13,27 @@ function Lmodel = updateEwma(list,varargin)
 %
 % Optional INPUTS (parameter):
 %
-% 'path': (str) path to the directory where the data files are located ('' by
+% 'Path': (str) path to the directory where the data files are located ('' by
 %   default)
 %
 % 'Lmodel': (struct Lmodel) model to update (initialized to PCA model with 1
 %   PC and auto-scaling by default)
 %
-% 'lambda': [1x1] forgetting factor between 0 (fast adaptation) and 1 (long
+% 'Dimension': [1x1] matrix axis (1 for rows/tall or 2 for columns/wide) 
+%   where the Big Data scale is concentrated.
+%
+% 'Lambda': [1x1] forgetting factor between 0 (fast adaptation) and 1 (long
 %   history) (1 by default)
 %
-% 'step': [1x1] percentage of the data in the file to be used in each
+% 'Step': [1x1] percentage of the data in the file to be used in each
 %   iteration. For time-course data 1 is suggested (1 by default)
 %
-% 'debug': [1x1] disply debug messages
+% 'Debug': [1x1] disply debug messages
 %       0: no messages are displayed.
 %       1: display only main messages (default)
 %       2: display all messages.  
 %
-% 'erase': [1x1] threshold to erase an observation (1 by default)
+% 'Erase': [1x1] threshold to erase an observation (1 by default)
 %
 %
 % OUTPUTS:
@@ -53,7 +56,7 @@ function Lmodel = updateEwma(list,varargin)
 % for i=1:4,
 %   nobst = 10;
 %   list(1).x = simuleMV(nobst,nvars,'LevelCorr',6,'Covar',corr(Lmodel.centr)*(nobst-1)/(Lmodel.N-1));
-%   Lmodel = updateEwma(list,'path',[],'Lmodel',Lmodel);
+%   Lmodel = updateEwma(list,'Path',[],'Lmodel',Lmodel);
 %   mspcLpca(Lmodel);
 % end
 %
@@ -83,42 +86,47 @@ routine=dbstack;
 assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 p = inputParser;
-addParameter(p,'path','');   
+addParameter(p,'Path','');   
     defmodel = iniLmodel; 
     defmodel.type = 'PCA';
     defmodel.lvs = 0;
     defmodel.prep = 2;
 addParameter(p,'Lmodel',defmodel);   
-addParameter(p,'lambda',1);   
-addParameter(p,'step',1);   
-addParameter(p,'debug',1);  
-addParameter(p,'erase',1);    
+addParameter(p,'Dimension',1);
+addParameter(p,'Lambda',1);   
+addParameter(p,'Step',1);   
+addParameter(p,'Debug',1);  
+addParameter(p,'Erase',1);
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
-path = p.Results.path;
+path = p.Results.Path;
 Lmodel = p.Results.Lmodel;
-lambda = p.Results.lambda;
-step = p.Results.step;
-debug = p.Results.debug;
-erase = p.Results.erase;
+bigdim = p.Results.Dimension;
+lambda = p.Results.Lambda;
+step = p.Results.Step;
+debug = p.Results.Debug;
+erase = p.Results.Erase;
 
 % Validate dimensions of input data
-assert (isequal(size(lambda), [1 1]), 'Dimension Error: 4th argument must be a scalar. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(step), [1 1]), 'Dimension Error: 5th argument must be a scalar. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(debug), [1 1]), 'Dimension Error: 6th argument must be a scalar. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(erase), [1 1]), 'Dimension Error: 7th argument must be a scalar. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(bigdim), [1 1]), 'Dimension Error: Argument ''Dimension'' must be a scalar. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lambda), [1 1]), 'Dimension Error: Argument ''Lambda'' must be a scalar. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(step), [1 1]), 'Dimension Error: Argument ''Step'' must be a scalar. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(debug), [1 1]), 'Dimension Error: Argument ''Debug'' must be a scalar. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(erase), [1 1]), 'Dimension Error: Argument ''Erase'' must be a scalar. Type ''help %s'' for more info.', routine(1).name);
   
 % Validate values of input data
-assert (lambda>=0 && lambda<=1, 'Value Error: 4th argument must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
-assert (step>0 && step<=1, 'Value Error: 5th argument must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
-assert (debug==0 || debug==1 || debig==2, 'Value Error: 6th argument must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
-assert (erase>0 && erase<=1, 'Value Error: 7th argument must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
+assert (bigdim==1 || bigdim==2, 'Value Error: Argument ''Dimension'' must be 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+assert (lambda>=0 && lambda<=1, 'Value Error: Argument ''Lambda'' must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
+assert (step>0 && step<=1, 'Value Error: Argument ''Step'' must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
+assert (debug==0 || debug==1 || debug==2, 'Value Error: Argument ''Debug'' must be 0, 1 or 2. Type ''help %s'' for more info.', routine(1).name);
+assert (erase>0 && erase<=1, 'Value Error: Argument ''Erase'' must be in interval (0, 1]. Type ''help %s'' for more info.', routine(1).name);
     
     
 %% Main code
 
 Lmodel.update = 1; 
+Lmodel.bigdim = bigdim;
     
 for t=1:length(list)
     
@@ -267,7 +275,7 @@ for t=1:length(list)
         Lmodel.centr = [Lmodel.centr;xstep];
         Lmodel.multr = [Lmodel.multr;ones(ss,1)];
         Lmodel.class = [Lmodel.class;clstep];
-        Lmodel.obsl = {Lmodel.obsl{:} obsstep{:}};
+        Lmodel.obsl = [Lmodel.obsl(:)' obsstep(:)'];
         Lmodel.updated = [Lmodel.updated;ones(size(xstep,1),1)]; 
             
         [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obsl,Lmodel.updated] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obsl,Lmodel.updated,Lmodel.mat);
