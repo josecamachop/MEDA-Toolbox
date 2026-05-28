@@ -1046,15 +1046,15 @@ elseif strcmp(Lmodel.type,'ASCA')
             s = size(x);
             step2 = round(s(1)*step);
             Lmodel.interactions{i}.updated(:) = 0;
-            for i = 1:step2:s(1)
-                endv = min(s(1),i+step2-1);
-                ss = endv-i+1;
-                xstep = xcs(i:endv,:);
-                clstep = class(i:endv);
+            for j = 1:step2:s(1)
+                endv = min(s(1),j+step2-1);
+                ss = endv-j+1;
+                xstep = xcs(j:endv,:);
+                clstep = class(j:endv);
                 if isempty(obsl)
                     obsstep = {};
                 else
-                    obsstep = obsl(i:endv);
+                    obsstep = obsl(j:endv);
                 end
                 
                 Lmodel.interactions{i}.centr = [Lmodel.interactions{i}.centr;xstep];
@@ -1064,7 +1064,7 @@ elseif strcmp(Lmodel.type,'ASCA')
                 Lmodel.interactions{i}.updated = [Lmodel.interactions{i}.updated;ones(size(xstep,1),1)];
                 
                 if files
-                    for k=i:endv
+                    for k=j:endv
                         Lmodel.interactions{i}.indexFich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
                     end
                 end

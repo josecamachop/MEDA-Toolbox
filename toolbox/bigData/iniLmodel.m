@@ -113,17 +113,17 @@ function Lmodel = iniLmodel(X,Y,varargin)
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-if nargin < 1, X = []; end;
+if nargin < 1, X = []; end
 N = size(X, 1);
 M = size(X, 2);
-if nargin < 2, Y = []; end;
+if nargin < 2, Y = []; end
 
 p = inputParser;
     if N>0 
         obsl = cellstr(num2str((1:N)')); 
     else
         obsl = {}; 
-    end;
+    end
 addParameter(p,'ObsLabel',obsl);   
     if M>0
         varl = cellstr(num2str((1:M)')); 
@@ -164,4 +164,4 @@ Lmodel.path = '';
 Lmodel.bigdim = [];
 
 
-[kk,Lmodel] = checkLmodel(Lmodel);
+[~,Lmodel] = checkLmodel(Lmodel);
