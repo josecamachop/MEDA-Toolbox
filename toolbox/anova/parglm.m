@@ -72,6 +72,8 @@ function [T, parglmo] = parglm(X, F, varargin)
 %
 % 'Warning': [bool] show warning for preprocessing
 %
+% 'Parallel': [bool] use parfor in permutations
+%
 %
 % OUTPUTS:
 %
@@ -190,7 +192,8 @@ addParameter(p,'Fmtc',0);
 addParameter(p,'Coding',zeros(1,size(F,2))); 
 addParameter(p,'Nested',[]); 
 addParameter(p,'Type','Simultaneous'); 
-addParameter(p,'Warning',false); 
+addParameter(p,'Warning',true); 
+addParameter(p,'Parallel',true); 
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -205,6 +208,7 @@ coding = p.Results.Coding;
 nested = p.Results.Nested;
 type = p.Results.Type;
 warning = p.Results.Warning;
+parallel = p.Results.Parallel;
 
 if isempty(model), model = 'linear'; end
 
@@ -554,101 +558,14 @@ parglmo.effects = 100*([SSQfactors(1,:) SSQinteractions(1,:) SSQresiduals]./SSQX
 parglmo.residuals = Xresiduals;
 
 % Permutations
-for j = 1 : nPerm*mtcc
-   
-    perms = randperm(size(Xnan,1)); % permuted data (complete rows)
-    
-    X = Xnan(perms, :);
-    [r,c]=find(isnan(X));
-    ru = unique(r);
-    for i=1:length(ru)
-        ind = find(r==ru(i));
-        ind2 = find(sum((D-ones(size(D,1),1)*D(r(ind(1)),:)).^2,2)==0);
-        for f=1:length(c(ind))
-            ind3 = find(isnan(X(ind2,c(ind(f)))));
-            if length(ind2)>length(ind3)
-                X(r(ind(f)),c(ind(f))) = mean(X(ind2,c(ind(f))), 'omitnan'); % use conditional mean replacement
-            else
-                X(r(ind(f)),c(ind(f))) = mean(X(:,c(ind(f))), 'omitnan'); % use unconditional mean replacement if CMR not possible
-            end
-        end
+if parallel
+    parfor j = 1 : nPerm*mtcc
+        [Ffactors(1 + j,:),Finteractions(1 + j,:),SSQfactors(1 + j,:),SSQinteractions(1 + j,:)] = permBody(parglmo);
     end
-      
-    B = pD*X;
-    Xresiduals  = X - D*B;
-    SSQresidualsp = sum(sum(Xresiduals .^2));
-    
-    % Factors
-    factors = cell(1,nFactors);
-    SSQf = zeros(1,nFactors);
-    for f = 1 : nFactors
-        factors{f}.matrix = D(:,parglmo.factors{f}.Dvars)*B(parglmo.factors{f}.Dvars,:);
-        SSQf(f) = sum(sum(factors{f}.matrix.^2));
+else
+    for j = 1 : nPerm*mtcc
+        [Ffactors(1 + j,:),Finteractions(1 + j,:),SSQfactors(1 + j,:),SSQinteractions(1 + j,:)] = permBody(parglmo);
     end
-    SSQfactors(1 + j,:) = SSQf;
-    
-    % Interactions
-    interacts = {};
-    SSQi = zeros(1,nInteractions);
-    for i = 1 : nInteractions
-        interacts{i}.matrix = D(:,parglmo.interactions{i}.Dvars)*B(parglmo.interactions{i}.Dvars,:);    
-        SSQi(i) = sum(sum(interacts{i}.matrix.^2));
-    end
-    SSQinteractions(1 + j,:) = SSQi;
-    
-    % F Factors
-    Ff = zeros(1,nFactors);
-    for f = 1 : nFactors
-        if ts==2% pooled reference MSE
-            SSref = 0;
-            Dfref = 0;
-            for f2 = 1 : nFactors
-                if ~isempty(find(f2==parglmo.factors{f}.refF))
-                    SSref = SSref + SSQf(f2);
-                    Dfref = Dfref + df(f2);
-                end
-            end
-            
-            for i = 1 : nInteractions
-                if ~isempty(find(i==parglmo.factors{f}.refI))
-                    SSref = SSref + SSQi(i);
-                    Dfref = Dfref + dfint(i);
-                end
-            end
-            if SSref == 0
-                Ff(f) = (SSQf(f)/df(f))/(SSQresidualsp/Rdf);
-            else
-                Ff(f) = (SSQf(f)/df(f))/(SSref/Dfref);
-            end
-        else
-            Ff(f) = (SSQf(f)/df(f))/(SSQresidualsp/Rdf);
-        end
-    end
-    Ffactors(1 + j,:) = Ff; 
-
-    % F Interactions
-    Fi = zeros(1,nInteractions);
-    for i = 1 : nInteractions
-        if ts==2 % reference MSE
-            SSref = 0;
-            Dfref = 0;
-            for i2 = 1 : nInteractions
-                if ~isempty(find(i2==parglmo.interactions{i}.refI))
-                    SSref = SSref + SSQi(1,i2);
-                    Dfref = Dfref + dfint(i2);
-                end
-            end
-            if SSref == 0
-                Fi(i) = (SSQi(i)/dfint(i))/(SSQresidualsp/Rdf);
-            else
-                Fi(i)= (SSQi(i)/dfint(i))/(SSref/Dfref);
-            end
-        else
-            Fi(i) = (SSQi(i)/dfint(i))/(SSQresidualsp/Rdf);
-        end
-    end
-    Finteractions(1 + j,:) = Fi; 
-
 end        
 
 % Select test statistic
@@ -769,3 +686,114 @@ function Dout = computaDint(interactions,factors,D) % Compute coding matrix
 
 end
 
+
+function [Ff,Fi,SSQf,SSQi] = permBody(modstr) 
+
+    X = modstr.data;
+    Xnan = modstr.Xnan;
+    if ~isfield(modstr, 'prep')
+        modstr.prep = 1;
+    end
+    D = modstr.D;
+    df = modstr.df;
+    dfint = modstr.dfint;
+    Rdf = modstr.Rdf;
+    nFactors = modstr.nFactors;
+    nInteractions = modstr.nInteractions;
+    ts = modstr.ts;
+    
+    perms = randperm(size(Xnan,1)); % permuted data (complete rows)
+    
+    X = Xnan(perms, :);
+    [r,c]=find(isnan(X));
+    ru = unique(r);
+    for i=1:length(ru)
+        ind = find(r==ru(i));
+        ind2 = find(sum((D-ones(size(D,1),1)*D(r(ind(1)),:)).^2,2)==0);
+        for f=1:length(c(ind))
+            ind3 = find(isnan(X(ind2,c(ind(f)))));
+            if length(ind2)>length(ind3)
+                X(r(ind(f)),c(ind(f))) = mean(X(ind2,c(ind(f))), 'omitnan'); % use conditional mean replacement
+            else
+                X(r(ind(f)),c(ind(f))) = mean(X(:,c(ind(f))), 'omitnan'); % use unconditional mean replacement if CMR not possible
+            end
+        end
+    end
+      
+    pD =  pinv(D'*D)*D';    
+    B = pD*X;
+    Xresiduals  = X - D*B;
+    SSQresidualsp = sum(sum(Xresiduals .^2));
+    
+    % Factors
+    factors = cell(1,nFactors);
+    SSQf = zeros(1,nFactors);
+    for f = 1 : nFactors
+        factors{f}.matrix = D(:,modstr.factors{f}.Dvars)*B(modstr.factors{f}.Dvars,:);
+        SSQf(f) = sum(sum(factors{f}.matrix.^2));
+    end
+    %SSQfactors(1 + j,:) = SSQf;
+    
+    % Interactions
+    interacts = {};
+    SSQi = zeros(1,nInteractions);
+    for i = 1 : nInteractions
+        interacts{i}.matrix = D(:,modstr.interactions{i}.Dvars)*B(modstr.interactions{i}.Dvars,:);    
+        SSQi(i) = sum(sum(interacts{i}.matrix.^2));
+    end
+    %SSQinteractions(1 + j,:) = SSQi;
+    
+    % F Factors
+    Ff = zeros(1,nFactors);
+    for f = 1 : nFactors
+        if ts==2% pooled reference MSE
+            SSref = 0;
+            Dfref = 0;
+            for f2 = 1 : nFactors
+                if ~isempty(find(f2==modstr.factors{f}.refF))
+                    SSref = SSref + SSQf(f2);
+                    Dfref = Dfref + df(f2);
+                end
+            end
+            
+            for i = 1 : nInteractions
+                if ~isempty(find(i==modstr.factors{f}.refI))
+                    SSref = SSref + SSQi(i);
+                    Dfref = Dfref + dfint(i);
+                end
+            end
+            if SSref == 0
+                Ff(f) = (SSQf(f)/df(f))/(SSQresidualsp/Rdf);
+            else
+                Ff(f) = (SSQf(f)/df(f))/(SSref/Dfref);
+            end
+        else
+            Ff(f) = (SSQf(f)/df(f))/(SSQresidualsp/Rdf);
+        end
+    end
+    %Ffactors(1 + j,:) = Ff; 
+
+    % F Interactions
+    Fi = zeros(1,nInteractions);
+    for i = 1 : nInteractions
+        if ts==2 % reference MSE
+            SSref = 0;
+            Dfref = 0;
+            for i2 = 1 : nInteractions
+                if ~isempty(find(i2==modstr.interactions{i}.refI))
+                    SSref = SSref + SSQi(1,i2);
+                    Dfref = Dfref + dfint(i2);
+                end
+            end
+            if SSref == 0
+                Fi(i) = (SSQi(i)/dfint(i))/(SSQresidualsp/Rdf);
+            else
+                Fi(i)= (SSQi(i)/dfint(i))/(SSref/Dfref);
+            end
+        else
+            Fi(i) = (SSQi(i)/dfint(i))/(SSQresidualsp/Rdf);
+        end
+    end
+    %Finteractions(1 + j,:) = Fi; 
+
+end
