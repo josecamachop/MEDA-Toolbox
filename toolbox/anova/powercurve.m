@@ -511,16 +511,17 @@ end
 %% Compute the Power Curve
  
 eD = zeros(length(theta),length(powercurveo.coeffs),nRep);
-
-for i2=1:nRep
+T = {};
+parfor i2=1:nRep
     
     %disp(i2)
     
     rng(i2);
     
-    [eD(:,:,i2),powercurveo.T(i2,:)] = corePower(powercurveo,F);
+    [eD(:,:,i2),T(i2,:)] = corePower(powercurveo,F);
     
 end
+powercurveo.T = T;
 
 PCmean = mean(eD,3);
 PCrep = eD; 
@@ -595,6 +596,7 @@ function [eD,Ts] = corePower(powercurveo,F)
 
     F2 = F;   
     powercurveo2 = powercurveo;
+
     nested = powercurveo.nested;
     type = powercurveo.type;
     X = powercurveo.data;
@@ -613,7 +615,14 @@ function [eD,Ts] = corePower(powercurveo,F)
     fmtc = powercurveo.fmtc;
     coding = powercurveo.coding;
 
-    [N,M] = size(X);
+    if isstruct(X)
+        N = X.N;
+        M = X.M;
+    else
+        N = size(X, 1);
+        M = size(X, 2);
+    end
+
     eD = zeros(length(theta),length(powercurveo.coeffs));
 
    if type == 1 % Relative PCs
