@@ -100,13 +100,13 @@ assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter 
 
 if N>M
     XX = xcs'*xcs;
-    [p,D] = eig(XX);
+    [p,D] = eig(1/(N-1)*XX);
     [lambda,ind] = sort(real(diag(D)),'descend');
     p = p(:,ind);
     t = xcs*p;
 else
     XX = xcs*xcs';
-    [t,D] = eig(XX);
+    [t,D] = eig(1/(N-1)*XX);
     s = real(sqrt(real(diag(D))));
     [lambda,ind] = sort(s,'descend');
     t = t(:,ind).*(ones(N,1)*s(ind)');
