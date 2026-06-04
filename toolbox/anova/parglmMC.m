@@ -183,7 +183,7 @@ function [T, parglmo, tsFactors, tsInteractions, SSQXc, SSQFactorsT, SSQInteract
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 25/May/2026
+% Last modification: 4/Jun/2026
 % Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -559,7 +559,7 @@ for f = 1 : nFactors
         end
         for i = 1 : nInteractions
             if ~isempty(find(f==parglmo.interactions{i}.factors))
-                rest = setdiff(parglmo.interactions{i}.factors,f);
+                [~,rest] = setdiff(parglmo.interactions{i}.factors,f);
                 if (sum(random(rest) == 1) > 0) 
                     SSref = SSref + squeeze(SSQInteractions(i,:));
                     Dfref = Dfref + dfint(i);
@@ -585,7 +585,7 @@ for i = 1 : nInteractions
         for i2 = 1 : nInteractions
             [~,ia,ib] = intersect(parglmo.interactions{i}.factors,parglmo.interactions{i2}.factors);
             if (length(ia) == length(parglmo.interactions{i}.factors) & length(parglmo.interactions{i2}.factors) > length(parglmo.interactions{i}.factors))
-                rest = setdiff(parglmo.interactions{i2}.factors,parglmo.interactions{i}.factors);
+                [~,rest] = setdiff(parglmo.interactions{i2}.factors,parglmo.interactions{i}.factors);
                 if (sum(random(parglmo.interactions{i2}.factors(rest)) == 1) > 0) 
                     SSref = SSref + squeeze(SSQInteractions(i2,:));
                     Dfref = Dfref + dfint(i2);

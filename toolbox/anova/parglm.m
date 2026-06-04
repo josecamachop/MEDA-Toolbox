@@ -151,7 +151,7 @@ function [T, parglmo] = parglm(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 26/May/2026
+% Last modification: 04/Jun/2026
 % Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -247,6 +247,7 @@ assert (isequal(size(random), [1 size(F,2)]), 'Dimension Error: parameter ''Rand
 assert (isequal(size(fmtc), [1 1]), 'Dimension Error: parameter ''Fmtc'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(coding), [1 size(F,2)]), 'Dimension Error: parameter ''Coding'' must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);
 if ~isempty(nested), assert (isequal(size(nested), [1 2]), 'Dimension Error: parameter ''Nested'' must be 1-by-2: Only one nested factor allowed. Type ''help %s'' for more info.', routine(1).name); end
+
 
 %% Main code
                   
@@ -511,8 +512,9 @@ for f = 1 : nFactors
         end
         for i = 1 : nInteractions
             if ~isempty(find(f==parglmo.interactions{i}.factors))
-                rest = setdiff(parglmo.interactions{i}.factors,f);
+                [~,rest] = setdiff(parglmo.interactions{i}.factors,f);
                 if (sum(random(rest) == 1) > 0) && (MSq < SSQinteractions(1,i)/dfint(i)) % when an interaction is random and larger than the background noise
+                    if SSref>0, disp('Warning: the use of complex designs and unconstrained permutations may inflate Type I Errors.'); end
                     SSref = SSref + SSQinteractions(1,i);
                     Dfref = Dfref + dfint(i);
                     parglmo.factors{f}.refI = [parglmo.factors{f}.refI i];
@@ -536,7 +538,7 @@ for i = 1 : nInteractions
         for i2 = 1 : nInteractions
             [~,ia,ib] = intersect(parglmo.interactions{i}.factors,parglmo.interactions{i2}.factors);
             if (length(ia) == length(parglmo.interactions{i}.factors) & length(parglmo.interactions{i2}.factors) > length(parglmo.interactions{i}.factors))
-                rest = setdiff(parglmo.interactions{i2}.factors,parglmo.interactions{i}.factors);
+                [~,rest] = setdiff(parglmo.interactions{i2}.factors,parglmo.interactions{i}.factors);
                 if (sum(random(parglmo.interactions{i2}.factors(rest)) == 1) > 0) && (MSq < SSQinteractions(1,i2)/dfint(i2)) % when the higher order interaction is random and larger than the background noise
                     SSref = SSref + SSQinteractions(1,i2);
                     Dfref = Dfref + dfint(i2);
