@@ -1,8 +1,8 @@
-function rec = missTsr2D(x,pcs,varargin)
+function rec = missTsr2D(x,varargin)
 
 % Missing data imputation with Trimmed Scores Regression.
 %
-% rec = missTsr2D(x,pc) % minimum call
+% rec = missTsr2D(x) % minimum call
 %
 % See also: pcaEig
 %
@@ -11,11 +11,11 @@ function rec = missTsr2D(x,pcs,varargin)
 %
 % x: (NxM) data matrix, N(observations) x M(variables)
 %
-% pcs: [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
-%   first two PCs).
-%
 %
 % Optional INPUTS (parameters):
+%
+% 'PCs': [1xA] Principal Components considered (e.g. pcs = 1:2 selects the
+%   first two PCs). By default, pcs = 0:min(size(xcs))
 %
 % 'Preprocessing': (1x1) preprocesing of the data
 %       0: no preprocessing.
@@ -53,9 +53,10 @@ function rec = missTsr2D(x,pcs,varargin)
 % 
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 28/Dec/2025
+% last modification: 11/Jun/2026
+% Dependencies: Matlab R2024b, MEDA v1.14
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -73,11 +74,29 @@ function rec = missTsr2D(x,pcs,varargin)
 
 % Set default values
 routine=dbstack;
-assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end
 s = size(x);
 if find(s<1), error('Incorrect content of x.'); end
+
+% Introduce optional inputs as parameters (name-value pair) 
+p = inputParser;
+addParameter(p,'PCs',0:min(size(x)));
+addParameter(p,'Preprocessing',2);   
+addParameter(p,'Percentage',0.3);
+addParameter(p,'AutoCorrData',0); 
+addParameter(p,'Iterations',100);
+addParameter(p,'Convergence',1e-5);
+parse(p,varargin{:});
+
+% Extract inputs from inputParser for code legibility
+pcs = p.Results.PCs;
+prep = p.Results.Preprocessing;
+perc = p.Results.Percentage;
+ac = p.Results.AutoCorrData;
+iter = p.Results.Iterations;
+conv = p.Results.Convergence;
 
 % Convert column arrays to row arrays
 if size(pcs,2) == 1, pcs = pcs'; end
@@ -93,35 +112,13 @@ assert (isequal(size(pcs), [1 A]), 'Dimension Error: parameter ''Pcs'' must be 1
 
 % Validate values of input data
 assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter ''Pcs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (prep>=0&&prep<=2, 'Value Error: parameter ''Preprocessing'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (perc>=0&&perc<=1, 'Value Error: parameter ''Percentage'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (ac>=0&&ac<=1, 'Value Error: parameter ''AutoCorrData'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (iter>0, 'Value Error: parameter ''Iterations'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (conv>0, 'Value Error: parameter ''Convergence'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
 
-
-% Introduce optional inputs as parameters (name-value pair) 
-p = inputParser;
-addParameter(p,'Preprocessing',2);   
-addParameter(p,'Percentage',0.3);
-addParameter(p,'AutoCorrData',0); 
-addParameter(p,'Iterations',100);
-addParameter(p,'Convergence',1e-5);
-parse(p,varargin{:});
-
-% Extract inputs from inputParser for code legibility
-prep = p.Results.Preprocessing;
-perc = p.Results.Percentage;
-ac = p.Results.AutoCorrData;
-iter = p.Results.Iterations;
-conv = p.Results.Convergence;
-
-if (prep<0||prep>2), error('Incorrect value of Preprocessing.'); end;
-
-if (perc<0||perc>1), error('Incorrect value of Percentage.'); end;
-
-if (ac<0||ac>1), error('Incorrect value of AutoCorrData.'); end;
-
-if (iter<1), error('Incorrect value of Iterations.'); end;
-
-if (conv<0), error('Incorrect value of Convergence.'); end;
-
-% Main code
+%% Main code
 
 s=size(x);
 nnan = isnan(x);
