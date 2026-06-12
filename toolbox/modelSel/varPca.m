@@ -87,7 +87,7 @@ prep = p.Results.Preprocessing;
 opt = p.Results.Plot;
 
 % Convert column arrays to row arrays
-if size(pcs,2) == 1, pcs = pcs'; end;
+if size(pcs,2) == 1, pcs = pcs'; end
 
 % Preprocessing
 pcs = unique(pcs);

@@ -489,7 +489,7 @@ else
     SSQ = sum([permute(SSQFactors(1,:,:),[3 2 1]) SSQresiduals(1,:)' SSQXc'],1);
 end
 par = [mean(parglmo.effects,1) sum(mean(parglmo.effects,1))];
-DoF = [parglmo.df parglmo.dfint parglmo.Rdf parglmo.Tdf];
+DoF = [parglmo.df parglmo.dfint parglmo.Rdf parglmo.Tdf-parglmo.mdf];
 MSQ = SSQ./DoF;
 F = [max(tsFactors(1,:,:),[],3) max(tsInteractions(1,:,:),[],3) nan nan];
 pValue = [min(parglmo.p,[],1) nan nan];

@@ -304,7 +304,9 @@ powercurveo.nested         = nested;
 powercurveo.nRep          = nRep;
 powercurveo.theta          = theta;
 powercurveo.alpha          = alpha;
-powercurveo.randg          = randg;
+powercurveo.randv          = randv;
+powercurveo.model          = model;
+powercurveo.random        = random;
 powercurveo.randgC         = randgC;
 powercurveo.type           = type;
 powercurveo.replicates     = replicates;
@@ -509,16 +511,121 @@ end
 %% Compute the Power Curve
  
 eD = zeros(length(theta),length(powercurveo.coeffs),nRep);
-
-F2 = F;   
-powercurveo2 = powercurveo;
-for i2=1:nRep
+T = {};
+parfor i2=1:nRep
     
     %disp(i2)
     
     rng(i2);
     
-    if type == 1 % Relative PCs
+    [eD(:,:,i2),T(i2,:)] = corePower(powercurveo,F);
+    
+end
+powercurveo.T = T;
+
+PCmean = mean(eD,3);
+PCrep = eD; 
+
+%% Show results
+
+figure;
+spcBootstrap(theta,PCrep,nRep,true,0.05,false);    
+if type == 1 % Relative PCs
+    
+    xlabel('Effect size (\theta)','FontSize', 16);
+    
+    if isstruct(X)
+        title('Relative Population Curve','FontSize', 16);
+    else
+        title('Relative Sample Curve','FontSize', 16);
+    end
+else
+    xlabel('Number of replicates (\eta)','FontSize', 16);
+    
+    if isstruct(X)
+        title('Absolute Population Curve','FontSize', 16);
+    else
+        title('Absolute Sample Curve','FontSize', 16);
+    end
+end
+ylabel('Power','FontSize', 16);
+
+end
+
+%% Auxiliary function for interactions
+
+function interactions = allinter(factors,order)
+    
+    if order > 2
+        interactions = allinter(factors,order-1);
+        for i = 1:length(interactions)
+            for j = factors(find(factors > max(interactions{i})))
+                interactions{end+1} = [interactions{i} j];
+            end
+        end
+    else
+        interactions = {};
+        for i = factors
+            for j = factors(find(factors >i))
+                interactions{end+1} = [i j];
+            end
+        end
+    end
+    
+end
+    
+        
+function Dout = computaDint(interactions,factors,D) % Compute coding matrix
+
+    if length(interactions)>1
+        deepD = computaDint(interactions(2:end),factors,D);
+        Dout = [];
+        for k = factors{interactions(1)}.Dvars
+            for l = 1:size(deepD,2)
+                Dout(:,end+1) = D(:,k).* deepD(:,l);
+            end
+        end
+    else
+        Dout = D(:,factors{interactions}.Dvars);
+    end
+
+end
+
+
+function [eD,Ts] = corePower(powercurveo,F)
+
+    F2 = F;   
+    powercurveo2 = powercurveo;
+
+    nested = powercurveo.nested;
+    type = powercurveo.type;
+    X = powercurveo.data;
+    nFactors = powercurveo.nFactors;
+    nInteractions = powercurveo.nInteractions;
+    randv = powercurveo.randv;
+    randgC = powercurveo.randgC;
+    ordinal = powercurveo.ordinal;
+    theta = powercurveo.theta;
+    alpha = powercurveo.alpha;
+    model = powercurveo.model;
+    prep = powercurveo.prep;
+    nPerm = powercurveo.nPerm;
+    ts = powercurveo.ts;
+    random = powercurveo.random;
+    fmtc = powercurveo.fmtc;
+    coding = powercurveo.coding;
+
+    if isstruct(X)
+        N = X.N;
+        M = X.M;
+    else
+        N = size(X, 1);
+        M = size(X, 2);
+    end
+
+    eD = zeros(length(theta),length(powercurveo.coeffs));
+
+   if type == 1 % Relative PCs
         
         if isstruct(X) 
             for f = 1 : nFactors
@@ -585,13 +692,13 @@ for i2=1:nRep
             end
                         
             % Parallel GLM
-            [T, parglmo] = parglm(Xm, F, 'Warning', false, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
+            [T, parglmo] = parglm(Xm, F, 'Warning', false, 'Parallel', false, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
 
-            powercurveo.T{i2,a} = T;
+            Ts{a} = T;
             
             for o = 1:length(powercurveo.coeffs)
                 if parglmo.p(o) <= alpha
-                    eD(a,o,i2) = 1;
+                    eD(a,o) = 1;
                 end
             end
         end
@@ -757,91 +864,20 @@ for i2=1:nRep
             Xm = Xnoise + Xstruct;
             
             % Parallel GLM
-            [T, parglmo] = parglm(Xm, F, 'Warning', false, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
+            [T, parglmo] = parglm(Xm, F, 'Warning', false, 'Parallel', false, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
             
-            powercurveo.T{i2,a} = T;
+            Ts{a} = T;
             
             for o = 1:length(powercurveo.coeffs)
                 if parglmo.p(o) <= alpha
-                    eD(a,o,i2) = 1;
+                    eD(a,o) = 1;
                 end
             end
         end    
              
-    end
-    
-end
-
-PCmean = mean(eD,3);
-PCrep = eD; 
-
-%% Show results
-
-figure;
-spcBootstrap(theta,PCrep,nRep,true,0.05,false);    
-if type == 1 % Relative PCs
-    
-    xlabel('Effect size (\theta)','FontSize', 16);
-    
-    if isstruct(X)
-        title('Relative Population Curve','FontSize', 16);
-    else
-        title('Relative Sample Curve','FontSize', 16);
-    end
-else
-    xlabel('Number of replicates (\eta)','FontSize', 16);
-    
-    if isstruct(X)
-        title('Absolute Population Curve','FontSize', 16);
-    else
-        title('Absolute Sample Curve','FontSize', 16);
-    end
-end
-ylabel('Power','FontSize', 16);
+   end
 
 end
-
-%% Auxiliary function for interactions
-
-function interactions = allinter(factors,order)
-    
-    if order > 2
-        interactions = allinter(factors,order-1);
-        for i = 1:length(interactions)
-            for j = factors(find(factors > max(interactions{i})))
-                interactions{end+1} = [interactions{i} j];
-            end
-        end
-    else
-        interactions = {};
-        for i = factors
-            for j = factors(find(factors >i))
-                interactions{end+1} = [i j];
-            end
-        end
-    end
-    
-end
-    
-        
-function Dout = computaDint(interactions,factors,D) % Compute coding matrix
-
-    if length(interactions)>1
-        deepD = computaDint(interactions(2:end),factors,D);
-        Dout = [];
-        for k = factors{interactions(1)}.Dvars
-            for l = 1:size(deepD,2)
-                Dout(:,end+1) = D(:,k).* deepD(:,l);
-            end
-        end
-    else
-        Dout = D(:,factors{interactions}.Dvars);
-    end
-
-end
-
-
-
 
 
 
