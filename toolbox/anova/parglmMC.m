@@ -459,6 +459,7 @@ parglmo.Xnan = Xnan;
 parglmo.df = df;
 parglmo.dfint = dfint;
 parglmo.Tdf = Tdf;
+parglmo.mdf = mdf;
 parglmo.Rdf = Rdf;
 
 SSQX = sum(X.^2);
