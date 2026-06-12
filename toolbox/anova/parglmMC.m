@@ -183,7 +183,7 @@ function [T, parglmo, tsFactors, tsInteractions, SSQXc, SSQFactorsT, SSQInteract
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 4/Jun/2026
+% Last modification: 12/Jun/2026
 % Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -852,7 +852,7 @@ else
     SSQ = sum([SSQFactors' SSQresiduals' SSQXc'],1);
 end
 par = [par sum(par)];
-DoF = [df dfint Rdf Tdf];
+DoF = [df dfint Rdf Tdf-mdf];
 MSQ = SSQ./DoF;
 F = [max(FFactors,[],2)' max(FInteractions,[],2)' nan nan];
 pValue = [min(parglmo.p) nan nan];
