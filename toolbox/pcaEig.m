@@ -41,7 +41,7 @@ function model = pcaEig(xcs,varargin)
 %
 % norm(model.loads-coefSvd)
 % norm(coefEig-coefSvd)
-% norm(model.loads-coefSvd)
+% norm(model.loads-coefEig)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)

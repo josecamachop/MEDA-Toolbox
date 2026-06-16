@@ -116,8 +116,6 @@ P = model.loads;
 T = model.scores;
 pcs(find(pcs>size(P,2))) = [];
 
-if find(isnan(xcs)), xcs = model.scores*model.loads' + model.residuals; end
-
 totalVx = sum(sum(xcs.^2));
 xvar = ones(length(pcs),1);
 
