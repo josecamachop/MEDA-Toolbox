@@ -481,7 +481,7 @@ for ii=1:parglmo.nInteractions
     pF = [pF parglmo.p(parglmo.ordInteractions(ii,:),parglmo.nFactors+ii)];
 end
 
-for o = 1:size(powercurveo.coeffs,2)
+for o = 1:(parglmo.nFactors+parglmo.nInteractions)
     pv = pF(1,o);
     va = 2;
     while pF(va,o) < pv
