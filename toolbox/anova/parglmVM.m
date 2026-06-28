@@ -482,9 +482,12 @@ for ii=1:parglmo.nInteractions
 end
 
 for o = 1:size(powercurveo.coeffs,2)
-    va=find(min(pF(:,o))==pF(:,o));
-    va = va(end);
-
+    pv = pF(1,o);
+    va = 2;
+    while pF(va,o) < pv
+        pv = pF(va,o);
+        va = va + 1;
+    end
 
     for v=1:va
         pF(v,o) = pF(v,o)* va/(va-v+1)/va;
