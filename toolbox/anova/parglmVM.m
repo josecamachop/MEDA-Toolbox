@@ -489,6 +489,8 @@ for o = 1:size(powercurveo.coeffs,2)
         va = va + 1;
     end
 
+    pF(va+1:end,o) = va * pF(va+1:end,o);
+
     for v=1:va
         pF(v,o) = pF(v,o)* va/(va-v+1)/va;
     end
