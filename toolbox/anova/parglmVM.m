@@ -492,7 +492,7 @@ for o = 1:(parglmo.nFactors+parglmo.nInteractions)
     pF(va+1:end,o) = va * pF(va+1:end,o);
 
     for v=1:va
-        pF(v,o) = pF(v,o)* va/(va-v+1)/va;
+        pF(v,o) = pF(v,o) * va/(va-v+1);
     end
 end
 
