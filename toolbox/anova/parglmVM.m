@@ -497,6 +497,14 @@ for o = 1:(parglmo.nFactors+parglmo.nInteractions)
 end
 
 
+for ff=1:parglmo.nFactors
+    parglmo.p(parglmo.ordFactors(ff,:),ff) = pF(:,ff);
+end
+for ii=1:parglmo.nInteractions
+    parglmo.p(parglmo.ordInteractions(ii,:),parglmo.nFactors+ii) = pF(:,parglmo.nFactors+ii);
+end
+
+
 %% ANOVA-like output table
 
 name={};
