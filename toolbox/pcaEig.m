@@ -41,11 +41,11 @@ function model = pcaEig(xcs,varargin)
 %
 % norm(model.loads-coefSvd)
 % norm(coefEig-coefSvd)
-% norm(model.loads-coefSvd)
+% norm(model.loads-coefEig)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 26/May/2026
+% last modification: 9/Jun/2026
 % Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -100,16 +100,16 @@ assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: parameter 
 
 if N>M
     XX = xcs'*xcs;
-    [p,D] = eig(XX);
+    [p,D] = eig(1/(N-1)*XX);
     [lambda,ind] = sort(real(diag(D)),'descend');
     p = p(:,ind);
     t = xcs*p;
 else
     XX = xcs*xcs';
-    [t,D] = eig(XX);
+    [t,D] = eig(1/(N-1)*XX);
     s = real(sqrt(real(diag(D))));
     [lambda,ind] = sort(s,'descend');
-    t = t(:,ind).*(ones(N,1)*s(ind)');
+    t = t(:,ind).*(sqrt((N-1))*ones(N,1)*s(ind)');
     p = xcs'*t;
     for i=1:size(p,2)
         p(:,i) = p(:,i)/sqrt(p(:,i)'*p(:,i));
