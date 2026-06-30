@@ -46,8 +46,9 @@ function [xvar,cumpress] = varPca(x,varargin)
 % xvar = varPca(X,'PCs',pcs);
 %
 %
-% codified by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 14/May/2026
+% coded by: Jose Camacho (josecamacho@ugr.es)
+% last modification: 11/Jun/2026
+% Dependencies: Matlab R2024b, MEDA v1.14, DathaTest 1.4
 %
 % Copyright (C) 2026  University of Granada, Granada
 % 
@@ -74,7 +75,7 @@ M = size(x, 2);
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'PCs',0:rank(x));   
+addParameter(p,'PCs',0:min(N,M));   
 addParameter(p,'Preprocessing',2);   
 addParameter(p,'PlotCkf',false); 
 addParameter(p,'Plot',true);    

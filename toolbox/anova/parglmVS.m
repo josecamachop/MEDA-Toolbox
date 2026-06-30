@@ -168,8 +168,8 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 25/May/2026
-% Dependencies: Matlab R2024b, MEDA v1.13
+% Last modification: 29/June/2026
+% Dependencies: Matlab R2024b, MEDA v1.14
 %
 % Copyright (C) 2026  University of Granada, Granada
 %
@@ -468,6 +468,40 @@ if mtcc > 1
                 parglmo.p(:,indx(ind)) = parglmo.p(:,indx(ind))*parglmo.p(indmv(indx(ind)),indx(ind))/parglmo.p(indmv(indx(ind)),indx(ind));
             end
     end
+end
+
+
+%% FDR correction to control TIE
+
+pF = [];
+for ff=1:parglmo.nFactors
+    pF = [pF parglmo.p(parglmo.ordFactors(ff,:),ff)];
+end
+for ii=1:parglmo.nInteractions
+    pF = [pF parglmo.p(parglmo.ordInteractions(ii,:),parglmo.nFactors+ii)];
+end
+
+for o = 1:(parglmo.nFactors+parglmo.nInteractions)
+    pv = pF(1,o);
+    va = 2;
+    while pF(va,o) < pv
+        pv = pF(va,o);
+        va = va + 1;
+    end
+
+    pF(va+1:end,o) = va * pF(va+1:end,o);
+
+    for v=1:va
+        pF(v,o) = pF(v,o) * va/(va-v+1);
+    end
+end
+
+
+for ff=1:parglmo.nFactors
+    parglmo.p(parglmo.ordFactors(ff,:),ff) = pF(:,ff);
+end
+for ii=1:parglmo.nInteractions
+    parglmo.p(parglmo.ordInteractions(ii,:),parglmo.nFactors+ii) = pF(:,parglmo.nFactors+ii);
 end
 
 
