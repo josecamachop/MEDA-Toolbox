@@ -554,9 +554,10 @@ if mtc <0 % Q-value
         pFactor(f,vars) = pFactor(f,var) * (-mtc);
         for varI = Mm(f)-1 : -1 : 1
             var = parglmo.ordFactors(f,models(indx(varI)));
+            varp = parglmo.ordFactors(f,models(indx(varI+1)));
             vars = parglmo.ordFactors(f,betLims(models(indx(varI)),models));
 
-            pFactor(f,vars) = min([1,pFactor(f,var) * (-mtc) * (Mm(f)/varI),pFactor(f,models(indx(varI+1)))]);
+            pFactor(f,vars) = min([1,pFactor(f,var) * (-mtc) * (Mm(f)/varI), pFactor(f,varp)]);
         end
     end
     for i = 1 : nInteractions
@@ -568,9 +569,10 @@ if mtc <0 % Q-value
         pInteraction(i,vars) = pInteraction(i,var) * (-mtc);
         for varI = Mm(i+nFactors)-1 : -1 : 1
             var = parglmo.ordInteractions(i,models(indx(varI)));
+            varp = parglmo.ordInteractions(i,models(indx(varI+1)));
             vars = parglmo.ordInteractions(i,betLims(models(indx(varI)),models));
 
-            pInteraction(i,vars) = min([1,pInteraction(i,var) * (-mtc) * (Mm(i+nFactors)/varI),pInteraction(i,models(indx(varI+1)))]);
+            pInteraction(i,vars) = min([1,pInteraction(i,var) * (-mtc) * (Mm(i+nFactors)/varI), pInteraction(i,varp)]);
         end
     end
     parglmo.p = [pFactor' pInteraction'];
