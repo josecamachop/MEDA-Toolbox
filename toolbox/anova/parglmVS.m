@@ -74,6 +74,14 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %   'Simultaneous': All factors at once (by default, check %SS)
 %   'Sequential': Sequential, marginalizing in order of variance
 %
+% 'Select': 'string' strategy for model selection ("All" by default).
+%   - "All": select all models for evaluation 
+%   - "Every2": select model for 1 variable, 3, 5, ..., M
+%   - "Every4": select model for 1 variable, 5, 9, ..., M
+%   - "Every8": select model for 1 variable, 9, 17, ..., M
+%   - "FirstPeak": increase the number of variables while the model keeps
+%       improving (by default) 
+%
 %
 % OUTPUTS:
 %
@@ -168,7 +176,7 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 29/June/2026
+% Last modification: 11/July/2026
 % Dependencies: Matlab R2024b, MEDA v1.14
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -209,6 +217,7 @@ addParameter(p,'Fmtc',0);
 addParameter(p,'Coding',zeros(1,size(F,2))); 
 addParameter(p,'Nested',[]); 
 addParameter(p,'Type','Simultaneous'); 
+addParameter(p,'Select','FirstPeak'); 
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -223,6 +232,7 @@ fmtc = p.Results.Fmtc;
 coding = p.Results.Coding;
 nested = p.Results.Nested;
 type = p.Results.Type;
+select = p.Results.Select;
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error: parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
@@ -245,6 +255,7 @@ else
 end
 
 parglmo.univp = parglmo.p;
+nInteractions = parglmo.nInteractions;
 
 if fmtc
     mtcc = parglmo.nFactors + parglmo.nInteractions;        % correction for the number of tests
@@ -265,9 +276,31 @@ for i = 1 : parglmo.nInteractions
 end
 
 
+%% Model selection
+
+switch select
+    case "Every2"
+        models = unique([1:2:M M]);
+    case "Every4"
+        models = unique([1:4:M M]);
+    case "Every8"
+        models = unique([1:8:M M]);
+    otherwise
+        models = 1:M;
+end
+
+Mm = length(models);
+
+
 %% Incremental ASCAs
 
-for var = 1 : M 
+for mmod = 1 : Mm
+    var = models(mmod);
+    if mmod>1
+        vars = (models(mmod-1)+1):var;
+    else
+        vars = var;
+    end
 
     for f = 1 : nFactors
         parglmo.factors{f}.refF = []; 
@@ -296,12 +329,12 @@ for var = 1 : M
                 end
             end
             if SSref == 0
-                FFactors(1,f,ord(var)) = (sum(SSQFactors(1,f,ord(1:var)))/parglmo.df(f))/MSq;
+                FFactors(1,f,ord(vars)) = (sum(SSQFactors(1,f,ord(1:var)))/parglmo.df(f))/MSq;
             else
-                FFactors(1,f,ord(var)) = (sum(SSQFactors(1,f,ord(1:var)))/parglmo.df(f))/(SSref/Dfref);
+                FFactors(1,f,ord(vars)) = (sum(SSQFactors(1,f,ord(1:var)))/parglmo.df(f))/(SSref/Dfref);
             end
         else
-            FFactors(1,f,ord(var)) = (sum(SSQFactors(1,f,ord(1:var)))/parglmo.df(f))/MSq;
+            FFactors(1,f,ord(vars)) = (sum(SSQFactors(1,f,ord(1:var)))/parglmo.df(f))/MSq;
         end
     end
  
@@ -325,12 +358,12 @@ for var = 1 : M
                 end
             end
             if SSref == 0
-                FInteractions(1,i,ord(var)) = (sum(SSQInteractions(1,i,ord(1:var)))/parglmo.dfint(i))/MSq;
+                FInteractions(1,i,ord(vars)) = (sum(SSQInteractions(1,i,ord(1:var)))/parglmo.dfint(i))/MSq;
             else
-                FInteractions(1,i,ord(var)) = (sum(SSQInteractions(1,i,ord(1:var)))/parglmo.dfint(i))/(SSref/Dfref);
+                FInteractions(1,i,ord(vars)) = (sum(SSQInteractions(1,i,ord(1:var)))/parglmo.dfint(i))/(SSref/Dfref);
             end
         else
-            FInteractions(1,i,ord(var)) = (sum(SSQInteractions(1,i,ord(1:var)))/parglmo.dfint(i))/MSq;
+            FInteractions(1,i,ord(vars)) = (sum(SSQInteractions(1,i,ord(1:var)))/parglmo.dfint(i))/MSq;
         end
     end
     
@@ -365,7 +398,7 @@ for var = 1 : M
                 Ff(f) = (sum(SSQFactors(1+j,f,ord(1:var)))/parglmo.df(f))/(sum(SSQresiduals(1+j,ord(1:var)))/parglmo.Rdf);
             end
         end
-        FFactors(1+j,:,var) = Ff;
+        FFactors(1+j,:,vars) = Ff'*ones(1,length(vars));
 
         Fi = zeros(1,parglmo.nInteractions);
         for i = 1 : parglmo.nInteractions
@@ -388,7 +421,7 @@ for var = 1 : M
                 Fi(i) = (sum(SSQInteractions(1+j,i,ord(1:var)))/parglmo.dfint(i))/(sum(SSQresiduals(1+j,ord(1:var)))/parglmo.Rdf);
             end
         end
-        FInteractions(1+j,:,var) = Fi;
+        FInteractions(1+j,:,vars) = Fi'*ones(1,length(vars));
 
     end
 
@@ -436,72 +469,112 @@ for i = 1 : parglmo.nInteractions
         end
     end
 end
-        
-% Multiple test correction for several factors/interactions
+
+
+%% Selection
+
+if isequal(select,'FirstPeak')
+
+    parglmo.p = [pFactor' pInteraction'];
+
+    pF = [];
+    for ff=1:parglmo.nFactors
+        pF = [pF parglmo.p(parglmo.ordFactors(ff,:),ff)];
+    end
+    for ii=1:parglmo.nInteractions
+        pF = [pF parglmo.p(parglmo.ordInteractions(ii,:),parglmo.nFactors+ii)];
+    end
+
+    for o = 1:(parglmo.nFactors+parglmo.nInteractions)
+        pv = pF(1,o);
+        va(o) = 2;
+        while va(o) < M + 1 && pF(va(o),o) <= pv  
+            pv = pF(va(o),o);
+            va(o) = va(o) + 1;
+        end
+        pF(va(o):end,o) = nan; 
+        va(o) = min(M,va(o));
+    end
+
+    for ff=1:parglmo.nFactors
+        pFactor(ff,parglmo.ordFactors(ff,:)) = pF(:,ff);
+    end
+    for ii=1:parglmo.nInteractions
+        pInteraction(ii,parglmo.ordInteractions(ii,:)) = pF(:,ii+parglmo.nFactors);
+    end
+
+    Mm = va;
+else
+    Mm = repmat(Mm,parglmo.nFactors+parglmo.nInteractions,1);
+end
+
+      
+         
+%% Multiple test correction
+
 parglmo.p = [pFactor' pInteraction'];
-if mtcc > 1
-    switch fmtc
-        case 1 % Bonferroni 
-            parglmo.p = min(1,parglmo.p * mtcc); 
 
-        case 2 % Holm/Hochberg
-            [~,indx] = sort(min(parglmo.p),'ascend');
-            for ind = 1 : mtcc 
-                parglmo.p(:,indx(ind)) = min(1,parglmo.p(:,indx(ind)) * (mtcc-ind+1));
-            end
+betLims = @(x,y) max([1 y(y<x)+1]) : min(y(y>=x));
 
-        case 3 % Benjamini & Hochberg
-            [mv,indmv] = min(parglmo.p);
-            [~,indx] = sort(mv,'ascend');
-            parglmo.p(:,indx(mtcc)) = parglmo.p(:,indx(mtcc));
-            for ind = mtcc-1 : -1 : 1 
-                parglmo.p(indmv(indx(ind)),indx(ind)) = min(1,min(parglmo.p(indmv(indx(ind)),indx(ind)) * mtcc/ind,parglmo.p(indmv(indx(ind+1)))));
-                parglmo.p(:,indx(ind)) = parglmo.p(:,indx(ind))*parglmo.p(indmv(indx(ind)),indx(ind))/parglmo.p(indmv(indx(ind)),indx(ind));
-            end
+switch mtc
 
-        case 4 % Q-value from Benjamini & Hochberg
-            [mv,indmv] = min(parglmo.p);
-            [~,indx] = sort(mv,'ascend');
-            parglmo.p(:,indx(mtcc)) = parglmo.p(:,indx(mtcc));
-            for ind = mtcc-1 : -1 : 1 
-                parglmo.p(indmv(indx(ind)),indx(ind)) = min(1,min(parglmo.p(indmv(indx(ind)),indx(ind)) * mtcc/ind,parglmo.p(indmv(indx(ind+1)),indx(ind+1))));
-                parglmo.p(:,indx(ind)) = parglmo.p(:,indx(ind))*parglmo.p(indmv(indx(ind)),indx(ind))/parglmo.p(indmv(indx(ind)),indx(ind));
+    case 1 % Bonferroni
+
+        if fmtc
+            parglmo.p = min(1,parglmo.p * sum(Mm));
+        else
+            for f = 1 : size(parglmo.p,2)
+                parglmo.p(f,:) = min(1,parglmo.p(f,:) * Mm(f));
             end
-    end
+        end
+
+    case 2 % Holm/Hochberg
+
+        warning('This option has not been programmed, changed to Q-value and fmtc false')
+        mtc = -1; fmtc = false;
+
+    case 3 % Benjamini & Hochberg
+
+        warning('This option has not been programmed, changed to Q-value and fmtc false')
+        mtc = -1; fmtc = false;
+
 end
 
-
-%% FDR correction to control TIE
-
-pF = [];
-for ff=1:parglmo.nFactors
-    pF = [pF parglmo.p(parglmo.ordFactors(ff,:),ff)];
-end
-for ii=1:parglmo.nInteractions
-    pF = [pF parglmo.p(parglmo.ordInteractions(ii,:),parglmo.nFactors+ii)];
-end
-
-for o = 1:(parglmo.nFactors+parglmo.nInteractions)
-    pv = pF(1,o);
-    va = 2;
-    while pF(va,o) < pv
-        pv = pF(va,o);
-        va = va + 1;
+if mtc <0 % Q-value
+    if fmtc
+        warning('This option has not been programmed, changed to fmtc false')
     end
 
-    pF(va+1:end,o) = va * pF(va+1:end,o);
+    for f = 1 : nFactors
+        [~,indx] = sort(pFactor(f,parglmo.ordFactors(f,models)),'ascend');
 
-    for v=1:va
-        pF(v,o) = pF(v,o) * va/(va-v+1);
+        var = parglmo.ordFactors(f,models(indx(Mm(f))));
+        vars = parglmo.ordFactors(f,betLims(models(indx(Mm(f))),models));
+
+        pFactor(f,vars) = pFactor(f,var) * (-mtc);
+        for varI = Mm(f)-1 : -1 : 1
+            var = parglmo.ordFactors(f,models(indx(varI)));
+            vars = parglmo.ordFactors(f,betLims(models(indx(varI)),models));
+
+            pFactor(f,vars) = min([1,pFactor(f,var) * (-mtc) * (Mm(f)/varI),pFactor(f,models(indx(varI+1)))]);
+        end
     end
-end
+    for i = 1 : nInteractions
+        [~,indx] = sort(pInteraction(i,parglmo.ordInteractions(i,models)),'ascend');
 
+        var = parglmo.ordInteractions(i,models(indx(Mm(i+nFactors))));
+        vars = parglmo.ordInteractions(i,betLims(models(indx(Mm(i+nFactors))),models));
 
-for ff=1:parglmo.nFactors
-    parglmo.p(parglmo.ordFactors(ff,:),ff) = pF(:,ff);
-end
-for ii=1:parglmo.nInteractions
-    parglmo.p(parglmo.ordInteractions(ii,:),parglmo.nFactors+ii) = pF(:,parglmo.nFactors+ii);
+        pInteraction(i,vars) = pInteraction(i,var) * (-mtc);
+        for varI = Mm(i+nFactors)-1 : -1 : 1
+            var = parglmo.ordInteractions(i,models(indx(varI)));
+            vars = parglmo.ordInteractions(i,betLims(models(indx(varI)),models));
+
+            pInteraction(i,vars) = min([1,pInteraction(i,var) * (-mtc) * (Mm(i+nFactors)/varI),pInteraction(i,models(indx(varI+1)))]);
+        end
+    end
+    parglmo.p = [pFactor' pInteraction'];
+
 end
 
 

@@ -37,3 +37,7 @@ Icon
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
+toolbox/anova/parglmD.m
+toolbox/anova/parglmD2.m
+toolbox/anova/powercurveD.m
+toolbox/anova/powercurveD2.m
