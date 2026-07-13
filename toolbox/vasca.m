@@ -23,12 +23,13 @@ function vascao = vasca(parglmoVS, varargin)
 % 'SignLev': [1x1] significance level (0.01 by default). If negative, it
 % determines the number of variables selected.
 %
-% 'Strategy': 'string' strategy for variables selection ("MaximumM" by default).
-%   - "MaximumM": select all variables with maximum multivariate Q-value.
+% 'Strategy': 'string' strategy for variables selection ("SignLevM" by default).
+%   - "MaximumM": select all variables with maximum multivariate Q-value
+%       and above the significant level. 
 %   - "SignLevM": select all variables with multivariate Q-value above the
 %       significance level.
 %   - "SignLevU": select all variables with univariate Q-value above the
-%       significance level.
+%       significance level. 
 %
 %
 % OUTPUTS:
@@ -59,7 +60,7 @@ function vascao = vasca(parglmoVS, varargin)
 % end
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 25/May/2026
+% Last modification: 03/Jul/2026
 % Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -86,7 +87,7 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
 addParameter(p,'SignLev',0.01); 
-addParameter(p,'Strategy',"MaximumM");
+addParameter(p,'Strategy',"SignLevM");
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
