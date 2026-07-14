@@ -74,13 +74,15 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %   'Simultaneous': All factors at once (by default, check %SS)
 %   'Sequential': Sequential, marginalizing in order of variance
 %
-% 'Select': 'string' strategy for model selection ("All" by default).
+% 'Select': 'string' strategy for model selection ("FirstPeak" by default).
 %   - "All": select all models for evaluation 
 %   - "Every2": select model for 1 variable, 3, 5, ..., M
 %   - "Every4": select model for 1 variable, 5, 9, ..., M
 %   - "Every8": select model for 1 variable, 9, 17, ..., M
 %   - "FirstPeak": increase the number of variables while the model keeps
-%       improving (by default) 
+%       improving 
+%   - "FirstPeakInverse": decrease the number of variables from M while the 
+%           model keeps improving
 %
 %
 % OUTPUTS:
@@ -176,7 +178,7 @@ function [T, parglmo] = parglmVS(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 11/July/2026
+% Last modification: 14/July/2026
 % Dependencies: Matlab R2024b, MEDA v1.14
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -473,6 +475,7 @@ end
 
 %% Selection
 
+
 if isequal(select,'FirstPeak')
 
     parglmo.p = [pFactor' pInteraction'];
@@ -504,6 +507,39 @@ if isequal(select,'FirstPeak')
     end
 
     Mm = va;
+
+elseif isequal(select,'FirstPeakInverse')
+
+    parglmo.p = [pFactor' pInteraction'];
+
+    pF = [];
+    for ff=1:parglmo.nFactors
+        pF = [pF parglmo.p(parglmo.ordFactors(ff,:),ff)];
+    end
+    for ii=1:parglmo.nInteractions
+        pF = [pF parglmo.p(parglmo.ordInteractions(ii,:),parglmo.nFactors+ii)];
+    end
+
+    for o = 1:(parglmo.nFactors+parglmo.nInteractions)
+        pv = pF(end,o);
+        va(o) = 2;
+        while va(o) < M + 1 && pF(end-va(o)+1,o) <= pv  
+            pv = pF(end-va(o)+1,o);
+            va(o) = va(o) + 1;
+        end
+        pF(1:(end-va(o)+1),o) = pv; 
+        va(o) = min(M,va(o));
+    end
+
+    for ff=1:parglmo.nFactors
+        pFactor(ff,parglmo.ordFactors(ff,:)) = pF(:,ff);
+    end
+    for ii=1:parglmo.nInteractions
+        pInteraction(ii,parglmo.ordInteractions(ii,:)) = pF(:,ii+parglmo.nFactors);
+    end
+
+    Mm = va;
+
 else
     Mm = repmat(Mm,parglmo.nFactors+parglmo.nInteractions,1);
 end
