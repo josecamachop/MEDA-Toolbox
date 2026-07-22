@@ -495,7 +495,9 @@ if isequal(select,'FirstPeak')
             pv = pF(va(o),o);
             va(o) = va(o) + 1;
         end
-        pF(va(o):end,o) = nan; 
+        if va(o) < M + 1
+            pF(va(o):end,o) = nan;
+        end
         va(o) = min(M,va(o));
     end
 
@@ -527,7 +529,9 @@ elseif isequal(select,'FirstPeakInverse')
             pv = pF(end-va(o)+1,o);
             va(o) = va(o) + 1;
         end
-        pF(1:(end-va(o)+1),o) = pv; 
+        if va(o) < M + 1
+            pF(1:(end-va(o)+1),o) = nan;
+        end
         va(o) = min(M,va(o));
     end
 
