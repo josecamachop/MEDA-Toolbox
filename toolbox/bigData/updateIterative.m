@@ -235,418 +235,387 @@ if strcmp(Lmodel.type,'ASCA') % build coding matrix
     end
 
 end
-    
-% preprocess
 
-% compute mean
+% ================ Big Data in observations  ================
+if bigdim == 0 
 
-if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'ASCA')
-    
-    if debug, disp('mean centering X block..................................................'), end;
-    
-    for t=1:length(list)
-        
-        if isstruct(list(t))
-            x = list(t).x;
-        else
-            load([path list{t}],'x')
-        end
-        
-        indMV{t} = find(isnan(x));
-        if ~isempty(indMV{t})
-            disp('Missing values found in X. Set to average.');
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        
-        [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x, 'Preprocessing',Lmodel.prep>0, ...
-            'Ndim',0, ...
-            'Lambda',1, ...
-            'Average',Lmodel.av, ...
-            'Scale',Lmodel.sc, ...
-            'N',Lmodel.N, ...
-            'Weight',Lmodel.weight);    
-    end
-        
-elseif strcmp(Lmodel.type,'PLS')
-    
-    if debug, disp('mean centering X and Y blocks...........................................'), end;
-    
-    for t=1:length(list)
-        
-        if isstruct(list(t))
-            x = list(t).x;
-            y = list(t).y;
-        else
-            load([path list{t}],'x','y')
-        end
-        
-        indMV{t} = find(isnan(x));
-        if ~isempty(indMV{t})
-            disp('Missing values found in X. Set to average.');
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        
-        indMVy{t} = find(isnan(y));
-        if ~isempty(indMVy{t})
-            disp('Missing values found in Y. Set to average.');
-            avy = ones(size(y,1),1)*Lmodel.avy;
-            y(indMVy{t}) = avy(indMVy{t});
-        end
-        
-        [xc,Lmodel.av,Lmodel.sc] = preprocess2Di(x, ...
-            'Preprocessing', Lmodel.prep>0, ...
-            'Ndim', 0, ...
-            'Lambda', 1, ...
-            'Average', Lmodel.av, ...
-            'Scale', Lmodel.sc, ...
-            'N', Lmodel.N, ...
-            'Weight', Lmodel.weight);
+    % preprocess
 
-        [yc,Lmodel.avy,Lmodel.scy,Lmodel.N] = preprocess2Di(y, ...
-            'Preprocessing', Lmodel.prepy > 0, ...
-            'Ndim', 0, ...
-            'Lambda', 1, ...
-            'Average', Lmodel.avy, ...
-            'Scale', Lmodel.scy, ...
-            'N', Lmodel.N, ...
-            'Weight', Lmodel.weighty);    
-    end
-    
-end
+    % compute mean
 
-% compute scale
+    if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'ASCA')
+        
+        if debug, disp('mean centering X block..................................................'), end
+        
+        for t=1:length(list)
+            
+            if isstruct(list(t))
+                x = list(t).x;
+            else
+                load([path list{t}],'x')
+            end
+            
+            indMV{t} = find(isnan(x));
+            if ~isempty(indMV{t})
+                disp('Missing values found in X. Set to average.');
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            
+            [xc,Lmodel.av,Lmodel.sc,Lmodel.N] = preprocess2Di(x, 'Preprocessing',Lmodel.prep>0, ...
+                'Ndim',0, ...
+                'Lambda',1, ...
+                'Average',Lmodel.av, ...
+                'Scale',Lmodel.sc, ...
+                'N',Lmodel.N, ...
+                'Weight',Lmodel.weight);    
+        end
+            
+    elseif strcmp(Lmodel.type,'PLS')
+        
+        if debug, disp('mean centering X and Y blocks...........................................'), end
+        
+        for t=1:length(list)
+            
+            if isstruct(list(t))
+                x = list(t).x;
+                y = list(t).y;
+            else
+                load([path list{t}],'x','y')
+            end
+            
+            indMV{t} = find(isnan(x));
+            if ~isempty(indMV{t})
+                disp('Missing values found in X. Set to average.');
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            
+            indMVy{t} = find(isnan(y));
+            if ~isempty(indMVy{t})
+                disp('Missing values found in Y. Set to average.');
+                avy = ones(size(y,1),1)*Lmodel.avy;
+                y(indMVy{t}) = avy(indMVy{t});
+            end
+            
+            [xc,Lmodel.av,Lmodel.sc] = preprocess2Di(x, ...
+                'Preprocessing', Lmodel.prep > 0, ...
+                'Ndim', 0, ...
+                'Lambda', 1, ...
+                'Average', Lmodel.av, ...
+                'Scale', Lmodel.sc, ...
+                'N', Lmodel.N, ...
+                'Weight', Lmodel.weight);
 
-N = 0;
-    
-if ((strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'ASCA')) && Lmodel.prep == 2) || (strcmp(Lmodel.type,'PLS') && Lmodel.prep == 2 && Lmodel.prepy < 2) 
-    
-    if debug, disp('scaling X block..................................................'), end;
-        
-    for t=1:length(list)
-        
-        if isstruct(list(t))
-            x = list(t).x;
-        else
-            load([path list{t}],'x')
+            [yc,Lmodel.avy,Lmodel.scy,Lmodel.N] = preprocess2Di(y, ...
+                'Preprocessing', Lmodel.prepy > 0, ...
+                'Ndim', 0, ...
+                'Lambda', 1, ...
+                'Average', Lmodel.avy, ...
+                'Scale', Lmodel.scy, ...
+                'N', Lmodel.N, ...
+                'Weight', Lmodel.weighty);    
         end
-        
-        if ~isempty(indMV{t})
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        
-        xc = x -  ones(size(x,1),1)*Lmodel.av;
-        [xsc,av,Lmodel.sc,N] = preprocess2Di(xc, ...
-            'Preprocessing', 3, ...
-            'Ndim', 0, ...
-            'Lambda', 1, ...
-            'Average', [], ...
-            'Scale', Lmodel.sc, ...
-            'N', N, ...
-            'Weight', Lmodel.weighty);      
-    end
-    
-elseif strcmp(Lmodel.type,'PLS') && Lmodel.prep == 2 && Lmodel.prepy == 2
-    
-    if debug, disp('scaling X and Y blocks..................................................'), end;
-    
-    for t=1:length(list)
-        
-        if isstruct(list(t))
-            x = list(t).x;
-            y = list(t).y;
-        else
-            load([path list{t}],'x','y')
-        end
-        
-        if ~isempty(indMV{t})
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        if ~isempty(indMVy{t})
-            avy = ones(size(y,1),1)*Lmodel.avy;
-            y(indMVy{t}) = avy(indMVy{t});
-        end
-        
-        xc = x -  ones(size(x,1),1)*Lmodel.av;
-        [xc,av,Lmodel.sc] = preprocess2Di(xc, ...
-            'Preprocessing', 3, ...
-            'Ndim', 0, ...
-            'Lambda', 1, ...
-            'Average', [], ...
-            'Scale', Lmodel.sc, ...
-            'N', N, ...
-            'Weight', Lmodel.weight);
-
-        yc = y -  ones(size(x,1),1)*Lmodel.avy;
-        [yc,avy,Lmodel.scy,N] = preprocess2Di(y, ...
-            'Preprocessing', 1, ...
-            'Ndim', 0, ...
-            'Lambda', 1, ...
-            'Average', Lmodel.avy, ...
-            'Scale', Lmodel.scy, ...
-            'N', N, ...
-            'Weight', Lmodel.weighty);
-    end
-    
-end
-
-% compute cross-product matrices
-
-if strcmp(Lmodel.type,'PCA') 
-    
-    Lmodel.XX = zeros(size(x,2));
-
-    if debug, disp('computing XX ....................................................'), end;
-        
-    for t=1:length(list)
-        
-        if isstruct(list(t))
-            x = list(t).x;
-        else
-            load([path list{t}],'x')
-        end
-        
-        if ~isempty(find(isnan(x))) 
-                if debug, disp(sprintf('Found nans in file %d',t)), end;
-        end;
-        
-        if ~isempty(indMV{t})
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        
-        xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
-        Lmodel.XX = Lmodel.XX + xcs'*xcs;
         
     end
-    
-elseif strcmp(Lmodel.type,'PLS') 
-    
-    Lmodel.XX = zeros(size(x,2));
-    Lmodel.XY = zeros(size(x,2),size(y,2));
-    Lmodel.YY = zeros(size(y,2),size(y,2));
-    
-    if debug, disp('computing XX, XY .......................................................'), end;
-    
-    for t=1:length(list)
-        
-        if isstruct(list(t))
-            x = list(t).x;
-            y = list(t).y;
-        else
-            load([path list{t}],'x','y')
-        end
-        
-        if ~isempty(indMV{t})
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        if ~isempty(indMVy{t})
-            avy = ones(size(y,1),1)*Lmodel.avy;
-            y(indMVy{t}) = avy(indMVy{t});
-        end
-        
-        xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
-        Lmodel.XX = Lmodel.XX + xcs'*xcs;        
-        ycs = preprocess2Dapp(y,Lmodel.avy,'Scale',Lmodel.scy,'Weight',Lmodel.weighty);
-        Lmodel.XY = Lmodel.XY + xcs'*ycs;
-        Lmodel.YY = Lmodel.YY + ycs'*ycs;
-        
-    end
-    
- elseif strcmp(Lmodel.type,'ASCA') 
-    
-    Lmodel.DD = zeros(size(d,2));
-    Lmodel.DX = zeros(size(d,2),size(x,2));
-    
-    if debug, disp('computing DD, DX .......................................................'), end;
-    
-    for t=1:length(list)
-        
-        if isstruct(list(t))
-            d = list(t).d;
-            x = list(t).x;
-        else
-            load([path list{t}],'d','x')
-        end
-        
-        if ~isempty(indMV{t})
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        
-        Lmodel.DD = Lmodel.DD + d'*d;        
-        xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
-        Lmodel.DX = Lmodel.DX + d'*xcs;
-        
-    end
-    
-    if debug, disp('computing parglm......................................................'), end;
-    
-    nFactors = Lmodel.nFactors;
-    nInteractions = Lmodel.nInteractions;
-    
-    % Degrees of freedom
-    Tdf = Lmodel.N;
-    Rdf = Tdf-1;
-    for f = 1 : nFactors
-        if Lmodel.anovast.ordinal(f)
-            df(f) = 1;
-        else
-            df(f) = length(Lmodel.factors{f}.Dvars);
-        end
-        Rdf = Rdf-df(f);
-    end
-    dfint = [];
-    for i = 1 : nInteractions
-        dfint(i) = prod(df(Lmodel.interactions{i}.factors));
-        Rdf = Rdf-dfint(i);
-    end
-    if Rdf < 0
-        disp('Warning: degrees of freedom exhausted');
-        return
-    end
-    
-    % GLM model calibration with LS, only fixed factors
-    Lmodel.B = pinv(Lmodel.DD)*Lmodel.DX;
-    
-    SSQX = 0;
-    SSQresiduals = 0;
-    SSQinter = 0;
-    SSQFactors = [];
-    for f = 1 : nFactors, SSQFactors(f) = 0; Lmodel.factors{f}.XX = zeros(size(x,2)); end
-    SSQInteractions = [];
-    for i = 1 : nInteractions, SSQInteractions(i) = 0; Lmodel.interactions{i}.XX = zeros(size(x,2)); end
-    
-    for t=1:length(list)
-        
-        if isstruct(list(t))
-            d = list(t).d;
-            x = list(t).x;
-        else
-            load([path list{t}],'d','x')
-        end
-        
-        x = x./(ones(size(x,1),1)*Lmodel.sc);
 
-        SSQX = SSQX + sum(sum(x.^2));
-        
-        parglmo.residuals = x - d*Lmodel.B;
-        SSQresiduals = SSQresiduals + sum(sum(parglmo.residuals.^2));
+    % compute scale
 
-        % Create Effect Matrices
-        parglmo.inter = d(:,1)*Lmodel.B(1,:);
-        SSQinter = SSQinter + sum(sum(parglmo.inter.^2));
+    N = 0;
+        
+    if ((strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'ASCA')) && Lmodel.prep == 2) || (strcmp(Lmodel.type,'PLS') && Lmodel.prep == 2 && Lmodel.prepy < 2) 
+        
+        if debug, disp('scaling X block..................................................'), end
+            
+        for t=1:length(list)
+            
+            if isstruct(list(t))
+                x = list(t).x;
+            else
+                load([path list{t}],'x')
+            end
+            
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            
+            xc = x -  ones(size(x,1),1)*Lmodel.av;
+            [xsc,av,Lmodel.sc,N] = preprocess2Di(xc, ...
+                'Preprocessing', 3, ...
+                'Ndim', 0, ...
+                'Lambda', 1, ...
+                'Average', [], ...
+                'Scale', Lmodel.sc, ...
+                'N', N, ...
+                'Weight', Lmodel.weighty);      
+        end
+        
+    elseif strcmp(Lmodel.type,'PLS') && Lmodel.prep == 2 && Lmodel.prepy == 2
+        
+        if debug, disp('scaling X and Y blocks..................................................'), end
+        
+        for t=1:length(list)
+            
+            if isstruct(list(t))
+                x = list(t).x;
+                y = list(t).y;
+            else
+                load([path list{t}],'x','y')
+            end
+            
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            if ~isempty(indMVy{t})
+                avy = ones(size(y,1),1)*Lmodel.avy;
+                y(indMVy{t}) = avy(indMVy{t});
+            end
+            
+            xc = x -  ones(size(x,1),1)*Lmodel.av;
+            [xc,av,Lmodel.sc] = preprocess2Di(xc, ...
+                'Preprocessing', 3, ...
+                'Ndim', 0, ...
+                'Lambda', 1, ...
+                'Average', [], ...
+                'Scale', Lmodel.sc, ...
+                'N', N, ...
+                'Weight', Lmodel.weight);
+
+            yc = y -  ones(size(x,1),1)*Lmodel.avy;
+            [yc,avy,Lmodel.scy,N] = preprocess2Di(y, ...
+                'Preprocessing', 1, ...
+                'Ndim', 0, ...
+                'Lambda', 1, ...
+                'Average', Lmodel.avy, ...
+                'Scale', Lmodel.scy, ...
+                'N', N, ...
+                'Weight', Lmodel.weighty);
+        end
+        
+    end
+
+    % compute cross-product matrices
+
+    if strcmp(Lmodel.type,'PCA') 
+        
+        Lmodel.XX = zeros(size(x,2));
+
+        if debug, disp('computing XX ....................................................'), end
+            
+        for t=1:length(list)
+            
+            if isstruct(list(t))
+                x = list(t).x;
+            else
+                load([path list{t}],'x')
+            end
+            
+            if ~isempty(find(isnan(x))) 
+                    if debug, disp(sprintf('Found nans in file %d',t)), end
+            end
+            
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            
+            xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
+            Lmodel.XX = Lmodel.XX + xcs'*xcs;
+            
+        end
+        
+    elseif strcmp(Lmodel.type,'PLS') 
+        
+        Lmodel.XX = zeros(size(x,2));
+        Lmodel.XY = zeros(size(x,2),size(y,2));
+        Lmodel.YY = zeros(size(y,2),size(y,2));
+        
+        if debug, disp('computing XX, XY .......................................................'), end
+        
+        for t=1:length(list)
+            
+            if isstruct(list(t))
+                x = list(t).x;
+                y = list(t).y;
+            else
+                load([path list{t}],'x','y')
+            end
+            
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            if ~isempty(indMVy{t})
+                avy = ones(size(y,1),1)*Lmodel.avy;
+                y(indMVy{t}) = avy(indMVy{t});
+            end
+            
+            xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
+            Lmodel.XX = Lmodel.XX + xcs'*xcs;        
+            ycs = preprocess2Dapp(y,Lmodel.avy,'Scale',Lmodel.scy,'Weight',Lmodel.weighty);
+            Lmodel.XY = Lmodel.XY + xcs'*ycs;
+            Lmodel.YY = Lmodel.YY + ycs'*ycs;
+            
+        end
+        
+    elseif strcmp(Lmodel.type,'ASCA') 
+        
+        Lmodel.DD = zeros(size(d,2));
+        Lmodel.DX = zeros(size(d,2),size(x,2));
+        
+        if debug, disp('computing DD, DX .......................................................'), end
+        
+        for t=1:length(list)
+            
+            if isstruct(list(t))
+                d = list(t).d;
+                x = list(t).x;
+            else
+                load([path list{t}],'d','x')
+            end
+            
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            
+            Lmodel.DD = Lmodel.DD + d'*d;        
+            xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
+            Lmodel.DX = Lmodel.DX + d'*xcs;
+            
+        end
+        
+        if debug, disp('computing parglm......................................................'), end
+        
+        nFactors = Lmodel.nFactors;
+        nInteractions = Lmodel.nInteractions;
+        
+        % Degrees of freedom
+        Tdf = Lmodel.N;
+        Rdf = Tdf-1;
+        for f = 1 : nFactors
+            if Lmodel.anovast.ordinal(f)
+                df(f) = 1;
+            else
+                df(f) = length(Lmodel.factors{f}.Dvars);
+            end
+            Rdf = Rdf-df(f);
+        end
+        dfint = [];
+        for i = 1 : nInteractions
+            dfint(i) = prod(df(Lmodel.interactions{i}.factors));
+            Rdf = Rdf-dfint(i);
+        end
+        if Rdf < 0
+            disp('Warning: degrees of freedom exhausted');
+            return
+        end
+        
+        % GLM model calibration with LS, only fixed factors
+        Lmodel.B = pinv(Lmodel.DD)*Lmodel.DX;
+        
+        SSQX = 0;
+        SSQresiduals = 0;
+        SSQinter = 0;
+        SSQFactors = [];
+        for f = 1 : nFactors, SSQFactors(f) = 0; Lmodel.factors{f}.XX = zeros(size(x,2)); end
+        SSQInteractions = [];
+        for i = 1 : nInteractions, SSQInteractions(i) = 0; Lmodel.interactions{i}.XX = zeros(size(x,2)); end
+        
+        for t=1:length(list)
+            
+            if isstruct(list(t))
+                d = list(t).d;
+                x = list(t).x;
+            else
+                load([path list{t}],'d','x')
+            end
+            
+            x = x./(ones(size(x,1),1)*Lmodel.sc);
+
+            SSQX = SSQX + sum(sum(x.^2));
+            
+            parglmo.residuals = x - d*Lmodel.B;
+            SSQresiduals = SSQresiduals + sum(sum(parglmo.residuals.^2));
+
+            % Create Effect Matrices
+            parglmo.inter = d(:,1)*Lmodel.B(1,:);
+            SSQinter = SSQinter + sum(sum(parglmo.inter.^2));
+            
+            % Factors
+            for f = 1 : nFactors
+                parglmo.factors{f}.matrix = d(:,Lmodel.factors{f}.Dvars)*Lmodel.B(Lmodel.factors{f}.Dvars,:);
+                Lmodel.factors{f}.XX = Lmodel.factors{f}.XX + parglmo.factors{f}.matrix'*parglmo.factors{f}.matrix;
+                SSQFactors(f) = SSQFactors(f) + sum(sum(parglmo.factors{f}.matrix.^2)); 
+            end
+            
+            % Interactions
+            for i = 1 : nInteractions
+                parglmo.interactions{i}.matrix = d(:,Lmodel.interactions{i}.Dvars)*Lmodel.B(Lmodel.interactions{i}.Dvars,:);
+                Lmodel.interactions{i}.XX = Lmodel.interactions{i}.XX + parglmo.interactions{i}.matrix'*parglmo.interactions{i}.matrix;
+                SSQInteractions(i) = SSQInteractions(i) + sum(sum(parglmo.interactions{i}.matrix.^2));
+            end
+            
+    %         if isstruct(list(t))
+    %             list(t).parglmo = parglmo;
+    %         else
+    %             load([path list{t}],'parglmo')
+    %         end
+    
+        end
         
         % Factors
+        FFactors = [];
         for f = 1 : nFactors
-            parglmo.factors{f}.matrix = d(:,Lmodel.factors{f}.Dvars)*Lmodel.B(Lmodel.factors{f}.Dvars,:);
-            Lmodel.factors{f}.XX = Lmodel.factors{f}.XX + parglmo.factors{f}.matrix'*parglmo.factors{f}.matrix;
-            SSQFactors(f) = SSQFactors(f) + sum(sum(parglmo.factors{f}.matrix.^2)); 
+            FFactors(f) = (SSQFactors(f)/df(f))/(SSQresiduals/Rdf);
         end
         
         % Interactions
+        FInteractions = [];
         for i = 1 : nInteractions
-            parglmo.interactions{i}.matrix = d(:,Lmodel.interactions{i}.Dvars)*Lmodel.B(Lmodel.interactions{i}.Dvars,:);
-            Lmodel.interactions{i}.XX = Lmodel.interactions{i}.XX + parglmo.interactions{i}.matrix'*parglmo.interactions{i}.matrix;
-            SSQInteractions(i) = SSQInteractions(i) + sum(sum(parglmo.interactions{i}.matrix.^2));
+            FInteractions(i) = (SSQInteractions(i)/dfint(i))/(SSQresiduals/Rdf);
         end
         
-%         if isstruct(list(t))
-%             list(t).parglmo = parglmo;
-%         else
-%             load([path list{t}],'parglmo')
-%         end
-  
-    end
-    
-    % Factors
-    FFactors = [];
-    for f = 1 : nFactors
-        FFactors(f) = (SSQFactors(f)/df(f))/(SSQresiduals/Rdf);
-    end
-    
-    % Interactions
-    FInteractions = [];
-    for i = 1 : nInteractions
-        FInteractions(i) = (SSQInteractions(i)/dfint(i))/(SSQresiduals/Rdf);
-    end
-    
-    Lmodel.effects = 100*([SSQinter SSQFactors SSQInteractions SSQresiduals]./SSQX);
-        
-    %% ANOVA-like output table
-    
-    name={'Mean'};
-    for f = 1 : nFactors
-        name{end+1} = sprintf('Factor %d',f);
-    end
-    for i = 1 : nInteractions
-        name{end+1} = sprintf('Interaction %s',strrep(num2str(parglmo.interactions{i}.factors),'  ','-'));
-    end
-    name{end+1} = 'Residuals';
-    name{end+1} = 'Total';
-    
-    SSQ = [SSQinter SSQFactors SSQInteractions SSQresiduals SSQX];
-    par = [Lmodel.effects 100];
-    DoF = [1 df dfint Rdf Tdf];
-    MSQ = SSQ./DoF;
-    F = [nan FFactors FInteractions nan nan];
-    %pvalue = [nan parglmo.p nan nan];
-    
-    isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
-    if isOctave
-        Lmodel.T.mat = [SSQ', par', DoF', MSQ', F'];
-        Lmodel.T.var = {'SumSq', 'PercSumSq', 'df', 'MeanSq', 'F'};
-        Lmodel.T.source = name';
-    else
-        Lmodel.T = table(name', SSQ', par', DoF', MSQ', F','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F'});
-    end
-    
-end
-
-% compute model
-if strcmp(Lmodel.type,'PCA') 
-    
-    Lmodel.centr = ones(size(Lmodel.centr,1),size(Lmodel.XX,1));
-    
-    if debug, disp('computing PCA model..............................................'), end;
-    
-    if isempty(Lmodel.lvs)
-        Lmodel.lvs = 1:rank(Lmodel.XX);
-        varLpca(Lmodel);
-        Lmodel.lvs = input('Select the number of PCs to include in the model: ');
-        Lmodel.lvs = 1:Lmodel.lvs;
-    end
-    
-    Lmodel = Lpca(Lmodel);
-    Lmodel.mat = Lmodel.loads;
-    
-elseif strcmp(Lmodel.type,'PLS')
-       
-    Lmodel.centr = ones(size(Lmodel.centr,1),size(Lmodel.XX,1));
-    if rank(Lmodel.XY)>0
-        
-        if debug, disp('computing PLS model.....................................................'), end;
+        Lmodel.effects = 100*([SSQinter SSQFactors SSQInteractions SSQresiduals]./SSQX);
             
-        if isempty(Lmodel.lvs)
-            Lmodel.lvs = 1:rank(Lmodel.XX);
-            varLpls(Lmodel);
-            Lmodel.lvs = input('Select the number of LVs to include in the model: ');
-            Lmodel.lvs = 1:Lmodel.lvs;
+        %% ANOVA-like output table
+        
+        name={'Mean'};
+        for f = 1 : nFactors
+            name{end+1} = sprintf('Factor %d',f);
+        end
+        for i = 1 : nInteractions
+            name{end+1} = sprintf('Interaction %s',strrep(num2str(parglmo.interactions{i}.factors),'  ','-'));
+        end
+        name{end+1} = 'Residuals';
+        name{end+1} = 'Total';
+        
+        SSQ = [SSQinter SSQFactors SSQInteractions SSQresiduals SSQX];
+        par = [Lmodel.effects 100];
+        DoF = [1 df dfint Rdf Tdf];
+        MSQ = SSQ./DoF;
+        F = [nan FFactors FInteractions nan nan];
+        %pvalue = [nan parglmo.p nan nan];
+        
+        isOctave = exist('OCTAVE_VERSION', 'builtin') ~= 0;
+        if isOctave
+            Lmodel.T.mat = [SSQ', par', DoF', MSQ', F'];
+            Lmodel.T.var = {'SumSq', 'PercSumSq', 'df', 'MeanSq', 'F'};
+            Lmodel.T.source = name';
+        else
+            Lmodel.T = table(name', SSQ', par', DoF', MSQ', F','VariableNames', {'Source','SumSq','PercSumSq','df','MeanSq','F'});
         end
         
-        Lmodel = Lpls(Lmodel);
-        R = Lmodel.altweights;
-        Lmodel.mat = R;
+    end
+
+    % compute model
+    if strcmp(Lmodel.type,'PCA') 
         
-    else
+        Lmodel.centr = ones(size(Lmodel.centr,1),size(Lmodel.XX,1));
         
-        if debug>1, disp('XY Rank 0: using PCA.'), end;
-        
-        if debug, disp('computing PCA model..............................................'), end;
+        if debug, disp('computing PCA model..............................................'), end
         
         if isempty(Lmodel.lvs)
             Lmodel.lvs = 1:rank(Lmodel.XX);
@@ -657,386 +626,223 @@ elseif strcmp(Lmodel.type,'PLS')
         
         Lmodel = Lpca(Lmodel);
         Lmodel.mat = Lmodel.loads;
+        
+    elseif strcmp(Lmodel.type,'PLS')
+        
+        Lmodel.centr = ones(size(Lmodel.centr,1),size(Lmodel.XX,1));
+        if rank(Lmodel.XY)>0
             
-        Lmodel.type = 'PLS';
-        
-    end
-    
-elseif strcmp(Lmodel.type,'ASCA')
-    
-    if debug, disp('computing ASCA model....................................................'), end;
-    
-    nFactors = Lmodel.nFactors;
-    nInteractions = Lmodel.nInteractions;
-    
-    % Factors
-    for f = 1 : nFactors    
-        Lmodel.factors{f}.centr = ones(size(Lmodel.centr,1),size(Lmodel.factors{f}.XX,1));
-    
-        if debug, disp(sprintf('computing PCA model of factor %d..............................................',f)); end;
-
-        if isempty(Lmodel.factors{f}.lvs)
-            Lmodel.factors{f}.lvs = 1:rank(Lmodel.factors{f}.XX);
-            varLpca(Lmodel.factors{f});
-            Lmodel.factors{f}.lvs = input('Select the number of PCs to include in the model: ');
-            Lmodel.factors{f}.lvs = 1:Lmodel.factors{f}.lvs;
-        end
-        
-        Lmodel.factors{f} = Lpca(Lmodel.factors{f});
-        Lmodel.factors{f}.mat = Lmodel.loads;
-    end
-    
-    % Interactions
-    for i = 1 : nInteractions
-        Lmodel.interactions{i}.centr = ones(size(Lmodel.centr,1),size(Lmodel.interactions{i}.XX,1));
-    
-        if debug, disp(sprintf('computing PCA model of interaction %d..............................................',i)); end;
-        
-        for f = 1 : length(Lmodel.interactions{i}.factors) % Combine Factors and Interaction
-            Lmodel.interactions{i}.XX = Lmodel.interactions{i}.XX + Lmodel.factors{Lmodel.interactions{i}.factors(f)}.XX;
-        end
-
-        if isempty(Lmodel.interactions{i}.lvs)
-            Lmodel.interactions{i}.lvs = 1:rank(Lmodel.interactions{i}.XX);
-            varLpca(Lmodel.interactions{i});
-            Lmodel.interactions{i}.lvs = input('Select the PCs number of to include in the model: ');
-            Lmodel.interactions{i}.lvs = 1:Lmodel.interactions{i}.lvs;
-        end
-        
-        Lmodel.interactions{i} = Lpca(Lmodel.interactions{i});
-        Lmodel.interactions{i}.mat = Lmodel.loads;
-    end
-    
-end
-
-% compute maximum and minimum
-
-if debug, disp('computing maximum and minimum ...................................'), end;
-
-if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
-
-    mini = Inf(1,size(Lmodel.mat,2));
-    maxi = -Inf(1,size(Lmodel.mat,2));
-    for t=1:length(list)
-
-        if isstruct(list(t))
-            x = list(t).x;
+            if debug, disp('computing PLS model.....................................................'), end
+                
+            if isempty(Lmodel.lvs)
+                Lmodel.lvs = 1:rank(Lmodel.XX);
+                varLpls(Lmodel);
+                Lmodel.lvs = input('Select the number of LVs to include in the model: ');
+                Lmodel.lvs = 1:Lmodel.lvs;
+            end
+            
+            Lmodel = Lpls(Lmodel);
+            R = Lmodel.altweights;
+            Lmodel.mat = R;
+            
         else
-            load([path list{t}],'x')
+            
+            if debug>1, disp('XY Rank 0: using PCA.'), end;
+            
+            if debug, disp('computing PCA model..............................................'), end
+            
+            if isempty(Lmodel.lvs)
+                Lmodel.lvs = 1:rank(Lmodel.XX);
+                varLpca(Lmodel);
+                Lmodel.lvs = input('Select the number of PCs to include in the model: ');
+                Lmodel.lvs = 1:Lmodel.lvs;
+            end
+            
+            Lmodel = Lpca(Lmodel);
+            Lmodel.mat = Lmodel.loads;
+                
+            Lmodel.type = 'PLS';
+            
         end
-
-        if ~isempty(indMV{t})
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-
-        xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
         
-        T = xcs * Lmodel.mat;
-        M = max(T);
-        m = min(T);
+    elseif strcmp(Lmodel.type,'ASCA')
+        
+        if debug, disp('computing ASCA model....................................................'), end
+        
+        nFactors = Lmodel.nFactors;
+        nInteractions = Lmodel.nInteractions;
+        
+        % Factors
+        for f = 1 : nFactors    
+            Lmodel.factors{f}.centr = ones(size(Lmodel.centr,1),size(Lmodel.factors{f}.XX,1));
+        
+            if debug, disp(sprintf('computing PCA model of factor %d..............................................',f)); end
 
-        indM = find(maxi < M);
-        maxi(indM) = M(indM);
-        indm = find(mini > m);
-        mini(indm) = m(indm);
+            if isempty(Lmodel.factors{f}.lvs)
+                Lmodel.factors{f}.lvs = 1:rank(Lmodel.factors{f}.XX);
+                varLpca(Lmodel.factors{f});
+                Lmodel.factors{f}.lvs = input('Select the number of PCs to include in the model: ');
+                Lmodel.factors{f}.lvs = 1:Lmodel.factors{f}.lvs;
+            end
+            
+            Lmodel.factors{f} = Lpca(Lmodel.factors{f});
+            Lmodel.factors{f}.mat = Lmodel.loads;
+        end
+        
+        % Interactions
+        for i = 1 : nInteractions
+            Lmodel.interactions{i}.centr = ones(size(Lmodel.centr,1),size(Lmodel.interactions{i}.XX,1));
+        
+            if debug, disp(sprintf('computing PCA model of interaction %d..............................................',i)); end
+            
+            for f = 1 : length(Lmodel.interactions{i}.factors) % Combine Factors and Interaction
+                Lmodel.interactions{i}.XX = Lmodel.interactions{i}.XX + Lmodel.factors{Lmodel.interactions{i}.factors(f)}.XX;
+            end
 
+            if isempty(Lmodel.interactions{i}.lvs)
+                Lmodel.interactions{i}.lvs = 1:rank(Lmodel.interactions{i}.XX);
+                varLpca(Lmodel.interactions{i});
+                Lmodel.interactions{i}.lvs = input('Select the PCs number of to include in the model: ');
+                Lmodel.interactions{i}.lvs = 1:Lmodel.interactions{i}.lvs;
+            end
+            
+            Lmodel.interactions{i} = Lpca(Lmodel.interactions{i});
+            Lmodel.interactions{i}.mat = Lmodel.loads;
+        end
+        
     end
 
-    mM = maxi-mini;
-    Lmodel.mat = Lmodel.mat*diag(1./mM);
-    Lmodel.maxi = maxi;
-    Lmodel.mini = mini;
+    % compute maximum and minimum
 
-elseif strcmp(Lmodel.type,'ASCA')
-    
-    nFactors = Lmodel.nFactors;
-    nInteractions = Lmodel.nInteractions;
-    
-    % Factors
-    for f = 1 : nFactors 
-        
-        mini = Inf(1,size(Lmodel.factors{f}.mat,2));
-        maxi = -Inf(1,size(Lmodel.factors{f}.mat,2));
+    if debug, disp('computing maximum and minimum ...................................'), end
+
+    if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
+
+        mini = Inf(1,size(Lmodel.mat,2));
+        maxi = -Inf(1,size(Lmodel.mat,2));
         for t=1:length(list)
 
             if isstruct(list(t))
-                d = list(t).d;
-            else
-                load([path list{t}],'d')
-            end
-            
-            if ~isempty(indMV{t})
-                av = ones(size(x,1),1)*Lmodel.av;
-                x(indMV{t}) = av(indMV{t});
-            end
-            
-            xcs = d(:,Lmodel.factors{f}.Dvars)*Lmodel.B(Lmodel.factors{f}.Dvars,:);
-            T = xcs * Lmodel.factors{f}.mat;
-            M = max(T);
-            m = min(T);
-
-            indM = find(maxi < M);
-            maxi(indM) = M(indM);
-            indm = find(mini > m);
-            mini(indm) = m(indm);
-
-        end
-
-        mM = maxi-mini;
-        Lmodel.factors{f}.mat = Lmodel.factors{f}.mat*diag(1./mM);
-        Lmodel.factors{f}.maxi = maxi;
-        Lmodel.factors{f}.mini = mini;
-        
-    end
-    
-    % Interactions
-    for i = 1 : nInteractions
-        
-        mini = Inf(1,size(Lmodel.interactions{i}.mat,2));
-        maxi = -Inf(1,size(Lmodel.interactions{i}.mat,2));
-        for t=1:length(list)
-
-            if isstruct(list(t))
-                d = list(t).d;
-            else
-                load([path list{t}],'d')
-            end
-            
-            if ~isempty(indMV{t})
-                av = ones(size(x,1),1)*Lmodel.av;
-                x(indMV{t}) = av(indMV{t});
-            end
-            
-            xcs = d(:,Lmodel.interactions{i}.Dvars)*Lmodel.B(Lmodel.interactions{i}.Dvars,:);
-            T = xcs * Lmodel.interactions{i}.mat;
-            M = max(T);
-            m = min(T);
-
-            indM = find(maxi < M);
-            maxi(indM) = M(indM);
-            indm = find(mini > m);
-            mini(indm) = m(indm);
-
-        end
-
-        mM = maxi-mini;
-        Lmodel.interactions{i}.mat = Lmodel.interactions{i}.mat*diag(1./mM);
-        Lmodel.interactions{i}.maxi = maxi;
-        Lmodel.interactions{i}.mini = mini;
-        
-    end
-    
-end
-
-% clustering
-
-
-if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
-    
-    Lmodel.indexFich={};
-    for t=1:length(list)
-        
-        if debug, disp(sprintf('clustering: packet %d...........................................', t)), end;
-        
-        if isstruct(list(t))
-            x = list(t).x;
-            vars = fieldnames(list(t));
-            if ismember('class', vars)
-                class = list(t).class;
-            else
-                class = ones(size(x,1),1);
-            end
-            if ismember('obsl', vars)
-                obsl = list(t).obsl;
-                if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
-            else
-                obsl = cellstr(num2str((1:size(x,1))'));
-                for o = 1:length(obsl), obsl{o} = [num2str(t) '-' strtrim(obsl{o})]; end
-            end
-        else
-            load([path list{t}],'x')
-            vars = whos('-file',[path list{t}]);
-            if ismember('class', {vars.name})
-                load([path list{t}],'class')
-            else
-                class = ones(size(x,1),1);
-            end
-            if ismember('obsl', {vars.name})
-                load([path list{t}],'obsl')
-                if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
-            else
-                obsl = cellstr(num2str((1:size(x,1))'));
-                for o = 1:length(obsl), obsl{o} = [num2str(t) '-' strtrim(obsl{o})]; end
-            end
-        end
-        
-        if ~isempty(indMV{t})
-            av = ones(size(x,1),1)*Lmodel.av;
-            x(indMV{t}) = av(indMV{t});
-        end
-        
-        xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
-        
-        if files % The updated field is not included in the FS yet
-            indorig = length(Lmodel.class);
-            red = [Lmodel.centr;xcs];
-            lred = [Lmodel.obsl(:)' obsl(:)'];
-            multr = [Lmodel.multr;ones(length(class),1)];
-            classr = [Lmodel.class;class];
-            auxv = (1:length(classr))';
-            obslist = num2cell(auxv);
-        else
-            obslist = {};
-        end
-        
-        s = size(x);
-        step2 = max(100,round(s(1)*step)); % Min step of 100 obs
-        Lmodel.updated(:) = 0;
-        for i = 1:step2:s(1)
-            endv = min(s(1),i+step2-1);
-            ss = endv-i+1;
-            xstep = xcs(i:endv,:);
-            clstep = class(i:endv);
-            if isempty(obsl)
-                obsstep = {};
-            else
-                obsstep = obsl(i:endv);
-            end
-            
-            Lmodel.centr = [Lmodel.centr;xstep];
-            Lmodel.multr = [Lmodel.multr;ones(ss,1)];
-            Lmodel.class = [Lmodel.class;clstep];
-            Lmodel.obsl = [Lmodel.obsl(:)' obsstep(:)'];
-            Lmodel.updated = [Lmodel.updated;ones(size(xstep,1),1)];
-            
-            if files
-                for k=i:endv
-                    Lmodel.indexFich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
-                end
-            end
-            
-            [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obsl,Lmodel.updated,obslist] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obsl,Lmodel.updated,Lmodel.mat,obslist);
-        end
-        
-        if files
-            Lmodel.indexFich = cfilesys(obslist,red,lred,multr,classr,Lmodel.indexFich,100,Lmodel.path,debug); % update of the clustering file system
-        end
-        
-    end
-    
-    if files
-        ind = find(strcmp(Lmodel.obsl, 'mixed'));
-        Lmodel.obsl(ind) = Lmodel.indexFich(ind);
-    end
-
-elseif strcmp(Lmodel.type,'ASCA')
-    
-    nFactors = Lmodel.nFactors;
-    nInteractions = Lmodel.nInteractions;
-    
-    % Factors
-    for fa = 1 : nFactors 
-        
-        Lmodel.factors{fa}.indexFich={};
-        for t=1:length(list)
-            
-            if debug, disp(sprintf('clustering factor %d: packet %d...........................................', fa, t)), end;
-            
-            if isstruct(list(t))
-                d = list(t).d;
                 x = list(t).x;
-                vars = fieldnames(list(t));
-                class = list(t).f(:,fa);
-                if ismember('obsl', vars)
-                    obsl = list(t).obsl;
-                    if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
-                else
-                    obsl = cellstr(num2str((1:size(d,1))'));
-                end
             else
-                load([path list{t}],'d','x')
-                vars = whos('-file',[path list{t}]);
-                load([path list{t}],'f');
-                class = f(:,fa);
-                if ismember('obsl', {vars.name})
-                    load([path list{t}],'obsl')
-                    if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
+                load([path list{t}],'x')
+            end
+
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+
+            xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
+            
+            T = xcs * Lmodel.mat;
+            M = max(T);
+            m = min(T);
+
+            indM = find(maxi < M);
+            maxi(indM) = M(indM);
+            indm = find(mini > m);
+            mini(indm) = m(indm);
+
+        end
+
+        mM = maxi-mini;
+        Lmodel.mat = Lmodel.mat*diag(1./mM);
+        Lmodel.maxi = maxi;
+        Lmodel.mini = mini;
+
+    elseif strcmp(Lmodel.type,'ASCA')
+        
+        nFactors = Lmodel.nFactors;
+        nInteractions = Lmodel.nInteractions;
+        
+        % Factors
+        for f = 1 : nFactors 
+            
+            mini = Inf(1,size(Lmodel.factors{f}.mat,2));
+            maxi = -Inf(1,size(Lmodel.factors{f}.mat,2));
+            for t=1:length(list)
+
+                if isstruct(list(t))
+                    d = list(t).d;
                 else
-                    obsl = cellstr(num2str((1:size(d,1))'));
-                end
-            end
-            f = fa;
-            
-            x = x./(ones(size(x,1),1)*Lmodel.sc);
-            residuals = x - d*Lmodel.B;
-            xcs = d(:,Lmodel.factors{f}.Dvars)*Lmodel.B(Lmodel.factors{f}.Dvars,:) + residuals;
-            
-            
-            if files % The updated field is not included in the FS yet
-                indorig = length(Lmodel.factors{f}.class);
-                red = [Lmodel.factors{f}.centr;xcs];
-                lred = [Lmodel.factors{f}.obsl(:)' obsl(:)'];
-                multr = [Lmodel.factors{f}.multr;ones(length(class),1)];
-                classr = [Lmodel.factors{f}.class;class];
-                auxv = (1:length(classr))';
-                obslist = num2cell(auxv);
-            else
-                obslist = {};
-            end
-            
-            s = size(x);
-            step2 = round(s(1)*step);
-            Lmodel.factors{f}.updated(:) = 0;
-            for i = 1:step2:s(1)
-                endv = min(s(1),i+step2-1);
-                ss = endv-i+1;
-                xstep = xcs(i:endv,:);
-                clstep = class(i:endv);
-                if isempty(obsl)
-                    obsstep = {};
-                else
-                    obsstep = obsl(i:endv);
+                    load([path list{t}],'d')
                 end
                 
-                Lmodel.factors{f}.centr = [Lmodel.factors{f}.centr;xstep];
-                Lmodel.factors{f}.multr = [Lmodel.factors{f}.multr;ones(ss,1)];
-                Lmodel.factors{f}.class = [Lmodel.factors{f}.class;clstep];
-                Lmodel.factors{f}.obsl = [Lmodel.factors{f}.obsl(:)' obsstep(:)'];
-                Lmodel.factors{f}.updated = [Lmodel.factors{f}.updated;ones(size(xstep,1),1)];
-                
-                if files
-                    for k=i:endv
-                        Lmodel.factors{f}.indexFich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
-                    end
+                if ~isempty(indMV{t})
+                    av = ones(size(x,1),1)*Lmodel.av;
+                    x(indMV{t}) = av(indMV{t});
                 end
                 
-                [Lmodel.factors{f}.centr,Lmodel.factors{f}.multr,Lmodel.factors{f}.class,Lmodel.factors{f}.obsl,Lmodel.factors{f}.updated,obslist] = psc(Lmodel.factors{f}.centr,Lmodel.factors{f}.nc,Lmodel.factors{f}.multr,Lmodel.factors{f}.class,Lmodel.factors{f}.obsl,Lmodel.factors{f}.updated,Lmodel.factors{f}.mat,obslist);
+                xcs = d(:,Lmodel.factors{f}.Dvars)*Lmodel.B(Lmodel.factors{f}.Dvars,:);
+                T = xcs * Lmodel.factors{f}.mat;
+                M = max(T);
+                m = min(T);
+
+                indM = find(maxi < M);
+                maxi(indM) = M(indM);
+                indm = find(mini > m);
+                mini(indm) = m(indm);
+
             end
-            
-            if files
-                Lmodel.factors{f}.indexFich = cfilesys(obslist,red,lred,multr,classr,Lmodel.factors{f}.indexFich,100,Lmodel.factors{f}.path,debug); % update of the clustering file system
-            end
+
+            mM = maxi-mini;
+            Lmodel.factors{f}.mat = Lmodel.factors{f}.mat*diag(1./mM);
+            Lmodel.factors{f}.maxi = maxi;
+            Lmodel.factors{f}.mini = mini;
             
         end
         
-        if files
-            ind = find(strcmp(Lmodel.factors{f}.obsl, 'mixed'));
-            Lmodel.factors{f}.obsl(ind) = Lmodel.factors{f}.indexFich(ind);
+        % Interactions
+        for i = 1 : nInteractions
+            
+            mini = Inf(1,size(Lmodel.interactions{i}.mat,2));
+            maxi = -Inf(1,size(Lmodel.interactions{i}.mat,2));
+            for t=1:length(list)
+
+                if isstruct(list(t))
+                    d = list(t).d;
+                else
+                    load([path list{t}],'d')
+                end
+                
+                if ~isempty(indMV{t})
+                    av = ones(size(x,1),1)*Lmodel.av;
+                    x(indMV{t}) = av(indMV{t});
+                end
+                
+                xcs = d(:,Lmodel.interactions{i}.Dvars)*Lmodel.B(Lmodel.interactions{i}.Dvars,:);
+                T = xcs * Lmodel.interactions{i}.mat;
+                M = max(T);
+                m = min(T);
+
+                indM = find(maxi < M);
+                maxi(indM) = M(indM);
+                indm = find(mini > m);
+                mini(indm) = m(indm);
+
+            end
+
+            mM = maxi-mini;
+            Lmodel.interactions{i}.mat = Lmodel.interactions{i}.mat*diag(1./mM);
+            Lmodel.interactions{i}.maxi = maxi;
+            Lmodel.interactions{i}.mini = mini;
+            
         end
-    
+        
     end
-    
-    % Interactions
-    for i = 1 : nInteractions 
+
+    % clustering
+
+
+    if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'PLS')
         
-        Lmodel.interactions{i}.indexFich={};
+        Lmodel.indexFich={};
         for t=1:length(list)
             
-            if debug, disp(sprintf('clustering interaction %d: packet %d...........................................', i, t)), end;
+            if debug, disp(sprintf('clustering: packet %d...........................................', t)), end
             
             if isstruct(list(t))
-                d = list(t).d;
                 x = list(t).x;
                 vars = fieldnames(list(t));
                 if ismember('class', vars)
@@ -1048,10 +854,11 @@ elseif strcmp(Lmodel.type,'ASCA')
                     obsl = list(t).obsl;
                     if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
                 else
-                    obsl = cellstr(num2str((1:size(d,1))'));
+                    obsl = cellstr(num2str((1:size(x,1))'));
+                    for o = 1:length(obsl), obsl{o} = [num2str(t) '-' strtrim(obsl{o})]; end
                 end
             else
-                load([path list{t}],'d','x')
+                load([path list{t}],'x')
                 vars = whos('-file',[path list{t}]);
                 if ismember('class', {vars.name})
                     load([path list{t}],'class')
@@ -1062,20 +869,24 @@ elseif strcmp(Lmodel.type,'ASCA')
                     load([path list{t}],'obsl')
                     if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
                 else
-                    obsl = cellstr(num2str((1:size(d,1))'));
+                    obsl = cellstr(num2str((1:size(x,1))'));
+                    for o = 1:length(obsl), obsl{o} = [num2str(t) '-' strtrim(obsl{o})]; end
                 end
             end
             
-            x = x./(ones(size(x,1),1)*Lmodel.sc);
-            residuals = x - d*Lmodel.B;
-            xcs = d(:,Lmodel.interactions{i}.Dvars)*Lmodel.B(Lmodel.interactions{i}.Dvars,:) + residuals;
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            
+            xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
             
             if files % The updated field is not included in the FS yet
-                indorig = length(Lmodel.interactions{i}.class);
-                red = [Lmodel.interactions{i}.centr;xcs];
-                lred = [Lmodel.interactions{i}.obsl(:)' obsl(:)'];
-                multr = [Lmodel.interactions{i}.multr;ones(length(class),1)];
-                classr = [Lmodel.interactions{i}.class;class];
+                indorig = length(Lmodel.class);
+                red = [Lmodel.centr;xcs];
+                lred = [Lmodel.obsl(:)' obsl(:)'];
+                multr = [Lmodel.multr;ones(length(class),1)];
+                classr = [Lmodel.class;class];
                 auxv = (1:length(classr))';
                 obslist = num2cell(auxv);
             else
@@ -1083,49 +894,400 @@ elseif strcmp(Lmodel.type,'ASCA')
             end
             
             s = size(x);
-            step2 = round(s(1)*step);
-            Lmodel.interactions{i}.updated(:) = 0;
-            for j = 1:step2:s(1)
-                endv = min(s(1),j+step2-1);
-                ss = endv-j+1;
-                xstep = xcs(j:endv,:);
-                clstep = class(j:endv);
+            step2 = max(100,round(s(1)*step)); % Min step of 100 obs
+            Lmodel.updated(:) = 0;
+            for i = 1:step2:s(1)
+                endv = min(s(1),i+step2-1);
+                ss = endv-i+1;
+                xstep = xcs(i:endv,:);
+                clstep = class(i:endv);
                 if isempty(obsl)
                     obsstep = {};
                 else
-                    obsstep = obsl(j:endv);
+                    obsstep = obsl(i:endv);
                 end
                 
-                Lmodel.interactions{i}.centr = [Lmodel.interactions{i}.centr;xstep];
-                Lmodel.interactions{i}.multr = [Lmodel.interactions{i}.multr;ones(ss,1)];
-                Lmodel.interactions{i}.class = [Lmodel.interactions{i}.class;clstep];
-                Lmodel.interactions{i}.obsl = [Lmodel.interactions{i}.obsl(:)' obsstep(:)'];
-                Lmodel.interactions{i}.updated = [Lmodel.interactions{i}.updated;ones(size(xstep,1),1)];
+                Lmodel.centr = [Lmodel.centr;xstep];
+                Lmodel.multr = [Lmodel.multr;ones(ss,1)];
+                Lmodel.class = [Lmodel.class;clstep];
+                Lmodel.obsl = [Lmodel.obsl(:)' obsstep(:)'];
+                Lmodel.updated = [Lmodel.updated;ones(size(xstep,1),1)];
                 
                 if files
-                    for k=j:endv
-                        Lmodel.interactions{i}.indexFich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
+                    for k=i:endv
+                        Lmodel.indexFich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
                     end
                 end
                 
-                [Lmodel.interactions{i}.centr,Lmodel.interactions{i}.multr,Lmodel.interactions{i}.class,Lmodel.interactions{i}.obsl,Lmodel.interactions{i}.updated,obslist] = psc(Lmodel.interactions{i}.centr,Lmodel.interactions{i}.nc,Lmodel.interactions{i}.multr,Lmodel.interactions{i}.class,Lmodel.interactions{i}.obsl,Lmodel.interactions{i}.updated,Lmodel.interactions{i}.mat,obslist);
+                [Lmodel.centr,Lmodel.multr,Lmodel.class,Lmodel.obsl,Lmodel.updated,obslist] = psc(Lmodel.centr,Lmodel.nc,Lmodel.multr,Lmodel.class,Lmodel.obsl,Lmodel.updated,Lmodel.mat,obslist);
             end
             
             if files
-                Lmodel.interactions{i}.indexFich = cfilesys(obslist,red,lred,multr,classr,Lmodel.interactions{i}.indexFich,100,Lmodel.interactions{i}.path,debug); % update of the clustering file system
+                Lmodel.indexFich = cfilesys(obslist,red,lred,multr,classr,Lmodel.indexFich,100,Lmodel.path,debug); % update of the clustering file system
             end
             
         end
         
         if files
-            ind = find(strcmp(Lmodel.interactions{i}.obsl, 'mixed'));
-            Lmodel.interactions{i}.obsl(ind) = Lmodel.interactions{i}.indexFich(ind);
+            ind = find(strcmp(Lmodel.obsl, 'mixed'));
+            Lmodel.obsl(ind) = Lmodel.indexFich(ind);
+        end
+
+    elseif strcmp(Lmodel.type,'ASCA')
+        
+        nFactors = Lmodel.nFactors;
+        nInteractions = Lmodel.nInteractions;
+        
+        % Factors
+        for fa = 1 : nFactors 
+            
+            Lmodel.factors{fa}.indexFich={};
+            for t=1:length(list)
+                
+                if debug, disp(sprintf('clustering factor %d: packet %d...........................................', fa, t)), end
+                
+                if isstruct(list(t))
+                    d = list(t).d;
+                    x = list(t).x;
+                    vars = fieldnames(list(t));
+                    class = list(t).f(:,fa);
+                    if ismember('obsl', vars)
+                        obsl = list(t).obsl;
+                        if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
+                    else
+                        obsl = cellstr(num2str((1:size(d,1))'));
+                    end
+                else
+                    load([path list{t}],'d','x')
+                    vars = whos('-file',[path list{t}]);
+                    load([path list{t}],'f');
+                    class = f(:,fa);
+                    if ismember('obsl', {vars.name})
+                        load([path list{t}],'obsl')
+                        if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
+                    else
+                        obsl = cellstr(num2str((1:size(d,1))'));
+                    end
+                end
+                f = fa;
+                
+                x = x./(ones(size(x,1),1)*Lmodel.sc);
+                residuals = x - d*Lmodel.B;
+                xcs = d(:,Lmodel.factors{f}.Dvars)*Lmodel.B(Lmodel.factors{f}.Dvars,:) + residuals;
+                
+                
+                if files % The updated field is not included in the FS yet
+                    indorig = length(Lmodel.factors{f}.class);
+                    red = [Lmodel.factors{f}.centr;xcs];
+                    lred = [Lmodel.factors{f}.obsl(:)' obsl(:)'];
+                    multr = [Lmodel.factors{f}.multr;ones(length(class),1)];
+                    classr = [Lmodel.factors{f}.class;class];
+                    auxv = (1:length(classr))';
+                    obslist = num2cell(auxv);
+                else
+                    obslist = {};
+                end
+                
+                s = size(x);
+                step2 = round(s(1)*step);
+                Lmodel.factors{f}.updated(:) = 0;
+                for i = 1:step2:s(1)
+                    endv = min(s(1),i+step2-1);
+                    ss = endv-i+1;
+                    xstep = xcs(i:endv,:);
+                    clstep = class(i:endv);
+                    if isempty(obsl)
+                        obsstep = {};
+                    else
+                        obsstep = obsl(i:endv);
+                    end
+                    
+                    Lmodel.factors{f}.centr = [Lmodel.factors{f}.centr;xstep];
+                    Lmodel.factors{f}.multr = [Lmodel.factors{f}.multr;ones(ss,1)];
+                    Lmodel.factors{f}.class = [Lmodel.factors{f}.class;clstep];
+                    Lmodel.factors{f}.obsl = [Lmodel.factors{f}.obsl(:)' obsstep(:)'];
+                    Lmodel.factors{f}.updated = [Lmodel.factors{f}.updated;ones(size(xstep,1),1)];
+                    
+                    if files
+                        for k=i:endv
+                            Lmodel.factors{f}.indexFich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
+                        end
+                    end
+                    
+                    [Lmodel.factors{f}.centr,Lmodel.factors{f}.multr,Lmodel.factors{f}.class,Lmodel.factors{f}.obsl,Lmodel.factors{f}.updated,obslist] = psc(Lmodel.factors{f}.centr,Lmodel.factors{f}.nc,Lmodel.factors{f}.multr,Lmodel.factors{f}.class,Lmodel.factors{f}.obsl,Lmodel.factors{f}.updated,Lmodel.factors{f}.mat,obslist);
+                end
+                
+                if files
+                    Lmodel.factors{f}.indexFich = cfilesys(obslist,red,lred,multr,classr,Lmodel.factors{f}.indexFich,100,Lmodel.factors{f}.path,debug); % update of the clustering file system
+                end
+                
+            end
+            
+            if files
+                ind = find(strcmp(Lmodel.factors{f}.obsl, 'mixed'));
+                Lmodel.factors{f}.obsl(ind) = Lmodel.factors{f}.indexFich(ind);
+            end
+        
+        end
+        
+        % Interactions
+        for i = 1 : nInteractions 
+            
+            Lmodel.interactions{i}.indexFich={};
+            for t=1:length(list)
+                
+                if debug, disp(sprintf('clustering interaction %d: packet %d...........................................', i, t)), end
+                
+                if isstruct(list(t))
+                    d = list(t).d;
+                    x = list(t).x;
+                    vars = fieldnames(list(t));
+                    if ismember('class', vars)
+                        class = list(t).class;
+                    else
+                        class = ones(size(x,1),1);
+                    end
+                    if ismember('obsl', vars)
+                        obsl = list(t).obsl;
+                        if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
+                    else
+                        obsl = cellstr(num2str((1:size(d,1))'));
+                    end
+                else
+                    load([path list{t}],'d','x')
+                    vars = whos('-file',[path list{t}]);
+                    if ismember('class', {vars.name})
+                        load([path list{t}],'class')
+                    else
+                        class = ones(size(x,1),1);
+                    end
+                    if ismember('obsl', {vars.name})
+                        load([path list{t}],'obsl')
+                        if isnumeric(obsl), obsl = cellstr(num2str(obsl)); end
+                    else
+                        obsl = cellstr(num2str((1:size(d,1))'));
+                    end
+                end
+                
+                x = x./(ones(size(x,1),1)*Lmodel.sc);
+                residuals = x - d*Lmodel.B;
+                xcs = d(:,Lmodel.interactions{i}.Dvars)*Lmodel.B(Lmodel.interactions{i}.Dvars,:) + residuals;
+                
+                if files % The updated field is not included in the FS yet
+                    indorig = length(Lmodel.interactions{i}.class);
+                    red = [Lmodel.interactions{i}.centr;xcs];
+                    lred = [Lmodel.interactions{i}.obsl(:)' obsl(:)'];
+                    multr = [Lmodel.interactions{i}.multr;ones(length(class),1)];
+                    classr = [Lmodel.interactions{i}.class;class];
+                    auxv = (1:length(classr))';
+                    obslist = num2cell(auxv);
+                else
+                    obslist = {};
+                end
+                
+                s = size(x);
+                step2 = round(s(1)*step);
+                Lmodel.interactions{i}.updated(:) = 0;
+                for j = 1:step2:s(1)
+                    endv = min(s(1),j+step2-1);
+                    ss = endv-j+1;
+                    xstep = xcs(j:endv,:);
+                    clstep = class(j:endv);
+                    if isempty(obsl)
+                        obsstep = {};
+                    else
+                        obsstep = obsl(j:endv);
+                    end
+                    
+                    Lmodel.interactions{i}.centr = [Lmodel.interactions{i}.centr;xstep];
+                    Lmodel.interactions{i}.multr = [Lmodel.interactions{i}.multr;ones(ss,1)];
+                    Lmodel.interactions{i}.class = [Lmodel.interactions{i}.class;clstep];
+                    Lmodel.interactions{i}.obsl = [Lmodel.interactions{i}.obsl(:)' obsstep(:)'];
+                    Lmodel.interactions{i}.updated = [Lmodel.interactions{i}.updated;ones(size(xstep,1),1)];
+                    
+                    if files
+                        for k=j:endv
+                            Lmodel.interactions{i}.indexFich{1,indorig+k}=['MEDA' num2str(t) 'o' num2str(k) 'c' num2str(class(k))]; %index of names of fich
+                        end
+                    end
+                    
+                    [Lmodel.interactions{i}.centr,Lmodel.interactions{i}.multr,Lmodel.interactions{i}.class,Lmodel.interactions{i}.obsl,Lmodel.interactions{i}.updated,obslist] = psc(Lmodel.interactions{i}.centr,Lmodel.interactions{i}.nc,Lmodel.interactions{i}.multr,Lmodel.interactions{i}.class,Lmodel.interactions{i}.obsl,Lmodel.interactions{i}.updated,Lmodel.interactions{i}.mat,obslist);
+                end
+                
+                if files
+                    Lmodel.interactions{i}.indexFich = cfilesys(obslist,red,lred,multr,classr,Lmodel.interactions{i}.indexFich,100,Lmodel.interactions{i}.path,debug); % update of the clustering file system
+                end
+                
+            end
+            
+            if files
+                ind = find(strcmp(Lmodel.interactions{i}.obsl, 'mixed'));
+                Lmodel.interactions{i}.obsl(ind) = Lmodel.interactions{i}.indexFich(ind);
+            end
+        
         end
     
     end
-    
-end
+
+% ============= Big Data in variables =============
+elseif bigdim == 1
+    % preprocess
+
+    % compute mean
+
+    if strcmp(Lmodel.type,'PCA') || strcmp(Lmodel.type,'ASCA')
         
+        if debug, disp('preprocessing X block..................................................'), end
+            
+        for t=1:length(list)
+            
+            % Load part of the data
+            if isstruct(list(t))
+                x = list(t).x;
+            else
+                load([path list{t}],'x')
+            end
+            
+            % Replace missing values
+            indMV{t} = find(isnan(x));
+            if ~isempty(indMV{t})
+                disp('Missing values found in X. Set to average.');
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            
+            if t == 1
+                % Initialize XX
+                 Lmodel.XX = zeros(size(x, 1)); 
+            end
+
+            % Compute chunk average and standard deviation
+            [xcs, av, sc] = preprocess2D(x, 'Preprocessing', 2);
+            Lmodel.av = [Lmodel.av, av];
+            Lmodel.sc = [Lmodel.sc, sc];
+            
+            % Update XX
+            Lmodel.XX = Lmodel.XX + xcs*xcs';
+
+        end
+
+            
+        
+            
+    elseif strcmp(Lmodel.type,'PLS')
+        
+        if debug, disp('preprocessing X and Y blocks...........................................'), end
+        
+        for t=1:length(list)
+            
+            if isstruct(list(t))
+                x = list(t).x;
+                y = list(t).y;
+            else
+                load([path list{t}],'x','y')
+            end
+            
+            indMV{t} = find(isnan(x));
+            if ~isempty(indMV{t})
+                disp('Missing values found in X. Set to average.');
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            
+            indMVy{t} = find(isnan(y));
+            if ~isempty(indMVy{t})
+                disp('Missing values found in Y. Set to average.');
+                avy = ones(size(y,1),1)*Lmodel.avy;
+                y(indMVy{t}) = avy(indMVy{t});
+            end
+            
+            [~,Lmodel.av,Lmodel.sc] = preprocess2Di(x, ...
+                'Preprocessing', Lmodel.prep > 0, ...
+                'Ndim', 0, ...
+                'Lambda', 1, ...
+                'Average', Lmodel.av, ...
+                'Scale', Lmodel.sc, ...
+                'N', Lmodel.N, ...
+                'Weight', Lmodel.weight);
+
+            [~,Lmodel.avy,Lmodel.scy,Lmodel.N] = preprocess2Di(y, ...
+                'Preprocessing', Lmodel.prepy > 0, ...
+                'Ndim', 0, ...
+                'Lambda', 1, ...
+                'Average', Lmodel.avy, ...
+                'Scale', Lmodel.scy, ...
+                'N', Lmodel.N, ...
+                'Weight', Lmodel.weighty);    
+        end
+        
+    end
+    
+    % compute cross-product matrices
+
+    if strcmp(Lmodel.type,'PCA') 
+        
+        Lmodel.XX = zeros(size(x,2));
+
+        if debug, disp('computing XX ....................................................'), end
+            
+        for t=1:length(list)
+            
+            if isstruct(list(t))
+                x = list(t).x;
+            else
+                load([path list{t}],'x')
+            end
+            
+            if ~isempty(find(isnan(x))) 
+                    if debug, disp(sprintf('Found nans in file %d',t)), end
+            end
+            
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            
+            xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
+            Lmodel.XX = Lmodel.XX + xcs'*xcs;
+            
+        end
+        
+    elseif strcmp(Lmodel.type,'PLS') 
+        
+        Lmodel.XX = zeros(size(x,2));
+        Lmodel.XY = zeros(size(x,2),size(y,2));
+        Lmodel.YY = zeros(size(y,2),size(y,2));
+        
+        if debug, disp('computing XX, XY .......................................................'), end
+        
+        for t=1:length(list)
+            
+            if isstruct(list(t))
+                x = list(t).x;
+                y = list(t).y;
+            else
+                load([path list{t}],'x','y')
+            end
+            
+            if ~isempty(indMV{t})
+                av = ones(size(x,1),1)*Lmodel.av;
+                x(indMV{t}) = av(indMV{t});
+            end
+            if ~isempty(indMVy{t})
+                avy = ones(size(y,1),1)*Lmodel.avy;
+                y(indMVy{t}) = avy(indMVy{t});
+            end
+            
+            xcs = preprocess2Dapp(x,Lmodel.av,'Scale',Lmodel.sc,'Weight',Lmodel.weight);
+            Lmodel.XX = Lmodel.XX + xcs'*xcs;        
+            ycs = preprocess2Dapp(y,Lmodel.avy,'Scale',Lmodel.scy,'Weight',Lmodel.weighty);
+            Lmodel.XY = Lmodel.XY + xcs'*ycs;
+            Lmodel.YY = Lmodel.YY + ycs'*ycs;
+            
+        end
+    end
+end
+
 end
 
 %%
@@ -1208,7 +1370,7 @@ levels = Lmodel.levels;
 
 if ~isfield(Lmodel,'anovast'), Lmodel.anovast = []; end
     
-if ~isfield(Lmodel.anovast,'model') || isempty(Lmodel.anovast.model), Lmodel.anovast.model = 'linear'; end;
+if ~isfield(Lmodel.anovast,'model') || isempty(Lmodel.anovast.model), Lmodel.anovast.model = 'linear'; end
 
 if isequal(Lmodel.anovast.model,'linear')
     interactions = [];
@@ -1232,9 +1394,9 @@ end
 
 if iscell(Lmodel.anovast.model), interactions = Lmodel.anovast.model; end
     
-if ~isfield(Lmodel.anovast,'ordinal') || isempty(Lmodel.anovast.ordinal), Lmodel.anovast.ordinal = zeros(1,nFactors); end;
-if ~isfield(Lmodel.anovast,'coding') || isempty(Lmodel.anovast.coding), Lmodel.anovast.coding = zeros(1,nFactors); end;
-if ~isfield(Lmodel.anovast,'nested'), Lmodel.anovast.nested = []; end;
+if ~isfield(Lmodel.anovast,'ordinal') || isempty(Lmodel.anovast.ordinal), Lmodel.anovast.ordinal = zeros(1,nFactors); end
+if ~isfield(Lmodel.anovast,'coding') || isempty(Lmodel.anovast.coding), Lmodel.anovast.coding = zeros(1,nFactors); end
+if ~isfield(Lmodel.anovast,'nested'), Lmodel.anovast.nested = []; end
 
 % Validate dimensions of input data
 assert (isequal(size(Lmodel.anovast.ordinal), [1 nFactors]), 'Dimension Error: ordinal argument must be 1-by-F. Type ''help %s'' for more info.', routine(1).name);

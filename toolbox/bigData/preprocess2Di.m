@@ -105,22 +105,8 @@ weight = p.Results.Weight;
 
 % Compute dependencies for missing parameters
 prep2 = prep;
-if prep2 == 3, prep2 = 2; end;
-[xcs,av,sc] = preprocess2D(x,'Preprocessing',prep2);
-
-if isempty(average), average = av; end
-if isempty(scale), scale = sc; end
-
-if isempty(weight) 
-    if ndim
-        weight = ones(1,n);
-    else
-        weight = ones(1,M);
-    end
-end
-    
-% Convert column arrays to row arrays
-if size(weight,2) == 1, weight = weight'; end;
+if prep2 == 3, prep2 = 2; end
+[~,av,sc] = preprocess2D(x,'Preprocessing',prep2);
 
 % Determine expected dimension for checks based on Ndim
 if ndim
@@ -128,6 +114,13 @@ if ndim
 else
     expected_dim = M;
 end
+
+if isempty(average), average = av; end
+if isempty(scale), scale = sc; end
+if isempty(weight), weight = ones(1, expected_dim); end
+    
+% Convert column arrays to row arrays
+if size(weight,2) == 1, weight = weight'; end
 
 % Validate dimensions of input data
 assert (isequal(size(prep), [1 1]), 'Dimension Error in parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
