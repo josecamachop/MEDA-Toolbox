@@ -13,8 +13,6 @@ with new methods: MEDA, oMEDA, SVI plots, ADICOV, EKF & CKF crossvalidation, CSP
 The MEDA Toolbox can be used to analyze normal size data sets (several hundreds of observations times several hundreds of variables)
 There is also an extension of the toolbox for large data sets, with millions of items, under folder toolbox/bigData. 
 
-The MEDA Toolbox is expected to work on Octave.
-
 Please, acknowledge the use of this software by referencing: "Camacho, J., Pérez, A., Rodríguez, R., Jiménez-Mañas, E. Multivariate Exploratory Data Analysis (MEDA) Toolbox. Chemometrics and Intelligent Laboratory Systems, 2015, 143: 49-57, available at https://github.com/CoDaSLab/MEDA-Toolbox". Please check the documentation of the routines for more related references. 
 
 Please, note that the software is provided "as is" and we do not accept any responsibility or liability. Should you find any bug or have suggestions, please contact josecamacho@ugr.es
@@ -146,7 +144,7 @@ We would like to thank the direct or indirect contribution of several colleagues
 
 - E. Szymanska, G.H. Tinnevelt and T.P.J. Offermans for the Sparse Partial Least Squares (SPLS) routine.
 
-- G. Zwanenburg, H.C.J. Hoefsloot, J.A. Westerhuis, J.J. Jansen and A.K. Smilde for the original ANOVA Simultaneous Component Analysis (ASCA) routine.
+- G. Zwanenburg, H.C.J. Hoefsloot, J.A. Westerhuis, J.J. Jansen and A.K. Smilde for the original ANOVA Simultaneous Component Analysis (ASCA) routine. Current implementations are based on ASCA+ and have been much developed, with no trace to the original one.
 
 - E. Saccenti for the Horn's Parallel Analysis to determine the number of Principal Components.
 
@@ -155,7 +153,7 @@ We would like to thank the direct or indirect contribution of several colleagues
 
 <h2>Copyright</h2>
 
-Copyright (C) 2024  Universidad de Granada
+Copyright (C) 2026  Universidad de Granada
  
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
