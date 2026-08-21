@@ -1,13 +1,13 @@
 function model = vpls(xcs,ycs,varargin)
 
-% Variable selection PLS using the simpls algorithm. Se description of the 
+% Variable selection PLS using the kernelpls algorithm. Se description of the 
 % methods in Mehmood, Tahir, Solve Sæbø, y Kristian Hovde Liland. 2020. 
 % «Comparison of Variable Selection Methods in Partial Least Squares 
 % Regression». Journal of Chemometrics 34 (6): e3226. 
 %
-% model = vpls(xcs,ycs)     % minimum call equivalent to simpls
+% model = vpls(xcs,ycs)     % minimum call equivalent to kernelpls
 %
-% See also: simpls, kernelpls, pcaEig, asca, vasca
+% See also: kernelpls, kernelpls2, pcaEig, asca, vasca
 %
 %
 % INPUTS:
@@ -123,7 +123,7 @@ assert ((V>0 && V <= M) && isequal(fix(V), V), 'Value Error: parameter ''VarNumb
 
 %% Main code
 
-model = simpls(xcs,ycs,'LVs',lvs);
+model = kernelpls(xcs,ycs,'LVs',lvs);
 
 if V < M 
     if strcmp(selection,'Weights')
@@ -132,7 +132,7 @@ if V < M
         
         xsel = zeros(size(xcs));
         xsel(:,ind(1:V)) = xcs(:,ind(1:V));
-        model = simpls(xsel,ycs,'LVs',lvs);
+        model = kernelpls(xsel,ycs,'LVs',lvs);
         
     elseif strcmp(selection,'AltWeights')
         r = sum(model.altweights.^2,2);
@@ -140,7 +140,7 @@ if V < M
         
         xsel = zeros(size(xcs));
         xsel(:,ind(1:V)) = xcs(:,ind(1:V));
-        model = simpls(xsel,ycs,'LVs',lvs);
+        model = kernelpls(xsel,ycs,'LVs',lvs);
         
     elseif strcmp(selection,'Regressors')
         r = model.beta;
@@ -148,7 +148,7 @@ if V < M
         
         xsel = zeros(size(xcs));
         xsel(:,ind(1:V)) = xcs(:,ind(1:V));
-        model = simpls(xsel,ycs,'LVs',lvs);
+        model = kernelpls(xsel,ycs,'LVs',lvs);
         
     elseif strcmp(selection,'VIP')
         for a = lvs
@@ -163,11 +163,11 @@ if V < M
         
         xsel = zeros(size(xcs));
         xsel(:,ind(1:V)) = xcs(:,ind(1:V));
-        model = simpls(xsel,ycs,'LVs',lvs);
+        model = kernelpls(xsel,ycs,'LVs',lvs);
     
     elseif strcmp(selection,'SR')
         
-        model = simpls(xcs,ycs,'LVs',lvs);
+        model = kernelpls(xcs,ycs,'LVs',lvs);
         for i = 1:size(ycs,2)
             w = model.beta(:,i);
             t = xcs*w/sqrt(w'*w);
@@ -179,7 +179,7 @@ if V < M
         
         xsel = zeros(size(xcs));
         xsel(:,ind(1:V)) = xcs(:,ind(1:V));
-        model = simpls(xsel,ycs,'LVs',lvs);
+        model = kernelpls(xsel,ycs,'LVs',lvs);
         
     elseif strcmp(selection,'T2')
         w = preprocess2D(model.weights,'Preprocess',1);
@@ -192,7 +192,7 @@ if V < M
         
         xsel = zeros(size(xcs));
         xsel(:,ind(1:V)) = xcs(:,ind(1:V));
-        model = simpls(xsel,ycs,'LVs',lvs);
+        model = kernelpls(xsel,ycs,'LVs',lvs);
         
     elseif strcmp(selection,'sPLS') % More flexible, more than V variables can be selected if several responses
         model2 = sparsepls2(xcs, ycs, max(lvs), V*ones(size(1:max(lvs))), O*ones(size(1:max(lvs))), 500, 1e-10, 1, 0);

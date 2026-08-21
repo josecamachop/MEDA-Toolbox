@@ -60,7 +60,7 @@ assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for mor
 
 %% Main code
 
-model = kernelpls(Lmodel.XX,Lmodel.XY,'LVs',1:max(Lmodel.lvs));
+model = kernelpls2(Lmodel.XX,Lmodel.XY,'LVs',1:max(Lmodel.lvs));
 R = model.altweights;
 beta = model.beta;
         

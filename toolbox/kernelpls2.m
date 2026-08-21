@@ -1,27 +1,27 @@
-function model = kernelpls(xcs,ycs,varargin)
+function model = kernelpls2(XX,XY,varargin)
 
 % Kernel algorithm for Partial Least Squares. References:
 % F. Lindgren, P. Geladi and S. Wold, J. Chemometrics, 7, 45 (1993).
 % S. De Jong and C.J.F. Ter Braak, J. Chemometrics, 8, 169 (1994).
 % B.S. Dayal and J.F. MacGregor. J. Chemometrics, 11, 73–85 (1997). Main
-% code is extracted from the last reference (Algorithm v1)
+% code is extracted from the last reference (Algorithm v2)
 %
-% model = kernelpls(X,Y)     % minimum call
+% model = kernelpls2(XX,XY)     % minimum call
 %
-% See also: kernelpls2, pcaEig, asca, gpls, sparsepls2
+% See also: kernelpls, pcaEig, asca, gpls, sparsepls2
 %
 %
 % INPUTS:
 %
-% xcs: [NxM] preprocessed billinear data set
+% XX: [MxM] cross-product X'*X (X should be preprocessed)
 %
-% ycs: [NxO] preprocessed billinear data set of responses
+% XY: [MxO] cross-product X'*Y (both should be preprocessed)
 %
 %
 % Optional INPUTS (parameter):
 %
 % 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
-%   first two LVs). By default, lvs = 0:size(xcs,2)
+%   first two LVs). By default, lvs = 0:size(XX)
 %
 %
 % OUTPUTS:
@@ -33,9 +33,7 @@ function model = kernelpls(xcs,ycs,varargin)
 %   yloads: [OxA] matrix of y-loadings Q
 %   weights: [MxA] matrix of weights W
 %   altweights: [MxA] matrix of alternative weights R
-%   scores: [NxA] matrix of x-scores T
 %   beta: [MxO] matrix of regressors
-%   residuals: [NxM] matrix of x-residuals
 %   type: 'PLS'
 %
 %
@@ -46,11 +44,11 @@ function model = kernelpls(xcs,ycs,varargin)
 % Xcs = preprocess2D(X,'Preprocessing',2);
 % Ycs = preprocess2D(Y,'Preprocessing',2);
 % lvs = 1:10;
-% model = kernelpls(Xcs,Ycs,'LVs',lvs);
+% model = kernelpls2(Xcs'*Xcs,Xcs'*Ycs,'LVs',lvs);
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 21/Aug/2026
+% last modification: 19/Aug/2026
 % Dependencies: Matlab R2024b, MEDA v1.15
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -74,12 +72,12 @@ function model = kernelpls(xcs,ycs,varargin)
 % Set default values
 routine=dbstack;
 assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-[N,M] = size(xcs);
-O = size(ycs, 2);
+M = size(XX, 1);
+O = size(XY, 2);
 
 % Introduce optional inputs as parameters (name-value pair) 
 p = inputParser;
-addParameter(p,'LVs',0:size(xcs,2));  
+addParameter(p,'LVs',0:size(XX,1));  
 parse(p,varargin{:});
 
 % Extract inputs from inputParser for code legibility
@@ -91,12 +89,12 @@ if size(lvs,2) == 1, lvs = lvs'; end
 % Preprocessing
 lvs = unique(lvs);
 lvs(lvs==0) = [];
-lvs(lvs>rank(xcs)) = [];
+lvs(lvs>rank(XX)) = [];
 A = length(lvs);
 
 % Validate dimensions of input data
-assert (isequal(size(xcs), [N M]), 'Dimension Error: parameter ''X'' must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(ycs), [N O]), 'Dimension Error: parameter ''Y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(XX), [M M]), 'Dimension Error: parameter ''XX'' must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(XY), [M O]), 'Dimension Error: parameter ''YY'' must be M-by-O. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
@@ -105,12 +103,10 @@ assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter 
 
 %% Main code
 
-T = zeros(N,A);
 W = zeros(M,A);
 P = zeros(M,A);
 Q = zeros(O,A);
 R = zeros(M,A);
-XY = xcs'*ycs;
 for i=1:A
     if O==1 
         W(:,i) = XY; 
@@ -124,22 +120,19 @@ for i=1:A
     for j=1:i-1
         R(:,i) = R(:,i)-(P(:,j)'*W(:,i))*R(:,j);
     end
-    T(:,i) = xcs*R(:,i); 
-    tt = T(:,i)'*T(:,i);
-    P(:,i) = xcs'*T(:,i)/tt; 
+    tt = (R(:,i)'*XX*R(:,i)); 
+    P(:,i) = (R(:,i)'*XX)'/tt; 
     Q(:,i) = (R(:,i)'*XY)'/tt; 
     XY = XY-(P(:,i)*Q(:,i)')*tt;
 end
 
 beta = R*Q';
 
-model.var = trace(xcs'*xcs);
+model.var = trace(XX);
 model.lvs = 1:size(P,2);
 model.loads = P;
 model.yloads = Q;
 model.weights = W;
 model.altweights = R;
-model.scores = T;
 model.beta = beta;
-model.residuals = xcs - T*P';
 model.type = 'PLS';

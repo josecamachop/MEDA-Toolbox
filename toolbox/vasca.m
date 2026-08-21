@@ -20,8 +20,7 @@ function vascao = vasca(parglmoVS, varargin)
 %
 % Optional INPUTS (parameters):
 %
-% 'SignLev': [1x1] significance level (0.01 by default). If negative, it
-% determines the number of variables selected.
+% 'SignLev': [1x1] significance level (0.01 by default). 
 %
 % 'Strategy': 'string' strategy for variables selection ("SignLevM" by default).
 %   - "MaximumM": select all variables with maximum multivariate Q-value

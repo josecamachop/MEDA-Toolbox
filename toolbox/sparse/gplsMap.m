@@ -148,7 +148,7 @@ if isempty(stree)
             model = pcaEig(xcs,'PCs',lvs);
             map = meda(xcs'*xcs,model.loads);
         elseif mapdata=="XY"    
-            model = simpls(xcs,ycs,'LVs',lvs);
+            model = kernelpls(xcs,ycs,'LVs',lvs);
             map = meda(xcs'*xcs,model.altweights,'OutSubspace',model.loads);
         end
     else

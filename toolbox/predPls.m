@@ -4,7 +4,7 @@ function [ypred,testypred] = predPls(x,y,varargin)
 %
 % ypred = predPls(x,y) % minimum call
 %
-% See also: simpls, kernelpls
+% See also: kernelpls, kernelpls2
 %
 %
 % INPUTS:
@@ -132,7 +132,7 @@ assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter 
 [xcs,m,sd] = preprocess2D(x,'Preprocessing',prepx);
 [ycs,my,sdy] = preprocess2D(y,'Preprocessing',prepy);
 
-model = simpls(xcs,ycs,'LVs',lvs);
+model = kernelpls(xcs,ycs,'LVs',lvs);
 ypred = (xcs*model.beta).*(ones(N,1)*sdy) + (ones(N,1)*my);
 
 if ~isempty(test)

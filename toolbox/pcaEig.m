@@ -4,7 +4,7 @@ function model = pcaEig(xcs,varargin)
 %
 % model = pcaEig(xcs)     % minimum call
 %
-% See also: kernelpls, simpls, asca, missTsr2D
+% See also: kernelpls, kernelpls2, asca, missTsr2D
 %
 %
 % INPUTS:

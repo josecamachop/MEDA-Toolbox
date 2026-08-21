@@ -156,7 +156,7 @@ assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter 
 [xcs,m,sd] = preprocess2D(x,'preprocessing',prepx);
 ycs = preprocess2D(y,'preprocessing',prepy);
 
-model = simpls(xcs,ycs,'LVs',lvs);
+model = kernelpls(xcs,ycs,'LVs',lvs);
 R = model.altweights;
 P = model.loads;
 

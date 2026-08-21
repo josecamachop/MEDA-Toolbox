@@ -58,7 +58,7 @@ function figH = weights(model,varargin)
 % Xcs = preprocess2D(X);
 % Ycs = preprocess2D(Y);
 % lvs = 1:2;
-% model= simpls(Xcs,Ycs,'LVs',lvs);
+% model= kernelpls(Xcs,Ycs,'LVs',lvs);
 % 
 % W = weights(model,'VarsLabel',A);
 %
