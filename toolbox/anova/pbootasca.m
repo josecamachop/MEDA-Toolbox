@@ -73,7 +73,7 @@ function [bpvals, pboot] = pbootasca(X,F,ascao,nfact,varargin)
 %
 % coded by: Rafa Vitale (raffaele.vitale@univ-lille.fr)
 %           Jose Camacho (josecamacho@ugr.es)
-% last modification: 16/Jan/20245
+% last modification: 17/Aug/2026
 %
 % Copyright (C) 2025  University of Granada, Granada
 %
@@ -140,7 +140,7 @@ for boot=1:nboot
         
     end
     
-    [~, parglmo] = parglm(yboot,F,'Model',model,'Preprocessing',ascao.prep,'Permutations',ascao.nPerm,'Ts',ascao.ts,'Ordinal',ascao.ordinal,'Fmtc',ascao.fmtc,'Coding',ascao.coding,'Nested',ascao.nested); 
+    [~, parglmo] = parglm(yboot,F,'Model',model,'Preprocessing',ascao.prep,'Permutations',ascao.nPerm,'Ts',ascao.ts,'Ordinal',ascao.ordinal,'Coding',ascao.coding,'Nested',ascao.nested); 
     ascao = asca(parglmo); 
     pb = ascao.factors{nfact}.loads; 
     [~,pboot(boot,:,:)] = orthProc(p,pb);
