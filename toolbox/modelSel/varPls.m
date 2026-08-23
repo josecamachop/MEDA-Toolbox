@@ -116,7 +116,7 @@ assert (isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain int
 xcs = preprocess2D(x,'Preprocessing',prepx); 
 ycs = preprocess2D(y,'Preprocessing',prepy); 
 
-model = kernelpls(xcs,ycs,'LVs',1:max(lvs));
+model = vpls(xcs,ycs,'LVs',1:max(lvs));
 Q = model.yloads;
 R = model.altweights;
 

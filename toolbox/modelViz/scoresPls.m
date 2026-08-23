@@ -188,7 +188,7 @@ assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter 
 [xcs,m,sd] = preprocess2D(x,'Preprocessing',prepx);
 ycs = preprocess2D(y,'Preprocessing',prepy);
 
-model = kernelpls(xcs,ycs,'LVs',lvs); 
+model = vpls(xcs,ycs,'LVs',lvs); 
 R = model.altweights;
 T = xcs*R;
 

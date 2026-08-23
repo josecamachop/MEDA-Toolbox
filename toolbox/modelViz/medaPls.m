@@ -150,7 +150,7 @@ label = label(vars);
 x2 = preprocess2D(x,'Preprocessing',prepx);
 y2 = preprocess2D(y,'Preprocessing',prepy);
 
-model = kernelpls(x2,y2,'LVs',lvs);
+model = vpls(x2,y2,'LVs',lvs);
 R = model.altweights;
 P = model.loads;
 

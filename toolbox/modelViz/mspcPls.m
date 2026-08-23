@@ -228,7 +228,7 @@ if ~isempty(pvalueQ), assert (isempty(find(pvalueQ<0 | pvalueQ>1)), 'Value Error
 [xcs,m,sc] = preprocess2D(x,'Preprocessing',prepx);
 ycs = preprocess2D(y,'Preprocessing',prepy);
 
-model = kernelpls(xcs,ycs,'LVs',lvs);
+model = vpls(xcs,ycs,'LVs',lvs);
 R = model.altweights;
 P = model.loads;
 T = xcs*R;

@@ -1,9 +1,9 @@
 function model = vpls(xcs,ycs,varargin)
 
-% Variable selection PLS using the kernelpls algorithm. Se description of the 
-% methods in Mehmood, Tahir, Solve Sæbø, y Kristian Hovde Liland. 2020. 
-% «Comparison of Variable Selection Methods in Partial Least Squares 
-% Regression». Journal of Chemometrics 34 (6): e3226. 
+% Variable selection in PLS using the kernelpls and bidiag2 algorithms. See 
+% description of the methods in Mehmood, Tahir, Solve Sæbø, y Kristian 
+% Hovde Liland. 2020. «Comparison of Variable Selection Methods in Partial 
+% Least Squares Regression». Journal of Chemometrics 34 (6): e3226. 
 %
 % model = vpls(xcs,ycs)     % minimum call equivalent to kernelpls
 %
@@ -31,7 +31,7 @@ function model = vpls(xcs,ycs,varargin)
 %   'T2': wrapper method based on the Hotelling T2 statistic
 %   'sPLS': embedded method based on sparse PLS
 %
-% 'VarNumber': [1x1] number of variables to selection (floor(M/2) by default)
+% 'VarNumber': [1x1] number of variables to selection (M by default)
 %
 %
 % OUTPUTS:
