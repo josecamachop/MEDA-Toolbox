@@ -21,7 +21,9 @@ function model = kernelpls2(XX,XY,varargin)
 % Optional INPUTS (parameter):
 %
 % 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
-%   first two LVs). By default, lvs = 0:size(XX)
+%   first two LVs). By default, lvs = 0:size(XX). For compatibility with
+%   PCA we use this form of input argument, but only the maximum is really
+%   considered.
 %
 %
 % OUTPUTS:
@@ -88,14 +90,14 @@ if size(lvs,2) == 1, lvs = lvs'; end
 
 % Preprocessing
 lvs = unique(lvs);
-lvs(lvs==0) = [];
+lvs(lvs<0) = [];
 lvs(lvs>rank(XX)) = [];
-A = length(lvs);
+A = max(lvs);
 
 % Validate dimensions of input data
 assert (isequal(size(XX), [M M]), 'Dimension Error: parameter ''XX'' must be M-by-M. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(XY), [M O]), 'Dimension Error: parameter ''YY'' must be M-by-O. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 A]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(lvs), [1 size(lvs,2)]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
 assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
