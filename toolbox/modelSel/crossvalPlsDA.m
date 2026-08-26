@@ -165,7 +165,7 @@ AAUC = zeros(length(lvs),length(keepXs));
 AUC = zeros(length(lvs),length(keepXs),O);
 nze = zeros(length(lvs),length(keepXs));
 
-ind = (size(y,2)+1)*ones(size(y,1),1);
+ind = (size(y,2)+1)*ones(size(y,1),1); % stratified cv
 [r,c]=find(y==1);
 [r1,r2]=sort(r);
 ind(r1) = c(r2);
@@ -224,7 +224,7 @@ for i=1:blocksR
             for keepX=1:length(keepXs)
                 
                 if lvs(lv)
-                    model = vpls(ccs,ccsY,'LVs',1:lvs(lv),'VarNumber',keepXs(keepX),'Selection',selection);
+                    model = vpls(ccs,ccsY,'LVs',1:lvs(lv),'VarNumber',keepXs(keepX),'Selection',selection,'PreprocessingX',0,'PreprocessingY',0);
                    
                     srec1(test,lv,keepX,:) = scs*model.beta;%scs*PR*beta;
 					nze(lv,keepX) = nze(lv,keepX) + length(find(model.beta)); 
