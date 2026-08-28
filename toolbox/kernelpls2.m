@@ -128,6 +128,11 @@ for i=1:A
     XY = XY-(P(:,i)*Q(:,i)')*tt;
 end
 
+lvs(lvs==0) = [];
+P = P(:,lvs);
+Q = Q(:,lvs);
+W = W(:,lvs);
+R = W*pinv(P'*W);
 beta = R*Q';
 
 model.var = trace(XX);

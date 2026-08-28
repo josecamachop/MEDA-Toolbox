@@ -21,9 +21,7 @@ function model = kernelpls(xcs,ycs,varargin)
 % Optional INPUTS (parameter):
 %
 % 'LVs': [1xA] Latent Variables considered (e.g. lvs = 1:2 selects the
-%   first two LVs). By default, lvs = 0:size(xcs,2). For compatibility with
-%   PCA we use this form of input argument, but only the maximum is really
-%   considered.
+%   first two LVs). By default, lvs = 0:size(xcs,2). 
 %
 %
 % OUTPUTS:
@@ -132,6 +130,13 @@ for i=1:A
     Q(:,i) = (R(:,i)'*XY)'/tt; 
     XY = XY-(P(:,i)*Q(:,i)')*tt;
 end
+
+lvs(lvs==0) = [];
+P = P(:,lvs);
+Q = Q(:,lvs);
+W = W(:,lvs);
+T = T(:,lvs);
+R = W*pinv(P'*W);
 
 beta = R*Q';
 
