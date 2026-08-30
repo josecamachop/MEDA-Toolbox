@@ -180,12 +180,19 @@ if ~isempty(blur), assert (isequal(size(blur), [1 1]), 'Dimension Error: paramet
 
 T = model.scores;
 P = model.loads; % If T is not orthogonal, P should have been obtained as X'/T'
-if M>N
-    PD = P'*P;
-    d = sort(eig(T*PD*T'),'descend');
+
+if ~isequal(model.type, 'PLS')
+    if M>N
+        d = sort(eig(T*(P'*P)*T'),'descend');
+    else
+        d = sort(eig(P*(T'*T)*P'),'descend');
+    end
 else
-    PT = T'*T;
-    d = sort(eig(P*PT*P'),'descend');
+    if M>N
+        d = sort(eig(T*T'),'descend');
+    else
+        d = sort(eig(T'*T),'descend');
+    end
 end
 
 if isfield(model,'scoresV')
