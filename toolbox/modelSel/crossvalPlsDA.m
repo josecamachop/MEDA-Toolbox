@@ -224,7 +224,7 @@ for i=1:blocksR
             for keepX=1:length(keepXs)
                 
                 if lvs(lv)
-                    model = vpls(ccs,ccsY,'LVs',1:lvs(lv),'VarNumber',keepXs(keepX),'Selection',selection,'PreprocessingX',0,'PreprocessingY',0);
+                    model = vpls(ccs,ccsY,'LVs',1:lvs(lv),'VarNumber',keepXs(keepX),'Selection',selection);
                    
                     srec1(test,lv,keepX,:) = scs*model.beta;%scs*PR*beta;
 					nze(lv,keepX) = nze(lv,keepX) + length(find(model.beta)); 

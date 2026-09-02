@@ -1,4 +1,4 @@
-function [AUCm,AUC,lvso,keepXso] = dcrossvalPlsDA(x,y,varargin)
+function [AUCm,AUC,lvso,keepXso,selected] = dcrossvalPlsDA(x,y,varargin)
 
 % Row-wise k-fold (rkf) double cross-validation in PLS-DA, restricted to 
 % one response categorical variable of two levels. The algorithm uses 
@@ -69,6 +69,8 @@ function [AUCm,AUC,lvso,keepXso] = dcrossvalPlsDA(x,y,varargin)
 % lvso: [rep x blocksr] optimum number of LVs in the inner loop
 %
 % keepXso: [rep x blocksr] optimum number of keepXs in the inner loop
+%
+% selected: {rep x 1} index for the selected variables
 %
 %
 % EXAMPLE OF USE: Random data with structural relationship
@@ -183,6 +185,7 @@ assert (blocksr<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type
 
 %% Main code
 
+selected = {};
 for j=1:rep
     % Cross-validation
     
@@ -236,7 +239,7 @@ for j=1:rep
         cumpressb = (abs(alpha)-1)*AUCt/max(max(AUCt)) + alpha*nze/max(max(nze));
         
         [l,k]=find(cumpressb==min(min(cumpressb)));
-        lvso(j,i) = lvs(l(1));
+        lvso(j,i) = lvs(l(1)); % select the most parsimonius one
         keepXso(j,i) = keepXs(k(1));
         
         if lvso(j,i)~=0
@@ -251,6 +254,17 @@ for j=1:rep
             srecn1(indin1') = 0;
         end
         
+    end
+
+    lvsr = mode(lvso(j,:));
+    keepXsr = mode(keepXso(j,:));
+
+    if lvsr~=0
+        model = vpls(ccs,ccsy,'LVs',1:lvsr,'VarNumber',keepXsr,'Selection',selection);
+        selected{j} = find(model.beta);
+
+    else
+        selected{j} = [];
     end
     
     [~,~,~,AUC(j)] = perfcurve(y([y1;yn1]),[srec1';srecn1'],1);
