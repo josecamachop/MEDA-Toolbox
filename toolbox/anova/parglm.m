@@ -493,6 +493,7 @@ while rep > 0
             end
         end
         D = D2;
+        parglmo.Dor = D;
     end
     rep = rep-1;
 end
@@ -710,9 +711,14 @@ function [Ff,Fi,SSQf,SSQi] = permBody(modstr)
     X = Xnan(perms, :);
     [r,c]=find(isnan(X));
     ru = unique(r);
+    if isequatl(modstr.type,'Sequential') 
+        Dm = modstr.D1;
+    else
+        Dm = D;
+    end
     for i=1:length(ru)
         ind = find(r==ru(i));
-        ind2 = find(sum((D-ones(size(D,1),1)*D(r(ind(1)),:)).^2,2)==0);
+        ind2 = find(sum((Dm-ones(size(D,1),1)*Dm(r(ind(1)),:)).^2,2)==0);
         for f=1:length(c(ind))
             ind3 = find(isnan(X(ind2,c(ind(f)))));
             if length(ind2)>length(ind3)
