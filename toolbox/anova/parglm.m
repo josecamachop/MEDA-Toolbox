@@ -718,7 +718,7 @@ function [Ff,Fi,SSQf,SSQi] = permBody(modstr)
     end
     for i=1:length(ru)
         ind = find(r==ru(i));
-        ind2 = find(sum((Dm-ones(size(D,1),1)*Dm(r(ind(1)),:)).^2,2)==0);
+        ind2 = find(sum((Dm-ones(size(Dm,1),1)*Dm(r(ind(1)),:)).^2,2)==0);
         for f=1:length(c(ind))
             ind3 = find(isnan(X(ind2,c(ind(f)))));
             if length(ind2)>length(ind3)
