@@ -85,9 +85,10 @@ function [AUCm,AUC,lvso,keepXso,selected] = dcrossvalPlsDA(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 31/Jan/2025
+% last modification: 02/Sep/2026
+% Dependencies: Matlab R2024b, MEDA v1.14
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -260,8 +261,17 @@ for j=1:rep
     keepXsr = mode(keepXso(j,:));
 
     if lvsr~=0
+        ccs = preprocess2D(x,'Preprocessing',prepx);
+        %[ccsy,avy,sty] = preprocess2D(resty,prepy);
+        ccsy = y;
+        
+        [kk,m1] = preprocess2D(ccs(find(y==1),:),'Preprocessing',1);  % additional subtraction of class mean
+        [kk,mn1] = preprocess2D(ccs(find(y==-1),:),'Preprocessing',1);
+        ccs = preprocess2Dapp(ccs,(m1+mn1)/2);
+
         model = vpls(ccs,ccsy,'LVs',1:lvsr,'VarNumber',keepXsr,'Selection',selection);
-        selected{j} = find(model.beta);
+        [r, c] = find(model.beta);
+        selected{j} = unique(r);
 
     else
         selected{j} = [];

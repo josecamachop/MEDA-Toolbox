@@ -1,4 +1,4 @@
-function [Qm,Q,lvso,keepXso] = dcrossvalPls(x,y,varargin)
+function [Qm,Q,lvso,keepXso,selected] = dcrossvalPls(x,y,varargin)
 
 % Row-wise k-fold (rkf) double cross-validation in PLS. The algorithm uses 
 % repetitions of the dCV loop to estimate the stability: see Szymanska, E.,
@@ -67,6 +67,8 @@ function [Qm,Q,lvso,keepXso] = dcrossvalPls(x,y,varargin)
 %
 % keepXso: [blocksrx1] optimum number of keepXs in the inner loop
 %
+% selected: {rep x 1} index for the selected variables
+%
 %
 % EXAMPLE OF USE: Random data with structural relationship
 %
@@ -80,9 +82,10 @@ function [Qm,Q,lvso,keepXso] = dcrossvalPls(x,y,varargin)
 %
 %
 % coded by: Jose Camacho (josecamacho@ugr.es)
-% last modification: 31/Jan/2025
+% last modification: 02/Sep/2026
+% Dependencies: Matlab R2024b, MEDA v1.14
 %
-% Copyright (C) 2025  University of Granada, Granada
+% Copyright (C) 2026  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -172,6 +175,7 @@ assert (blocksr<=N, 'Value Error: parameter ''MaxBlock'' must be at most N. Type
 
 %% Main code
 
+selected = {};
 for j=1:rep
     % Cross-validation
     
@@ -213,6 +217,21 @@ for j=1:rep
         
         Qu(i) = sum(sum((vcsy-srec).^2));
         Qd(i) = sum(sum(vcsy.^2));
+    end
+
+    lvsr = mode(lvso(j,:));
+    keepXsr = mode(keepXso(j,:));
+
+    if lvsr~=0
+        ccs = preprocess2D(x,'Preprocessing',prepx);
+        ccsy = preprocess2D(y,'Preprocessing',prepy);
+
+        model = vpls(ccs,ccsy,'LVs',1:lvsr,'VarNumber',keepXsr,'Selection',selection);
+        [r, c] = find(model.beta);
+        selected{j} = unique(r);
+
+    else
+        selected{j} = [];
     end
     
     Q(j) = 1-sum(Qu)/sum(Qd);
