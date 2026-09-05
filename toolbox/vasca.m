@@ -59,7 +59,7 @@ function vascao = vasca(parglmoVS, varargin)
 % end
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 03/Jul/2026
+% Last modification: 05/Sep/2026
 % Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -185,7 +185,7 @@ for interaction = 1 : vascao.nInteractions
         [inds,ord] = sort(ind);
         xf = vascao.interactions{interaction}.matrix(:,inds);
         modV = sum(vascao.effects(inds,interaction+vascao.nFactors));
-        for factor = 1 : length(vascao.interactions{1}.factors)
+        for factor = length(vascao.interactions{interaction}.factors)
             xf = xf + vascao.factors{factor}.matrix(:,inds);
             modV = modV + sum(vascao.effects(inds,factor));
         end
