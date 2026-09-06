@@ -59,7 +59,7 @@ function vascao = vasca(parglmoVS, varargin)
 % end
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 05/Sep/2026
+% Last modification: 06/Sep/2026
 % Dependencies: Matlab R2024b, MEDA v1.13
 %
 % Copyright (C) 2026  University of Granada, Granada
@@ -126,6 +126,7 @@ for factor = 1 : vascao.nFactors
         vascao.factors{factor}.stasig = true;
         ind = parglmoVS.ordFactors(factor,1:M(end));
         [inds,ord] = sort(ind);
+
         xf = vascao.factors{factor}.matrix(:,inds);
         model = pcaEig(xf,'PCs',1:rank(xf));
         model.var = model.var*sum(sum(vascao.effects(inds,:)))/sum(vascao.effects(inds,factor));
@@ -139,19 +140,14 @@ for factor = 1 : vascao.nFactors
         if isempty([vascao.factors{factor}.refF vascao.factors{factor}.refI])
             vascao.factors{factor}.scoresV = (xf+vascao.residuals(:,inds))*model.loads;
         else
-            vascao.factors{factor}.scoresV = zeros(size(xf));
-            Dfref = 0;
+            vascao.factors{factor}.scoresV = xf;
             for n = 1:length(vascao.factors{factor}.refF)
-                vascao.factors{factor}.scoresV = vascao.factors{vascao.factors{factor}.refF(n)}.matrix(:,inds);
-                Dfref = Dfref + vascao.df(vascao.factors{factor}.refF(n));
+                vascao.factors{factor}.scoresV = vascao.factors{factor}.scoresV + vascao.factors{vascao.factors{factor}.refF(n)}.matrix(:,inds);
             end
             for n = 1:length(vascao.factors{factor}.refI)
-                vascao.factors{factor}.scoresV = vascao.interactions{vascao.factors{factor}.refI(n)}.matrix(:,inds);
-                Dfref = Dfref + dfint(vascao.factors{factor}.refI(n));
+                vascao.factors{factor}.scoresV = vascao.factors{factor}.scoresV + vascao.interactions{vascao.factors{factor}.refI(n)}.matrix(:,inds);
             end
-            ind = find(sum(vascao.factors{factor}.scoresV.^2,1)/Dfref<sum(vascao.residuals(:,inds).^2,1)/vascao.Rdf); % Choose the most restrictive reference variable-wise
-            vascao.factors{factor}.scoresV(:,ind) =  vascao.residuals(:,inds(ind));
-            vascao.factors{factor}.scoresV = (xf+vascao.factors{factor}.scoresV)*model.loads; 
+            vascao.factors{factor}.scoresV = vascao.factors{factor}.scoresV*model.loads; 
         end
 
         [~,ord2]=sort(ord);
@@ -165,9 +161,9 @@ end
 for interaction = 1 : vascao.nInteractions
     
     switch strategy 
-        case "MaximumM"
-            pvals = parglmoVS.p(parglmoVS.ordInteractions(interaction,:),interaction+vascao.nFactors);  
-            M = find(pvals<=siglev & pvals==min(pvals)); 
+        % case "MaximumM"
+        %     pvals = parglmoVS.p(parglmoVS.ordInteractions(interaction,:),interaction+vascao.nFactors);  
+        %     M = find(pvals<=siglev & pvals==min(pvals)); 
         case "SignLevM"
             pvals = parglmoVS.p(parglmoVS.ordInteractions(interaction,:),interaction+vascao.nFactors); 
             M = find(pvals<=siglev); 
@@ -183,6 +179,7 @@ for interaction = 1 : vascao.nInteractions
         vascao.interactions{interaction}.stasig = true;
         ind = parglmoVS.ordInteractions(interaction,1:M(end));
         [inds,ord] = sort(ind);
+
         xf = vascao.interactions{interaction}.matrix(:,inds);
         modV = sum(vascao.effects(inds,interaction+vascao.nFactors));
         for factor = length(vascao.interactions{interaction}.factors)
@@ -201,15 +198,11 @@ for interaction = 1 : vascao.nInteractions
         if isempty(vascao.interactions{interaction}.refI)
             vascao.interactions{interaction}.scoresV = (xf+vascao.residuals(:,inds))*model.loads;
         else
-            vascao.interactions{interaction}.scoresV = zeros(size(xf));
-            Dfref = 0;
+            vascao.interactions{interaction}.scoresV = xf;
             for n = 1:length(vascao.interactions{interaction}.refI)
-                vascao.interactions{interaction}.scoresV = vascao.interactions{vascao.interactions{interaction}.refI(n)}.matrix(:,inds);
-                Dfref = Dfref + dfint(refI(n));
+                vascao.interactions{interaction}.scoresV = vascao.interactions{interaction}.scoresV + vascao.interactions{vascao.interactions{interaction}.refI(n)}.matrix(:,inds);
             end
-            ind = find(vascao.interactions{interaction}.scoresV/Dfref<vascao.residuals(:,inds)/vascao.Rdf); % Choose the most restrictive reference variable-wise
-            vascao.interactions{interaction}.scoresV(:,ind) =  vascao.residuals(:,inds(ind));
-            vascao.interactions{interaction}.scoresV = (xf+vascao.interactions{interaction}.scoresV)*model.loads; % Chose the most restrictive reference variable-wise
+            vascao.interactions{interaction}.scoresV = vascao.interactions{interaction}.scoresV*model.loads;
         end
 
         [~,ord2]=sort(ord);
