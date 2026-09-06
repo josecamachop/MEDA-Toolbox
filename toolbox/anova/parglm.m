@@ -492,8 +492,8 @@ while rep > 0
                 DN = [DN D2(:,parglmo.interactions{ord(t)-nFactors-offset}.Dvars)];
             end
         end
+        parglmo.D1 = D;
         D = D2;
-        parglmo.Dor = D;
     end
     rep = rep-1;
 end
@@ -711,7 +711,7 @@ function [Ff,Fi,SSQf,SSQi] = permBody(modstr)
     X = Xnan(perms, :);
     [r,c]=find(isnan(X));
     ru = unique(r);
-    if isequatl(modstr.type,'Sequential') 
+    if isequal(modstr.type,'Sequential') 
         Dm = modstr.D1;
     else
         Dm = D;
