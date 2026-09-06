@@ -196,8 +196,10 @@ else
 end
 
 if isfield(model,'scoresV')
-    %T = model.scoresV;
-    [T,ord2] = unique(model.scoresV,'rows','stable');
+    %T = model.scoresV; older
+    %[T,ord2] = unique(model.scoresV,'rows','stable'); old
+    ord2 = model.uniquerows;
+    T = model.scoresV(ord2,:);
     if plotcal        
         if le 
             label = [1:length(ord2)+L]';

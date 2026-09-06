@@ -155,6 +155,7 @@ for factor = 1 : ascao.nFactors
     
     if isempty([ascao.factors{factor}.refF ascao.factors{factor}.refI])
         ascao.factors{factor}.scoresV = (xf+ascao.residuals)*model.loads;
+        ascao.factors{factor}.uniquerows = 1:size(xf,1);
     else
         ascao.factors{factor}.scoresV = xf;
         for n = 1:length(ascao.factors{factor}.refF) 
@@ -164,7 +165,12 @@ for factor = 1 : ascao.nFactors
             ascao.factors{factor}.scoresV = ascao.factors{factor}.scoresV + ascao.interactions{ascao.factors{factor}.refI(n)}.matrix;
         end
         ascao.factors{factor}.scoresV = ascao.factors{factor}.scoresV*model.loads;
+    
+        facs = unique([factor ascao.factors{factor}.refF]);
+        for i = ascao.factors{factor}.refI, facs = unique([facs ascao.interactions{i}.factors]); end
+        [~,ascao.factors{factor}.uniquerows] = unique(ascao.design(:,facs),'rows');
     end
+
 end
 
 %Do PCA on interactions
@@ -186,12 +192,17 @@ for interaction = 1 : ascao.nInteractions
 
     if isempty(ascao.interactions{interaction}.refI)
         ascao.interactions{interaction}.scoresV = (xf+ascao.residuals)*model.loads;
+        ascao.interactions{interaction}.uniquerows = 1:size(xf,1);
     else
         ascao.interactions{interaction}.scoresV = xf;
         for n = 1:length(ascao.interactions{interaction}.refI) 
             ascao.interactions{interaction}.scoresV = ascao.interactions{interaction}.scoresV + ascao.interactions{ascao.interactions{interaction}.refI(n)}.matrix;
         end
         ascao.interactions{interaction}.scoresV = ascao.interactions{interaction}.scoresV*model.loads;
+
+        facs = ascao.interactions{interaction}.factors;
+        for i = ascao.interactions{interaction}.refI, facs = unique([facs ascao.interactions{i}.factors]); end
+        [~,ascao.interactions{interaction}.uniquerows] = unique(ascao.design(:,facs),'rows');
     end
 end
 

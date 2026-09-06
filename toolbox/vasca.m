@@ -139,6 +139,7 @@ for factor = 1 : vascao.nFactors
 
         if isempty([vascao.factors{factor}.refF vascao.factors{factor}.refI])
             vascao.factors{factor}.scoresV = (xf+vascao.residuals(:,inds))*model.loads;
+            vascao.factors{factor}.uniquerows = 1:size(xf,1);
         else
             vascao.factors{factor}.scoresV = xf;
             for n = 1:length(vascao.factors{factor}.refF)
@@ -148,6 +149,10 @@ for factor = 1 : vascao.nFactors
                 vascao.factors{factor}.scoresV = vascao.factors{factor}.scoresV + vascao.interactions{vascao.factors{factor}.refI(n)}.matrix(:,inds);
             end
             vascao.factors{factor}.scoresV = vascao.factors{factor}.scoresV*model.loads; 
+    
+            facs = unique([factor vascao.factors{factor}.refF]);
+            for i = vascao.factors{factor}.refI, facs = unique([facs vascao.interactions{i}.factors]); end
+            [~,vascao.factors{factor}.uniquerows] = unique(vascao.design(:,facs),'rows');
         end
 
         [~,ord2]=sort(ord);
@@ -197,12 +202,17 @@ for interaction = 1 : vascao.nInteractions
 
         if isempty(vascao.interactions{interaction}.refI)
             vascao.interactions{interaction}.scoresV = (xf+vascao.residuals(:,inds))*model.loads;
+            vascao.interactions{interaction}.uniquerows = 1:size(xf,1);
         else
             vascao.interactions{interaction}.scoresV = xf;
             for n = 1:length(vascao.interactions{interaction}.refI)
                 vascao.interactions{interaction}.scoresV = vascao.interactions{interaction}.scoresV + vascao.interactions{vascao.interactions{interaction}.refI(n)}.matrix(:,inds);
             end
             vascao.interactions{interaction}.scoresV = vascao.interactions{interaction}.scoresV*model.loads;
+
+            facs = vascao.interactions{interaction}.factors;
+            for i = vascao.interactions{interaction}.refI, facs = unique([facs vascao.interactions{i}.factors]); end
+            [~,vascao.interactions{interaction}.uniquerows] = unique(vascao.design(:,facs),'rows');
         end
 
         [~,ord2]=sort(ord);
