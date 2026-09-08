@@ -326,7 +326,7 @@ end
 % Create Coding Matrix
 
 n = 1; % This is necessary for indirect orthogonalization, to avoid leakage of variance to the residuals
-D = ones(size(X,1),1);
+D = ones(size(F,1),1);
 
 powercurveo.Dvars = [0];
 

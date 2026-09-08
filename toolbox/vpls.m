@@ -63,6 +63,18 @@ function model = vpls(xcs,ycs,varargin)
 % modelVIP.beta
 % modelsPLS.beta % sPLS can have 2 different vars per LV 
 %
+%
+% EXAMPLE OF USE: Validate!
+%
+% X = simuleMV(20,1000,'LevelCorr',5);
+% Y = 2*(0.1*randn(20,1) + X(:,1)>0)-1;
+% Yp = Y(randperm(20));
+% model = vpls(X,Y,'LVs',1:2);
+% modelp = vpls(X,Yp,'LVs',1:2);
+% scores(model,'ObsClass',Y); title('Real connection X->Y')
+% scores(modelp,'ObsClass',Yp); title('Fake connection X->Y')
+%
+%
 % coded by: Jose Camacho (josecamacho@ugr.es)
 % last modification: 25/Jun/2025
 % Dependencies: Matlab R2017b, MEDA v1.9
