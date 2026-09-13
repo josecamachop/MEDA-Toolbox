@@ -29,14 +29,16 @@ function [AUC,nze] = crossvalPlsDA(x,y,varargin)
 %   of observations of a class divided by 2 by default)
 %
 % 'PreprocessingX': [1x1] preprocesing of the x-block
-%       0: no preprocessing
-%       1: mean centering
-%       2: autoscaling (default)  
+%       0: no preprocessing 
+%       1: mean-centering 
+%       2: auto-scaling (default)  
+%       3: pareto-scaling    
 %
 % 'PreprocessingY': [1x1] preprocesing of the y-block
-%       0: no preprocessing
-%       1: mean centering
-%       2: autoscaling (default)  
+%       0: no preprocessing 
+%       1: mean-centering 
+%       2: auto-scaling (default)  
+%       3: pareto-scaling    
 %
 % 'Plot': (bool) plot results
 %       false: no plots.

@@ -17,7 +17,8 @@ function [xcs,average,scale] = preprocess2D(x,varargin)
 % 'Preprocessing': [1x1] preprocesing
 %       0: no preprocessing 
 %       1: mean-centering 
-%       2: auto-scaling (default)   
+%       2: auto-scaling (default)  
+%       3: pareto-scaling    
 %
 % 'Weights': [1xM] weight applied after preprocessing. Set to a vector of 1s 
 % by defect.
@@ -90,7 +91,7 @@ assert (isempty(find(weights<0)) && isempty(find(weights==Inf)), 'Value Error: p
 
 %% Main code
 
-if N==1 && prep == 2, prep =1; end;
+if N==1 && prep == 2, prep =1; end
 
 switch prep
     

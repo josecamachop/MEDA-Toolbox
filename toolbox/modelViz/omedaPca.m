@@ -27,9 +27,10 @@ function [omedaVec,lim] = omedaPca(x,pcs,test,dummy,varargin)
 % Optional INPUTS (parameters):
 %
 % 'Preprocessing': [1x1] preprocesing of the data
-%       0: no preprocessing
-%       1: mean centering
-%       2: autoscaling (default) 
+%       0: no preprocessing 
+%       1: mean-centering 
+%       2: auto-scaling (default)  
+%       3: pareto-scaling   
 %
 % 'ControlLim': bool
 %       false: no control limits (by default)
