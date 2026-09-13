@@ -81,7 +81,7 @@ weights = p.Results.Weights;
 if size(weights,2) == 1, weights = weights'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(prep), [1 1]), 'Dimension Error in paramaeter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error in parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
 assert (isequal(size(weights), [1 M]), 'Dimension Error in parameter ''Weights'' be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate values of input data
