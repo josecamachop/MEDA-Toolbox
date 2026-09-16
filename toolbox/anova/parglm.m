@@ -61,7 +61,7 @@ function [T, parglmo] = parglm(X, F, varargin)
 %
 % 'Coding': [1xF] type of coding of factors
 %       0: sum/deviation coding (default)
-%       1: reference coding (reference is the last level)
+%       1: reference coding (reference is the first level)
 %
 % 'Nested': [1x2] pair of netsed factors, e.g., if factor 2 is nested in 1, 
 %       then nested = [1 2]

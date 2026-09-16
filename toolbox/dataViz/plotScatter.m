@@ -395,8 +395,9 @@ catch err
 end
 
 % Add labels in canvas
+idx_vacios = etiquetas_vacias(elabel);
 if blur < Inf
-    ax = textScatter(figH,bdata,'EleLabel',elabel,'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype,'BlurIndex',blur);
+    ax = textScatter(figH,bdata(~idx_vacios,:),'EleLabel',elabel(~idx_vacios),'ObsClass',classes(~idx_vacios),'Multiplicity',mult(~idx_vacios),'PlotMult',plottype,'BlurIndex',blur);
 else
     ax = textScatter(figH,bdata,'EleLabel',obs_n,'ObsClass',classes,'Multiplicity',mult,'PlotMult',plottype);
 end
@@ -455,3 +456,16 @@ end
 box on
 hold off
 
+end
+
+function idx = etiquetas_vacias(labels)
+    if iscell(labels)
+        idx = cellfun(@(x) isempty(x), labels);
+    elseif isstring(labels)
+        idx = (labels == "" | ismissing(labels));
+    elseif iscategorical(labels)
+        idx = isundefined(labels);
+    else
+        error('Tipo de labels no soportado: %s', class(labels));
+    end
+end
