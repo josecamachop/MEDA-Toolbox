@@ -38,6 +38,9 @@ function Xout = simuleDData(X, F, varargin)
 % 'RandomGenC': (func) random generator in effect size coefficients (@()1 by default)
 %    - To generate randomness use, e.g., @()0.1*randn+1 
 %
+% 'DataTrans': (func) final data transformation (@(X)X by default)
+%    - To generate a bias use, e.g., @(X)X+100
+%
 % 'Theta': [1xT] For type equal to 1, theta controls the compromise of 
 %   true significance vs random (0:0.1:1 by default). For type equal to 2, 
 %   theta controls the number of replicates (1:10 by default)
@@ -89,8 +92,8 @@ function Xout = simuleDData(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 25/May/2026
-% Dependencies: Matlab R2024b, MEDA v1.13
+% Last modification: 30/Sep/2026
+% Dependencies: Matlab R2024b, MEDA v1.15
 %
 % Copyright (C) 2026  University of Granada, Granada
 %
@@ -125,7 +128,8 @@ p = inputParser;
     end
 addParameter(p,'Model','linear');
 addParameter(p,'RandomGen',@randn);
-addParameter(p,'RamdonGenC',@()1);
+addParameter(p,'RandomGenC',@()1);
+addParameter(p,'DataTrans',@(X)X);
 addParameter(p,'Theta',[]);
 addParameter(p,'Ordinal',zeros(1,size(F,2)));
 addParameter(p,'Random',ones(1,size(F,2))); 
@@ -137,7 +141,8 @@ parse(p,varargin{:});
 % Extract inputs from inputParser for code legibility
 model = p.Results.Model;
 randg = p.Results.RandomGen;
-randgC = p.Results.RamdonGenC;
+randgC = p.Results.RandomGenC;
+dataT = p.Results.DataTrans;
 theta = p.Results.Theta;
 ordinal = p.Results.Ordinal;
 random = p.Results.Random;
@@ -365,7 +370,7 @@ Xnoise = randgC() * powercurveo.rescoef * sqrt(N)*Xnoise/norm(Xnoise,'fro');
 for a = 1:length(theta)
 
     Xm = Xnoise; %Xm = (1-theta(a))*Xnoise;
-    Xm = Xm + theta(a)*Xstruct;
+    Xm = dataT(Xm + theta(a)*Xstruct);
 
     for f = 1 : nFactors
         if ordinal(f)
