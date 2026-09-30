@@ -610,6 +610,7 @@ function [eD,Ts] = corePower(powercurveo,F)
     nInteractions = powercurveo.nInteractions;
     randv = powercurveo.randv;
     randgC = powercurveo.randgC;
+    dataT = powercurveo.dataT;
     ordinal = powercurveo.ordinal;
     theta = powercurveo.theta;
     alpha = powercurveo.alpha;
