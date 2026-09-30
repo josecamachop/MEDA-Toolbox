@@ -870,6 +870,7 @@ function [eD,Ts] = corePower(powercurveo,F)
             Xnoise = randgC() * powercurveo.rescoef * sqrt(N)*Xnoise/norm(Xnoise,'fro');
 
             Xm = Xnoise + Xstruct;
+            Xm = dataT(Xm);
             
             % Parallel GLM
             [T, parglmo] = parglm(Xm, F, 'Warning', false, 'Parallel', false, 'Model', model, 'Preprocessing', prep, 'Permutations', nPerm, 'Ts', ts, 'Ordinal', ordinal, 'Random', random, 'Fmtc', fmtc, 'Coding', coding, 'Nested', nested);
