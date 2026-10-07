@@ -39,7 +39,8 @@ function Xout = simuleDData(X, F, varargin)
 %    - To generate randomness use, e.g., @()0.1*randn+1 
 %
 % 'DataTrans': (func) final data transformation (@(X)X by default)
-%    - To generate a bias use, e.g., @(X)X+100
+%    - To generate a bias use, e.g., @(X)X+100, and remember to set
+%    'Preprocessing' to 1.
 %
 % 'Theta': [1xT] For type equal to 1, theta controls the compromise of 
 %   true significance vs random (0:0.1:1 by default). For type equal to 2, 
