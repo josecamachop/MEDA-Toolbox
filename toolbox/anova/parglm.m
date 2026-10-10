@@ -151,8 +151,8 @@ function [T, parglmo] = parglm(X, F, varargin)
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 04/Jun/2026
-% Dependencies: Matlab R2024b, MEDA v1.13
+% Last modification: 10/Oct/2026
+% Dependencies: Matlab R2024b, MEDA v1.15
 %
 % Copyright (C) 2026  University of Granada, Granada
 %
@@ -580,6 +580,9 @@ else
     tsFactors = SSQfactors;
     tsInteractions = SSQinteractions;
 end
+
+tsFactors(isnan(tsFactors)) = 0;
+tsInteractions(isnan(tsInteractions)) = 0; 
     
 % Calculate p-values
 for f = 1 : nFactors

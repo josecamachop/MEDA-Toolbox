@@ -183,8 +183,8 @@ function [T, parglmo, tsFactors, tsInteractions, SSQXc, SSQFactorsT, SSQInteract
 %
 %
 % Coded by: Jose Camacho (josecamacho@ugr.es)
-% Last modification: 12/Jun/2026
-% Dependencies: Matlab R2024b, MEDA v1.13
+% Last modification: 10/Oct/2026
+% Dependencies: Matlab R2024b, MEDA v1.15
 %
 % Copyright (C) 2026  University of Granada, Granada
 %
@@ -624,6 +624,9 @@ else
     tsInteractions(1,:,:) = SSQInteractions;
 end
     
+tsFactors(isnan(tsFactors)) = 0;
+tsInteractions(isnan(tsInteractions)) = 0; 
+
 % Permutations
 parfor j = 1 : (nPerm * mtcc) % Increase the number of permutations to perform MTC
     
