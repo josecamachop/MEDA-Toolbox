@@ -636,8 +636,8 @@ parfor j = 1 : (nPerm * mtcc) % Increase the number of permutations to perform M
     X = Xnan(perms, :);
     [r,c]=find(isnan(X));
     ru = unique(r);
-    if isequal(modstr.type,'Sequential') % Impute missing data using the original D for CMR
-        Dm = modstr.D1;
+    if isequal(parglmo.type,'Sequential') % Impute missing data using the original D for CMR
+        Dm = parglmo.D1;
     else
         Dm = D;
     end
