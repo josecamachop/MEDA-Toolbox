@@ -714,7 +714,7 @@ function [Ff,Fi,SSQf,SSQi] = permBody(modstr)
     X = Xnan(perms, :);
     [r,c]=find(isnan(X));
     ru = unique(r);
-    if isequal(modstr.type,'Sequential') 
+    if isequal(modstr.type,'Sequential') % Impute missing data from the original D for CMR
         Dm = modstr.D1;
     else
         Dm = D;

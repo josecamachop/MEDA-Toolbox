@@ -534,6 +534,7 @@ while rep > 0
                 DN = [DN D2(:,parglmo.interactions{ord(t)-nFactors-offset}.Dvars)];
             end
         end
+        parglmo.D1 = D;
         D = D2;
     end
     rep = rep-1;
@@ -635,9 +636,14 @@ parfor j = 1 : (nPerm * mtcc) % Increase the number of permutations to perform M
     X = Xnan(perms, :);
     [r,c]=find(isnan(X));
     ru = unique(r);
+    if isequal(modstr.type,'Sequential') % Impute missing data using the original D for CMR
+        Dm = modstr.D1;
+    else
+        Dm = D;
+    end
     for i=1:length(ru)
         ind = find(r==ru(i));
-        ind2 = find(sum((D-ones(size(D,1),1)*D(r(ind(1)),:)).^2,2)==0);
+        ind2 = find(sum((Dm-ones(size(Dm,1),1)*Dm(r(ind(1)),:)).^2,2)==0);
         for f=1:length(c(ind))
             ind3 = find(isnan(X(ind2,c(ind(f)))));
             if length(ind2)>length(ind3)
