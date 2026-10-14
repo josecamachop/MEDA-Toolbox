@@ -50,8 +50,9 @@ function testcs = preprocess2Dapp(test,average,varargin)
 %% Arguments checking
 
 % Set default values
-routine=dbstack;
-assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+if nargin < 2
+    error('Error in the number of arguments. Type ''help %s'' for more info.', mfilename);
+end
 N = size(test, 1);
 M = size(test, 2);
 
@@ -71,14 +72,14 @@ end
 
 
 % Convert column arrays to row arrays
-if size(average,2) == 1, average = average'; end;
-if size(scale,2) == 1, scale = scale'; end;
-if size(weight,2) == 1, weight = weight'; end;
+if size(average,2) == 1, average = average'; end
+if size(scale,2) == 1, scale = scale'; end
+if size(weight,2) == 1, weight = weight'; end
 
 % Validate dimensions of input data
-assert (isequal(size(average), [1 M]), 'Dimension Error: parameter ''average'' must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(scale), [1 M]), 'Dimension Error: parameter ''SDivideTest'' must be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(weight), [1 M]), 'Dimension Error: parameter ''Weight'' must be 1-by-M. Type ''help %s'' for more info.', routine(1).name); 
+assert (isequal(size(average), [1 M]), 'Dimension Error: parameter ''average'' must be 1-by-M. Type ''help %s'' for more info.', mfilename);
+assert (isequal(size(scale), [1 M]), 'Dimension Error: parameter ''SDivideTest'' must be 1-by-M. Type ''help %s'' for more info.', mfilename);
+assert (isequal(size(weight), [1 M]), 'Dimension Error: parameter ''Weight'' must be 1-by-M. Type ''help %s'' for more info.', mfilename); 
 
 
 %% Main code

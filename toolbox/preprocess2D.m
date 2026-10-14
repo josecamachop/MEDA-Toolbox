@@ -61,8 +61,9 @@ function [xcs,average,scale] = preprocess2D(x,varargin)
 %% Arguments checking
 
 % Set default values
-routine=dbstack;
-assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+if nargin < 1
+    error('Error in the number of arguments. Type ''help %s'' for more info.', mfilename);
+end
 N = size(x, 1);
 M = size(x, 2);
 
@@ -81,12 +82,12 @@ weights = p.Results.Weights;
 if size(weights,2) == 1, weights = weights'; end;
 
 % Validate dimensions of input data
-assert (isequal(size(prep), [1 1]), 'Dimension Error in parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(weights), [1 M]), 'Dimension Error in parameter ''Weights'' be 1-by-M. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(prep), [1 1]), 'Dimension Error in parameter ''Preprocessing'' must be 1-by-1. Type ''help %s'' for more info.', mfilename);
+assert (isequal(size(weights), [1 M]), 'Dimension Error in parameter ''Weights'' be 1-by-M. Type ''help %s'' for more info.', mfilename);
 
 % Validate values of input data
-assert (prep>=0 && prep<=3 && isequal(fix(prep), prep), 'Value Error: paramaeter ''Preprocessing'' must contain integers between 0 and 3. Type ''help %s'' for more info.', routine(1).name);
-assert (isempty(find(weights<0)) && isempty(find(weights==Inf)), 'Value Error: parameter ''Weights'' must contain positive values. Type ''help %s'' for more info.', routine(1).name);
+assert (prep>=0 && prep<=3 && isequal(fix(prep), prep), 'Value Error: paramaeter ''Preprocessing'' must contain integers between 0 and 3. Type ''help %s'' for more info.', mfilename);
+assert (isempty(find(weights<0,1)) && isempty(find(weights==Inf,1)), 'Value Error: parameter ''Weights'' must contain positive values. Type ''help %s'' for more info.', mfilename);
 
 
 %% Main code
@@ -99,20 +100,20 @@ switch prep
         
         nanM = isnan(x);
         anM = 1 - nanM;
-        x(find(nanM)) = 0;
+        x(nanM) = 0;
         average = sum(x,1)./sum(anM,1);    
         scale = ones(1,M);
         xcs = x - ones(N,1)*average;
-        xcs(find(nanM)) = nan;
+        xcs(nanM) = nan;
         
     case 2 % auto-sclaing
         
         nanM = isnan(x);
         anM = 1 - nanM;
-        x(find(nanM)) = 0;
+        x(nanM) = 0;
         average = sum(x,1)./sum(anM,1);
         xc = x - ones(N,1)*average; 
-        xc(find(nanM)) = 0;
+        xc(nanM) = 0;
         scale = sqrt(sum(xc.^2,1)./(sum(anM,1)-1));
         ind = find(scale==0);
         scale(ind) = sqrt(ones(1,length(ind))./(2*sum(anM(:,ind),1)-1)); 
@@ -120,16 +121,16 @@ switch prep
         % what we do is to infer that we need to double the calibration
         % data to find one single element
         xcs = xc./(ones(N,1)*scale);
-        xcs(find(nanM)) = nan;
+        xcs(nanM) = nan;
         
     case 3 % pareto-scaling
         
         nanM = isnan(x);
         anM = 1 - nanM;
-        x(find(nanM)) = 0;
+        x(nanM) = 0;
         average = sum(x,1)./sum(anM,1);
         xc = x - ones(N,1)*average; 
-        xc(find(nanM)) = 0;
+        xc(nanM) = 0;
         scale = sqrt(sqrt(sum(xc.^2,1)./(sum(anM,1)-1)));
         ind = find(scale==0);
         scale(ind) = sqrt(sqrt(ones(1,length(ind))./(2*sum(anM(:,ind),1)-1))); 
@@ -137,7 +138,7 @@ switch prep
         % what we do is to infer that we need to double the calibration
         % data to find one single element
         xcs = xc./(ones(N,1)*scale);
-        xcs(find(nanM)) = nan;
+        xcs(nanM) = nan;
         
     otherwise % No preprocessing 
         average = zeros(1,M);     

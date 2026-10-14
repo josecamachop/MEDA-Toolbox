@@ -72,8 +72,9 @@ function model = kernelpls(xcs,ycs,varargin)
 %% Arguments checking
 
 % Set default values
-routine=dbstack;
-assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+if nargin < 2
+    error('Error in the number of arguments. Type ''help %s'' for more info.', mfilename);
+end
 [N,M] = size(xcs);
 O = size(ycs, 2);
 
@@ -95,12 +96,12 @@ lvs(lvs>rank(xcs)) = [];
 A = max(lvs);
 
 % Validate dimensions of input data
-assert (isequal(size(xcs), [N M]), 'Dimension Error: parameter ''X'' must be N-by-M. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(ycs), [N O]), 'Dimension Error: parameter ''Y'' must be N-by-O. Type ''help %s'' for more info.', routine(1).name);
-assert (isequal(size(lvs), [1 size(lvs,2)]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+assert (isequal(size(xcs), [N M]), 'Dimension Error: parameter ''X'' must be N-by-M. Type ''help %s'' for more info.', mfilename);
+assert (isequal(size(ycs), [N O]), 'Dimension Error: parameter ''Y'' must be N-by-O. Type ''help %s'' for more info.', mfilename);
+assert (isequal(size(lvs), [1 size(lvs,2)]), 'Dimension Error: parameter ''LVs'' must be 1-by-A. Type ''help %s'' for more info.', mfilename);
 
 % Validate values of input data
-assert (isempty(find(lvs<0)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+assert (isempty(find(lvs<0,1)) && isequal(fix(lvs), lvs), 'Value Error: parameter ''LVs'' must contain positive integers. Type ''help %s'' for more info.', mfilename);
 
 
 %% Main code
